@@ -15,7 +15,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.3" />
     <PackageReference Include="microsoft.extensions.configuration" Version="2.0.2" />
     <PackageReference Include="microsoft.extensions.configuration.fileextensions" Version="2.0.2" />
-    <PackageReference Include="microsoft.extensions.configuration.json" Version="2.0.1" />
+    <PackageReference Include="microsoft.extensions.configuration.json" Version="2.0.2" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <PackageReference Include="System.Net.Sockets" Version="4.3.0" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.0.0" />
