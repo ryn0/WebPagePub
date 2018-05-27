@@ -1,0 +1,33 @@
+﻿@model WebPagePub.Web.Models.SitePagePhotoUploadModel
+@{
+    ViewBag.Title = "Upload Photos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<section>
+    <div class="container">
+ 
+        <h3>@ViewBag.Title</h3>
+
+
+
+@using (Html.BeginForm("uploadphotos", "SitePages", FormMethod.Post,
+               new { enctype = "multipart/form-data" }))
+{
+
+    @Html.HiddenFor(x => x.SitePageId)
+
+    <fieldset>
+      
+        <div class="editor-field">
+     
+            <input type="file" class="multiple" name="files" multiple />
+            <br /><br />
+        </div>
+        <div class="editor-field">
+            <input class="btn btn-success " type="submit" value="Upload" />
+        </div>
+    </fieldset>
+}
+
+    </div>
+</section>

@@ -1,0 +1,124 @@
+﻿@model WebPagePub.Web.Models.SitePageListModel
+ 
+ 
+@{
+    ViewData["Title"] = "Pages";
+}
+ <h2>@ViewData["Title"]</h2>
+ <hr />
+
+@if (Model.IsSiteSectionPage)
+{
+    <a class="btn btn-success" href="~/sitepages/createsitesection">Create new section</a>
+
+}
+else
+{
+    <a class="btn btn-success"  href="~/sitepages/createsitepage/@Model.SitePageSectionId">Create new page</a>
+}
+
+
+@if (Model != null && Model.Items.Count() > 0)
+{
+<table class="table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Create Date</th>
+            <th></th>
+            <th></th>
+         
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+        <tr>
+            <td>
+                @if (item.IsSiteSection)
+                {
+                    <span>
+                        &#x1f4c2;
+                    </span>
+                    <a href="~/sitepages/?siteSectionId=@item.SitePageSectionId">@item.Title</a>
+                }
+                else
+                {
+                    <a href="@item.LiveUrlPath">@item.Title</a>
+
+                }
+
+            </td>
+            <td>
+                @item.CreateDate
+            </td>
+ 
+
+            <td>
+                @if (item.IsSiteSection)
+                {
+
+                    <a class="btn btn-sm btn-info"
+                       href="~/sitepages/EditSiteSection/@item.SitePageSectionId">Edit</a>
+
+                }
+                else
+                {
+
+
+
+                <a class="btn btn-sm btn-info" 
+                   href="~/sitepages/editsitepage/@item.SitePageId">Edit</a>
+                }
+
+            </td>
+            <td>
+                @if (item.IsIndex)
+                {
+                    @if (item.IsSiteSection)
+                    {
+
+                        <span>Index Section</span>
+
+                    }
+                    else
+                    {
+                    <span>Index Page</span>
+                    }
+
+                }
+                
+                @*@using (Html.BeginForm("DeleteAsync", "sitepages", FormMethod.Post,
+                                        new { role = "form", onsubmit = string.Format(@"return confirm('Do you really want to delete this?');") }))
+                {
+                    <button type="submit" name="SitePageId" value="@item.SitePageId" class="btn-danger btn-sm"> &#x1F5D1;</button>
+
+
+                }*@
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+}
+else
+{
+    <br />
+    <i>No pages</i>
+}
+@{
+    int pageCount = Model.PageCount;
+
+    for (int pageNumber = 1; pageNumber <= pageCount; pageNumber++)
+    {
+        if (Model.CurrentPageNumber == pageNumber)
+        {
+            @pageNumber
+        }
+        else
+        {
+            <a href="@Url.Content("~/sitepages?siteSectionId=" + Model.SitePageSectionId.ToString() + "&pageNumber=" + pageNumber.ToString())">@pageNumber.ToString()</a>
+        }
+    }
+
+}

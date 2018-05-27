@@ -1,0 +1,41 @@
+﻿@model WebPagePub.Web.Models.SitePageDisplayListModel
+@using WebPagePub.Core.Utilities
+@{
+    ViewData["Title"] = "Travel Photos and Information";
+}
+
+
+@section StylesHeader {
+
+ 
+    <style>
+        .post-preview a:hover {
+            text-decoration: underline;
+        }
+
+        .post-subtitle {
+            margin: 0;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+
+        .post-preview img {
+            border: 5px solid #FFF;
+        }
+
+        .post-preview a:hover img {
+            border: 5px solid #0085a1;
+            cursor: pointer;
+        }
+    </style>
+}
+
+
+
+
+<div class="row">
+    <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+ <h2>Tag Cloud</h2>
+
+    </div>
+</div>

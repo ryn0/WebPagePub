@@ -1,0 +1,95 @@
+﻿@model WebPagePub.Web.Models.EmailSubscribeEditListModel
+ 
+ 
+@{
+    ViewData["Title"] = "Emails";
+}
+ <h2>@ViewData["Title"]</h2>
+ 
+<a class="btn btn-success"  href="~/LinkManagement/create">Create new</a>
+<hr />
+
+
+<form asp-controller="EmailSubscriptionManagement" asp-action="SendMail" method="post" class="form-horizontal">
+    <div class="form-group"> <i>Comma seperated</i>
+        <label   class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+      <b>To:</b>      <input name="SendToEmails" class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label  class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <b>Title:</b>      <input name="EmailTitle" class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label   class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <b>Message:</b> <textarea cols="5" name="EmailMessage" class="form-control"></textarea>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <button type="submit" class="btn btn-default">Send Mail</button>
+        </div>
+    </div>
+</form>
+
+    @if (Model != null && Model.Items.Count() > 0)
+    {
+        <b>Subscribers:</b>
+        <span>@Model.Emails</span>
+
+        <br />
+        <b>Unsubscribe:</b>
+        <span>@Model.UnsubscribeLink</span>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Email</th>
+
+                    <th>Is Subscribed</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>
+                            @item.Email
+                        </td>
+                        <td>@item.IsSubscribed</td>
+                        <td>
+                            <a class="btn btn-sm btn-info" href="~/EmailSubscriptionManagement/edit?EmailSubscriptionId=@item.EmailSubscriptionId">Edit</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <i>No emails</i>
+    }
+    @*@{
+            int pageCount = Model.PageCount;
+
+            for (int pageNumber = 1; pageNumber <= pageCount; pageNumber++)
+            {
+                if (Model.CurrentPageNumber == pageNumber)
+                {
+                    @pageNumber
+                }
+                else
+                {
+                    <a href="@Url.Content("~/BlogManagement?pageNumber=" + pageNumber.ToString())">@pageNumber.ToString()</a>
+                }
+            }
+
+        }*@

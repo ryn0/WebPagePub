@@ -1,0 +1,30 @@
+﻿using System;
+using System.Collections.Generic;
+using WebPagePub.Data.Enums;
+
+namespace WebPagePub.Web.Models
+{
+    public class SitePageCommentListModel
+    {
+        public int PageCount { get; set; }
+
+        public int Total { get; set; }
+
+        public int CurrentPageNumber { get; set; }
+
+        public int QuantityPerPage { get; set; }
+
+        public List<SitePageCommentItemModel> Items { get; set; } = new List<SitePageCommentItemModel>();
+    }
+
+    public class SitePageCommentItemModel
+    {
+        public int SitePageCommentId { get; set; }
+ 
+        public DateTime CreateDate { get; set; }
+
+        public string Name { get; set; }
+
+        public CommentStatus CommentStatus { get;   set; }
+    }
+}

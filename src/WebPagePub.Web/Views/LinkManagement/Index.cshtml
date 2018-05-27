@@ -1,0 +1,69 @@
+﻿@model WebPagePub.Web.Models.LinkListModel
+ 
+ 
+@{
+    ViewData["Title"] = "Links";
+}
+ <h2>@ViewData["Title"]</h2>
+ <hr />
+
+<a class="btn btn-success"  href="~/LinkManagement/create">Create new</a>
+
+@if (Model != null && Model.Items.Count() > 0)
+{
+<table class="table">
+    <thead>
+        <tr>
+            <th>Key</th>
+             
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+        <tr>
+            <td>
+                <a href="~/go/@item.LinkKey">@item.LinkKey</a>
+            </td>
+          
+            <td>
+                <a class="btn btn-sm btn-info" href="~/LinkManagement/edit?LinkRedirectionId=@item.LinkRedirectionId">Edit</a>
+
+            </td>
+            <td>
+
+                @using (Html.BeginForm("Delete", "LinkManagement", FormMethod.Post,
+                                        new { role = "form", onsubmit = string.Format(@"return confirm('Do you really want to delete this?');") }))
+                {
+                    <button type="submit" name="LinkRedirectionId" value="@item.LinkRedirectionId" class="btn-danger btn-sm"> &#x1F5D1;</button>
+
+
+                }
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+}
+else
+{
+    <i>No links</i>
+}
+@*@{
+    int pageCount = Model.PageCount;
+
+    for (int pageNumber = 1; pageNumber <= pageCount; pageNumber++)
+    {
+        if (Model.CurrentPageNumber == pageNumber)
+        {
+            @pageNumber
+        }
+        else
+        {
+            <a href="@Url.Content("~/BlogManagement?pageNumber=" + pageNumber.ToString())">@pageNumber.ToString()</a>
+        }
+    }
+
+}*@
