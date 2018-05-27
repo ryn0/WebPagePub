@@ -1,0 +1,14 @@
+﻿@model WebPagePub.Web.Models.StructedDataWebsiteModel
+@using Newtonsoft.Json;
+ 
+
+@if (Model != null)
+{
+<script type="application/ld+json">
+    
+    @Html.Raw(JsonConvert.SerializeObject(Model))
+
+    </script>
+ 
+ 
+}

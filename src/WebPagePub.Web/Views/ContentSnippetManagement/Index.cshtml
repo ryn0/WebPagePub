@@ -1,0 +1,69 @@
+﻿@model WebPagePub.Web.Models.ContentSnippetEditListModel
+ 
+ 
+@{
+    ViewData["Title"] = "Content Snippets";
+}
+ <h2>@ViewData["Title"]</h2>
+ 
+<a class="btn btn-success"  href="~/ContentSnippetManagement/create">Create new</a>
+<hr />
+
+@if (Model != null && Model.Items.Count() > 0)
+{
+<table class="table">
+    <thead>
+        <tr>
+            <th>Key</th>
+             
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+        <tr>
+            <td>
+                @item.SnippetType
+            </td>
+          
+            <td>
+                <a class="btn btn-sm btn-info" href="~/ContentSnippetManagement/edit?ContentSnippetId=@item.ContentSnippetId">Edit</a>
+
+            </td>
+            <td>
+
+                @using (Html.BeginForm("Delete", "ContentSnippetManagement", FormMethod.Post,
+                                        new { role = "form", onsubmit = string.Format(@"return confirm('Do you really want to delete this?');") }))
+                {
+                    <button type="submit" name="ContentSnippetId" value="@item.ContentSnippetId" class="btn-danger btn-sm"> &#x1F5D1;</button>
+
+
+                }
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+}
+else
+{
+    <i>No content</i>
+}
+@*@{
+    int pageCount = Model.PageCount;
+
+    for (int pageNumber = 1; pageNumber <= pageCount; pageNumber++)
+    {
+        if (Model.CurrentPageNumber == pageNumber)
+        {
+            @pageNumber
+        }
+        else
+        {
+            <a href="@Url.Content("~/BlogManagement?pageNumber=" + pageNumber.ToString())">@pageNumber.ToString()</a>
+        }
+    }
+
+}*@

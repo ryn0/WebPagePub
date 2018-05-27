@@ -1,0 +1,67 @@
+﻿@model WebPagePub.Web.Models.SitePageCommentListModel
+
+
+@{
+    ViewData["Title"] = "Comments";
+}
+<h2>@ViewData["Title"]</h2>
+<hr />
+
+
+@if (Model != null && Model.Items.Count() > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Create Date</th>
+                <th>Status</th>
+                <th></th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>
+                        @item.Name
+                    </td>
+                    <td>
+                        @item.CreateDate
+                    </td>
+                    <td>
+                        @item.CommentStatus
+                    </td>
+                    <td>
+                        <a href="~/commentmanagement/edit?SitePageCommentId=@item.SitePageCommentId">Edit</a>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <br />
+    <i>No comments</i>
+}
+
+
+@{
+    int pageCount = Model.PageCount;
+
+    for (int pageNumber = 1; pageNumber <= pageCount; pageNumber++)
+    {
+        if (Model.CurrentPageNumber == pageNumber)
+        {
+            @pageNumber
+        }
+        else
+        {
+            <a href="@Url.Content("~/CommentManagement?&pageNumber=" + pageNumber.ToString())">@pageNumber.ToString()</a>
+        }
+    }
+
+}

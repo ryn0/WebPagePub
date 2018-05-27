@@ -1,0 +1,45 @@
+﻿@model WebPagePub.Web.Models.StructuredDataBreadcrumbModel
+@using Newtonsoft.Json;
+ 
+@if (Model.ItemListElement != null && Model.ItemListElement.Count > 0)
+{
+<script type="application/ld+json">
+    
+    @Html.Raw(JsonConvert.SerializeObject(Model))
+
+    </script>
+
+    <br />
+    <ol class="breadcrumbs">
+
+        @foreach (var item in Model.ItemListElement)
+        {
+
+            <li> 
+                                @if (item.Item.PageUrl == Model.ItemListElement[0].Item.PageUrl)
+                                {
+
+                                    <i class="fa fa-home fa-fw" aria-hidden="true"></i><a href="@item.Item.PageUrl">@item.Item.Name</a>
+                }
+                else
+                {
+                    <a href="@item.Item.PageUrl">@item.Item.Name</a>
+
+                }
+
+
+                @if (item.Item.PageUrl != Model.ItemListElement.Last().Item.PageUrl)
+                {
+                <text>
+                    ›&nbsp;
+                </text>
+                }
+            </li>
+        }
+
+
+
+    </ol>
+    <br />
+    <div class="clear"></div>
+}

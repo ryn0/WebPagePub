@@ -1,0 +1,197 @@
+﻿@model WebPagePub.Web.Models.SitePageDisplayModel
+@using WebPagePub.Web.Helpers
+@using WebPagePub.Core.Utilities
+
+
+@{
+    ViewData["Title"] = Model.Title;
+    ViewData["HeaderPhotoUrl"] = Model.DefaultPhotoCdnUrl;
+    ViewData["MetaDescription"] = Model.MetaDescription;
+    ViewData["SiteHeading"] = Model.Title;
+    ViewData["SiteSubHeading"] = string.Empty;
+}
+
+
+@section StylesHeader {
+
+    <style>
+        .caption p {
+            margin-bottom: 30px;
+            margin-top: 5px;
+        }
+        .thumbnail   {
+            text-align: center;
+        }
+        .footer-photos img:hover {
+            cursor: pointer;
+            
+        }
+        .footer-photos a img {
+            border: 3px solid #ffffff;
+          
+        }
+        .footer-photos a img:hover {
+            border: 3px solid #0085a1;
+           
+        }
+     
+    </style>
+}
+
+
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+
+                <i>Posted: @Model.FriendlyDateDisplay </i>
+                <hr />
+
+
+                @if (Model.Photos != null && Model.Photos.Count > 1)
+                {
+                    <h3>Photos</h3>
+                    <div class="gallery">
+                        <div class="row">
+                            @foreach (var photo in Model.Photos)
+                            {
+
+                                <div class="col-md-12">
+                                    <div class="thumbnail">
+
+                                        <a href="@photo.PhotoCdnUrl" data-toggle="lightbox" data-gallery="example-gallery" class="col-sm-4">
+                                            <img src="@photo.PhotoPreviewCdnUrl" class="img-fluid" title="@photo.Title" alt="@photo.Title" />
+                                        </a>
+
+                                        <div class="caption">
+                                            @if (!string.IsNullOrWhiteSpace(photo.Description))
+                                            {
+                                                @Html.Raw(photo.Description)
+                                            }
+                                            else
+                                            {
+                                                <br />
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+                            }
+                        </div>
+
+                    </div>
+                }
+
+                @Html.Raw(Model.Content)
+                <hr />
+
+                @if (Model.Tags.Count > 0)
+                {
+                    var current = 1;
+
+                    <div class="blog-tags">
+
+                        <b>Tagged:</b>
+                        @foreach (var tag in Model.Tags)
+                {
+                            <a href="~/tag/@tag.UrlKey()">@tag</a>if (current != Model.Tags.Count)
+                    {<text>, </text>
+                                current++;
+                            }
+                        }
+
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+
+
+    <hr />
+    <div class="container">
+        <div class="row footer-photos  " >
+            <div class="col-lg-2">
+            </div>
+            <div class="col-lg-4  ">
+
+                @if (!string.IsNullOrWhiteSpace(Model.PreviousName))
+                {
+
+                    <b>Previous:</b>
+                    <br />
+                <a href="@Model.PreviousUrlPath">@Model.PreviousName</a>
+                    <br />
+                            <a href="@Model.PreviousUrlPath">
+                                <img style="width:50%;"
+                                     class="img-responsive" src="@Model.DefaultPreviousPhotoThumbCdnUrl" title="@Model.PreviousName" alt="@Model.PreviousName" />
+                            </a>
+
+
+                            <div style="clear:both"></div>
+                }
+
+            </div>
+
+            <div class="col-lg-4  ">
+          
+
+                @if (!string.IsNullOrWhiteSpace(Model.NextName))
+                {
+
+
+
+
+
+                    <b>Next:</b>
+                    <br />
+                <a href="@Model.NextUrlPath">@Model.NextName</a>
+                            <br />
+                            <a href="@Model.NextUrlPath">
+                                <img style="width:50%;   "
+                                     class="img-responsive" src="@Model.DefaultNextPhotoThumbCdnUrl" title="@Model.NextName" alt="@Model.NextName" />
+                            </a>
+
+
+                            <div style="clear:both"></div>
+
+                }
+            </div>
+            
+        </div>
+    </div>
+    <hr />
+
+    <div class="container">
+        <div class="row">
+
+
+            <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+                @if (!Context.Request.IsMobileBrowser())
+                {
+                    await Html.RenderPartialAsync("_ad-728x90");
+                }
+                <hr />
+
+
+                @{ await Html.RenderPartialAsync("_EmailSubscribePartial"); }
+
+            </div>
+
+
+
+        </div>
+    </div>
+
+
+
+
+
+</article>
+
+
+@section ScriptsFooter{
+
+
+
+}

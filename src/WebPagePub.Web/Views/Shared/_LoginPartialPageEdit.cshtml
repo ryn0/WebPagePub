@@ -1,0 +1,21 @@
+﻿@model WebPagePub.Web.Models.SitePageDisplayModel
+@using Microsoft.AspNetCore.Identity
+@using WebPagePub.Data.DbModels;
+
+@inject SignInManager<WebPagePub.Data.Models.ApplicationUser> SignInManager
+@inject UserManager<WebPagePub.Data.Models.ApplicationUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <hr />
+     <a href="~/sitepages/editsitepage/@Model.SitePageId">Edit page</a>
+}
+else
+{
+    @*<ul class="nav navbar-nav navbar-right">
+        <li><a asp-area="" asp-controller="Account" asp-action="Register">Register</a></li>
+        <li><a asp-area="" asp-controller="Account" asp-action="Login">Log in</a></li>
+    </ul>*@
+}
+
+ 

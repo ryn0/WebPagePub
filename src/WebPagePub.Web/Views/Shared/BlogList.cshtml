@@ -1,0 +1,224 @@
+﻿@model WebPagePub.Web.Models.SitePageDisplayListModel
+@using WebPagePub.Core.Utilities
+@{
+    
+}
+
+
+@section StylesHeader {
+
+ 
+    <style>
+        .post-preview a:hover {
+            text-decoration: underline;
+        }
+
+        .post-subtitle {
+            margin: 0;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+
+        .post-preview img {
+            border: 5px solid #FFF;
+        }
+
+        .post-preview a:hover img {
+            border: 5px solid #0085a1;
+            cursor: pointer;
+        }
+
+        .forward-backward-buttons a {
+            font-size: 11px;
+        }
+    </style>
+}
+
+
+
+
+<div class="row">
+    <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+        @if (ViewBag.TagKeyword == null)
+        {
+            <h1>Blog</h1>
+        }
+        else
+        {
+            <h1>Tagged &quot;@ViewBag.TagKeyword&quot;</h1>
+
+        }
+
+        <hr />
+
+        @foreach (var blog in Model.Items)
+        {
+            var blogUrlPath = blog.UrlPath.TrimStart('/');
+            <div class="post-preview">
+
+                <a href="~/@blogUrlPath">
+                    <h2 class="post-title">
+                        @blog.Title
+                    </h2>
+
+                </a>
+
+                @if (!string.IsNullOrWhiteSpace(blog.DefaultPhotoThumbCdnUrl))
+                {
+                    <a href="~/@blogUrlPath">
+                        <img class="img-responsive"
+                             style="width:40%;float:left;margin:10px;" 
+                             src="@blog.DefaultPhotoThumbCdnUrl"
+                             alt="@blog.Title" 
+                             title="@blog.Title" />
+                    </a>
+                }
+
+
+
+                <h4 class="post-subtitle">
+                    @blog.MetaDescription
+                </h4>
+                <p class="post-meta">Posted on @blog.FriendlyDateDisplay</p>
+
+
+                @if (blog.Tags.Count > 0)
+                {
+                    <div style="clear:both"></div>
+                    var current = 1;
+
+                    <div class="blog-tags">
+                        <b>Tagged:</b>
+                        @foreach (var tag in blog.Tags)
+                    {
+                            <a href="~/tag/@tag.UrlKey()">@tag</a>if (current != blog.Tags.Count)
+                        {<text>, </text>
+                                current++;
+                            }
+                        }
+                    </div>
+                }
+
+                <div style="clear:both"></div>
+                <hr />
+            </div>
+        }
+
+
+
+        <!-- Pager -->
+
+        <div class="forward-backward-buttons">
+            @{
+                var pagePathPrefix = "blog/page";
+
+                if (ViewBag.TagKeyword != null)
+                {
+                    pagePathPrefix = "tag/" + ViewBag.TagKey + "/page";
+                }
+
+                <div class="clearfix">
+                    @if (Model.PageCount > 1 && Model.CurrentPageNumber != Model.PageCount)
+                    {
+                        if (ViewBag.TagKeyword != null)
+                        {
+
+                            <a class="btn btn-secondary float-right" href="~/@pagePathPrefix/@(Model.CurrentPageNumber + 1)">Older Posts about: @ViewBag.TagKeyword &rarr;</a>
+
+                        }
+                        else
+                        {
+
+                            <a class="btn btn-secondary float-right" href="~/@pagePathPrefix/@(Model.CurrentPageNumber + 1)">Older Posts    &rarr;</a>
+
+                        }
+
+                    }
+
+                  
+                    @if (Model.PageCount > 1 && Model.PageCount == Model.CurrentPageNumber && Model.CurrentPageNumber != 2)
+                    {
+
+
+                        if (ViewBag.TagKeyword != null)
+                        {
+                           
+
+                                <a class="btn btn-secondary float-left" href="~/@pagePathPrefix/@(Model.CurrentPageNumber - 1)">&larr; Newer Posts about: @ViewBag.TagKeyword</a>
+                         
+                        }
+                        else
+                        {
+ 
+                                <a class="btn btn-secondary float-left" href="~/@pagePathPrefix/@(Model.CurrentPageNumber - 1)">&larr; Newer Posts</a>
+                             
+                        }
+                    }
+
+
+                    @if (Model.PageCount > 1 && Model.PageCount == Model.CurrentPageNumber && Model.CurrentPageNumber == 2)
+                    {
+
+
+                        if (ViewBag.TagKeyword != null)
+                        {
+
+
+                            <a class="btn btn-secondary float-left" href="~/tag/@ViewBag.TagKey">&larr; Newer Posts about: @ViewBag.TagKeyword</a>
+
+                        }
+                        else
+                        {
+
+                            <a class="btn btn-secondary float-left " href="~/">&larr; Newer Posts</a>
+
+                        }
+                    }
+
+        
+                    @if (Model.PageCount > 1 && Model.CurrentPageNumber > 2 && Model.CurrentPageNumber != Model.PageCount)
+                    {
+
+
+                        if (ViewBag.TagKeyword != null)
+                        {
+                         
+                            <a class="btn btn-secondary float-left" href="~/@pagePathPrefix/@(Model.CurrentPageNumber - 1)">&larr; Newer Posts about: @ViewBag.TagKeyword</a>
+
+                        }
+                        else
+                        {
+
+                            <a class="btn btn-secondary float-left " href="~/@pagePathPrefix/@(Model.CurrentPageNumber - 1)">&larr; Newer Posts</a>
+                        }
+                    }
+
+
+
+@if (Model.PageCount > 1 && Model.CurrentPageNumber == 2 && Model.CurrentPageNumber != Model.PageCount)
+{
+
+
+    if (ViewBag.TagKeyword != null)
+    {
+        
+        <a class="btn btn-secondary float-left" href="~/tag/@ViewBag.TagKey">&larr; Newer Posts about: @ViewBag.TagKeyword</a>
+
+    }
+    else
+    {
+
+        <a class="btn btn-secondary float-left " href="~/">&larr; Newer Posts</a>
+    }
+}
+
+
+ 
+                
+
+                </div>
+
+            }
+        </div>
+    </div>
+</div>
