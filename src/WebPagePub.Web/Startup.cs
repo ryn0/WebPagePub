@@ -79,7 +79,7 @@ namespace WebPagePub.Web
             services.AddTransient<ICacheService, CacheService>();
 
             services.AddTransient<IEmailSender>(x => new AmazonMailService(
-                Configuration.GetSection("AmazonEmailCredentials:AccessKey").Value, 
+                Configuration.GetSection("AmazonEmailCredentials:AccessKey").Value,
                 Configuration.GetSection("AmazonEmailCredentials:SecretKey").Value,
                 Configuration.GetSection("AmazonEmailCredentials:EmailFrom").Value));
 
@@ -90,6 +90,13 @@ namespace WebPagePub.Web
 
             var sp = services.BuildServiceProvider();
             var cacheService = sp.GetService<ICacheService>();
+
+            var blockedIPRepository = sp.GetService<IBlockedIPRepository>();
+            
+            services.AddTransient<ISpamFilterService>(x => new SpamFilterService(
+                        blockedIPRepository,
+                        Configuration.GetSection("NeutrinoApi:UserId").Value,
+                        Configuration.GetSection("NeutrinoApi:ApiKey").Value));
 
             var azureStorageConnection = cacheService.GetSnippet(SiteConfigSetting.AzureStorageConnectionString);
 
