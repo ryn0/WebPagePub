@@ -21,7 +21,7 @@ namespace WebPagePub.Web.Controllers
         const int PageSize = 10;
 
         private IHttpContextAccessor _accessor;
-        private readonly IBlockedIPRepository _blockedIPRepository;
+        private readonly ISpamFilterService _spamFilterService;
         private readonly ISitePageCommentRepository _stePageCommentRepository;
         private readonly ISitePageRepository _sitePageRepository;
         private readonly ISitePageSectionRepository _sitePageSectionRepository;
@@ -31,7 +31,7 @@ namespace WebPagePub.Web.Controllers
 
         public HomeController(
             IHttpContextAccessor accessor,
-            IBlockedIPRepository blockedIPRepository,
+            ISpamFilterService spamFilterService,
             ISitePageCommentRepository stePageCommentRepository,
             ISitePageRepository sitePageRepository,
             ISitePageSectionRepository sitePageSectionRepository,
@@ -40,7 +40,7 @@ namespace WebPagePub.Web.Controllers
             ICacheService cacheService)
         {
             _accessor = accessor;
-            _blockedIPRepository = blockedIPRepository;
+            _spamFilterService = spamFilterService;
             _stePageCommentRepository = stePageCommentRepository;
             _sitePageRepository = sitePageRepository;
             _sitePageSectionRepository = sitePageSectionRepository;
@@ -125,7 +125,7 @@ namespace WebPagePub.Web.Controllers
 
             var ipAddress = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
 
-            if (_blockedIPRepository.IsBlockedIp(ipAddress))
+            if (_spamFilterService.IsBlocked(ipAddress))
             {
                 return BadRequest();
             }

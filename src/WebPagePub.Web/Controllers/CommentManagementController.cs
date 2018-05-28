@@ -6,6 +6,7 @@ using WebPagePub.Data.Constants;
 using Microsoft.AspNetCore.Identity;
 using WebPagePub.Web.Models;
 using System;
+using WebPagePub.Services.Interfaces;
 
 namespace WebPagePub.Web.Controllers
 {
@@ -16,18 +17,18 @@ namespace WebPagePub.Web.Controllers
 
         private readonly ISitePageCommentRepository _sitePageCommentRepository;
         private readonly ISitePageRepository _sitePageRepository;
-        private readonly IBlockedIPRepository _blockedIPRepository;
+        private readonly ISpamFilterService _spamFilterService;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public CommentManagementController(
             ISitePageCommentRepository sitePageCommentRepository,
             ISitePageRepository sitePageRepository,
-            IBlockedIPRepository blockedIPRepository,
+            ISpamFilterService spamFilterService,
             UserManager<ApplicationUser> userManager)
         {
             _sitePageCommentRepository = sitePageCommentRepository;
             _sitePageRepository = sitePageRepository;
-            _blockedIPRepository = blockedIPRepository;
+            _spamFilterService = spamFilterService;
             _userManager = userManager;
         }
 
@@ -97,12 +98,9 @@ namespace WebPagePub.Web.Controllers
 
             if (model.CommentStatus == Data.Enums.CommentStatus.Spam)
             {
-                if (!_blockedIPRepository.IsBlockedIp(dbModel.IpAddress))
+                if (!_spamFilterService.IsBlocked(dbModel.IpAddress))
                 {
-                    _blockedIPRepository.CreateAsync(new Data.Models.Db.BlockedIP()
-                    {
-                        IpAddress = dbModel.IpAddress
-                    });
+                    _spamFilterService.Create(dbModel.IpAddress);
                 }
             }
 
