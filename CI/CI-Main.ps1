@@ -26,6 +26,8 @@ properties {
    $msDeployUserName            = ""
    $msDeployPassword            = ""
    $dbConnectionString          = ""
+   $NeutrinoApiUserId           = ""
+   $NeutrinoApiApiKey           = ""
 }
 
 task default -depends RestorePackages # required task
@@ -72,19 +74,13 @@ task -name SetConfigs {
 
 
     $WebAppSettings = "..\src\WebPagePub.Web\appsettings.json"
+    SetFileSettings -fileLocation $WebAppSettings
+
     $DatabaseAppSettings = "..\src\WebPagePub.Data\appsettings.json"
-    
-    $envJson = Get-Content $WebAppSettings | ConvertFrom-Json
-    $envJson.ConnectionStrings.SqlServerConnection = $dbConnectionString
-    $envJson | ConvertTo-Json | set-content $WebAppSettings
-    Write-Host "Saving $WebAppSettings..."
+    SetFileSettings -fileLocation $DatabaseAppSettings
 
-
-    $envJson = Get-Content $DatabaseAppSettings | ConvertFrom-Json
-    $envJson.ConnectionStrings.SqlServerConnection = $dbConnectionString
-    $envJson | ConvertTo-Json | set-content $DatabaseAppSettings
-    Write-Host "Saving $DatabaseAppSettings..."
 }
+
 
 task -name SyncWebFiles {
 
@@ -224,4 +220,18 @@ TaskTearDown {
 	}
 
 	""
+}
+
+############ 
+# Functions
+############ 
+
+function SetFileSettings($fileLocation)
+{
+    $envJson = Get-Content $fileLocation | ConvertFrom-Json
+    $envJson.ConnectionStrings.SqlServerConnection = $dbConnectionString
+    $envJson.NeutrinoApi.UserId = $NeutrinoApiUserId
+    $envJson.NeutrinoApi.ApiKey = $NeutrinoApiApiKey
+    $envJson | ConvertTo-Json | set-content $fileLocation
+    Write-Host "Saving $fileLocation..."
 }
