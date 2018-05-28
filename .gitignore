@@ -81,3 +81,8 @@ rcf/
 !chromedriver.exe #allow
 !migrate.exe #allow
 /src/.vs/ReviewMaster/v15/Server/sqlite3
+
+# ignore appsettings
+**/appsettings.development.json
+**/appsettings.staging.json
+**/appsettings.production.json
