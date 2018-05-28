@@ -26,11 +26,17 @@ namespace WebPagePub.Services.Implementations
 
         public Task SendEmailAsync(string email, string subject, string message)
         {
+            if (!HasConfigs())
+                return Task.FromResult(0);
+
             return SendTextMailAsync(email, subject, message);
         }
 
         public async Task<bool> SendHtmlMail(string toEmail, string subject, string htmlBody)
         {
+            if (!HasConfigs())
+                return await Task.FromResult(false);
+
             if (string.IsNullOrWhiteSpace(htmlBody))
                 return false;
 
@@ -41,6 +47,9 @@ namespace WebPagePub.Services.Implementations
 
         public async Task<bool> SendTextMailAsync(string toEmail, string subject, string body)
         {
+            if (!HasConfigs())
+                return await Task.FromResult(false);
+
             if (string.IsNullOrWhiteSpace(body))
                 return false;
 
@@ -84,5 +93,14 @@ namespace WebPagePub.Services.Implementations
             }
         }
 
+        private bool HasConfigs()
+        {
+            if (string.IsNullOrEmpty(_amazonAccessKey) ||
+                string.IsNullOrEmpty(_amazonEmailFrom) ||
+                string.IsNullOrEmpty(_amazonSecretKey))
+                return false;
+
+            return true;
+        }
     }
 }
