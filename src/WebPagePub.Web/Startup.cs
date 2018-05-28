@@ -157,6 +157,7 @@ namespace WebPagePub.Web
 
             options.Rules.Add(new NonWwwRule());
 
+            // TODO: load paths to redirect to from DB
             var redirectPaths = new Dictionary<string, string>();
 
             options.Rules.Add(new RedirectMissingPages(redirectPaths));

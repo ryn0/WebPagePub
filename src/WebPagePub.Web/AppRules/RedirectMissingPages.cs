@@ -30,7 +30,7 @@ namespace WebPagePub.Web.AppRules
         {
             var req = context.HttpContext.Request;
 
-            var newPath = RedirectOldRequests(req.Path);
+            var newPath = MapOldPathToNewPath(req.Path);
 
             if (string.IsNullOrWhiteSpace(newPath))
                 return;
@@ -40,7 +40,7 @@ namespace WebPagePub.Web.AppRules
         }
 
 
-        private string RedirectOldRequests(string key)
+        private string MapOldPathToNewPath(string key)
         {
             if (_pathRedirects.ContainsKey(key))
             {
