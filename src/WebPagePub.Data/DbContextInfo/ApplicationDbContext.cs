@@ -44,9 +44,14 @@ namespace WebPagePub.Data.DbContextInfo
         public DbSet<ClickLog> ClickLog { get; set; }
 
         public DbSet<BlockedIP> BlockedIP { get; set; }
+        public DbSet<RedirectPath> RedirectPath { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.Entity<RedirectPath>()
+                    .HasIndex(b => b.Path)
+                    .IsUnique();
+
             builder.Entity<BlockedIP>()
                     .HasIndex(b => b.IpAddress)
                     .IsUnique();

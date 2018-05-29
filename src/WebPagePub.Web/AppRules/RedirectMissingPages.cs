@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Rewrite;
+using System;
 using System.Collections.Generic;
 
 namespace WebPagePub.Web.AppRules
@@ -11,18 +12,12 @@ namespace WebPagePub.Web.AppRules
         {
            foreach(var pathRedirect in pathRedirects)
             {
-                var key = pathRedirect.Key;
-
-                if (key.StartsWith("/"))
-                    key = key.TrimStart('/');
-
-                if (key.EndsWith("/"))
-                    key = key.TrimEnd('/');
-
-                if (_pathRedirects.ContainsKey(key))
+                var resolvedKey = ResolveKey(pathRedirect.Key);
+          
+                if (_pathRedirects.ContainsKey(resolvedKey))
                     continue;
 
-                _pathRedirects.Add(key, pathRedirect.Value);
+                _pathRedirects.Add(resolvedKey, pathRedirect.Value);
             }
         }
 
@@ -39,15 +34,28 @@ namespace WebPagePub.Web.AppRules
             context.Result = RuleResult.EndResponse;
         }
 
-
         private string MapOldPathToNewPath(string key)
         {
-            if (_pathRedirects.ContainsKey(key))
+            var resolvedKey = ResolveKey(key);
+
+            if (_pathRedirects.ContainsKey(resolvedKey))
             {
-                return _pathRedirects[key];
+                return _pathRedirects[resolvedKey];
             }
 
             return null;
+        }
+
+
+        private string ResolveKey(string key)
+        {
+            if (key.StartsWith("/"))
+                key = key.TrimStart('/');
+
+            if (key.EndsWith("/"))
+                key = key.TrimEnd('/');
+
+            return key;
         }
     }
 }

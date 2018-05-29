@@ -35,6 +35,8 @@ namespace WebPagePub.Data.DbContextInfo
 
         DbSet<BlockedIP> BlockedIP { get; set; }
 
+        DbSet<RedirectPath> RedirectPath { get; set; }
+
         int SaveChanges();
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken));
