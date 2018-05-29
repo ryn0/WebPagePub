@@ -28,6 +28,8 @@ namespace WebPagePub.Web
 {
     public class Startup
     {
+        Dictionary<string, string> _redirectPaths = new Dictionary<string, string>();
+
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -68,8 +70,7 @@ namespace WebPagePub.Web
             services.AddTransient<IClickLogRepository, ClickLogRepository>();
             services.AddTransient<ISitePageCommentRepository, SitePageCommentRepository>();
             services.AddTransient<IBlockedIPRepository, BlockedIPRepository>();
-
-            
+            services.AddTransient<IRedirectPathRepository, RedirectPathRepository>();
 
             // db context
             services.AddTransient<IApplicationDbContext, ApplicationDbContext>();
@@ -101,6 +102,11 @@ namespace WebPagePub.Web
             var azureStorageConnection = cacheService.GetSnippet(SiteConfigSetting.AzureStorageConnectionString);
 
             services.AddSingleton<ISiteFilesRepository>(provider => new SiteFilesRepository(azureStorageConnection));
+
+            // rediects
+            var redirectPathRepository = sp.GetService<IRedirectPathRepository>();
+            var redirectPathsFromDb = redirectPathRepository.GetAll();
+            redirectPathsFromDb.ForEach(x => _redirectPaths.Add(x.Path, x.PathDestination));
 
             var iisName = cacheService.GetSnippet(SiteConfigSetting.IisWebsiteName);
 
@@ -157,10 +163,7 @@ namespace WebPagePub.Web
 
             options.Rules.Add(new NonWwwRule());
 
-            // TODO: load paths to redirect to from DB
-            var redirectPaths = new Dictionary<string, string>();
-
-            options.Rules.Add(new RedirectMissingPages(redirectPaths));
+            options.Rules.Add(new RedirectMissingPages(_redirectPaths));
 
             app.UseRewriter(options);
 
