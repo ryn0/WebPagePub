@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using WebPagePub.Core.Utilities;
@@ -24,6 +23,10 @@ namespace WebPagePub.Data.Repositories.Implementations
         public SiteFilesRepository(string connectionString)
         {
             _connectionString = connectionString;
+
+            if (string.IsNullOrWhiteSpace(_connectionString))
+                return;
+
             _storageAccount = CloudStorageAccount.Parse(_connectionString);
 
             var blobClient = _storageAccount.CreateCloudBlobClient();
