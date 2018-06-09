@@ -2,24 +2,23 @@
 @{
     ViewData["Title"] = "Create New Site Section";
 }
-
 <h2>@ViewData["Title"]</h2>
- 
+
+<i>Note: create a section titled 'home' and it becomes the root section, the home page</i>
+
 <form asp-controller="SitePageManagement" asp-action="CreateSiteSection" method="post" class="form-horizontal">
-    
-   
+
+
     <div class="form-group">
         <label asp-for="Title" class="col-md-2 control-label"></label>
         <div class="col-md-10">
-            <input asp-for="Title" class="form-control" autocomplete="off"  />
+            <input asp-for="Title" class="form-control" autocomplete="off" />
         </div>
     </div>
-
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
             <button type="submit" class="btn btn-default">Create</button>
         </div>
     </div>
-
 </form>
- 
+
