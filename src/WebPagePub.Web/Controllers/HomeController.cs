@@ -4,7 +4,6 @@ using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Web.Models;
 using WebPagePub.Data.Models;
 using System;
-using WebPagePub.Data.Constants;
 using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Enums;
 using System.Linq;
@@ -52,23 +51,37 @@ namespace WebPagePub.Web.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return CatchAllRequests(StringConstants.HomeSectionKey, StringConstants.HomeIndexPageKey);
+            var homeSection = _sitePageSectionRepository.GetHomeSection();
+            var homePage = _sitePageRepository.GetHomePage();
+
+            if(homePage == null)
+            {
+                Response.StatusCode = 404;
+
+                return View("Page404");
+            }
+
+            return CatchAllRequests(homeSection.Key, homePage.Key);
         }
 
         [Route("{sectionKey}/page/{pageNumber}")]
         [HttpGet]
         public IActionResult SectionPage(string sectionKey, int pageNumber = 1)
         {
-            return CatchAllRequests(sectionKey, StringConstants.HomeIndexPageKey, false, pageNumber);
+            var homePage = _sitePageRepository.GetHomePage();
+
+            return CatchAllRequests(sectionKey, homePage.Key, false, pageNumber);
         }
 
         [Route("tag/{tagName}/page/{pageNumber}")]
         [HttpGet]
         public IActionResult TagPage(string tagName, int pageNumber = 1)
         {
+            var homePage = _sitePageRepository.GetHomePage();
+
             return CatchAllRequests(
                         tagKey: tagName,
-                        pageKey: StringConstants.HomeIndexPageKey,
+                        pageKey: homePage.Key,
                         isPreview: false,
                         pageNumber: pageNumber);
         }
@@ -77,9 +90,11 @@ namespace WebPagePub.Web.Controllers
         [HttpGet]
         public IActionResult TagPage(string tagName)
         {
+            var homePage = _sitePageRepository.GetHomePage();
+
             return CatchAllRequests(
                         tagKey: tagName,
-                        pageKey: StringConstants.HomeIndexPageKey,
+                        pageKey: homePage.Key,
                         isPreview: false );
         }
 
@@ -94,7 +109,9 @@ namespace WebPagePub.Web.Controllers
         [HttpGet]
         public IActionResult Index(string sectionKey)
         {
-            return CatchAllRequests(sectionKey, StringConstants.HomeIndexPageKey);
+            var homePage = _sitePageRepository.GetHomePage();
+
+            return CatchAllRequests(sectionKey, homePage.Key);
         }
 
       
@@ -239,6 +256,8 @@ namespace WebPagePub.Web.Controllers
                                                             pageNumber,
                                                             PageSize,
                                                             out total);
+
+                pages = pages.Where(x => x.IsHomePage == false).ToList();
             }
             else
             {
@@ -422,7 +441,8 @@ namespace WebPagePub.Web.Controllers
             }
             else
             {
-                homeSection = _sitePageSectionRepository.Get(StringConstants.HomeSectionKey);
+                homeSection = _sitePageSectionRepository.GetHomeSection();
+                
                 _memoryCache.Set(cacheKey, homeSection, DateTime.UtcNow.AddMinutes(10));
             }
             
@@ -447,7 +467,7 @@ namespace WebPagePub.Web.Controllers
                 }
             };
 
-            if (sitePageSection.Key != StringConstants.HomeSectionKey)
+            if (!sitePageSection.IsHomePageSection)
             {
                 breadcrumbList.ItemListElement.Add(new BreadcrumbListItem()
                 {
@@ -459,10 +479,9 @@ namespace WebPagePub.Web.Controllers
 
                     },
                 });
-
             }
-             
-            if (sitePage.Key != StringConstants.HomeIndexPageKey)
+
+            if (!sitePage.IsHomePage)
             {
                 breadcrumbList.ItemListElement.Add(
                            new BreadcrumbListItem()

@@ -19,6 +19,8 @@ namespace WebPagePub.Data.Repositories.Interfaces
 
         SitePage Get(string key);
 
+        SitePage GetHomePage();
+
         SitePage GetPreviousEntry(DateTime currentSitePagePublishDateTimeUtc);
 
         SitePage GetNextEntry(DateTime currentSitePagePublishDateTimeUtc);

@@ -98,7 +98,8 @@ namespace WebPagePub.Web.Controllers
             {
                 SiteSectionId = siteSection.SitePageSectionId,
                 Title = siteSection.Title,
-                BreadcrumbName = siteSection.BreadcrumbName
+                BreadcrumbName = siteSection.BreadcrumbName,
+                IsHomePageSection = siteSection.IsHomePageSection
             });
         }
 
@@ -111,6 +112,7 @@ namespace WebPagePub.Web.Controllers
             siteSection.Title = model.Title.Trim();
             siteSection.Key = model.Title.UrlKey();
             siteSection.BreadcrumbName = model.BreadcrumbName.Trim();
+            siteSection.IsHomePageSection = model.IsHomePageSection;
 
             _siteSectionRepository.Update(siteSection);
 
@@ -137,7 +139,8 @@ namespace WebPagePub.Web.Controllers
                 _sitePagePhotoRepository.SetDefaultPhoto(sitePagePhotoId);
 
                 var sitePage = _sitePageRepository.Get(entry.SitePageId);
-                var editModel = ToUiEditModel(sitePage);
+                var sitePageSection = _siteSectionRepository.Get(sitePage.SitePageSectionId);
+                var editModel = ToUiEditModel(sitePage, sitePageSection.IsHomePageSection);
                 ClearCache(editModel, sitePage);
             }
             catch { throw new Exception("could not set default"); }
@@ -168,7 +171,7 @@ namespace WebPagePub.Web.Controllers
                         Title = section.Title,
                         SitePageSectionId = section.SitePageSectionId,
                         CreateDate = section.CreateDate,
-                        IsIndex = (section.Key == StringConstants.HomeSectionKey)
+                        IsIndex = section.IsHomePageSection
                     });
                 }
 
@@ -326,16 +329,6 @@ namespace WebPagePub.Web.Controllers
             }
         }
 
-        [Route("sitepages/editsitepage/{SitePageId}")]
-        [HttpGet]
-        public IActionResult EditSitePage(int sitePageId)
-        {
-            var dbModel = _sitePageRepository.Get(sitePageId);
-
-            var model = ToUiEditModel(dbModel);
-
-            return View(model);
-        }
 
         [Route("sitepages/deletepage/{SitePageId}")]
         [HttpPost]
@@ -363,6 +356,18 @@ namespace WebPagePub.Web.Controllers
             await RotateImage(entry.SitePageId, entry.PhotoThumbUrl);
 
             return RedirectToAction(nameof(EditSitePage), new { SitePageId = entry.SitePageId });
+        }
+
+        [Route("sitepages/editsitepage/{SitePageId}")]
+        [HttpGet]
+        public IActionResult EditSitePage(int sitePageId)
+        {
+            var dbModel = _sitePageRepository.Get(sitePageId);
+            var sitePageSection = _siteSectionRepository.Get(dbModel.SitePageSectionId);
+
+            var model = ToUiEditModel(dbModel, sitePageSection.IsHomePageSection);
+
+            return View(model);
         }
 
         [Route("sitepages/editsitepage")]
@@ -400,9 +405,6 @@ namespace WebPagePub.Web.Controllers
         {
             var cacheKey = CacheHelper.GetpPageCacheKey(dbModel.SitePageSection.Key, model.Key);
             _memoryCache.Remove(cacheKey);
-
-            cacheKey = CacheHelper.GetpPageCacheKey(dbModel.SitePageSection.Key, StringConstants.HomeIndexPageKey);
-            _memoryCache.Remove(cacheKey);
         }
 
         private async Task<SitePagePhoto> DeleteBlogPhoto(int sitePagePhotoId)
@@ -434,7 +436,7 @@ namespace WebPagePub.Web.Controllers
                     Key = page.Key,
                     LiveUrlPath = UrlBuilder.BlogUrlPath(page.SitePageSection.Key, page.Key),
                     PreviewUrlPath = UrlBuilder.BlogPreviewUrlPath(page.SitePageId),
-                    IsIndex = (page.Key == StringConstants.HomeIndexPageKey)
+                    IsIndex = page.IsHomePage
                 });
             }
 
@@ -467,11 +469,12 @@ namespace WebPagePub.Web.Controllers
             dbModel.ReviewWorstValue = model.ReviewWorstValue;
             dbModel.MetaKeywords = (model.MetaKeywords != null) ? model.MetaKeywords.Trim() : string.Empty;
             dbModel.AllowsComments = model.AllowsComments;
+            dbModel.IsHomePage = model.IsHomePage;
 
             return dbModel;
         }
 
-        private SitePageEditModel ToUiEditModel(SitePage dbModel)
+        private SitePageEditModel ToUiEditModel(SitePage dbModel, bool  isHomePageSection)
         {
             var model = new SitePageEditModel()
             {
@@ -493,7 +496,9 @@ namespace WebPagePub.Web.Controllers
                 ReviewRatingValue = dbModel.ReviewRatingValue,
                 ReviewWorstValue = dbModel.ReviewWorstValue,
                 MetaKeywords = dbModel.MetaKeywords,
-                AllowsComments = dbModel.AllowsComments
+                AllowsComments = dbModel.AllowsComments,
+                IsHomePage = dbModel.IsHomePage,
+                IsHomePageSection = isHomePageSection
             };
 
             var mc = new ModelConverter(_cacheService);

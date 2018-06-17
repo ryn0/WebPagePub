@@ -14,7 +14,9 @@ namespace WebPagePub.Data.Repositories.Interfaces
         bool Update(SitePageSection model);
 
         SitePageSection Get(int sitePageSectionId);
-        
+
+        SitePageSection GetHomeSection();
+
         List<SitePageSection> GetAll();
 
         SitePageSection Get(string key);
