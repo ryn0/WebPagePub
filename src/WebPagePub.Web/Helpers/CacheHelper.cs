@@ -12,10 +12,6 @@ namespace WebPagePub.Web.Helpers
                                 int pageNumber = 1,
                                 string tagKey = null)
         {
-            if (StringConstants.HomeSectionKey == sectionKey &&
-                StringConstants.HomeIndexPageKey == pageKey)
-                return StringConstants.HomeSectionKey;
-
             var cacheKey = $"{tagKey}/{sectionKey}/{pageKey}/{pageNumber}".ToLower();
 
             return cacheKey;

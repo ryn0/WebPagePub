@@ -179,7 +179,7 @@ namespace WebPagePub.Web
                 await next();
             });
 
-          //dbInitializer.Initialize();
+          dbInitializer.Initialize();
 
             app.UseMvc(routes =>
             {

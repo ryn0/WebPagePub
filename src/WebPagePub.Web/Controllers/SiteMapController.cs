@@ -4,7 +4,6 @@ using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Web.Helpers;
 using WebPagePub.Web.Models;
 using System.Linq;
-using WebPagePub.Data.Constants;
 
 namespace WebPagePub.Web.Controllers
 {
@@ -30,8 +29,16 @@ namespace WebPagePub.Web.Controllers
                 if (!page.IsLive || page.ExcludePageFromSiteMapXml)
                     continue;
 
-                var url = new Uri(UrlBuilder.GetCurrentDomain(HttpContext) +
-                                 UrlBuilder.BlogUrlPath(page.SitePageSection.Key, page.Key)).ToString().TrimEnd('/'); 
+                string url;
+                if (page.IsHomePage)
+                {
+                    url = new Uri(UrlBuilder.GetCurrentDomain(HttpContext)).ToString();
+                }
+                else
+                {
+                    url = new Uri(UrlBuilder.GetCurrentDomain(HttpContext) +
+                                     UrlBuilder.BlogUrlPath(page.SitePageSection.Key, page.Key)).ToString().TrimEnd('/');
+                }
 
                 var lastUpdated = page.UpdateDate == null ? page.CreateDate : (DateTime)page.UpdateDate;
                 siteMapHelper.AddUrl(url, lastUpdated, ChangeFrequency.weekly, .5);
@@ -53,7 +60,7 @@ namespace WebPagePub.Web.Controllers
             {
                 var allPagesInSection = allPages.Where(x => x.SitePageSectionId == sectionId).ToList();
 
-                var indexPage = allPagesInSection.First(x => x.Key == StringConstants.HomeIndexPageKey);
+                var indexPage = allPagesInSection.First(x => x.IsHomePage == true);
                 var sectionPath = UrlBuilder.BlogUrlPath(indexPage.SitePageSection.Key, indexPage.Key);
                 var sectionUrl = new Uri(UrlBuilder.GetCurrentDomain(HttpContext) + sectionPath).ToString().TrimEnd('/');
 
@@ -66,7 +73,7 @@ namespace WebPagePub.Web.Controllers
 
                 foreach (var page in allPagesInSection)
                 {
-                    if (!page.IsLive || page.Key == StringConstants.HomeIndexPageKey)
+                    if (!page.IsLive || page.IsHomePage)
                         continue;
 
                     var pagePath = UrlBuilder.BlogUrlPath(page.SitePageSection.Key, page.Key);

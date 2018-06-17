@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using log4net;
 using System.Reflection;
-using WebPagePub.Data.Constants;
 
 namespace WebPagePub.Data.Repositories.Implementations
 {
@@ -149,7 +148,6 @@ namespace WebPagePub.Data.Repositories.Implementations
             {
                 var model = Context.SitePage
                                    .Where(x => x.IsLive == true && 
-                                               x.Key != StringConstants.HomeIndexPageKey &&
                                                x.PublishDateTimeUtc < now && 
                                                (x.SitePageTags.FirstOrDefault(y => y.Tag.Key == tagKey) != null))
                                    .Include(x => x.SitePageSection)
@@ -162,7 +160,6 @@ namespace WebPagePub.Data.Repositories.Implementations
                                    .ToList();
 
                 total = Context.SitePage.Where(x => x.IsLive == true &&
-                                               x.Key != StringConstants.HomeIndexPageKey &&
                                                x.PublishDateTimeUtc < now &&
                                                (x.SitePageTags.FirstOrDefault(y => y.Tag.Key == tagKey) != null)).Count();
 
@@ -223,6 +220,19 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
+                if (model.IsHomePage)
+                {
+                    foreach (var page in Context.SitePage.ToList())
+                    {
+                        page.IsHomePage = false;
+
+                        if (page.SitePageId == model.SitePageId)
+                        {
+                            page.IsHomePage = true;
+                        }
+                    }
+                }
+
                 Context.SitePage.Update(model);
                 Context.SaveChanges();
 
@@ -303,8 +313,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                 var model = Context.SitePage
                                    .Where(x => x.IsLive == true &&
                                                x.PublishDateTimeUtc < now &&
-                                               x.SitePageSectionId == sectionId &&
-                                               x.Key != StringConstants.HomeIndexPageKey)
+                                               x.SitePageSectionId == sectionId)
                                    .Include(x => x.SitePageSection)
                                    .Include(x => x.Photos)
                                    .Include(x => x.SitePageTags)
@@ -316,8 +325,7 @@ namespace WebPagePub.Data.Repositories.Implementations
 
                 total = Context.SitePage.Where(x => x.IsLive == true &&
                                                x.PublishDateTimeUtc < now &&
-                                               x.SitePageSectionId == sectionId &&
-                                               x.Key != StringConstants.HomeIndexPageKey).Count();
+                                               x.SitePageSectionId == sectionId).Count();
 
                 return model;
             }
@@ -328,6 +336,21 @@ namespace WebPagePub.Data.Repositories.Implementations
                 throw new Exception("DB error", ex.InnerException);
             }
 
+        }
+
+        public SitePage GetHomePage()
+        {
+            try
+            {
+                return Context.SitePage
+                              .FirstOrDefault(x => x.IsHomePage == true);
+            }
+            catch (Exception ex)
+            {
+                log.Fatal(ex);
+
+                throw new Exception("DB error", ex.InnerException);
+            }
         }
     }
 }

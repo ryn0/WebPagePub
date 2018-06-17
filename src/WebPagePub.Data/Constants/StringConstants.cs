@@ -4,11 +4,17 @@
     {
         public const string AdminRole = "Administrator";
   
-        public const string HomeSectionKey = "home";
-
-        public const string HomeIndexPageKey = "index";
-
-        public static readonly string[] BotUserAgents = { "Googlebot", "Bingbot", "Slurp", "DuckDuckBot", "Baiduspider", "YandexBot", "Sogou", "Exabot", "facebot", "ia_archiver" };
+        public static readonly string[] BotUserAgents = {
+                "Googlebot",
+                "Bingbot",
+                "Slurp",
+                "DuckDuckBot",
+                "Baiduspider",
+                "YandexBot",
+                "Sogou",
+                "Exabot",
+                "facebot",
+                "ia_archiver" };
 
         public const string ApplicationJson = "application/json";
     }

@@ -6,27 +6,29 @@
 <h2>@ViewData["Title"]</h2>
 
 <form asp-controller="SitePageManagement" asp-action="EditSiteSection" method="post" class="form-horizontal">
-
     @Html.HiddenFor(x => x.SiteSectionId)
     <div class="form-group">
         <label asp-for="Title" class="col-md-2 control-label"></label>
         <div class="col-md-10">
-            <input asp-for="Title" class="form-control" autocomplete="off"  />
+            <input asp-for="Title" class="form-control" autocomplete="off" />
         </div>
     </div>
-
     <div class="form-group">
         <label asp-for="BreadcrumbName" class="col-md-2 control-label"></label>
         <div class="col-md-10">
-            <input asp-for="BreadcrumbName" class="form-control"  autocomplete="off"  />
+            <input asp-for="BreadcrumbName" class="form-control" autocomplete="off" />
         </div>
     </div>
-
+    <div class="form-group">
+        <label asp-for="IsHomePageSection" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            @Html.CheckBoxFor(x => x.IsHomePageSection)
+        </div>
+    </div>
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
             <button type="submit" class="btn btn-default">Update</button>
         </div>
     </div>
-
 </form>
 

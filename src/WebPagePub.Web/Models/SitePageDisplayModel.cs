@@ -85,13 +85,7 @@ namespace WebPagePub.Web.Models
 
         public string Content { get; set; }
 
-        public bool IsIndex
-        {
-            get
-            {
-                return Key == StringConstants.HomeIndexPageKey;
-            }
-        }
+        public bool IsIndex { get; set; }
 
         public string MetaKeywords { get; set; }
 
