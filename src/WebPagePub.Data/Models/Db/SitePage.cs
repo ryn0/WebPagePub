@@ -67,5 +67,8 @@ namespace WebPagePub.Data.Models
         public double ReviewBestValue { get; set; }
 
         public SitePageSection SitePageSection { get; set; }
+
+        [Required]
+        public bool IsHomePage { get; set; }
     }
 }
