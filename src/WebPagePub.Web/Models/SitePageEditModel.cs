@@ -7,11 +7,14 @@ namespace WebPagePub.Web.Models
 {
     public class SitePageEditModel
     {
+        [Required]
         public string Title { get; set; }
 
+        [Required]
         [Display( Name = "Page Header (H1)")]
         public string PageHeader { get; set; }
 
+        [Required]
         public string Key { get; set; }
 
         public string Content { get; set; }
