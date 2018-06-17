@@ -1,27 +1,27 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using MoreLinq;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Web.Models;
-using System.Linq;
-using System;
-using MoreLinq;
 
 namespace WebPagePub.Web.Controllers
 {
     [Authorize]
     public class ReportsController : Controller
     {
-        private readonly IClickLogRepository _clickLogRepository;
+        private readonly IClickLogRepository clickLogRepository;
 
         public ReportsController(IClickLogRepository clickLogRepository)
         {
-            _clickLogRepository = clickLogRepository;
+            this.clickLogRepository = clickLogRepository;
         }
 
         [Route("reports")]
         public IActionResult Index()
         {
-            return View();
+            return this.View();
         }
 
         [Route("reports/clicks")]
@@ -30,22 +30,27 @@ namespace WebPagePub.Web.Controllers
             var now = DateTime.UtcNow;
 
             if (startDate == null)
+            {
                 startDate = now.AddDays(-30);
+            }
 
             if (endDate == null)
+            {
                 endDate = now;
+            }
 
-            var model = new ClickReportModel();
-            model.StartDate = Convert.ToDateTime(startDate);
-            model.EndDate = new DateTime(endDate.Value.Year, endDate.Value.Month, endDate.Value.Day, 23, 59, 59);
-          
-            var clicksInRange = _clickLogRepository.GetClicksInRange(model.StartDate, model.EndDate);
+            var model = new ClickReportModel
+            {
+                StartDate = Convert.ToDateTime(startDate),
+                EndDate = new DateTime(endDate.Value.Year, endDate.Value.Month, endDate.Value.Day, 23, 59, 59)
+            };
+            var clicksInRange = this.clickLogRepository.GetClicksInRange(model.StartDate, model.EndDate);
 
             model.TotalClicks = clicksInRange.Count();
             model.UniqueIps = clicksInRange.DistinctBy(x => x.IpAddress).Count();
-             
+
             foreach (var item in clicksInRange)
-            {  
+            {
                 var urlClickItem = model.UrlClicks.FirstOrDefault(x => x.Url == item.Url);
 
                 if (urlClickItem == null)
@@ -71,7 +76,7 @@ namespace WebPagePub.Web.Controllers
                                              .ThenByDescending(x => x.UniqueIps)
                                              .ToList();
 
-            return View(model);
+            return this.View(model);
         }
     }
 }

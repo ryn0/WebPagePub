@@ -1,47 +1,45 @@
-﻿using Microsoft.AspNetCore.Identity;
-using WebPagePub.Data.DbContextInfo;
-using WebPagePub.Data.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using WebPagePub.Data.Models;
 
 namespace WebPagePub.Data.DbContextInfo
 {
     public class DbInitializer : IDbInitializer
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ApplicationDbContext context;
+        private readonly UserManager<ApplicationUser> userManager;
+        private readonly RoleManager<IdentityRole> roleManager;
 
         public DbInitializer(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager)
         {
-            _context = context;
-            _userManager = userManager;
-            _roleManager = roleManager;
+            this.context = context;
+            this.userManager = userManager;
+            this.roleManager = roleManager;
         }
 
         public void Initialize()
         {
-            _context.Database.EnsureCreated();
+            this.context.Database.EnsureCreated();
 
             var roleName = "Administrator";
-            if (!_context.Roles.Any(r => r.Name == roleName))
+            if (!this.context.Roles.Any(r => r.Name == roleName))
             {
-                Task.Run(() => _roleManager.CreateAsync(new IdentityRole(roleName))).Wait();
+                Task.Run(() => this.roleManager.CreateAsync(new IdentityRole(roleName))).Wait();
             }
 
             string user = "admin@bootbaron.com";
             string password = "qUcI_8757osmt";
 
-            if (!_context.Users.Any(r => r.UserName == user))
+            if (!this.context.Users.Any(r => r.UserName == user))
             {
-                var userResult = Task.Run(() => _userManager.CreateAsync(new ApplicationUser { UserName = user, Email = user, EmailConfirmed = true }, password)).Result;
-                var addUserResult = Task.Run(() => _userManager.AddToRoleAsync(Task.Run(() => _userManager.FindByNameAsync(user)).Result, roleName)).Result;
+                var userResult = Task.Run(() => this.userManager.CreateAsync(
+                    new ApplicationUser { UserName = user, Email = user, EmailConfirmed = true }, password)).Result;
+                var addUserResult = Task.Run(() => this.userManager.AddToRoleAsync(
+                    Task.Run(() => this.userManager.FindByNameAsync(user)).Result, roleName)).Result;
             }
         }
     }

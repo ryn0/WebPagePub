@@ -1,34 +1,32 @@
 ﻿using Newtonsoft.Json;
-using WebPagePub.Data.Constants;
 using WebPagePub.Data.Enums;
 using WebPagePub.Services.Interfaces;
-using System.Collections.Generic;
 
 namespace WebPagePub.Web.Models
 {
     public class StructedDataOrganizationModel
     {
-        private readonly ICacheService _cacheService;
+        private readonly ICacheService cacheService;
 
         public StructedDataOrganizationModel(ICacheService cacheService)
         {
-            _cacheService = cacheService;
-            SetProperties();
+            this.cacheService = cacheService;
+            this.SetProperties();
         }
 
         private void SetProperties()
         {
-            Logo = _cacheService.GetSnippet(SiteConfigSetting.LogoUrl);
+            this.Logo = this.cacheService.GetSnippet(SiteConfigSetting.LogoUrl);
 
-            SameAs = new[]
-        {
-           _cacheService.GetSnippet(SiteConfigSetting.FacebookUrl),
-           _cacheService.GetSnippet(SiteConfigSetting.YouTubeUrl),
-           _cacheService.GetSnippet(SiteConfigSetting.TwitterUrl)
-        };
+            this.SameAs = new[]
+            {
+               this.cacheService.GetSnippet(SiteConfigSetting.FacebookUrl),
+               this.cacheService.GetSnippet(SiteConfigSetting.YouTubeUrl),
+               this.cacheService.GetSnippet(SiteConfigSetting.TwitterUrl)
+            };
 
-            Url = _cacheService.GetSnippet(SiteConfigSetting.CanonicalDomain);
-            Name = _cacheService.GetSnippet(SiteConfigSetting.WebsiteName);
+            this.Url = this.cacheService.GetSnippet(SiteConfigSetting.CanonicalDomain);
+            this.Name = this.cacheService.GetSnippet(SiteConfigSetting.WebsiteName);
         }
 
         [JsonProperty("@context")]
@@ -38,7 +36,7 @@ namespace WebPagePub.Web.Models
         public string @Type { get; set; } = "Organization";
 
         [JsonProperty("name")]
-        public string Name { get; set; } 
+        public string Name { get; set; }
 
         [JsonProperty("description")]
         public string Description { get; set; }
@@ -47,11 +45,9 @@ namespace WebPagePub.Web.Models
         public string Url { get; set; }
 
         [JsonProperty("logo")]
-        public string Logo { get; set; } 
+        public string Logo { get; set; }
 
         [JsonProperty("sameAs")]
-        public string[] SameAs { get; set; } 
-
+        public string[] SameAs { get; set; }
     }
-    
 }

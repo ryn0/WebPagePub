@@ -1,6 +1,6 @@
-﻿using WebPagePub.Data.DbModels.BaseDbModels;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using WebPagePub.Data.DbModels.BaseDbModels;
 using WebPagePub.Data.Enums;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebPagePub.Data.Models.Db
 {

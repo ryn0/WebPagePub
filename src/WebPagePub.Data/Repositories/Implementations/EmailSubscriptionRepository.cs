@@ -1,21 +1,21 @@
-﻿using WebPagePub.Data.Repositories.Interfaces;
-using System;
-using WebPagePub.Data.DbContextInfo;
-using System.Linq;
-using WebPagePub.Data.Models.Db;
+﻿using System;
 using System.Collections.Generic;
-using log4net;
+using System.Linq;
 using System.Reflection;
+using log4net;
+using WebPagePub.Data.DbContextInfo;
+using WebPagePub.Data.Models.Db;
+using WebPagePub.Data.Repositories.Interfaces;
 
 namespace WebPagePub.Data.Repositories.Implementations
 {
     public class EmailSubscriptionRepository : IEmailSubscriptionRepository
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public EmailSubscriptionRepository(IApplicationDbContext context)
         {
-            Context = context;
+            this.Context = context;
         }
 
         public IApplicationDbContext Context { get; private set; }
@@ -24,30 +24,28 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                Context.EmailSubscription.Add(model);
-                Context.SaveChanges();
+                this.Context.EmailSubscription.Add(model);
+                this.Context.SaveChanges();
 
                 return model;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
-
             }
         }
- 
 
         public void Dispose()
         {
-            Context.Dispose();
+            this.Context.Dispose();
         }
 
         public EmailSubscription Get(int emailSubscriptionId)
         {
             try
             {
-                return Context.EmailSubscription.FirstOrDefault(x => x.EmailSubscriptionId == emailSubscriptionId);
+                return this.Context.EmailSubscription.FirstOrDefault(x => x.EmailSubscriptionId == emailSubscriptionId);
             }
             catch (Exception ex)
             {
@@ -59,11 +57,11 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.EmailSubscription.FirstOrDefault(x => x.Email == email);
+                return this.Context.EmailSubscription.FirstOrDefault(x => x.Email == email);
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
             }
         }
@@ -72,17 +70,15 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                Context.EmailSubscription.Update(model);
-                Context.SaveChanges();
+                this.Context.EmailSubscription.Update(model);
+                this.Context.SaveChanges();
 
                 return true;
             }
-
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
-
             }
         }
 
@@ -90,16 +86,16 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var entry = Context.EmailSubscription.FirstOrDefault(x => x.EmailSubscriptionId == emailSubscriptionId);
+                var entry = this.Context.EmailSubscription.FirstOrDefault(x => x.EmailSubscriptionId == emailSubscriptionId);
 
-                Context.EmailSubscription.Remove(entry);
-                Context.SaveChanges();
+                this.Context.EmailSubscription.Remove(entry);
+                this.Context.SaveChanges();
 
                 return true;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 return false;
             }
@@ -109,11 +105,11 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.EmailSubscription.ToList();
+                return this.Context.EmailSubscription.ToList();
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
             }
         }

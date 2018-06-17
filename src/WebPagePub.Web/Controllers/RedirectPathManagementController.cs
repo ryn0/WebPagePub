@@ -6,25 +6,24 @@ using WebPagePub.Web.Models;
 
 namespace WebPagePub.Web.Controllers
 {
-
     [Authorize]
     public class RedirectPathManagementController : Controller
     {
-        private readonly IRedirectPathRepository _redirectPathRepository;
-        private readonly ICacheService _contentSnippetHelper;
+        private readonly IRedirectPathRepository redirectPathRepository;
+        private readonly ICacheService contentSnippetHelper;
 
         public RedirectPathManagementController(
             IRedirectPathRepository redirectPathRepository,
             ICacheService contentSnippetHelper)
         {
-            _redirectPathRepository = redirectPathRepository;
-            _contentSnippetHelper = contentSnippetHelper;
+            this.redirectPathRepository = redirectPathRepository;
+            this.contentSnippetHelper = contentSnippetHelper;
         }
 
         [Route("RedirectPathManagement")]
         public IActionResult Index()
         {
-            var all = _redirectPathRepository.GetAll();
+            var all = this.redirectPathRepository.GetAll();
             var model = new RedirectPathListModel();
 
             foreach (var item in all)
@@ -37,28 +36,32 @@ namespace WebPagePub.Web.Controllers
                 });
             }
 
-            return View(model);
+            return this.View(model);
         }
 
         [Route("RedirectPathManagement/create")]
         [HttpPost]
         public IActionResult Create(RedirectPathCreateModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            if (!this.ModelState.IsValid)
+            {
+                return this.View(model);
+            }
 
-            var dbModel = _redirectPathRepository.Get(model.Path);
+            var dbModel = this.redirectPathRepository.Get(model.Path);
 
             if (dbModel != null)
+            {
                 throw new System.Exception("already exists");
+            }
 
-            _redirectPathRepository.Create(new Data.Models.Db.RedirectPath()
+            this.redirectPathRepository.Create(new Data.Models.Db.RedirectPath()
             {
                 Path = model.Path.Trim(),
                 PathDestination = model.PathDestination.Trim()
             });
 
-            return RedirectToAction(nameof(Index));
+            return this.RedirectToAction(nameof(this.Index));
         }
 
         [Route("RedirectPathManagement/create")]
@@ -67,19 +70,18 @@ namespace WebPagePub.Web.Controllers
         {
             var model = new RedirectPathCreateModel()
             {
-
             };
 
-            return View(model);
+            return this.View(model);
         }
-  
+
         [Route("RedirectPathManagement/delete")]
         [HttpPost]
         public IActionResult Delete(int redirectPathId)
         {
-            _redirectPathRepository.Delete(redirectPathId);
+            this.redirectPathRepository.Delete(redirectPathId);
 
-            return RedirectToAction(nameof(Index));
+            return this.RedirectToAction(nameof(this.Index));
         }
     }
 }

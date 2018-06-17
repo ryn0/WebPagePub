@@ -10,7 +10,7 @@
         YouTubeUrl = 5,
         TwitterUrl = 6,
         WebsiteName = 7,
-        GoogleAnalytics= 8,
+        GoogleAnalytics = 8,
         IisWebsiteName = 9,
         CanonicalDomain = 10,
         BlobPrefix = 11,
@@ -19,7 +19,6 @@
         FooterHtml = 14,
         MenuHtml = 15
     }
-
 
     public enum PageType
     {

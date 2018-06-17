@@ -13,10 +13,14 @@ namespace WebPagePub.Core.Utilities
             var beforeTrim = replaceRegex.Trim().Replace("  ", " ").Replace(" ", "-").Replace("%", string.Empty).ToLowerInvariant();
 
             if (beforeTrim.EndsWith("#"))
+            {
                 beforeTrim = beforeTrim.TrimEnd('#');
+            }
 
             if (beforeTrim.StartsWith("#"))
+            {
                 beforeTrim = beforeTrim.TrimStart('#');
+            }
 
             return beforeTrim;
         }
@@ -29,7 +33,6 @@ namespace WebPagePub.Core.Utilities
 
             return filename;
         }
-
 
         public static string GetFileExtensionLower(this string fileName)
         {

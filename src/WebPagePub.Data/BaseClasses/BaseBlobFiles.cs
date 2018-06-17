@@ -1,8 +1,8 @@
-﻿using Microsoft.WindowsAzure.Storage.Blob;
-using Microsoft.WindowsAzure.Storage.Shared.Protocol;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.Shared.Protocol;
 
 namespace WebPagePub.Data.BaseClasses
 {
@@ -170,6 +170,5 @@ namespace WebPagePub.Data.BaseClasses
             permissions.PublicAccess = BlobContainerPublicAccessType.Container;
             await container.SetPermissionsAsync(permissions);
         }
-
     }
 }

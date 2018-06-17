@@ -1,33 +1,33 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Authorization;
-using WebPagePub.Data.Repositories.Interfaces;
-using WebPagePub.Web.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using WebPagePub.Core.Utilities;
 using WebPagePub.Data.Models.Db;
-using System.Linq;
-using Microsoft.Extensions.Caching.Memory;
+using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Web.Helpers;
+using WebPagePub.Web.Models;
 
 namespace WebPagePub.Web.Controllers
 {
     [Authorize]
     public class LinkManagementController : Controller
     {
-        private IMemoryCache _memoryCache;
-        private readonly ILinkRedirectionRepository _linkRedirectionRepository;
+        private readonly ILinkRedirectionRepository linkRedirectionRepository;
+        private IMemoryCache memoryCache;
 
         public LinkManagementController(
             ILinkRedirectionRepository linkRedirectionRepository,
             IMemoryCache memoryCache)
         {
-            _memoryCache = memoryCache;
-            _linkRedirectionRepository = linkRedirectionRepository;
+            this.memoryCache = memoryCache;
+            this.linkRedirectionRepository = linkRedirectionRepository;
         }
 
         [Route("linkmanagement")]
         public IActionResult Index()
         {
-            var allLinks = _linkRedirectionRepository.GetAll();
+            var allLinks = this.linkRedirectionRepository.GetAll();
             var model = new LinkListModel();
 
             allLinks = allLinks.OrderByDescending(x => x.CreateDate).ToList();
@@ -42,57 +42,61 @@ namespace WebPagePub.Web.Controllers
                 });
             }
 
-            return View(model);
+            return this.View(model);
         }
 
         [Route("linkmanagement/create")]
         [HttpPost]
         public IActionResult Create(LinkEditModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            if (!this.ModelState.IsValid)
+            {
+                return this.View(model);
+            }
 
-            _linkRedirectionRepository.Create(new LinkRedirection()
+            this.linkRedirectionRepository.Create(new LinkRedirection()
             {
                 LinkKey = model.LinkKey.UrlKey(),
                 UrlDestination = model.UrlDestination
             });
 
-            return RedirectToAction("index");
+            return this.RedirectToAction("index");
         }
 
         [Route("linkmanagement/create")]
         [HttpGet]
         public IActionResult Create()
         {
-            return View(new LinkEditModel());
+            return this.View(new LinkEditModel());
         }
 
         [Route("linkmanagement/edit")]
         [HttpPost]
         public IActionResult Edit(LinkEditModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            if (!this.ModelState.IsValid)
+            {
+                return this.View(model);
+            }
 
-            var linkDbModel = _linkRedirectionRepository.Get(model.LinkRedirectionId);
+            var linkDbModel = this.linkRedirectionRepository.Get(model.LinkRedirectionId);
 
             linkDbModel.LinkKey = model.LinkKey.UrlKey();
             linkDbModel.UrlDestination = model.UrlDestination.Trim();
 
-            _linkRedirectionRepository.Update(linkDbModel);
+            this.linkRedirectionRepository.Update(linkDbModel);
 
             var cacheKey = CacheHelper.GetLinkCacheKey(linkDbModel.LinkKey);
-            _memoryCache.Remove(cacheKey);
+            this.memoryCache.Remove(cacheKey);
 
-            return RedirectToAction("index");
+            return this.RedirectToAction("index");
         }
 
         [Route("linkmanagement/edit")]
         [HttpGet]
         public IActionResult Edit(int linkRedirectionId)
         {
-            var linkDbModel = _linkRedirectionRepository.Get(linkRedirectionId);
+            var linkDbModel = this.linkRedirectionRepository.Get(linkRedirectionId);
 
             var model = new LinkEditModel()
             {
@@ -101,16 +105,16 @@ namespace WebPagePub.Web.Controllers
                 UrlDestination = linkDbModel.UrlDestination
             };
 
-            return View(model);
+            return this.View(model);
         }
 
         [Route("linkmanagement/delete")]
         [HttpPost]
         public IActionResult Delete(int linkRedirectionId)
         {
-            _linkRedirectionRepository.Delete(linkRedirectionId);
+            this.linkRedirectionRepository.Delete(linkRedirectionId);
 
-            return RedirectToAction("index");
+            return this.RedirectToAction("index");
         }
     }
 }

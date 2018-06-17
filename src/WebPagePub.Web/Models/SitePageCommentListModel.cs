@@ -16,15 +16,4 @@ namespace WebPagePub.Web.Models
 
         public List<SitePageCommentItemModel> Items { get; set; } = new List<SitePageCommentItemModel>();
     }
-
-    public class SitePageCommentItemModel
-    {
-        public int SitePageCommentId { get; set; }
- 
-        public DateTime CreateDate { get; set; }
-
-        public string Name { get; set; }
-
-        public CommentStatus CommentStatus { get;   set; }
-    }
 }

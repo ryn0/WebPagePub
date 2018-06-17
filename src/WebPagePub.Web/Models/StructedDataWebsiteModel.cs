@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using WebPagePub.Data.Constants;
 using WebPagePub.Data.Enums;
 using WebPagePub.Services.Interfaces;
 
@@ -7,15 +6,13 @@ namespace WebPagePub.Web.Models
 {
     public class StructedDataWebsiteModel
     {
-        private readonly ICacheService _cacheService;
+        private readonly ICacheService cacheService;
 
         public StructedDataWebsiteModel(ICacheService cacheService)
         {
-            _cacheService = cacheService;
-
-            Url = _cacheService.GetSnippet(SiteConfigSetting.CanonicalDomain);
-
-            Name = _cacheService.GetSnippet(SiteConfigSetting.WebsiteName);
+            this.cacheService = cacheService;
+            this.Url = this.cacheService.GetSnippet(SiteConfigSetting.CanonicalDomain);
+            this.Name = this.cacheService.GetSnippet(SiteConfigSetting.WebsiteName);
         }
 
         [JsonProperty("@context")]
@@ -25,9 +22,9 @@ namespace WebPagePub.Web.Models
         public string @Type { get; set; } = "WebSite";
 
         [JsonProperty("name")]
-        public string Name { get; set; } 
+        public string Name { get; set; }
 
         [JsonProperty("url")]
-        public string Url { get; set; } 
+        public string Url { get; set; }
     }
 }

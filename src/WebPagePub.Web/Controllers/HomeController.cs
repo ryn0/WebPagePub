@@ -1,33 +1,33 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WebPagePub.Web.Helpers;
-using WebPagePub.Data.Repositories.Interfaces;
-using WebPagePub.Web.Models;
-using WebPagePub.Data.Models;
-using System;
-using WebPagePub.Data.Models.Db;
-using WebPagePub.Data.Enums;
-using System.Linq;
-using Microsoft.Extensions.Caching.Memory;
+﻿using System;
 using System.Collections.Generic;
-using WebPagePub.Services.Interfaces;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using WebPagePub.Data.Enums;
+using WebPagePub.Data.Models;
+using WebPagePub.Data.Models.Db;
+using WebPagePub.Data.Repositories.Interfaces;
+using WebPagePub.Services.Interfaces;
+using WebPagePub.Web.Helpers;
+using WebPagePub.Web.Models;
 
 namespace WebPagePub.Web.Controllers
 {
     // todo: cache keys which are retrieved for lookups
     public class HomeController : Controller
     {
-        const string PreviewKey = "preview";
-        const int PageSize = 10;
+        private const string PreviewKey = "preview";
+        private const int PageSize = 10;
 
-        private IHttpContextAccessor _accessor;
-        private readonly ISpamFilterService _spamFilterService;
-        private readonly ISitePageCommentRepository _stePageCommentRepository;
-        private readonly ISitePageRepository _sitePageRepository;
-        private readonly ISitePageSectionRepository _sitePageSectionRepository;
-        private readonly ITagRepository _tagRepository;
-        private readonly IMemoryCache _memoryCache;
-        private readonly ICacheService _cacheService;
+        private readonly ISpamFilterService spamFilterService;
+        private readonly ISitePageCommentRepository sitePageCommentRepository;
+        private readonly ISitePageRepository sitePageRepository;
+        private readonly ISitePageSectionRepository sitePageSectionRepository;
+        private readonly ITagRepository tagRepository;
+        private readonly IMemoryCache memoryCache;
+        private readonly ICacheService cacheService;
+        private IHttpContextAccessor accessor;
 
         public HomeController(
             IHttpContextAccessor accessor,
@@ -35,54 +35,54 @@ namespace WebPagePub.Web.Controllers
             ISitePageCommentRepository stePageCommentRepository,
             ISitePageRepository sitePageRepository,
             ISitePageSectionRepository sitePageSectionRepository,
-            ITagRepository  tagRepository,
+            ITagRepository tagRepository,
             IMemoryCache memoryCache,
             ICacheService cacheService)
         {
-            _accessor = accessor;
-            _spamFilterService = spamFilterService;
-            _stePageCommentRepository = stePageCommentRepository;
-            _sitePageRepository = sitePageRepository;
-            _sitePageSectionRepository = sitePageSectionRepository;
-            _tagRepository = tagRepository;
-            _memoryCache = memoryCache;
-            _cacheService = cacheService;
+            this.accessor = accessor;
+            this.spamFilterService = spamFilterService;
+            this.sitePageCommentRepository = stePageCommentRepository;
+            this.sitePageRepository = sitePageRepository;
+            this.sitePageSectionRepository = sitePageSectionRepository;
+            this.tagRepository = tagRepository;
+            this.memoryCache = memoryCache;
+            this.cacheService = cacheService;
         }
 
         [HttpGet]
         public IActionResult Index()
         {
-            var homeSection = _sitePageSectionRepository.GetHomeSection();
-            var homePage = _sitePageRepository.GetSectionHomePage(homeSection.SitePageSectionId);
+            var homeSection = this.sitePageSectionRepository.GetHomeSection();
+            var homePage = this.sitePageRepository.GetSectionHomePage(homeSection.SitePageSectionId);
 
-            if(homePage == null)
+            if (homePage == null)
             {
-                Response.StatusCode = 404;
+                this.Response.StatusCode = 404;
 
-                return View("Page404");
+                return this.View("Page404");
             }
 
-            return CatchAllRequests(homeSection.Key, homePage.Key);
+            return this.CatchAllRequests(homeSection.Key, homePage.Key);
         }
 
         [Route("{sectionKey}/page/{pageNumber}")]
         [HttpGet]
         public IActionResult SectionPage(string sectionKey, int pageNumber = 1)
         {
-            var section = _sitePageSectionRepository.Get(sectionKey);
-            var homePage = _sitePageRepository.GetSectionHomePage(section.SitePageSectionId);
+            var section = this.sitePageSectionRepository.Get(sectionKey);
+            var homePage = this.sitePageRepository.GetSectionHomePage(section.SitePageSectionId);
 
-            return CatchAllRequests(sectionKey, homePage.Key, false, pageNumber);
+            return this.CatchAllRequests(sectionKey, homePage.Key, false, pageNumber);
         }
 
         [Route("tag/{tagName}/page/{pageNumber}")]
         [HttpGet]
         public IActionResult TagPage(string tagName, int pageNumber = 1)
         {
-            var homeSection = _sitePageSectionRepository.GetHomeSection();
-            var homePage = _sitePageRepository.GetSectionHomePage(homeSection.SitePageSectionId);
+            var homeSection = this.sitePageSectionRepository.GetHomeSection();
+            var homePage = this.sitePageRepository.GetSectionHomePage(homeSection.SitePageSectionId);
 
-            return CatchAllRequests(
+            return this.CatchAllRequests(
                         tagKey: tagName,
                         pageKey: homePage.Key,
                         isPreview: false,
@@ -93,66 +93,65 @@ namespace WebPagePub.Web.Controllers
         [HttpGet]
         public IActionResult TagPage(string tagName)
         {
-            var homeSection = _sitePageSectionRepository.GetHomeSection();
-            var homePage = _sitePageRepository.GetSectionHomePage(homeSection.SitePageSectionId);
+            var homeSection = this.sitePageSectionRepository.GetHomeSection();
+            var homePage = this.sitePageRepository.GetSectionHomePage(homeSection.SitePageSectionId);
 
-            return CatchAllRequests(
+            return this.CatchAllRequests(
                         tagKey: tagName,
                         pageKey: homePage.Key,
-                        isPreview: false );
+                        isPreview: false);
         }
 
         [Route("{sectionKey}/{pageKey}")]
         [HttpGet]
         public IActionResult Index(string sectionKey, string pageKey)
         {
-            return CatchAllRequests(sectionKey, pageKey);
+            return this.CatchAllRequests(sectionKey, pageKey);
         }
 
         [Route("{sectionKey}")]
         [HttpGet]
         public IActionResult Index(string sectionKey)
         {
-            var section = _sitePageSectionRepository.Get(sectionKey);
-            var homePage = _sitePageRepository.GetSectionHomePage(section.SitePageSectionId);
+            var section = this.sitePageSectionRepository.Get(sectionKey);
+            var homePage = this.sitePageRepository.GetSectionHomePage(section.SitePageSectionId);
 
-            return CatchAllRequests(sectionKey, homePage.Key);
+            return this.CatchAllRequests(sectionKey, homePage.Key);
         }
 
-      
         [Route(PreviewKey + "/{sitePageId}")]
         [HttpGet]
         public IActionResult Preview(int sitePageId)
         {
-            var dbModel = _sitePageRepository.Get(sitePageId);
-            var siteSection = _sitePageSectionRepository.Get(dbModel.SitePageSectionId);
- 
-            return CatchAllRequests(siteSection.Key, dbModel.Key, true);
+            var dbModel = this.sitePageRepository.Get(sitePageId);
+            var siteSection = this.sitePageSectionRepository.Get(dbModel.SitePageSectionId);
+
+            return this.CatchAllRequests(siteSection.Key, dbModel.Key, true);
         }
 
         [HttpPost]
         public IActionResult Comment(SitePageCommentModel model)
         {
-            var existingComment = _stePageCommentRepository.Get(model.RequestId);
+            var existingComment = this.sitePageCommentRepository.Get(model.RequestId);
 
             if (existingComment != null)
             {
-                return View("Commented");
+                return this.View("Commented");
             }
 
-            if (!ModelState.IsValid)
+            if (!this.ModelState.IsValid)
             {
-                return View("CommentError");
+                return this.View("CommentError");
             }
 
-            var ipAddress = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
+            var ipAddress = this.accessor.HttpContext.Connection.RemoteIpAddress.ToString();
 
-            if (_spamFilterService.IsBlocked(ipAddress))
+            if (this.spamFilterService.IsBlocked(ipAddress))
             {
-                return BadRequest();
+                return this.BadRequest();
             }
 
-            _stePageCommentRepository.Create(new SitePageComment()
+            this.sitePageCommentRepository.Create(new SitePageComment()
             {
                 Comment = model.Comment.Trim(),
                 Email = model.Email.Trim(),
@@ -164,18 +163,18 @@ namespace WebPagePub.Web.Controllers
                 WebSite = model.Website?.Trim()
             });
 
-            return View("Commented");
+            return this.View("Commented");
         }
 
         private IActionResult CatchAllRequests(
-                                string sectionKey = null, 
-                                string pageKey = null, 
+                                string sectionKey = null,
+                                string pageKey = null,
                                 bool isPreview = false,
                                 int pageNumber = 1,
                                 string tagKey = null)
         {
-            var cacheKey = CacheHelper.GetpPageCacheKey(sectionKey, pageKey, isPreview, pageNumber, tagKey);           
-            var cachedPage = _memoryCache.Get(cacheKey);
+            var cacheKey = CacheHelper.GetpPageCacheKey(sectionKey, pageKey, isPreview, pageNumber, tagKey);
+            var cachedPage = this.memoryCache.Get(cacheKey);
 
             SitePageDisplayModel model;
 
@@ -183,28 +182,30 @@ namespace WebPagePub.Web.Controllers
             {
                 if (string.IsNullOrWhiteSpace(tagKey))
                 {
-                    var siteSection = _sitePageSectionRepository.Get(sectionKey);
+                    var siteSection = this.sitePageSectionRepository.Get(sectionKey);
                     if (siteSection == null)
+                    {
                         return null;
+                    }
 
-                    var dbModel = _sitePageRepository.Get(siteSection.SitePageSectionId, pageKey);
+                    var dbModel = this.sitePageRepository.Get(siteSection.SitePageSectionId, pageKey);
 
                     if (dbModel == null || (!isPreview && !dbModel.IsLive))
                     {
-                        Response.StatusCode = 404;
+                        this.Response.StatusCode = 404;
 
-                        return View("Page404");
+                        return this.View("Page404");
                     }
 
                     switch (dbModel.PageType)
                     {
                         case PageType.PageList:
-                            model = CreateDisplayListModel(siteSection, dbModel, tagKey, pageNumber);
+                            model = this.CreateDisplayListModel(siteSection, dbModel, tagKey, pageNumber);
                             break;
                         case PageType.Content:
                         case PageType.Review:
                         default:
-                            model = CreateDisplayModel(siteSection, dbModel);
+                            model = this.CreateDisplayModel(siteSection, dbModel);
                             break;
                     }
 
@@ -212,10 +213,10 @@ namespace WebPagePub.Web.Controllers
                 }
                 else
                 {
-                    model = CreateDisplayListModel( tagKey: tagKey, pageNumber: pageNumber);
+                    model = this.CreateDisplayListModel(tagKey: tagKey, pageNumber: pageNumber);
                 }
 
-                _memoryCache.Set(cacheKey, model, DateTime.UtcNow.AddMinutes(10));
+                this.memoryCache.Set(cacheKey, model, DateTime.UtcNow.AddMinutes(10));
             }
             else
             {
@@ -225,38 +226,38 @@ namespace WebPagePub.Web.Controllers
             switch (model.PageType)
             {
                 case PageType.PageList:
-                    return View("SectionList", model);
+                    return this.View("SectionList", model);
                 case PageType.Review:
-                    return View("Review", model);
+                    return this.View("Review", model);
                 case PageType.Content:
                 default:
-                    return View("Content", model);
+                    return this.View("Content", model);
             }
         }
 
         private SitePageDisplayModel CreateDisplayListModel(
-            SitePageSection sitePageSection = null, 
+            SitePageSection sitePageSection = null,
             SitePage sitePage = null,
             string tagKey = null,
             int pageNumber = 1)
-         {
-            var displayModel = new SitePageDisplayModel(_cacheService);
+        {
+            var displayModel = new SitePageDisplayModel(this.cacheService);
             List<SitePage> pages;
             int total = 0;
 
             if (string.IsNullOrWhiteSpace(tagKey))
             {
-                var contentModel = CreatePageContentModel(sitePageSection, sitePage);
+                var contentModel = this.CreatePageContentModel(sitePageSection, sitePage);
 
-                displayModel = new SitePageDisplayModel(_cacheService)
+                displayModel = new SitePageDisplayModel(this.cacheService)
                 {
-                    BreadcrumbList = BuildBreadcrumbList(sitePageSection, sitePage),
+                    BreadcrumbList = this.BuildBreadcrumbList(sitePageSection, sitePage),
                     PageType = sitePage.PageType,
-                    Review = BuildReviewModel(sitePageSection, sitePage),
+                    Review = this.BuildReviewModel(sitePageSection, sitePage),
                     PageContent = contentModel
                 };
 
-                pages = _sitePageRepository.GetLivePageBySection(
+                pages = this.sitePageRepository.GetLivePageBySection(
                                                             sitePageSection.SitePageSectionId,
                                                             pageNumber,
                                                             PageSize,
@@ -267,13 +268,13 @@ namespace WebPagePub.Web.Controllers
             else
             {
                 displayModel.TagKey = tagKey;
-                displayModel.TagKeyword = _tagRepository.Get(tagKey).Name;
+                displayModel.TagKeyword = this.tagRepository.Get(tagKey).Name;
                 displayModel.PageContent.Title = $"{displayModel.TagKeyword} - Pages Tagged";
                 displayModel.PageContent.PageHeader = displayModel.PageContent.Title;
                 displayModel.PageContent.MetaDescription = $"Pages which are tagged {displayModel.TagKeyword}";
                 displayModel.PageType = PageType.PageList;
 
-                pages = _sitePageRepository.GetLivePageByTag(
+                pages = this.sitePageRepository.GetLivePageByTag(
                                                             tagKey,
                                                             pageNumber,
                                                             PageSize,
@@ -292,10 +293,12 @@ namespace WebPagePub.Web.Controllers
 
             foreach (var page in pages)
             {
-                var itemPageModel = CreatePageContentModel(page.SitePageSection, page);
+                var itemPageModel = this.CreatePageContentModel(page.SitePageSection, page);
 
                 if (itemPageModel.IsIndex)
+                {
                     continue;
+                }
 
                 displayModel.Items.Add(itemPageModel);
             }
@@ -305,14 +308,14 @@ namespace WebPagePub.Web.Controllers
 
         private SitePageDisplayModel CreateDisplayModel(SitePageSection sitePageSection, SitePage sitePage)
         {
-            var contentModel = CreatePageContentModel(sitePageSection, sitePage);
-            var comments = BuildComments(sitePage);
+            var contentModel = this.CreatePageContentModel(sitePageSection, sitePage);
+            var comments = this.BuildComments(sitePage);
 
-            var displayModel = new SitePageDisplayModel(_cacheService)
+            var displayModel = new SitePageDisplayModel(this.cacheService)
             {
-                BreadcrumbList = BuildBreadcrumbList(sitePageSection, sitePage),
+                BreadcrumbList = this.BuildBreadcrumbList(sitePageSection, sitePage),
                 PageType = sitePage.PageType,
-                Review = BuildReviewModel(sitePageSection, sitePage),
+                Review = this.BuildReviewModel(sitePageSection, sitePage),
                 PageContent = contentModel,
                 Comments = comments,
                 AllowCommenting = sitePage.AllowsComments,
@@ -328,9 +331,11 @@ namespace WebPagePub.Web.Controllers
             var commentModel = new List<SitePageCommentModel>();
 
             if (!sitePage.AllowsComments)
+            {
                 return commentModel;
+            }
 
-            var pageComments = _stePageCommentRepository.GetCommentsForPage(sitePage.SitePageId, CommentStatus.Approved);
+            var pageComments = this.sitePageCommentRepository.GetCommentsForPage(sitePage.SitePageId, CommentStatus.Approved);
 
             foreach (var commentItem in pageComments)
             {
@@ -352,14 +357,14 @@ namespace WebPagePub.Web.Controllers
 
         private SitePageContentModel CreatePageContentModel(SitePageSection sitePageSection, SitePage sitePage)
         {
-            var blobPrefix = _cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
-            var cdnPrefix = _cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
+            var blobPrefix = this.cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
+            var cdnPrefix = this.cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
 
-            var canonicalUrl = new Uri(UrlBuilder.GetCurrentDomain(HttpContext) +
+            var canonicalUrl = new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext) +
                     UrlBuilder.BlogUrlPath(sitePageSection.Key, sitePage.Key));
 
             var defaultPhotoUrl = sitePage?.Photos.FirstOrDefault(x => x.IsDefault == true);
-           
+
             var displayModel = new SitePageContentModel()
             {
                 BreadcrumbName = sitePage.BreadcrumbName,
@@ -370,14 +375,14 @@ namespace WebPagePub.Web.Controllers
                 LastUpdatedDateTimeUtc = sitePage.UpdateDate ?? sitePage.CreateDate,
                 PublishedDateTime = sitePage.PublishDateTimeUtc,
                 CanonicalUrl = canonicalUrl.ToString(),
-                PhotoUrl = ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, defaultPhotoUrl?.PhotoFullScreenUrl),
+                PhotoUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, defaultPhotoUrl?.PhotoFullScreenUrl),
                 PhotoUrlHeight = defaultPhotoUrl != null ? defaultPhotoUrl.PhotoFullScreenUrlHeight : 0,
                 PhotoUrlWidth = defaultPhotoUrl != null ? defaultPhotoUrl.PhotoFullScreenUrlWidth : 0,
                 MetaKeywords = sitePage.MetaKeywords,
                 UrlPath = UrlBuilder.BlogUrlPath(sitePageSection.Key, sitePage.Key),
                 Key = sitePage.Key,
                 SectionKey = sitePageSection.Key,
-                DefaultPhotoThumbCdnUrl = ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, defaultPhotoUrl?.PhotoThumbUrl) 
+                DefaultPhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, defaultPhotoUrl?.PhotoThumbUrl)
             };
 
             if (displayModel.Tags != null)
@@ -393,10 +398,12 @@ namespace WebPagePub.Web.Controllers
             return displayModel;
         }
 
-        private  string ConvertBlobToCdnUrl(string blobPrefix, string cdnPrefix, string blobUrl)
+        private string ConvertBlobToCdnUrl(string blobPrefix, string cdnPrefix, string blobUrl)
         {
             if (string.IsNullOrWhiteSpace(blobUrl))
+            {
                 return null;
+            }
 
             return blobUrl.Replace(blobPrefix, cdnPrefix);
         }
@@ -404,11 +411,13 @@ namespace WebPagePub.Web.Controllers
         private StructureDataReviewModel BuildReviewModel(SitePageSection sitePageSection, SitePage sitePage)
         {
             if (sitePage.PageType != PageType.Review)
+            {
                 return null;
+            }
 
             var ratingPercentage = (sitePage.ReviewRatingValue / (sitePage.ReviewBestValue - sitePage.ReviewWorstValue)) * 100;
 
-            return new StructureDataReviewModel(_cacheService)
+            return new StructureDataReviewModel(this.cacheService)
             {
                 ItemReviewed = new ItemReviewed()
                 {
@@ -421,24 +430,25 @@ namespace WebPagePub.Web.Controllers
                     WorstRating = sitePage.ReviewWorstValue.ToString("0.0"),
                     RatingPercentage = ratingPercentage.ToString("0.0")
                 },
-                //Author = new Author()
-                //{
+
+                // Author = new Author()
+                // {
                 //    Name = StringConstants.WebsiteAuthor //TODO: GET FROM SITEPAGE USER
-                //},
+                // },
                 Publisher = new Publisher()
                 {
-                    Name = _cacheService.GetSnippet(SiteConfigSetting.WebsiteName)
+                    Name = this.cacheService.GetSnippet(SiteConfigSetting.WebsiteName)
                 }
             };
         }
 
         private StructuredDataBreadcrumbModel BuildBreadcrumbList(SitePageSection sitePageSection, SitePage sitePage)
         {
-            var domain = UrlBuilder.GetCurrentDomain(HttpContext);
+            var domain = UrlBuilder.GetCurrentDomain(this.HttpContext);
 
             var cacheKey = CacheHelper.GetpPageCacheKey(sitePageSection);
             SitePageSection homeSection;
-            var cachedValue = _memoryCache.Get(cacheKey);
+            var cachedValue = this.memoryCache.Get(cacheKey);
 
             if (cachedValue != null)
             {
@@ -446,11 +456,11 @@ namespace WebPagePub.Web.Controllers
             }
             else
             {
-                homeSection = _sitePageSectionRepository.GetHomeSection();
-                
-                _memoryCache.Set(cacheKey, homeSection, DateTime.UtcNow.AddMinutes(10));
+                homeSection = this.sitePageSectionRepository.GetHomeSection();
+
+                this.memoryCache.Set(cacheKey, homeSection, DateTime.UtcNow.AddMinutes(10));
             }
-            
+
             if (homeSection == null)
             {
                 return new StructuredDataBreadcrumbModel();
@@ -465,7 +475,7 @@ namespace WebPagePub.Web.Controllers
                                Position = 1,
                                 Item = new BreadcrumbListItemProperties()
                                 {
-                                     Name =  homeSection.BreadcrumbName,
+                                     Name = homeSection.BreadcrumbName,
                                      PageUrl = new Uri(domain)
                                 }
                            }
@@ -481,7 +491,6 @@ namespace WebPagePub.Web.Controllers
                     {
                         Name = sitePageSection.BreadcrumbName,
                         PageUrl = new Uri(new Uri(domain), sitePageSection.Key),
-
                     },
                 });
             }
@@ -496,16 +505,11 @@ namespace WebPagePub.Web.Controllers
                                {
                                    Name = sitePage.BreadcrumbName,
                                    PageUrl = new Uri(new Uri(domain), UrlBuilder.BlogUrlPath(sitePageSection.Key, sitePage.Key))
-
                                }
                            });
             }
 
             return breadcrumbList;
         }
-
-
-
-
     }
 }

@@ -1,46 +1,44 @@
-﻿using WebPagePub.Data.Repositories.Interfaces;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using log4net;
 using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Models;
-using System.Linq;
-using System.Collections.Generic;
-using log4net;
-using System.Reflection;
+using WebPagePub.Data.Repositories.Interfaces;
 
 namespace WebPagePub.Data.Repositories.Implementations
 {
     public class SitePageTagRepository : ISitePageTagRepository
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public SitePageTagRepository(IApplicationDbContext context)
         {
-            Context = context;
+            this.Context = context;
         }
 
         public IApplicationDbContext Context { get; private set; }
- 
 
         public void Dispose()
         {
-            Context.Dispose();
+            this.Context.Dispose();
         }
 
-       
-        public bool Delete(int tagId, int SitePageId)
+        public bool Delete(int tagId, int sitePageId)
         {
             try
             {
-                var entry = Context.SitePageTag.FirstOrDefault(x => x.TagId == tagId && x.SitePageId == SitePageId);
+                var entry = this.Context.SitePageTag.FirstOrDefault(x => x.TagId == tagId && x.SitePageId == sitePageId);
 
-                Context.SitePageTag.Remove(entry);
-                Context.SaveChanges();
+                this.Context.SitePageTag.Remove(entry);
+                this.Context.SaveChanges();
 
                 return true;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 return false;
             }
@@ -50,16 +48,15 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                Context.SitePageTag.Add(model);
-                Context.SaveChanges();
+                this.Context.SitePageTag.Add(model);
+                this.Context.SaveChanges();
 
                 return model;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
-
             }
         }
 
@@ -67,25 +64,23 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                Context.SitePageTag.Update(model);
-                Context.SaveChanges();
+                this.Context.SitePageTag.Update(model);
+                this.Context.SaveChanges();
 
                 return true;
             }
-
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
-
             }
         }
 
-        public SitePageTag Get(int tagId, int SitePageId)
+        public SitePageTag Get(int tagId, int sitePageId)
         {
             try
             {
-                return Context.SitePageTag.FirstOrDefault(x => x.TagId == tagId && x.SitePageId == SitePageId);
+                return this.Context.SitePageTag.FirstOrDefault(x => x.TagId == tagId && x.SitePageId == sitePageId);
             }
             catch (Exception ex)
             {
@@ -93,17 +88,16 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<SitePageTag> GetTagsForBlog(int SitePageId)
+        public List<SitePageTag> GetTagsForBlog(int sitePageId)
         {
             try
             {
-                return Context.SitePageTag.Where(x => x.SitePageId == SitePageId).ToList();
+                return this.Context.SitePageTag.Where(x => x.SitePageId == sitePageId).ToList();
             }
             catch (Exception ex)
             {
                 throw new Exception("DB error", ex.InnerException);
             }
         }
-        
     }
 }

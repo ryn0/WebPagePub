@@ -1,7 +1,7 @@
-﻿using WebPagePub.Data.DbContextInfo;
-using WebPagePub.Data.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using WebPagePub.Data.DbContextInfo;
+using WebPagePub.Data.Models;
 
 namespace WebPagePub.Data.Repositories.Interfaces
 {
@@ -15,8 +15,8 @@ namespace WebPagePub.Data.Repositories.Interfaces
 
         SitePageTag Get(int tagId, int sitePageId);
 
-        List<SitePageTag> GetTagsForBlog(int SitePageId);
+        List<SitePageTag> GetTagsForBlog(int sitePageId);
 
-        bool Delete(int tagId, int SitePageId); 
+        bool Delete(int tagId, int sitePageId);
     }
 }

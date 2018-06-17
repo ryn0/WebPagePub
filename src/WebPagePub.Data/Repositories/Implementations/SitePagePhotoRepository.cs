@@ -1,37 +1,37 @@
-﻿using WebPagePub.Data.Repositories.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using log4net;
 using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Models;
-using System.Linq;
-using log4net;
-using System.Reflection;
+using WebPagePub.Data.Repositories.Interfaces;
 
 namespace WebPagePub.Data.Repositories.Implementations
 {
     public class SitePagePhotoRepository : ISitePagePhotoRepository
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
-        public IApplicationDbContext Context { get; set; }
+        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public SitePagePhotoRepository(IApplicationDbContext context)
         {
-            Context = context;
+            this.Context = context;
         }
+
+        public IApplicationDbContext Context { get; set; }
 
         public SitePagePhoto Create(SitePagePhoto model)
         {
             try
             {
-                Context.SitePagePhoto.Add(model);
-                Context.SaveChanges();
+                this.Context.SitePagePhoto.Add(model);
+                this.Context.SaveChanges();
 
                 return model;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
             }
         }
@@ -40,9 +40,9 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var photoEntry = Get(sitePagePhotoId);
+                var photoEntry = this.Get(sitePagePhotoId);
 
-                foreach (var photo in Context.SitePagePhoto
+                foreach (var photo in this.Context.SitePagePhoto
                                              .Where(x => x.SitePageId == photoEntry.SitePageId)
                                              .ToList())
                 {
@@ -54,11 +54,11 @@ namespace WebPagePub.Data.Repositories.Implementations
                     }
                 }
 
-                Context.SaveChanges();
+                this.Context.SaveChanges();
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
             }
         }
@@ -67,32 +67,32 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var entry = Context.SitePagePhoto
+                var entry = this.Context.SitePagePhoto
                                    .FirstOrDefault(x => x.SitePagePhotoId == sitePagePhotoId);
 
-                Context.SitePagePhoto.Remove(entry);
-                Context.SaveChanges();
+                this.Context.SitePagePhoto.Remove(entry);
+                this.Context.SaveChanges();
 
                 return true;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 return false;
             }
         }
- 
+
         public SitePagePhoto Get(int sitePagePhotoId)
         {
             try
             {
-                return Context.SitePagePhoto
+                return this.Context.SitePagePhoto
                               .FirstOrDefault(x => x.SitePagePhotoId == sitePagePhotoId);
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
             }
         }
@@ -101,13 +101,13 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.SitePagePhoto
+                return this.Context.SitePagePhoto
                               .Where(x => x.SitePageId == sitePageId)
                               .ToList();
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
             }
         }
@@ -116,21 +116,21 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                Context.SitePagePhoto.Update(model);
-                Context.SaveChanges();
+                this.Context.SitePagePhoto.Update(model);
+                this.Context.SaveChanges();
 
                 return true;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
             }
         }
-      
+
         public void Dispose()
         {
-            Context.Dispose();
+            this.Context.Dispose();
         }
     }
 }

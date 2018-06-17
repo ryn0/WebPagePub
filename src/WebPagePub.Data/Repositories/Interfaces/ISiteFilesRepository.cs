@@ -1,8 +1,8 @@
-﻿using WebPagePub.Data.Models.AzureStorage.Blob;
-using Microsoft.AspNetCore.Http;
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using WebPagePub.Data.Models.AzureStorage.Blob;
 
 namespace WebPagePub.Data.Repositories.Interfaces
 {
@@ -19,6 +19,5 @@ namespace WebPagePub.Data.Repositories.Interfaces
         Task CreateFolderAsync(string folderPath, string directory = null);
 
         Task DeleteFolderAsync(string folderPath);
-         
     }
 }

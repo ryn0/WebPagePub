@@ -1,6 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace WebPagePub.Web.Models
 {
@@ -14,33 +13,5 @@ namespace WebPagePub.Web.Models
 
         [JsonProperty("itemListElement")]
         public List<BreadcrumbListItem> ItemListElement { get; set; } = new List<BreadcrumbListItem>();
-
-
-
     }
-
-    public class BreadcrumbListItem
-    {
-        [JsonProperty("@type")]
-        public string @Type { get; set; } = "ListItem";
-
-        [JsonProperty("position")]
-        public int Position { get; set; }
-
-        [JsonProperty("item")]
-        public BreadcrumbListItemProperties Item { get; set; } = new BreadcrumbListItemProperties();
-    }
-
-    public class BreadcrumbListItemProperties
-    {
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("@id")]
-        public Uri PageUrl { get; set; }
-
-        [JsonProperty("image", NullValueHandling = NullValueHandling.Ignore)]
-        public Uri ImageUrl { get; set; }
-    }
-
 }

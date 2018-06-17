@@ -1,26 +1,26 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using WebPagePub.Web.Models;
-using WebPagePub.Data.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using WebPagePub.Data.Models;
+using WebPagePub.Web.Models;
 
 namespace WebPagePub.Web.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<ApplicationUser> userManager;
+        private readonly SignInManager<ApplicationUser> signInManager;
+        private readonly RoleManager<IdentityRole> roleManager;
 
         public AccountController(
           UserManager<ApplicationUser> userManager,
           SignInManager<ApplicationUser> signInManager,
           RoleManager<IdentityRole> roleManager)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _roleManager = roleManager;
+            this.userManager = userManager;
+            this.signInManager = signInManager;
+            this.roleManager = roleManager;
         }
 
         [Route("account/login")]
@@ -28,7 +28,7 @@ namespace WebPagePub.Web.Controllers
         [AllowAnonymous]
         public IActionResult Login()
         {
-            return View();
+            return this.View();
         }
 
         [Route("account/home")]
@@ -36,7 +36,7 @@ namespace WebPagePub.Web.Controllers
         [HttpGet]
         public IActionResult Home()
         {
-            return View();
+            return this.View();
         }
 
         [Route("account/login")]
@@ -45,32 +45,31 @@ namespace WebPagePub.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Login(LoginViewModel model, string returnUrl = null)
         {
-            ViewData["ReturnUrl"] = returnUrl;
+            this.ViewData["ReturnUrl"] = returnUrl;
 
-            if (ModelState.IsValid)
+            if (this.ModelState.IsValid)
             {
-                if (!IsValidPassword(model))
+                if (!this.IsValidPassword(model))
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return View(model);
-
+                    this.ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    return this.View(model);
                 }
+
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
 
                 // Require the user to have a confirmed email before they can log on.
-                ApplicationUser user;
-                if (!EmailIsConfirmed(model.Email, out user))
+                if (!this.EmailIsConfirmed(model.Email, out ApplicationUser user))
                 {
-                    ModelState.AddModelError(string.Empty, "You must have a confirmed email to log in.");
-                    return View(model);
+                    this.ModelState.AddModelError(string.Empty, "You must have a confirmed email to log in.");
+                    return this.View(model);
                 }
 
-                return RedirectToAction("Index", "Admin");
+                return this.RedirectToAction("Index", "Admin");
             }
 
             // If we got this far, something failed, redisplay form
-            return View(model);
+            return this.View(model);
         }
 
         [Route("account/logoff")]
@@ -78,57 +77,58 @@ namespace WebPagePub.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LogOff()
         {
-            await _signInManager.SignOutAsync();
-           
-            return RedirectToAction(nameof(HomeController.Index), "Home");
+            await this.signInManager.SignOutAsync();
+
+            return this.RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
-       
         public async Task AddUserToRole(ApplicationUser user, string role)
         {
-            var admin = await _roleManager.FindByNameAsync(role);
+            var admin = await this.roleManager.FindByNameAsync(role);
 
             if (admin == null)
             {
                 admin = new IdentityRole(role.ToString());
-                await _roleManager.CreateAsync(admin);
+                await this.roleManager.CreateAsync(admin);
             }
 
-            if (!await _userManager.IsInRoleAsync(user, admin.Name))
+            if (!await this.userManager.IsInRoleAsync(user, admin.Name))
             {
-                await _userManager.AddToRoleAsync(user, admin.Name);
+                await this.userManager.AddToRoleAsync(user, admin.Name);
             }
         }
 
         private bool EmailIsConfirmed(string email, out ApplicationUser applicationUser)
         {
-            var user = Task.Run(() => _userManager.FindByNameAsync(email)).Result;
+            var user = Task.Run(() => this.userManager.FindByNameAsync(email)).Result;
 
             applicationUser = user;
 
             applicationUser.EmailConfirmed = true;
-            _userManager.UpdateAsync(applicationUser);
+            this.userManager.UpdateAsync(applicationUser);
 
             if (user == null)
+            {
                 return false;
+            }
 
-            if (Task.Run(() => _userManager.IsEmailConfirmedAsync(user)).Result)
+            if (Task.Run(() => this.userManager.IsEmailConfirmedAsync(user)).Result)
+            {
                 return true;
+            }
 
             return false;
         }
 
         private bool IsValidPassword(LoginViewModel model)
         {
-            var result = Task.Run(() => _signInManager.PasswordSignInAsync(
+            var result = Task.Run(() => this.signInManager.PasswordSignInAsync(
                     model.Email,
                     model.Password,
                     model.RememberMe,
                     lockoutOnFailure: false)).Result;
 
             return result.Succeeded && !result.IsLockedOut;
-
         }
- 
     }
 }

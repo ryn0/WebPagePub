@@ -1,36 +1,36 @@
-﻿using WebPagePub.Data.Repositories.Interfaces;
-using WebPagePub.Web.Models;
-using log4net;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using log4net;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using WebPagePub.Data.Repositories.Interfaces;
+using WebPagePub.Web.Models;
 
 namespace WebPagePub.Web.Controllers
 {
     [Authorize(Roles = WebPagePub.Data.Constants.StringConstants.AdminRole)]
     public class SiteFilesManagementController : Controller
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        private readonly ISiteFilesRepository _siteFilesRepository;
+        private readonly ISiteFilesRepository siteFilesRepository;
 
         public SiteFilesManagementController(ISiteFilesRepository siteFilesRepository)
         {
-            _siteFilesRepository = siteFilesRepository;
+            this.siteFilesRepository = siteFilesRepository;
         }
 
         [Route("sitefilesmanagement/upload")]
         [HttpGet]
         public ActionResult Upload(string folderPath = null)
         {
-            ViewBag.UploadFolderPath = folderPath;
+            this.ViewBag.UploadFolderPath = folderPath;
 
-            return View();
+            return this.View();
         }
 
         [Route("sitefilesmanagement/uploadasync")]
@@ -43,16 +43,16 @@ namespace WebPagePub.Web.Controllers
                 {
                     if (file != null && file.Length > 0)
                     {
-                        await _siteFilesRepository.UploadAsync(file, folderPath);
+                        await this.siteFilesRepository.UploadAsync(file, folderPath);
                     }
                 }
 
-                return RedirectToAction("Index");
+                return this.RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
-                return RedirectToAction("Index");
+                Log.Fatal(ex);
+                return this.RedirectToAction("Index");
             }
         }
 
@@ -66,15 +66,15 @@ namespace WebPagePub.Web.Controllers
                 {
                     folderName = folderName.Trim();
 
-                    await _siteFilesRepository.CreateFolderAsync(folderName, currentDirectory);
+                    await this.siteFilesRepository.CreateFolderAsync(folderName, currentDirectory);
                 }
 
-                return RedirectToAction("Index");
+                return this.RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
-                return RedirectToAction("Index");
+                Log.Fatal(ex);
+                return this.RedirectToAction("Index");
             }
         }
 
@@ -82,7 +82,7 @@ namespace WebPagePub.Web.Controllers
         [HttpGet]
         public ActionResult Index(string folderPath = null)
         {
-            var directory = _siteFilesRepository.ListFiles(folderPath);
+            var directory = this.siteFilesRepository.ListFiles(folderPath);
 
             var model = new SiteFileListModel();
 
@@ -121,25 +121,25 @@ namespace WebPagePub.Web.Controllers
                 }
             }
 
-            return View(model);
+            return this.View(model);
         }
 
         [Route("sitefilesmanagement/DeleteFileAsync")]
         [HttpGet]
         public async Task<ActionResult> DeleteFileAsync(string fileUrl)
         {
-            await _siteFilesRepository.DeleteFileAsync(fileUrl);
+            await this.siteFilesRepository.DeleteFileAsync(fileUrl);
 
-            return RedirectToAction("Index");
+            return this.RedirectToAction("Index");
         }
 
         [Route("sitefilesmanagement/DeleteFolderAsync")]
         [HttpGet]
-        public async  Task<ActionResult> DeleteFolderAsync(string folderUrl)
+        public async Task<ActionResult> DeleteFolderAsync(string folderUrl)
         {
-            await _siteFilesRepository.DeleteFolderAsync(folderUrl);
+            await this.siteFilesRepository.DeleteFolderAsync(folderUrl);
 
-            return RedirectToAction("Index");
+            return this.RedirectToAction("Index");
         }
     }
 }

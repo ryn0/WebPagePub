@@ -1,22 +1,22 @@
-﻿using log4net;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using log4net;
 using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 
 namespace WebPagePub.Data.Repositories.Implementations
 {
     public class SitePageCommentRepository : ISitePageCommentRepository
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public SitePageCommentRepository(IApplicationDbContext context)
         {
-            Context = context;
+            this.Context = context;
         }
 
         public IApplicationDbContext Context { get; set; }
@@ -25,14 +25,14 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                Context.SitePageComment.Add(model);
-                Context.SaveChanges();
+                this.Context.SitePageComment.Add(model);
+                this.Context.SaveChanges();
 
                 return model;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
             }
         }
@@ -41,12 +41,12 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.SitePageComment
+                return this.Context.SitePageComment
                               .FirstOrDefault(x => x.SitePageCommentId == sitePageCommentId);
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
             }
         }
@@ -55,12 +55,12 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.SitePageComment
+                return this.Context.SitePageComment
                               .FirstOrDefault(x => x.RequestId == requestId);
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
             }
         }
@@ -69,13 +69,13 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.SitePageComment
+                return this.Context.SitePageComment
                               .Where(x => x.SitePageId == sitePageId)
                               .ToList();
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
             }
         }
@@ -84,13 +84,13 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.SitePageComment
+                return this.Context.SitePageComment
                               .Where(x => x.SitePageId == sitePageId && x.CommentStatus == commentStatus)
                               .ToList();
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
             }
         }
@@ -99,13 +99,13 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.SitePageComment
+                return this.Context.SitePageComment
                               .Where(x => x.CommentStatus == commentStatus)
                               .Count();
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
             }
         }
@@ -114,40 +114,40 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                Context.SitePageComment.Update(model);
-                Context.SaveChanges();
+                this.Context.SitePageComment.Update(model);
+                this.Context.SaveChanges();
 
                 return true;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
             }
         }
 
         public void Dispose()
         {
-            Context.Dispose();
+            this.Context.Dispose();
         }
 
         public List<SitePageComment> GetPage(int pageNumber, int quantityPerPage, out int total)
         {
             try
             {
-                var model = Context.SitePageComment
+                var model = this.Context.SitePageComment
                                    .OrderByDescending(x => x.CreateDate)
                                    .Skip(quantityPerPage * (pageNumber - 1))
                                    .Take(quantityPerPage)
                                    .ToList();
 
-                total = Context.SitePageComment.Count();
+                total = this.Context.SitePageComment.Count();
 
                 return model;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 throw new Exception("DB error", ex.InnerException);
             }

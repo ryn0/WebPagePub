@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <RuntimeIdentifiers>win7-x64</RuntimeIdentifiers>
+    <CodeAnalysisRuleSet>../StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
+
   </PropertyGroup>
 
   <PropertyGroup>
@@ -11,9 +13,13 @@
 
   <ItemGroup>
     <Compile Remove="Services\**" />
+    <Compile Remove="Views\obj\**" />
     <Content Remove="Services\**" />
+    <Content Remove="Views\obj\**" />
     <EmbeddedResource Remove="Services\**" />
+    <EmbeddedResource Remove="Views\obj\**" />
     <None Remove="Services\**" />
+    <None Remove="Views\obj\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,6 +44,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.1.0" />
     <PackageReference Include="log4net" Version="2.0.8" />
     <PackageReference Include="morelinq" Version="2.10.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <PackageReference Include="System.Net.Sockets" Version="4.3.0" />
   </ItemGroup>
@@ -62,4 +69,7 @@
     <ProjectReference Include="..\WebPagePub.Services\WebPagePub.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <AdditionalFiles Include="..\stylecop.json" />
+  </ItemGroup>
 </Project>

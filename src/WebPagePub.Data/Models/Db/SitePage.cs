@@ -1,10 +1,10 @@
-﻿using WebPagePub.Data.Enums;
-using WebPagePub.Data.Models.BaseModels;
-using WebPagePub.Data.Models.Db;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WebPagePub.Data.Enums;
+using WebPagePub.Data.Models.BaseModels;
+using WebPagePub.Data.Models.Db;
 
 namespace WebPagePub.Data.Models
 {

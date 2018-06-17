@@ -1,23 +1,22 @@
-﻿using WebPagePub.Data.Repositories.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using WebPagePub.Data.DbContextInfo;
-using log4net;
-using System.Reflection;
-using WebPagePub.Data.Models.Db;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using log4net;
+using WebPagePub.Data.DbContextInfo;
+using WebPagePub.Data.Models.Db;
+using WebPagePub.Data.Repositories.Interfaces;
 
 namespace WebPagePub.Data.Repositories.Implementations
 {
     public class ClickLogRepository : IClickLogRepository
-    { 
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+    {
+        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public ClickLogRepository(IApplicationDbContext context)
         {
-            Context = context;
+            this.Context = context;
         }
 
         public IApplicationDbContext Context { get; private set; }
@@ -26,14 +25,14 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                Context.ClickLog.Add(model);
-                await Context.SaveChangesAsync();
+                this.Context.ClickLog.Add(model);
+                await this.Context.SaveChangesAsync();
 
                 return model;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
             }
         }
@@ -42,20 +41,20 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var clicks = Context.ClickLog.Where(x => x.CreateDate >= startDate && x.CreateDate <= endDate).ToList();
+                var clicks = this.Context.ClickLog.Where(x => x.CreateDate >= startDate && x.CreateDate <= endDate).ToList();
 
                 return clicks;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
             }
         }
 
         public void Dispose()
         {
-            Context.Dispose();
+            this.Context.Dispose();
         }
     }
 }

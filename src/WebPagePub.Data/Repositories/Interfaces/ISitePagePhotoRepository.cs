@@ -1,7 +1,7 @@
-﻿using WebPagePub.Data.DbContextInfo;
-using WebPagePub.Data.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using WebPagePub.Data.DbContextInfo;
+using WebPagePub.Data.Models;
 
 namespace WebPagePub.Data.Repositories.Interfaces
 {
@@ -13,12 +13,12 @@ namespace WebPagePub.Data.Repositories.Interfaces
 
         bool Update(SitePagePhoto model);
 
-        SitePagePhoto Get(int SitePagePhotoId);
+        SitePagePhoto Get(int sitePagePhotoId);
 
-        bool Delete(int SitePagePhotoId);
+        bool Delete(int sitePagePhotoId);
 
-        List<SitePagePhoto> GetBlogPhotos(int SitePageId);
+        List<SitePagePhoto> GetBlogPhotos(int sitePageId);
 
-        void SetDefaultPhoto(int SitePagePhotoId);
+        void SetDefaultPhoto(int sitePagePhotoId);
     }
 }

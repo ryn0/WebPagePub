@@ -1,32 +1,32 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using WebPagePub.Data.Enums;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Web.Models;
-using WebPagePub.Data.Enums;
 
 namespace WebPagePub.Web.Controllers
 {
     [Authorize]
     public class AdminController : Controller
     {
-        private readonly ISitePageCommentRepository _sitePageCommentRepository;
+        private readonly ISitePageCommentRepository sitePageCommentRepository;
 
         public AdminController(ISitePageCommentRepository sitePageCommentRepository)
         {
-            _sitePageCommentRepository = sitePageCommentRepository;
+            this.sitePageCommentRepository = sitePageCommentRepository;
         }
 
         [Route("admin/index")]
         public IActionResult Index()
         {
-            var totalRequiringModeration = _sitePageCommentRepository.GetCommentCountForStatus(CommentStatus.AwaitingModeration);
+            var totalRequiringModeration = this.sitePageCommentRepository.GetCommentCountForStatus(CommentStatus.AwaitingModeration);
 
             var model = new AdminManagementModel()
             {
                 CountOfCommentsToModerate = totalRequiringModeration
             };
 
-            return View(model);
+            return this.View(model);
         }
     }
 }

@@ -1,8 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.IO;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using System.IO;
-
 
 namespace WebPagePub.Data.DbContextInfo
 {
@@ -10,18 +9,17 @@ namespace WebPagePub.Data.DbContextInfo
     {
         public IConfigurationRoot Configuration { get; set; }
 
- 
         public ApplicationDbContext CreateDbContext(string[] args)
         {
             var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
 
             var builderConfigs = new ConfigurationBuilder()
-                         .SetBasePath(Directory.GetCurrentDirectory())
+                        .SetBasePath(Directory.GetCurrentDirectory())
                         .AddJsonFile("appsettings.json");
 
-            Configuration = builderConfigs.Build();
+            this.Configuration = builderConfigs.Build();
 
-            var connectionString = Configuration["ConnectionStrings:SqlServerConnection"];
+            var connectionString = this.Configuration["ConnectionStrings:SqlServerConnection"];
 
             builder.UseSqlServer(connectionString);
 

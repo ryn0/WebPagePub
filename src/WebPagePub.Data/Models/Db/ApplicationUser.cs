@@ -1,5 +1,5 @@
-﻿using WebPagePub.Data.DbModels.BaseDbModels;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using WebPagePub.Data.DbModels.BaseDbModels;
 
 namespace WebPagePub.Data.Models
 {
@@ -7,7 +7,6 @@ namespace WebPagePub.Data.Models
     {
         public ApplicationUser()
         {
-
         }
 
         [StringLength(36)]

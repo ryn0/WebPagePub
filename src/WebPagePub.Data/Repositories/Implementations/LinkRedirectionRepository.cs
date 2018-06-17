@@ -1,21 +1,21 @@
-﻿using WebPagePub.Data.Repositories.Interfaces;
-using System;
-using WebPagePub.Data.DbContextInfo;
-using System.Linq;
-using WebPagePub.Data.Models.Db;
+﻿using System;
 using System.Collections.Generic;
-using log4net;
+using System.Linq;
 using System.Reflection;
+using log4net;
+using WebPagePub.Data.DbContextInfo;
+using WebPagePub.Data.Models.Db;
+using WebPagePub.Data.Repositories.Interfaces;
 
 namespace WebPagePub.Data.Repositories.Implementations
 {
     public class LinkRedirectionRepository : ILinkRedirectionRepository
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public LinkRedirectionRepository(IApplicationDbContext context)
         {
-            Context = context;
+            this.Context = context;
         }
 
         public IApplicationDbContext Context { get; private set; }
@@ -24,30 +24,28 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                Context.LinkRedirection.Add(model);
-                Context.SaveChanges();
+                this.Context.LinkRedirection.Add(model);
+                this.Context.SaveChanges();
 
                 return model;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
-
             }
         }
- 
 
         public void Dispose()
         {
-            Context.Dispose();
+            this.Context.Dispose();
         }
 
         public LinkRedirection Get(int linkRedirectionId)
         {
             try
             {
-                return Context.LinkRedirection.FirstOrDefault(x => x.LinkRedirectionId == linkRedirectionId);
+                return this.Context.LinkRedirection.FirstOrDefault(x => x.LinkRedirectionId == linkRedirectionId);
             }
             catch (Exception ex)
             {
@@ -59,13 +57,12 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.LinkRedirection.FirstOrDefault(x => x.LinkKey == key);
+                return this.Context.LinkRedirection.FirstOrDefault(x => x.LinkKey == key);
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
-
             }
         }
 
@@ -73,17 +70,15 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                Context.LinkRedirection.Update(model);
-                Context.SaveChanges();
+                this.Context.LinkRedirection.Update(model);
+                this.Context.SaveChanges();
 
                 return true;
             }
-
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
-
             }
         }
 
@@ -91,16 +86,16 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var entry = Context.LinkRedirection.FirstOrDefault(x => x.LinkRedirectionId == linkRedirectionId);
+                var entry = this.Context.LinkRedirection.FirstOrDefault(x => x.LinkRedirectionId == linkRedirectionId);
 
-                Context.LinkRedirection.Remove(entry);
-                Context.SaveChanges();
+                this.Context.LinkRedirection.Remove(entry);
+                this.Context.SaveChanges();
 
                 return true;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 return false;
             }
@@ -110,11 +105,11 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.LinkRedirection.ToList();
+                return this.Context.LinkRedirection.ToList();
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
             }
         }

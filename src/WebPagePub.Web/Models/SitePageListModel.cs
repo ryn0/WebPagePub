@@ -19,27 +19,4 @@ namespace WebPagePub.Web.Models
 
         public List<SitePageItemModel> Items { get; set; } = new List<SitePageItemModel>();
     }
-
-    public class SitePageItemModel
-    {
-        public int SitePageId { get; set; }
-
-        public bool IsIndex { get; set; }
-
-        public DateTime CreateDate { get; set; }
-
-        public string Title { get; set; }
-
-        public string Key { get; set; }
-
-        public bool IsLive { get;  set; }
-
-        public string LiveUrlPath { get; set; }
-
-        public string PreviewUrlPath { get; set; }
-
-        public bool IsSiteSection { get; set; }
-
-        public int SitePageSectionId { get;  set; }
-    }
 }
