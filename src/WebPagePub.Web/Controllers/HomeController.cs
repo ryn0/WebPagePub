@@ -426,6 +426,11 @@ namespace WebPagePub.Web.Controllers
                 _memoryCache.Set(cacheKey, homeSection, DateTime.UtcNow.AddMinutes(10));
             }
             
+            if (homeSection == null)
+            {
+                return new StructuredDataBreadcrumbModel();
+            }
+
             var breadcrumbList = new StructuredDataBreadcrumbModel()
             {
                 ItemListElement = new List<BreadcrumbListItem>()
@@ -441,7 +446,6 @@ namespace WebPagePub.Web.Controllers
                            }
                 }
             };
-
 
             if (sitePageSection.Key != StringConstants.HomeSectionKey)
             {
