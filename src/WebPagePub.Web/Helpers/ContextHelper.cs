@@ -1,19 +1,20 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
+﻿using System;
+using Microsoft.AspNetCore.Http;
 
 namespace WebPagePub.Web.Helpers
 {
-    public static  class ContextHelper
+    public static class ContextHelper
     {
-        private static IHttpContextAccessor HttpContextAccessor;
+        private static IHttpContextAccessor httpContextAccessor;
+
         public static void Configure(IHttpContextAccessor httpContextAccessor)
         {
-            HttpContextAccessor = httpContextAccessor;
+            ContextHelper.httpContextAccessor = httpContextAccessor;
         }
 
         public static Uri GetAbsoluteUri()
         {
-            var request = HttpContextAccessor.HttpContext.Request;
+            var request = httpContextAccessor.HttpContext.Request;
             UriBuilder uriBuilder = new UriBuilder
             {
                 Scheme = request.Scheme,
@@ -23,6 +24,5 @@ namespace WebPagePub.Web.Helpers
             };
             return uriBuilder.Uri;
         }
-         
     }
 }

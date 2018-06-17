@@ -1,24 +1,24 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
 using Microsoft.AspNetCore.Authorization;
-using WebPagePub.Data.Repositories.Interfaces;
-using WebPagePub.Data.Models;
-using WebPagePub.Data.Constants;
 using Microsoft.AspNetCore.Identity;
-using WebPagePub.Web.Models;
-using System;
+using Microsoft.AspNetCore.Mvc;
+using WebPagePub.Data.Constants;
+using WebPagePub.Data.Models;
+using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
+using WebPagePub.Web.Models;
 
 namespace WebPagePub.Web.Controllers
 {
     [Authorize(Roles = StringConstants.AdminRole)]
     public class CommentManagementController : Controller
     {
-        const int AmountPerPage = 10;
+        private const int AmountPerPage = 10;
 
-        private readonly ISitePageCommentRepository _sitePageCommentRepository;
-        private readonly ISitePageRepository _sitePageRepository;
-        private readonly ISpamFilterService _spamFilterService;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ISitePageCommentRepository sitePageCommentRepository;
+        private readonly ISitePageRepository sitePageRepository;
+        private readonly ISpamFilterService spamFilterService;
+        private readonly UserManager<ApplicationUser> userManager;
 
         public CommentManagementController(
             ISitePageCommentRepository sitePageCommentRepository,
@@ -26,17 +26,17 @@ namespace WebPagePub.Web.Controllers
             ISpamFilterService spamFilterService,
             UserManager<ApplicationUser> userManager)
         {
-            _sitePageCommentRepository = sitePageCommentRepository;
-            _sitePageRepository = sitePageRepository;
-            _spamFilterService = spamFilterService;
-            _userManager = userManager;
+            this.sitePageCommentRepository = sitePageCommentRepository;
+            this.sitePageRepository = sitePageRepository;
+            this.spamFilterService = spamFilterService;
+            this.userManager = userManager;
         }
 
         [Route("CommentManagement")]
         [HttpGet]
         public IActionResult Index(int pageNumber = 1)
         {
-            var dbModel = _sitePageCommentRepository.GetPage(pageNumber, AmountPerPage, out int total);
+            var dbModel = this.sitePageCommentRepository.GetPage(pageNumber, AmountPerPage, out int total);
 
             var model = new SitePageCommentListModel()
             {
@@ -48,7 +48,7 @@ namespace WebPagePub.Web.Controllers
             var pageCount = (double)model.Total / model.QuantityPerPage;
             model.PageCount = (int)Math.Ceiling(pageCount);
 
-            foreach(var item in dbModel)
+            foreach (var item in dbModel)
             {
                 model.Items.Add(new SitePageCommentItemModel()
                 {
@@ -59,14 +59,14 @@ namespace WebPagePub.Web.Controllers
                 });
             }
 
-            return View(model);
+            return this.View(model);
         }
 
         [Route("CommentManagement/Edit")]
         [HttpGet]
         public IActionResult Edit(int sitePageCommentId)
         {
-            var dbModel = _sitePageCommentRepository.Get(sitePageCommentId);
+            var dbModel = this.sitePageCommentRepository.Get(sitePageCommentId);
 
             var model = new SitePageCommentModel()
             {
@@ -81,14 +81,14 @@ namespace WebPagePub.Web.Controllers
                 Website = dbModel.WebSite
             };
 
-            return View(model);
+            return this.View(model);
         }
 
         [Route("CommentManagement/Edit")]
         [HttpPost]
         public IActionResult Edit(SitePageCommentModel model)
         {
-            var dbModel = _sitePageCommentRepository.Get(model.SitePageCommentId);
+            var dbModel = this.sitePageCommentRepository.Get(model.SitePageCommentId);
 
             dbModel.Name = model.Name.Trim();
             dbModel.Comment = model.Comment.Trim();
@@ -98,15 +98,15 @@ namespace WebPagePub.Web.Controllers
 
             if (model.CommentStatus == Data.Enums.CommentStatus.Spam)
             {
-                if (!_spamFilterService.IsBlocked(dbModel.IpAddress))
+                if (!this.spamFilterService.IsBlocked(dbModel.IpAddress))
                 {
-                    _spamFilterService.Create(dbModel.IpAddress);
+                    this.spamFilterService.Create(dbModel.IpAddress);
                 }
             }
 
-            _sitePageCommentRepository.Update(dbModel);
+            this.sitePageCommentRepository.Update(dbModel);
 
-            return RedirectToAction("Index");
+            return this.RedirectToAction("Index");
         }
     }
 }

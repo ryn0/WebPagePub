@@ -1,22 +1,22 @@
-﻿using WebPagePub.Data.Repositories.Interfaces;
-using System;
-using WebPagePub.Data.DbContextInfo;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using log4net;
+using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models.Db;
-using System.Collections.Generic;
-using log4net;
-using System.Reflection;
+using WebPagePub.Data.Repositories.Interfaces;
 
 namespace WebPagePub.Data.Repositories.Implementations
 {
     public class ContentSnippetRepository : IContentSnippetRepository
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public ContentSnippetRepository(IApplicationDbContext context)
         {
-            Context = context;
+            this.Context = context;
         }
 
         public IApplicationDbContext Context { get; private set; }
@@ -25,30 +25,28 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                Context.ContentSnippet.Add(model);
-                Context.SaveChanges();
+                this.Context.ContentSnippet.Add(model);
+                this.Context.SaveChanges();
 
                 return model;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
-
             }
         }
- 
 
         public void Dispose()
         {
-            Context.Dispose();
+            this.Context.Dispose();
         }
 
         public ContentSnippet Get(int contentSnippetId)
         {
             try
             {
-                return Context.ContentSnippet.FirstOrDefault(x => x.ContentSnippetId == contentSnippetId);
+                return this.Context.ContentSnippet.FirstOrDefault(x => x.ContentSnippetId == contentSnippetId);
             }
             catch (Exception ex)
             {
@@ -60,13 +58,12 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.ContentSnippet.FirstOrDefault(x => x.SnippetType == snippetType);
+                return this.Context.ContentSnippet.FirstOrDefault(x => x.SnippetType == snippetType);
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
-
             }
         }
 
@@ -74,17 +71,15 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                Context.ContentSnippet.Update(model);
-                Context.SaveChanges();
+                this.Context.ContentSnippet.Update(model);
+                this.Context.SaveChanges();
 
                 return true;
             }
-
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
-
             }
         }
 
@@ -92,30 +87,30 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var entry = Context.ContentSnippet.FirstOrDefault(x => x.ContentSnippetId == contentSnippetId);
+                var entry = this.Context.ContentSnippet.FirstOrDefault(x => x.ContentSnippetId == contentSnippetId);
 
-                Context.ContentSnippet.Remove(entry);
-                Context.SaveChanges();
+                this.Context.ContentSnippet.Remove(entry);
+                this.Context.SaveChanges();
 
                 return true;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 return false;
             }
         }
-         
+
         public List<ContentSnippet> GetAll()
         {
             try
             {
-                return Context.ContentSnippet.ToList();
+                return this.Context.ContentSnippet.ToList();
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
             }
         }

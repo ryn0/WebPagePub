@@ -1,64 +1,64 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using WebPagePub.Data.Repositories.Interfaces;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using WebPagePub.Data.Models.Db;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
-using System;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using WebPagePub.Data.Constants;
-using System.Linq;
-using System.Collections.Generic;
+using WebPagePub.Data.Models.Db;
+using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Web.Helpers;
 
 namespace WebPagePub.Web.Controllers
 {
     public class LinkController : Controller
     {
-       
-        private IMemoryCache _memoryCache;
-        private readonly ILinkRedirectionRepository _linkRedirectionRepository;
-        private readonly IClickLogRepository _clickLogRepository;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
+        private readonly IMemoryCache memoryCache;
+        private readonly ILinkRedirectionRepository linkRedirectionRepository;
+        private readonly IClickLogRepository clickLogRepository;
+        private readonly IHttpContextAccessor httpContextAccessor;
 
         public LinkController(
-            IMemoryCache memoryCache, 
+            IMemoryCache memoryCache,
             ILinkRedirectionRepository linkRedirectionRepository,
             IClickLogRepository clickLogRepository,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor contextAccessor)
         {
-            _memoryCache = memoryCache;
-            _linkRedirectionRepository = linkRedirectionRepository;
-            _clickLogRepository = clickLogRepository;
-            _httpContextAccessor = httpContextAccessor;
+            this.memoryCache = memoryCache;
+            this.linkRedirectionRepository = linkRedirectionRepository;
+            this.clickLogRepository = clickLogRepository;
+            this.httpContextAccessor = contextAccessor;
         }
 
         [Route("go/{key}")]
         public async Task<ActionResult> Go(string key)
         {
-            var url = GetLinkForKey(key);
+            var url = this.GetLinkForKey(key);
 
             if (url == null)
-                Redirect("~/");
+            {
+                this.Redirect("~/");
+            }
 
-            await LogClickAsync();
+            await this.LogClickAsync();
 
-            return Redirect(url);
+            return this.Redirect(url);
         }
 
         private async Task LogClickAsync()
         {
-            var userAgent = _httpContextAccessor.HttpContext?.Request?.Headers["User-Agent"].ToString();
+            var userAgent = this.httpContextAccessor.HttpContext.Request?.Headers["User-Agent"].ToString();
 
-            var headers = GetHeadersString(_httpContextAccessor.HttpContext.Request);
+            var headers = this.GetHeadersString(this.httpContextAccessor.HttpContext.Request);
 
             if (!StringConstants.BotUserAgents.Any(userAgent.Contains))
             {
-                await _clickLogRepository.CreateAsync(new ClickLog()
+                await this.clickLogRepository.CreateAsync(new ClickLog()
                 {
-                    IpAddress = HttpContext.Connection.RemoteIpAddress.ToString(),
-                    Url = _httpContextAccessor.HttpContext?.Request?.GetDisplayUrl(),
+                    IpAddress = this.httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString(),
+                    Url = this.httpContextAccessor.HttpContext?.Request?.GetDisplayUrl(),
                     Headers = headers
                 });
             }
@@ -72,27 +72,26 @@ namespace WebPagePub.Web.Controllers
             {
                 requestHeaders.Add($"{header.Key}:{header.Value}");
             }
-   
-            return String.Join(Environment.NewLine, requestHeaders.ToArray());   
+
+            return string.Join(Environment.NewLine, requestHeaders.ToArray());
         }
 
         private string GetLinkForKey(string key)
         {
             var cacheKey = CacheHelper.GetLinkCacheKey(key);
 
-            if (_memoryCache.TryGetValue(cacheKey, out string destination))
+            if (this.memoryCache.TryGetValue(cacheKey, out string destination))
             {
                 return destination;
             }
             else
             {
-                var link = _linkRedirectionRepository.Get(key);
+                var link = this.linkRedirectionRepository.Get(key);
 
-                _memoryCache.Set(cacheKey, link.UrlDestination);
+                this.memoryCache.Set(cacheKey, link.UrlDestination);
 
                 return link.UrlDestination;
             }
-
         }
     }
 }

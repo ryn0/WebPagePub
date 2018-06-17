@@ -1,48 +1,49 @@
-﻿using WebPagePub.Data.Enums;
+﻿using Microsoft.Extensions.Caching.Memory;
+using WebPagePub.Data.Enums;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace WebPagePub.Services.Implementations
 {
     public class CacheService : ICacheService
     {
-        const string SnippetCachePrefix = "snippet-";
-        IMemoryCache _memoryCache;
-
-        private readonly IContentSnippetRepository _contentSnippetRepository;
+        private const string SnippetCachePrefix = "snippet-";
+        private readonly IContentSnippetRepository contentSnippetRepository;
+        private IMemoryCache memoryCache;
 
         public CacheService(
             IMemoryCache memoryCache,
             IContentSnippetRepository contentSnippetRepository)
         {
-            _memoryCache = memoryCache;
-            _contentSnippetRepository = contentSnippetRepository;
+            this.memoryCache = memoryCache;
+            this.contentSnippetRepository = contentSnippetRepository;
         }
 
         public void ClearSnippetCache(SiteConfigSetting snippetType)
         {
-            var cacheKey = BuildCacheKey(snippetType);
+            var cacheKey = this.BuildCacheKey(snippetType);
 
-            _memoryCache.Remove(cacheKey);
+            this.memoryCache.Remove(cacheKey);
         }
 
         public string GetSnippet(SiteConfigSetting snippetType)
         {
-            var cacheKey = BuildCacheKey(snippetType);
+            var cacheKey = this.BuildCacheKey(snippetType);
 
-            if (_memoryCache.TryGetValue(cacheKey, out string snippet))
+            if (this.memoryCache.TryGetValue(cacheKey, out string snippet))
             {
                 return snippet;
             }
             else
             {
-                var dbModel = _contentSnippetRepository.Get(snippetType);
+                var dbModel = this.contentSnippetRepository.Get(snippetType);
 
                 if (dbModel == null)
+                {
                     return string.Empty;
+                }
 
-                _memoryCache.Set(cacheKey, dbModel.Content);
+                this.memoryCache.Set(cacheKey, dbModel.Content);
 
                 return dbModel.Content;
             }

@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 namespace WebPagePub.Data.Models
 {
     public class ApplicationUserRole : IdentityUserRole<string>
     {
-        [Key, Column(Order = 0)]
+        [Key]
+        [Column(Order = 0)]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         [StringLength(36)]
         public override string UserId
@@ -23,7 +23,8 @@ namespace WebPagePub.Data.Models
             }
         }
 
-        [Key, Column(Order = 1)]
+        [Key]
+        [Column(Order = 1)]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public override string RoleId
         {

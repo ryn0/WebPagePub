@@ -1,19 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
 using WebPagePub.Web.Helpers;
-using System;
 
 namespace WebPagePub.Web.Controllers
 {
     public class RobotsController : Controller
     {
-
-
         public RobotsController()
         {
-
         }
-
 
         [Route("robots.txt")]
         [HttpGet]
@@ -25,11 +21,11 @@ namespace WebPagePub.Web.Controllers
             sb.AppendLine("Disallow: ");
             sb.AppendLine();
 
-            var siteMapUrl = new Uri(new Uri(UrlBuilder.GetCurrentDomain(HttpContext)), "sitemap.xml");
+            var siteMapUrl = new Uri(new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext)), "sitemap.xml");
 
             sb.AppendLine($"Sitemap: {siteMapUrl}");
 
-            return Content(sb.ToString());
+            return this.Content(sb.ToString());
         }
     }
 }

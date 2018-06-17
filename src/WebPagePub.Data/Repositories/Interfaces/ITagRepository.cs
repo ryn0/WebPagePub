@@ -1,7 +1,6 @@
-﻿using WebPagePub.Data.DbContextInfo;
+﻿using System;
+using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Models;
-using System;
-using System.Collections.Generic;
 
 namespace WebPagePub.Data.Repositories.Interfaces
 {

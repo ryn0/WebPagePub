@@ -2,6 +2,7 @@
  
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <CodeAnalysisRuleSet>../StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
    </PropertyGroup>
   
   <PropertyGroup>
@@ -16,6 +17,7 @@
     <PackageReference Include="microsoft.extensions.configuration" Version="2.1.0" />
     <PackageReference Include="microsoft.extensions.configuration.fileextensions" Version="2.1.0" />
     <PackageReference Include="microsoft.extensions.configuration.json" Version="2.1.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <PackageReference Include="System.Net.Sockets" Version="4.3.0" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.0.0" />
@@ -32,5 +34,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WebPagePub.Core\WebPagePub.Core.csproj" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\stylecop.json" />
   </ItemGroup>
 </Project>

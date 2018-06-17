@@ -1,100 +1,99 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using WebPagePub.Web.Models;
-using WebPagePub.Data.Repositories.Interfaces;
-using WebPagePub.Data.Models;
-using System;
-using System.Collections.Generic;
-using WebPagePub.Core.Utilities;
-using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
-using System.Linq;
-using System.Drawing;
-using WebPagePub.Web.Helpers;
+﻿using System;
 using System.Collections;
-using WebPagePub.Services.Interfaces;
-using WebPagePub.Data.Models.Db;
-using WebPagePub.Data.Constants;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Caching.Memory;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using WebPagePub.Core.Utilities;
+using WebPagePub.Data.Constants;
+using WebPagePub.Data.Models;
+using WebPagePub.Data.Models.Db;
+using WebPagePub.Data.Repositories.Interfaces;
+using WebPagePub.Services.Interfaces;
+using WebPagePub.Web.Helpers;
+using WebPagePub.Web.Models;
 
 namespace WebPagePub.Web.Controllers
 {
     [Authorize(Roles = StringConstants.AdminRole)]
     public class SitePageManagementController : Controller
     {
-        const string FolderName = "page_img";
-        const int AmountPerPage = 10;
-        private readonly ISitePagePhotoRepository _sitePagePhotoRepository;
-        private readonly ISitePageTagRepository _sitePageTagRepository;
-        private readonly ITagRepository _tagRepository;
-        private readonly ISitePageSectionRepository _siteSectionRepository;
-        private readonly ISitePageRepository _sitePageRepository;
-        private readonly ISiteFilesRepository _siteFilesRepository;
-        private readonly IImageUploaderService _imageUploaderService;
-        private readonly IMemoryCache _memoryCache;
-        private readonly ICacheService _cacheService;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private const string FolderName = "page_img";
+        private const int AmountPerPage = 10;
+        private readonly ISitePagePhotoRepository sitePagePhotoRepository;
+        private readonly ISitePageTagRepository sitePageTagRepository;
+        private readonly ITagRepository tagRepository;
+        private readonly ISitePageSectionRepository siteSectionRepository;
+        private readonly ISitePageRepository sitePageRepository;
+        private readonly ISiteFilesRepository siteFilesRepository;
+        private readonly IImageUploaderService imageUploaderService;
+        private readonly IMemoryCache memoryCache;
+        private readonly ICacheService cacheService;
+        private readonly UserManager<ApplicationUser> userManager;
 
         public SitePageManagementController(
             ISitePagePhotoRepository sitePagePhotoRepository,
             ISitePageTagRepository sitePageTagRepository,
             ISitePageSectionRepository siteSectionRepository,
             ITagRepository tagRepository,
-            ISitePageRepository SitePageRepository,
+            ISitePageRepository sitePageRepository,
             ISiteFilesRepository siteFilesRepository,
             IImageUploaderService imageUploaderService,
             IMemoryCache memoryCache,
             ICacheService cacheService,
             UserManager<ApplicationUser> userManager)
         {
-            _sitePagePhotoRepository = sitePagePhotoRepository;
-            _sitePageTagRepository = sitePageTagRepository;
-            _siteSectionRepository = siteSectionRepository;
-            _tagRepository = tagRepository;
-            _sitePageRepository = SitePageRepository;
-            _siteFilesRepository = siteFilesRepository;
-            _imageUploaderService = imageUploaderService;
-            _memoryCache = memoryCache;
-            _cacheService = cacheService;
-            _userManager = userManager;
+            this.sitePagePhotoRepository = sitePagePhotoRepository;
+            this.sitePageTagRepository = sitePageTagRepository;
+            this.siteSectionRepository = siteSectionRepository;
+            this.tagRepository = tagRepository;
+            this.sitePageRepository = sitePageRepository;
+            this.siteFilesRepository = siteFilesRepository;
+            this.imageUploaderService = imageUploaderService;
+            this.memoryCache = memoryCache;
+            this.cacheService = cacheService;
+            this.userManager = userManager;
         }
- 
+
         [Route("sitepages/CreateSiteSection")]
         [HttpGet]
         public IActionResult CreateSiteSection()
         {
-            return View();
+            return this.View();
         }
 
         [Route("sitepages/CreateSiteSection")]
         [HttpPost]
         public IActionResult CreateSiteSection(CreateSiteSectionModel model)
         {
-            if (!ModelState.IsValid)
+            if (!this.ModelState.IsValid)
             {
                 throw new Exception("invalid page model");
             }
 
-            _siteSectionRepository.Create(new SitePageSection()
+            this.siteSectionRepository.Create(new SitePageSection()
             {
                 Title = model.Title.Trim(),
                 Key = model.Title.UrlKey(),
                 BreadcrumbName = model.Title.Trim()
-
             });
 
-            return RedirectToAction(nameof(SitePages));
+            return this.RedirectToAction(nameof(this.SitePages));
         }
 
         [Route("sitepages/EditSiteSection/{sitePageSectionId}")]
         [HttpGet]
         public IActionResult EditSiteSection(int sitePageSectionId)
         {
-            var siteSection = _siteSectionRepository.Get(sitePageSectionId);
+            var siteSection = this.siteSectionRepository.Get(sitePageSectionId);
 
-            return View("EditSiteSection", new EditSiteSectionModel()
+            return this.View("EditSiteSection", new EditSiteSectionModel()
             {
                 SiteSectionId = siteSection.SitePageSectionId,
                 Title = siteSection.Title,
@@ -107,23 +106,23 @@ namespace WebPagePub.Web.Controllers
         [HttpPost]
         public IActionResult EditSiteSection(EditSiteSectionModel model)
         {
-            var siteSection = _siteSectionRepository.Get(model.SiteSectionId);
+            var siteSection = this.siteSectionRepository.Get(model.SiteSectionId);
 
             siteSection.Title = model.Title.Trim();
             siteSection.Key = model.Title.UrlKey();
             siteSection.BreadcrumbName = model.BreadcrumbName.Trim();
             siteSection.IsHomePageSection = model.IsHomePageSection;
 
-            _siteSectionRepository.Update(siteSection);
+            this.siteSectionRepository.Update(siteSection);
 
-            return RedirectToAction(nameof(SitePages));
+            return this.RedirectToAction(nameof(this.SitePages));
         }
 
         [Route("sitepages/SetDefaultPhoto/{sitePagePhotoId}")]
         [HttpGet]
         public IActionResult SetDefaultPhoto(int sitePagePhotoId)
         {
-            var entry = _sitePagePhotoRepository.Get(sitePagePhotoId);
+            var entry = this.sitePagePhotoRepository.Get(sitePagePhotoId);
 
             try
             {
@@ -134,18 +133,21 @@ namespace WebPagePub.Web.Controllers
 
                 entry.PhotoFullScreenUrlHeight = img.Height;
                 entry.PhotoFullScreenUrlWidth = img.Width;
-                _sitePagePhotoRepository.Update(entry);
+                this.sitePagePhotoRepository.Update(entry);
 
-                _sitePagePhotoRepository.SetDefaultPhoto(sitePagePhotoId);
+                this.sitePagePhotoRepository.SetDefaultPhoto(sitePagePhotoId);
 
-                var sitePage = _sitePageRepository.Get(entry.SitePageId);
-                var sitePageSection = _siteSectionRepository.Get(sitePage.SitePageSectionId);
-                var editModel = ToUiEditModel(sitePage, sitePageSection.IsHomePageSection);
-                ClearCache(editModel, sitePage);
+                var sitePage = this.sitePageRepository.Get(entry.SitePageId);
+                var sitePageSection = this.siteSectionRepository.Get(sitePage.SitePageSectionId);
+                var editModel = this.ToUiEditModel(sitePage, sitePageSection.IsHomePageSection);
+                this.ClearCache(editModel, sitePage);
             }
-            catch { throw new Exception("could not set default"); }
+            catch
+            {
+                throw new Exception("could not set default");
+            }
 
-            return RedirectToAction("EditSitePage", new { SitePageId = entry.SitePageId });
+            return this.RedirectToAction("EditSitePage", new { SitePageId = entry.SitePageId });
         }
 
         [Route("sitepages")]
@@ -158,7 +160,7 @@ namespace WebPagePub.Web.Controllers
             {
                 model.IsSiteSectionPage = true;
 
-                var sections = _siteSectionRepository.GetAll();
+                var sections = this.siteSectionRepository.GetAll();
 
                 sections = sections.OrderBy(x => x.Title).ToList();
 
@@ -181,9 +183,9 @@ namespace WebPagePub.Web.Controllers
             {
                 model.IsSiteSectionPage = false;
 
-                var pages = _sitePageRepository.GetPage(pageNumber, siteSectionId, AmountPerPage, out int total);
+                var pages = this.sitePageRepository.GetPage(pageNumber, siteSectionId, AmountPerPage, out int total);
 
-                model = ConvertToListModel(pages);
+                model = this.ConvertToListModel(pages);
                 model.Total = total;
                 model.CurrentPageNumber = pageNumber;
                 model.QuantityPerPage = AmountPerPage;
@@ -192,8 +194,8 @@ namespace WebPagePub.Web.Controllers
 
                 model.SitePageSectionId = siteSectionId;
             }
-         
-            return View("Index", model);
+
+            return this.View("Index", model);
         }
 
         [Route("sitepages/CreateSitePage/{sitePageSectionId}")]
@@ -205,18 +207,20 @@ namespace WebPagePub.Web.Controllers
                 SiteSectionId = sitePageSectionId
             };
 
-            return View(model);
+            return this.View(model);
         }
 
         [Route("sitepages/CreateSitePage/{sitePageSectionId}")]
         [HttpPost]
         public IActionResult CreateSitePage(SitePageManagementCreateModel model)
         {
-            if (!ModelState.IsValid)
+            if (!this.ModelState.IsValid)
+            {
                 throw new Exception();
+            }
 
             var title = model.Title.Trim();
-            var entry = _sitePageRepository.Create(new SitePage()
+            var entry = this.sitePageRepository.Create(new SitePage()
             {
                 Title = title,
                 Key = title.UrlKey(),
@@ -224,16 +228,16 @@ namespace WebPagePub.Web.Controllers
                 BreadcrumbName = title,
                 PublishDateTimeUtc = DateTime.UtcNow,
                 SitePageSectionId = model.SiteSectionId,
-                CreatedByUserId = _userManager.GetUserId(User)
+                CreatedByUserId = this.userManager.GetUserId(this.User)
             });
 
             if (entry.SitePageId > 0)
             {
-                return RedirectToAction(nameof(EditSitePage), new { SitePageId = entry.SitePageId });
+                return this.RedirectToAction(nameof(this.EditSitePage), new { SitePageId = entry.SitePageId });
             }
             else
             {
-                return View(entry);
+                return this.View(entry);
             }
         }
 
@@ -241,24 +245,24 @@ namespace WebPagePub.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> DeleteBlogPhotoAsync(int sitePagePhotoId)
         {
-            var entry = _sitePagePhotoRepository.Get(sitePagePhotoId);
+            var entry = this.sitePagePhotoRepository.Get(sitePagePhotoId);
 
-            await DeleteBlogPhoto(sitePagePhotoId);
+            await this.DeleteBlogPhoto(sitePagePhotoId);
 
-            var allBlogPhotos = _sitePagePhotoRepository.GetBlogPhotos(entry.SitePageId)
+            var allBlogPhotos = this.sitePagePhotoRepository.GetBlogPhotos(entry.SitePageId)
                                                         .Where(x => x.SitePageId != sitePagePhotoId)
                                                         .OrderBy(x => x.Rank);
             int newRank = 1;
 
-            foreach(var photo in allBlogPhotos)
+            foreach (var photo in allBlogPhotos)
             {
                 photo.Rank = newRank;
-                _sitePagePhotoRepository.Update(photo);
+                this.sitePagePhotoRepository.Update(photo);
 
                 newRank++;
             }
 
-            return RedirectToAction(nameof(EditSitePage), new { SitePageId = entry.SitePageId });
+            return this.RedirectToAction(nameof(this.EditSitePage), new { SitePageId = entry.SitePageId });
         }
 
         [Route("sitepages/uploadphotos/{SitePageId}")]
@@ -270,35 +274,35 @@ namespace WebPagePub.Web.Controllers
                 SitePageId = sitePageId
             };
 
-            return View(nameof(UploadPhotos), model);
+            return this.View(nameof(this.UploadPhotos), model);
         }
 
         [Route("sitepages/uploadphotos")]
         [HttpPost]
         public async Task<ActionResult> UploadPhotosAsync(IEnumerable<IFormFile> files, int sitePageId)
         {
-            var allBlogPhotos = _sitePagePhotoRepository.GetBlogPhotos(sitePageId);
+            var allBlogPhotos = this.sitePagePhotoRepository.GetBlogPhotos(sitePageId);
             var highestRank = allBlogPhotos.Count();
             int currentRank = highestRank;
 
             try
             {
-                var folderPath = GetBlogPhotoFolder(sitePageId);
+                var folderPath = this.GetBlogPhotoFolder(sitePageId);
 
                 foreach (var file in files)
                 {
                     if (file != null && file.Length > 0)
                     {
-                        var fullsizePhotoUrl = await _siteFilesRepository.UploadAsync(file, folderPath);
-                        var thumbnailPhotoUrl = await _imageUploaderService.UploadReducedQualityImage(folderPath, fullsizePhotoUrl, 300, 200, "_thumb");
-                        var fullScreenPhotoUrl = await _imageUploaderService.UploadReducedQualityImage(folderPath, fullsizePhotoUrl, 1600, 1200, "_fullscreen");
-                        var previewPhotoUrl = await _imageUploaderService.UploadReducedQualityImage(folderPath, fullsizePhotoUrl, 800, 600, "_preview");
+                        var fullsizePhotoUrl = await this.siteFilesRepository.UploadAsync(file, folderPath);
+                        var thumbnailPhotoUrl = await this.imageUploaderService.UploadReducedQualityImage(folderPath, fullsizePhotoUrl, 300, 200, "_thumb");
+                        var fullScreenPhotoUrl = await this.imageUploaderService.UploadReducedQualityImage(folderPath, fullsizePhotoUrl, 1600, 1200, "_fullscreen");
+                        var previewPhotoUrl = await this.imageUploaderService.UploadReducedQualityImage(folderPath, fullsizePhotoUrl, 800, 600, "_preview");
 
                         var existingPhoto = allBlogPhotos.FirstOrDefault(x => x.PhotoUrl == fullsizePhotoUrl.ToString());
 
                         if (existingPhoto == null)
                         {
-                            _sitePagePhotoRepository.Create(new SitePagePhoto()
+                            this.sitePagePhotoRepository.Create(new SitePagePhoto()
                             {
                                 SitePageId = sitePageId,
                                 PhotoUrl = fullsizePhotoUrl.ToString(),
@@ -316,12 +320,12 @@ namespace WebPagePub.Web.Controllers
                             existingPhoto.PhotoThumbUrl = thumbnailPhotoUrl.ToString();
                             existingPhoto.PhotoFullScreenUrl = fullScreenPhotoUrl.ToString();
                             existingPhoto.PhotoPreviewUrl = previewPhotoUrl.ToString();
-                            _sitePagePhotoRepository.Update(existingPhoto);
+                            this.sitePagePhotoRepository.Update(existingPhoto);
                         }
                     }
                 }
 
-                return RedirectToAction(nameof(EditSitePage), new { SitePageId = sitePageId });
+                return this.RedirectToAction(nameof(this.EditSitePage), new { SitePageId = sitePageId });
             }
             catch (Exception ex)
             {
@@ -329,94 +333,95 @@ namespace WebPagePub.Web.Controllers
             }
         }
 
-
         [Route("sitepages/deletepage/{SitePageId}")]
         [HttpPost]
         public async Task<IActionResult> DeleteAsync(int sitePageId)
         {
-            var SitePage = _sitePageRepository.Get(sitePageId);
+            var sitePage = this.sitePageRepository.Get(sitePageId);
 
-            foreach (var photo in SitePage.Photos)
+            foreach (var photo in sitePage.Photos)
             {
-                await DeleteBlogPhoto(photo.SitePageId);
+                await this.DeleteBlogPhoto(photo.SitePageId);
             }
 
-            var task = Task.Run(() => _sitePageRepository.Delete(sitePageId));
-            var myOutput = await task; 
+            var task = Task.Run(() => this.sitePageRepository.Delete(sitePageId));
+            var myOutput = await task;
 
-            return RedirectToAction(nameof(SitePages));
+            return this.RedirectToAction(nameof(this.SitePages));
         }
 
         [Route("sitepages/rotate90degrees")]
         [HttpGet]
         public async Task<IActionResult> Rotate90DegreesAsync(int sitePagePhotoId)
         {
-            var entry = _sitePagePhotoRepository.Get(sitePagePhotoId);
-            await RotateImage(entry.SitePageId, entry.PhotoUrl);
-            await RotateImage(entry.SitePageId, entry.PhotoThumbUrl);
+            var entry = this.sitePagePhotoRepository.Get(sitePagePhotoId);
+            await this.RotateImage(entry.SitePageId, entry.PhotoUrl);
+            await this.RotateImage(entry.SitePageId, entry.PhotoThumbUrl);
 
-            return RedirectToAction(nameof(EditSitePage), new { SitePageId = entry.SitePageId });
+            return this.RedirectToAction(nameof(this.EditSitePage), new { SitePageId = entry.SitePageId });
         }
 
         [Route("sitepages/editsitepage/{SitePageId}")]
         [HttpGet]
         public IActionResult EditSitePage(int sitePageId)
         {
-            var dbModel = _sitePageRepository.Get(sitePageId);
-            var sitePageSection = _siteSectionRepository.Get(dbModel.SitePageSectionId);
+            var dbModel = this.sitePageRepository.Get(sitePageId);
+            var sitePageSection = this.siteSectionRepository.Get(dbModel.SitePageSectionId);
 
-            var model = ToUiEditModel(dbModel, sitePageSection.IsHomePageSection);
+            var model = this.ToUiEditModel(dbModel, sitePageSection.IsHomePageSection);
 
-            return View(model);
+            return this.View(model);
         }
 
         [Route("sitepages/editsitepage")]
         [HttpPost]
         public IActionResult EditSitePage(SitePageEditModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
-
-            var dbModel = ConvertToDbModel(model);
-
-            if (_sitePageRepository.Update(dbModel))
+            if (!this.ModelState.IsValid)
             {
-                var allPhotos = _sitePagePhotoRepository.GetBlogPhotos(model.SitePageId);
+                return this.View(model);
+            }
+
+            var dbModel = this.ConvertToDbModel(model);
+
+            if (this.sitePageRepository.Update(dbModel))
+            {
+                var allPhotos = this.sitePagePhotoRepository.GetBlogPhotos(model.SitePageId);
 
                 foreach (var photo in allPhotos)
                 {
-                    photo.Title = Request.Form["PhotoTitle_" + photo.SitePageId];
-                    photo.Description = Request.Form["PhotoDescription_" + photo.SitePageId];
+                    photo.Title = this.Request.Form["PhotoTitle_" + photo.SitePageId];
+                    photo.Description = this.Request.Form["PhotoDescription_" + photo.SitePageId];
 
-                    _sitePagePhotoRepository.Update(photo);
+                    this.sitePagePhotoRepository.Update(photo);
                 }
 
-                SetBlogTags(model, dbModel);
+                this.SetBlogTags(model, dbModel);
 
-                ClearCache(model, dbModel);
+                this.ClearCache(model, dbModel);
 
-                return RedirectToAction(nameof(EditSitePage), new { SitePageId = dbModel.SitePageId });
+                return this.RedirectToAction(nameof(this.EditSitePage), new { SitePageId = dbModel.SitePageId });
             }
 
-            return View(model);
+            return this.View(model);
         }
 
         private void ClearCache(SitePageEditModel model, SitePage dbModel)
         {
             var cacheKey = CacheHelper.GetpPageCacheKey(dbModel.SitePageSection.Key, model.Key);
-            _memoryCache.Remove(cacheKey);
+            this.memoryCache.Remove(cacheKey);
         }
 
         private async Task<SitePagePhoto> DeleteBlogPhoto(int sitePagePhotoId)
         {
-            var entry = _sitePagePhotoRepository.Get(sitePagePhotoId);
+            var entry = this.sitePagePhotoRepository.Get(sitePagePhotoId);
 
-            await _siteFilesRepository.DeleteFileAsync(entry.PhotoUrl);
-            await _siteFilesRepository.DeleteFileAsync(entry.PhotoThumbUrl);
-            await _siteFilesRepository.DeleteFileAsync(entry.PhotoFullScreenUrl);
-            await _siteFilesRepository.DeleteFileAsync(entry.PhotoPreviewUrl);
+            await this.siteFilesRepository.DeleteFileAsync(entry.PhotoUrl);
+            await this.siteFilesRepository.DeleteFileAsync(entry.PhotoThumbUrl);
+            await this.siteFilesRepository.DeleteFileAsync(entry.PhotoFullScreenUrl);
+            await this.siteFilesRepository.DeleteFileAsync(entry.PhotoPreviewUrl);
 
-            _sitePagePhotoRepository.Delete(sitePagePhotoId);
+            this.sitePagePhotoRepository.Delete(sitePagePhotoId);
 
             return entry;
         }
@@ -425,7 +430,7 @@ namespace WebPagePub.Web.Controllers
         {
             var model = new SitePageListModel();
 
-            foreach(var page in pages)
+            foreach (var page in pages)
             {
                 model.Items.Add(new SitePageItemModel()
                 {
@@ -445,14 +450,14 @@ namespace WebPagePub.Web.Controllers
 
         private SitePage ConvertToDbModel(SitePageEditModel model)
         {
-            var dbModel = _sitePageRepository.Get(model.SitePageId);
+            var dbModel = this.sitePageRepository.Get(model.SitePageId);
 
             if (string.IsNullOrWhiteSpace(dbModel.CreatedByUserId))
             {
-                dbModel.CreatedByUserId = _userManager.GetUserId(User);
+                dbModel.CreatedByUserId = this.userManager.GetUserId(this.User);
             }
 
-            dbModel.UpdatedByUserId =_userManager.GetUserId(User);
+            dbModel.UpdatedByUserId = this.userManager.GetUserId(this.User);
             dbModel.Key = model.Key.UrlKey();
             dbModel.BreadcrumbName = model.BreadcrumbName.Trim();
             dbModel.PublishDateTimeUtc = model.PublishDateTimeUtc;
@@ -474,7 +479,7 @@ namespace WebPagePub.Web.Controllers
             return dbModel;
         }
 
-        private SitePageEditModel ToUiEditModel(SitePage dbModel, bool  isHomePageSection)
+        private SitePageEditModel ToUiEditModel(SitePage dbModel, bool isHomePageSection)
         {
             var model = new SitePageEditModel()
             {
@@ -500,7 +505,7 @@ namespace WebPagePub.Web.Controllers
                 IsSectionHomePage = dbModel.IsSectionHomePage,
             };
 
-            var mc = new ModelConverter(_cacheService);
+            var mc = new ModelConverter(this.cacheService);
 
             foreach (var photo in dbModel.Photos.OrderBy(x => x.Rank))
             {
@@ -533,7 +538,9 @@ namespace WebPagePub.Web.Controllers
         private void SetBlogTags(SitePageEditModel model, SitePage dbModel)
         {
             if (model.Tags == null)
+            {
                 return;
+            }
 
             var currentTags = model.Tags.Split(',');
             var currentTagsFormatted = new ArrayList();
@@ -552,9 +559,9 @@ namespace WebPagePub.Web.Controllers
 
             var tagsToRemove = previousTags.ToArray().Except(currentTagsFormatted.ToArray());
 
-            AddNewTags(model, dbModel, currentTags);
+            this.AddNewTags(model, dbModel, currentTags);
 
-            RemoveDeletedTags(model, tagsToRemove);
+            this.RemoveDeletedTags(model, tagsToRemove);
         }
 
         private void RemoveDeletedTags(SitePageEditModel model, IEnumerable<object> tagsToRemove)
@@ -563,9 +570,9 @@ namespace WebPagePub.Web.Controllers
             {
                 var tagKey = tag.ToString().UrlKey();
 
-                var tagDb = _tagRepository.Get(tagKey);
+                var tagDb = this.tagRepository.Get(tagKey);
 
-                _sitePageTagRepository.Delete(tagDb.TagId, model.SitePageId);
+                this.sitePageTagRepository.Delete(tagDb.TagId, model.SitePageId);
             }
         }
 
@@ -574,19 +581,21 @@ namespace WebPagePub.Web.Controllers
             return $"/{FolderName}/{sitePageId}/";
         }
 
-        private async Task RotateImage(int SitePageId, string photoUrl)
+        private async Task RotateImage(int sitePageId, string photoUrl)
         {
-            var folderPath = GetBlogPhotoFolder(SitePageId);
-            var stream = await _imageUploaderService.ToStreamAsync(photoUrl);
+            var folderPath = this.GetBlogPhotoFolder(sitePageId);
+            var stream = await this.imageUploaderService.ToStreamAsync(photoUrl);
             var imageHelper = new ImageUtilities();
             const float angle = 90;
             var rotatedBitmap = imageHelper.RotateImage(Image.FromStream(stream), angle);
 
             Image fullPhoto = rotatedBitmap;
 
-            var streamRotated = _imageUploaderService.ToAStream(fullPhoto, _imageUploaderService.SetImageFormat(photoUrl));
+            var streamRotated = this.imageUploaderService.ToAStream(
+                fullPhoto,
+                this.imageUploaderService.SetImageFormat(photoUrl));
 
-            await _siteFilesRepository.UploadAsync(
+            await this.siteFilesRepository.UploadAsync(
                                         streamRotated,
                                         photoUrl.GetFileNameFromUrl(),
                                         folderPath);
@@ -595,7 +604,6 @@ namespace WebPagePub.Web.Controllers
             streamRotated.Dispose();
             rotatedBitmap.Dispose();
         }
- 
 
         private void AddNewTags(SitePageEditModel model, SitePage dbModel, string[] currentTags)
         {
@@ -604,24 +612,26 @@ namespace WebPagePub.Web.Controllers
                 var tagKey = tagName.UrlKey();
 
                 if (string.IsNullOrWhiteSpace(tagKey))
+                {
                     continue;
+                }
 
                 if (dbModel.SitePageTags.FirstOrDefault(x => x.Tag.Key == tagKey) == null)
                 {
-                    var tagDb = _tagRepository.Get(tagKey);
+                    var tagDb = this.tagRepository.Get(tagKey);
 
                     if (tagDb == null || tagDb.TagId == 0)
                     {
-                        _tagRepository.Create(new Tag
+                        this.tagRepository.Create(new Tag
                         {
                             Name = tagName.Trim(),
                             Key = tagKey
                         });
 
-                        tagDb = _tagRepository.Get(tagKey);
+                        tagDb = this.tagRepository.Get(tagKey);
                     }
 
-                    _sitePageTagRepository.Create(new SitePageTag()
+                    this.sitePageTagRepository.Create(new SitePageTag()
                     {
                         SitePageId = model.SitePageId,
                         TagId = tagDb.TagId,
@@ -629,6 +639,5 @@ namespace WebPagePub.Web.Controllers
                 }
             }
         }
-
     }
 }

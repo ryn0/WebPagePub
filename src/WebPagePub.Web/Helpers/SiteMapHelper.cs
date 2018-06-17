@@ -10,7 +10,7 @@ namespace WebPagePub.Web.Helpers
 
         public void AddUrl(string url, DateTime lastMod, ChangeFrequency changeFrequency, double priority)
         {
-            SiteMapItems.Add(new SiteMapItem
+            this.SiteMapItems.Add(new SiteMapItem
             {
                 Url = url,
                 LastMode = lastMod,
@@ -21,12 +21,11 @@ namespace WebPagePub.Web.Helpers
 
         public string GenerateXml()
         {
-
             var sb = new StringBuilder();
-            sb.Append(@"<?xml version=""1.0"" encoding=""UTF-8""?>");
-            sb.AppendLine(@"<urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">");
+            sb.Append(@"<?xml version=string.Empty1.0string.Empty encoding=string.EmptyUTF-8string.Empty?>");
+            sb.AppendLine(@"<urlset xmlns=string.Emptyhttp://www.sitemaps.org/schemas/sitemap/0.9string.Empty>");
 
-            foreach (var siteMapItem in SiteMapItems)
+            foreach (var siteMapItem in this.SiteMapItems)
             {
                 sb.AppendLine(@"<url>");
                 sb.AppendFormat(@"<loc>{0}</loc>", siteMapItem.Url);
@@ -40,28 +39,5 @@ namespace WebPagePub.Web.Helpers
 
             return sb.ToString();
         }
-    }
-
-    public class SiteMapItem
-    {
-        public string Url { get; set; }
-
-        public DateTime LastMode { get; set; }
-
-        public ChangeFrequency ChangeFrequency { get; set; }
-
-        public double Priority { get; set; }
-    }
-
-    public enum ChangeFrequency
-    {
-        Unknown = 0,
-        never = 1,
-        yearly = 2,
-        monthly = 3,
-        weekly = 4,
-        daily = 5,
-        hourly = 6,
-        always = 7
     }
 }

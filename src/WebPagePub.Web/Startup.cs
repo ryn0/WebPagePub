@@ -1,34 +1,34 @@
-﻿using WebPagePub.Data.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.Rewrite;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
+using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo;
+using WebPagePub.Data.Enums;
+using WebPagePub.Data.Models;
 using WebPagePub.Data.Repositories.Implementations;
 using WebPagePub.Data.Repositories.Interfaces;
-using WebPagePub.Services.Interfaces;
 using WebPagePub.Services.Implementations;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Rewrite;
+using WebPagePub.Services.Interfaces;
 using WebPagePub.Web.AppRules;
-using WebPagePub.Data.Constants;
-using Microsoft.AspNetCore.DataProtection;
-using System.IO;
-using System;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.ResponseCompression;
-using System.Linq;
-using System.IO.Compression;
-using WebPagePub.Data.Enums;
-using System.Collections.Generic;
 
 namespace WebPagePub.Web
 {
     public class Startup
     {
-        Dictionary<string, string> _redirectPaths = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> redirectPaths = new Dictionary<string, string>();
 
         public Startup(IHostingEnvironment env)
         {
@@ -38,21 +38,21 @@ namespace WebPagePub.Web
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
 
-            Configuration = builder.Build();
+            this.Configuration = builder.Build();
         }
 
         public IConfigurationRoot Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
-        {            
+        {
             services.AddMemoryCache();
 
             services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("SqlServerConnection")));
+                    this.Configuration.GetConnectionString("SqlServerConnection")));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -80,9 +80,9 @@ namespace WebPagePub.Web
             services.AddTransient<ICacheService, CacheService>();
 
             services.AddTransient<IEmailSender>(x => new AmazonMailService(
-                Configuration.GetSection("AmazonEmailCredentials:AccessKey").Value,
-                Configuration.GetSection("AmazonEmailCredentials:SecretKey").Value,
-                Configuration.GetSection("AmazonEmailCredentials:EmailFrom").Value));
+                this.Configuration.GetSection("AmazonEmailCredentials:AccessKey").Value,
+                this.Configuration.GetSection("AmazonEmailCredentials:SecretKey").Value,
+                this.Configuration.GetSection("AmazonEmailCredentials:EmailFrom").Value));
 
             services.AddTransient<IImageUploaderService, ImageUploaderService>();
 
@@ -93,11 +93,11 @@ namespace WebPagePub.Web
             var cacheService = sp.GetService<ICacheService>();
 
             var blockedIPRepository = sp.GetService<IBlockedIPRepository>();
-            
+
             services.AddTransient<ISpamFilterService>(x => new SpamFilterService(
                         blockedIPRepository,
-                        Configuration.GetSection("NeutrinoApi:UserId").Value,
-                        Configuration.GetSection("NeutrinoApi:ApiKey").Value));
+                        this.Configuration.GetSection("NeutrinoApi:UserId").Value,
+                        this.Configuration.GetSection("NeutrinoApi:ApiKey").Value));
 
             var azureStorageConnection = cacheService.GetSnippet(SiteConfigSetting.AzureStorageConnectionString);
 
@@ -106,17 +106,19 @@ namespace WebPagePub.Web
             // rediects
             var redirectPathRepository = sp.GetService<IRedirectPathRepository>();
             var redirectPathsFromDb = redirectPathRepository.GetAll();
-            redirectPathsFromDb.ForEach(x => _redirectPaths.Add(x.Path, x.PathDestination));
+            redirectPathsFromDb.ForEach(x => this.redirectPaths.Add(x.Path, x.PathDestination));
 
             var iisName = cacheService.GetSnippet(SiteConfigSetting.IisWebsiteName);
 
             services.AddDataProtection()
+
               // This helps surviving a restart: a same app will find back its keys
               .PersistKeysToFileSystem(new DirectoryInfo(@"\Sites\_SiteSettings\keys\"))
+
               // This helps surviving a site update: each app has its own store, building the site creates a new app
               .SetApplicationName(iisName)
               .SetDefaultKeyLifetime(TimeSpan.FromDays(90));
-        
+
             services.AddResponseCompression(options =>
             {
                 options.Providers.Add<GzipCompressionProvider>();
@@ -127,17 +129,16 @@ namespace WebPagePub.Web
             {
                 options.Level = CompressionLevel.Fastest;
             });
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(
-            IApplicationBuilder app, 
-            IHostingEnvironment env, 
-            ILoggerFactory loggerFactory, 
+            IApplicationBuilder app,
+            IHostingEnvironment env,
+            ILoggerFactory loggerFactory,
             IDbInitializer dbInitializer)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+            loggerFactory.AddConsole(this.Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
             var options = new RewriteOptions();
@@ -157,13 +158,12 @@ namespace WebPagePub.Web
                 app.UseExceptionHandler("/Home/Error");
             }
 
-
             app.UseStaticFiles();
             app.UseAuthentication();
 
             options.Rules.Add(new NonWwwRule());
 
-            options.Rules.Add(new RedirectMissingPages(_redirectPaths));
+            options.Rules.Add(new RedirectMissingPages(this.redirectPaths));
 
             app.UseRewriter(options);
 
@@ -179,7 +179,7 @@ namespace WebPagePub.Web
                 await next();
             });
 
-          dbInitializer.Initialize();
+            dbInitializer.Initialize();
 
             app.UseMvc(routes =>
             {

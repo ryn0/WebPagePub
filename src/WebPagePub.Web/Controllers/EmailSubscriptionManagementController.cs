@@ -1,28 +1,28 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WebPagePub.Web.Models;
+﻿using System.Text;
+using Microsoft.AspNetCore.Mvc;
 using WebPagePub.Data.Repositories.Interfaces;
-using System.Text;
 using WebPagePub.Services.Interfaces;
+using WebPagePub.Web.Models;
 
 namespace WebPagePub.Web.Controllers
 {
     public class EmailSubscriptionManagementController : Controller
     {
-        private readonly IEmailSubscriptionRepository _emailSubscriptionRepository;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailSubscriptionRepository emailSubscriptionRepository;
+        private readonly IEmailSender emailSender;
 
         public EmailSubscriptionManagementController(
             IEmailSubscriptionRepository emailSubscriptionRepository,
             IEmailSender emailSender)
         {
-            _emailSubscriptionRepository = emailSubscriptionRepository;
-            _emailSender = emailSender;
+            this.emailSubscriptionRepository = emailSubscriptionRepository;
+            this.emailSender = emailSender;
         }
 
         [Route("EmailSubscriptionManagement")]
         public IActionResult Index()
         {
-            var allEmails = _emailSubscriptionRepository.GetAll();
+            var allEmails = this.emailSubscriptionRepository.GetAll();
             var model = new EmailSubscribeEditListModel();
 
             foreach (var sub in allEmails)
@@ -41,7 +41,9 @@ namespace WebPagePub.Web.Controllers
                 foreach (var sub in allEmails)
                 {
                     if (!sub.IsSubscribed)
+                    {
                         continue;
+                    }
 
                     sb.AppendFormat("{0}, ", sub.Email);
                 }
@@ -50,10 +52,13 @@ namespace WebPagePub.Web.Controllers
                 model.Emails = model.Emails.Trim().TrimEnd(',');
             }
 
-            var link = string.Format("{0}://{1}/EmailSubscription/Unsubscribe", HttpContext.Request.Scheme, HttpContext.Request.Host);
+            var link = string.Format(
+                "{0}://{1}/EmailSubscription/Unsubscribe",
+                this.HttpContext.Request.Scheme,
+                this.HttpContext.Request.Host);
             model.UnsubscribeLink = link;
 
-            return View(model);
+            return this.View(model);
         }
 
         [Route("EmailSubscriptionManagement/sendmail")]
@@ -62,38 +67,39 @@ namespace WebPagePub.Web.Controllers
         {
             var emails = model.SendToEmails.Split(',');
 
-            foreach(var email in emails)
+            foreach (var email in emails)
             {
-                _emailSender.SendEmailAsync(email.Trim(), model.EmailTitle, model.EmailMessage);
+                this.emailSender.SendEmailAsync(email.Trim(), model.EmailTitle, model.EmailMessage);
                 System.Threading.Thread.Sleep(300); // todo: use queue
             }
 
-            return RedirectToAction("index");
+            return this.RedirectToAction("index");
         }
-
 
         [Route("EmailSubscriptionManagement/edit")]
         [HttpPost]
         public IActionResult Edit(EmailSubscribeEditModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            if (!this.ModelState.IsValid)
+            {
+                return this.View(model);
+            }
 
-            var dbModel = _emailSubscriptionRepository.Get(model.EmailSubscriptionId);
+            var dbModel = this.emailSubscriptionRepository.Get(model.EmailSubscriptionId);
 
             dbModel.Email = model.Email;
             dbModel.IsSubscribed = model.IsSubscribed;
 
-            _emailSubscriptionRepository.Update(dbModel);
+            this.emailSubscriptionRepository.Update(dbModel);
 
-            return RedirectToAction("index");
+            return this.RedirectToAction("index");
         }
 
         [Route("EmailSubscriptionManagement/edit")]
         [HttpGet]
         public IActionResult Edit(int emailSubscriptionId)
         {
-            var dbModel = _emailSubscriptionRepository.Get(emailSubscriptionId);
+            var dbModel = this.emailSubscriptionRepository.Get(emailSubscriptionId);
 
             var model = new EmailSubscribeEditModel()
             {
@@ -102,7 +108,7 @@ namespace WebPagePub.Web.Controllers
                 EmailSubscriptionId = dbModel.EmailSubscriptionId
             };
 
-            return View(model);
+            return this.View(model);
         }
     }
 }

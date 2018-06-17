@@ -1,20 +1,20 @@
-﻿using WebPagePub.Data.Repositories.Interfaces;
-using System;
+﻿using System;
+using System.Linq;
+using System.Reflection;
+using log4net;
 using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Models;
-using System.Linq;
-using log4net;
-using System.Reflection;
+using WebPagePub.Data.Repositories.Interfaces;
 
 namespace WebPagePub.Data.Repositories.Implementations
 {
     public class TagRepository : ITagRepository
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public TagRepository(IApplicationDbContext context)
         {
-            Context = context;
+            this.Context = context;
         }
 
         public IApplicationDbContext Context { get; private set; }
@@ -23,30 +23,28 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                Context.Tag.Add(model);
-                Context.SaveChanges();
+                this.Context.Tag.Add(model);
+                this.Context.SaveChanges();
 
                 return model;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
-
             }
         }
- 
 
         public void Dispose()
         {
-            Context.Dispose();
+            this.Context.Dispose();
         }
 
         public Tag Get(int tagId)
         {
             try
             {
-                return Context.Tag.FirstOrDefault(x => x.TagId == tagId);
+                return this.Context.Tag.FirstOrDefault(x => x.TagId == tagId);
             }
             catch (Exception ex)
             {
@@ -58,13 +56,12 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.Tag.FirstOrDefault(x => x.Key == key);
+                return this.Context.Tag.FirstOrDefault(x => x.Key == key);
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
-
             }
         }
 
@@ -72,17 +69,15 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                Context.Tag.Update(model);
-                Context.SaveChanges();
+                this.Context.Tag.Update(model);
+                this.Context.SaveChanges();
 
                 return true;
             }
-
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
-
             }
         }
 
@@ -90,16 +85,16 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var entry = Context.Tag.FirstOrDefault(x => x.TagId == tagId);
+                var entry = this.Context.Tag.FirstOrDefault(x => x.TagId == tagId);
 
-                Context.Tag.Remove(entry);
-                Context.SaveChanges();
+                this.Context.Tag.Remove(entry);
+                this.Context.SaveChanges();
 
                 return true;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 return false;
             }

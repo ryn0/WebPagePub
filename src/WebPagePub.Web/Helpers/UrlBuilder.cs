@@ -11,7 +11,8 @@ namespace WebPagePub.Web.Helpers
 
         public static string BlogPreviewUrlPath(int sitePageId)
         {
-            return string.Format("/preview/{0}",
+            return string.Format(
+                "/preview/{0}",
                 sitePageId);
         }
 

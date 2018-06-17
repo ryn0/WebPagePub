@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Text;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Rewrite;
-using System.Text;
 
 namespace WebPagePub.Web.AppRules
 {

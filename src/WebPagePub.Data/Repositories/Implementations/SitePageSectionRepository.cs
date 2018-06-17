@@ -1,21 +1,21 @@
-﻿using WebPagePub.Data.Repositories.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using WebPagePub.Data.DbContextInfo;
-using log4net;
-using System.Reflection;
-using WebPagePub.Data.Models.Db;
 using System.Linq;
+using System.Reflection;
+using log4net;
+using WebPagePub.Data.DbContextInfo;
+using WebPagePub.Data.Models.Db;
+using WebPagePub.Data.Repositories.Interfaces;
 
 namespace WebPagePub.Data.Repositories.Implementations
 {
     public class SitePageSectionRepository : ISitePageSectionRepository
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public SitePageSectionRepository(IApplicationDbContext context)
         {
-            Context = context;
+            this.Context = context;
         }
 
         public IApplicationDbContext Context { get; private set; }
@@ -24,14 +24,14 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                Context.SitePageSection.Add(model);
-                Context.SaveChanges();
+                this.Context.SitePageSection.Add(model);
+                this.Context.SaveChanges();
 
                 return model;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 throw new Exception("DB error", ex.InnerException);
             }
@@ -39,14 +39,14 @@ namespace WebPagePub.Data.Repositories.Implementations
 
         public void Dispose()
         {
-            Context.Dispose();
+            this.Context.Dispose();
         }
 
         public SitePageSection Get(int sitePageSectionId)
         {
             try
             {
-                return Context.SitePageSection
+                return this.Context.SitePageSection
                               .FirstOrDefault(x => x.SitePageSectionId == sitePageSectionId);
             }
             catch (Exception ex)
@@ -59,7 +59,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.SitePageSection
+                return this.Context.SitePageSection
                               .FirstOrDefault(x => x.Key == key);
             }
             catch (Exception ex)
@@ -72,14 +72,13 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.SitePageSection.ToList();
+                return this.Context.SitePageSection.ToList();
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 throw new Exception("DB error", ex.InnerException);
-
             }
         }
 
@@ -87,12 +86,12 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.SitePageSection
+                return this.Context.SitePageSection
                               .FirstOrDefault(x => x.IsHomePageSection == true);
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 throw new Exception("DB error", ex.InnerException);
             }
@@ -104,7 +103,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             {
                 if (model.IsHomePageSection)
                 {
-                    foreach (var page in Context.SitePageSection.ToList())
+                    foreach (var page in this.Context.SitePageSection.ToList())
                     {
                         page.IsHomePageSection = false;
 
@@ -115,17 +114,16 @@ namespace WebPagePub.Data.Repositories.Implementations
                     }
                 }
 
-                Context.SitePageSection.Update(model);
-                Context.SaveChanges();
+                this.Context.SitePageSection.Update(model);
+                this.Context.SaveChanges();
 
                 return true;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 throw new Exception("DB error", ex.InnerException);
-
             }
         }
     }

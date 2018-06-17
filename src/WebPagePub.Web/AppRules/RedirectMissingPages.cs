@@ -1,23 +1,24 @@
-﻿using Microsoft.AspNetCore.Rewrite;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Rewrite;
 
 namespace WebPagePub.Web.AppRules
 {
     public class RedirectMissingPages : IRule
     {
-        private Dictionary<string, string> _pathRedirects = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> pathRedirects = new Dictionary<string, string>();
 
         public RedirectMissingPages(Dictionary<string, string> pathRedirects)
         {
-           foreach(var pathRedirect in pathRedirects)
+           foreach (var pathRedirect in pathRedirects)
             {
-                var resolvedKey = ResolveKey(pathRedirect.Key);
-          
-                if (_pathRedirects.ContainsKey(resolvedKey))
-                    continue;
+                var resolvedKey = this.ResolveKey(pathRedirect.Key);
 
-                _pathRedirects.Add(resolvedKey, pathRedirect.Value);
+                if (this.pathRedirects.ContainsKey(resolvedKey))
+                {
+                    continue;
+                }
+
+                this.pathRedirects.Add(resolvedKey, pathRedirect.Value);
             }
         }
 
@@ -25,10 +26,12 @@ namespace WebPagePub.Web.AppRules
         {
             var req = context.HttpContext.Request;
 
-            var newPath = MapOldPathToNewPath(req.Path);
+            var newPath = this.MapOldPathToNewPath(req.Path);
 
             if (string.IsNullOrWhiteSpace(newPath))
+            {
                 return;
+            }
 
             context.HttpContext.Response.Redirect(newPath, true);
             context.Result = RuleResult.EndResponse;
@@ -36,24 +39,27 @@ namespace WebPagePub.Web.AppRules
 
         private string MapOldPathToNewPath(string key)
         {
-            var resolvedKey = ResolveKey(key);
+            var resolvedKey = this.ResolveKey(key);
 
-            if (_pathRedirects.ContainsKey(resolvedKey))
+            if (this.pathRedirects.ContainsKey(resolvedKey))
             {
-                return _pathRedirects[resolvedKey];
+                return this.pathRedirects[resolvedKey];
             }
 
             return null;
         }
 
-
         private string ResolveKey(string key)
         {
             if (key.StartsWith("/"))
+            {
                 key = key.TrimStart('/');
+            }
 
             if (key.EndsWith("/"))
+            {
                 key = key.TrimEnd('/');
+            }
 
             return key;
         }

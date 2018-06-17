@@ -1,12 +1,12 @@
-﻿using ImageMagick;
-using System;
+﻿using System;
 using System.IO;
+using ImageMagick;
 
 namespace ConsoleApp1
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var directory = @"C:\temp\";
 
@@ -14,7 +14,8 @@ namespace ConsoleApp1
             Console.WriteLine("-------------------------------------");
             Console.WriteLine("Converting .pngs to .jpgs...");
 
-            string[] filePaths = Directory.GetFiles(directory, "*.png",
+            string[] filePaths = Directory.GetFiles(
+                                         directory, "*.png",
                                          SearchOption.TopDirectoryOnly);
 
             foreach (var file in filePaths)
@@ -32,7 +33,8 @@ namespace ConsoleApp1
             Console.WriteLine();
             Console.WriteLine("Compressing images jpgs...");
 
-            filePaths = Directory.GetFiles(directory, "*.jpg",
+            filePaths = Directory.GetFiles(
+                                        directory, "*.jpg",
                                         SearchOption.TopDirectoryOnly);
 
             foreach (var file in filePaths)

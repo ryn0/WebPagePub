@@ -1,29 +1,28 @@
-﻿using WebPagePub.Data.Models;
-using WebPagePub.Web.Models;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Collections.Generic;
-using WebPagePub.Services.Interfaces;
 using WebPagePub.Data.Enums;
+using WebPagePub.Data.Models;
+using WebPagePub.Services.Interfaces;
+using WebPagePub.Web.Models;
 
 namespace WebPagePub.Web.Helpers
 {
     public class ModelConverter
     {
-        private readonly ICacheService _cacheService;
+        private readonly ICacheService cacheService;
 
         public ModelConverter(ICacheService cacheService)
         {
-            _cacheService = cacheService;
-
+            this.cacheService = cacheService;
         }
 
-        public  SitePageDisplayModel ConvertToBlogDisplayModel(SitePage current, SitePage previous, SitePage next)
+        public SitePageDisplayModel ConvertToBlogDisplayModel(SitePage current, SitePage previous, SitePage next)
         {
             var defaultPhotoUrl = current?.Photos.FirstOrDefault(x => x.IsDefault == true);
             var previousPhotoUrl = previous?.Photos.FirstOrDefault(x => x.IsDefault == true);
             var nextPhotoUrl = next?.Photos.FirstOrDefault(x => x.IsDefault == true);
 
-            var model = new SitePageDisplayModel(_cacheService)
+            var model = new SitePageDisplayModel(this.cacheService)
             {
                 PageContent = new SitePageContentModel()
                 {
@@ -36,30 +35,29 @@ namespace WebPagePub.Web.Helpers
 
                     PreviousName = previous?.Title,
                     PreviousUrlPath = (previous != null) ? UrlBuilder.BlogUrlPath(previous.SitePageSection.Key, previous.Key) : null,
-                    DefaultPreviousPhotoThumbCdnUrl = ConvertBlobToCdnUrl(previousPhotoUrl?.PhotoThumbUrl),
+                    DefaultPreviousPhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(previousPhotoUrl?.PhotoThumbUrl),
 
                     NextName = next?.Title,
                     NextUrlPath = (next != null) ? UrlBuilder.BlogUrlPath(next.SitePageSection.Key, next.Key) : null,
-                    DefaultNextPhotoThumbCdnUrl = ConvertBlobToCdnUrl(nextPhotoUrl?.PhotoThumbUrl),
+                    DefaultNextPhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(nextPhotoUrl?.PhotoThumbUrl),
 
-                    Photos = AddPhotos(current.Photos),
+                    Photos = this.AddPhotos(current.Photos),
 
                     DefaultPhotoThumbUrl = defaultPhotoUrl?.PhotoThumbUrl,
-                    DefaultPhotoThumbCdnUrl = ConvertBlobToCdnUrl(defaultPhotoUrl?.PhotoThumbUrl),
+                    DefaultPhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(defaultPhotoUrl?.PhotoThumbUrl),
 
                     DefaultPhotoUrl = defaultPhotoUrl?.PhotoPreviewUrl,
-                    DefaultPhotoCdnUrl = ConvertBlobToCdnUrl(defaultPhotoUrl?.PhotoPreviewUrl),
+                    DefaultPhotoCdnUrl = this.ConvertBlobToCdnUrl(defaultPhotoUrl?.PhotoPreviewUrl),
 
                     MetaDescription = current.MetaDescription
                 }
-            
             };
 
             if (current.SitePageTags != null)
             {
-                foreach (var SitePageTag in current.SitePageTags)
+                foreach (var sitePageTag in current.SitePageTags)
                 {
-                    model.PageContent.Tags.Add(SitePageTag.Tag.Name);
+                    model.PageContent.Tags.Add(sitePageTag.Tag.Name);
                 }
 
                 model.PageContent.Tags = model.PageContent.Tags.OrderBy(x => x).ToList();
@@ -67,14 +65,28 @@ namespace WebPagePub.Web.Helpers
 
             return model;
         }
- 
+
+        public string ConvertBlobToCdnUrl(string blobUrl)
+        {
+            if (string.IsNullOrWhiteSpace(blobUrl))
+            {
+                return null;
+            }
+
+            var blobPrefix = this.cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
+
+            var cdnPrefix = this.cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
+
+            return blobUrl.Replace(blobPrefix, cdnPrefix);
+        }
+
         private List<SitePagePhotoModel> AddPhotos(List<SitePagePhoto> photos)
         {
             photos = photos.OrderBy(x => x.Rank).ToList();
 
             var photoList = new List<SitePagePhotoModel>();
 
-            foreach(var photo in photos)
+            foreach (var photo in photos)
             {
                 photoList.Add(new SitePagePhotoModel
                 {
@@ -84,32 +96,17 @@ namespace WebPagePub.Web.Helpers
                     Title = photo.Title,
 
                     PhotoUrl = photo.PhotoUrl,
-                    PhotoCdnUrl = ConvertBlobToCdnUrl(photo?.PhotoUrl),
-                    PhotoFullScreenCdnUrl = ConvertBlobToCdnUrl(photo?.PhotoFullScreenUrl),
+                    PhotoCdnUrl = this.ConvertBlobToCdnUrl(photo?.PhotoUrl),
+                    PhotoFullScreenCdnUrl = this.ConvertBlobToCdnUrl(photo?.PhotoFullScreenUrl),
                     PhotoThumbUrl = photo.PhotoThumbUrl,
-                    PhotoThumbCdnUrl = ConvertBlobToCdnUrl(photo?.PhotoThumbUrl),
+                    PhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(photo?.PhotoThumbUrl),
 
                     PhotoPreviewUrl = photo.PhotoPreviewUrl,
-                    PhotoPreviewCdnUrl = ConvertBlobToCdnUrl(photo?.PhotoPreviewUrl),
+                    PhotoPreviewCdnUrl = this.ConvertBlobToCdnUrl(photo?.PhotoPreviewUrl),
                 });
             }
 
             return photoList;
         }
-
-
-        public string ConvertBlobToCdnUrl(string blobUrl)
-        {
-            if (string.IsNullOrWhiteSpace(blobUrl))
-                return null;
-
-            var blobPrefix = _cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
-
-            var cdnPrefix = _cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
-
-            return blobUrl.Replace(blobPrefix, cdnPrefix);
-        }
- 
     }
 }
-

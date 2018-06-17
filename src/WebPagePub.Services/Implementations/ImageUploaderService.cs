@@ -1,33 +1,33 @@
-﻿using ImageMagick;
-using WebPagePub.Core.Utilities;
-using WebPagePub.Data.Repositories.Interfaces;
-using WebPagePub.Services.Interfaces;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Threading.Tasks;
+using ImageMagick;
+using WebPagePub.Core.Utilities;
+using WebPagePub.Data.Repositories.Interfaces;
+using WebPagePub.Services.Interfaces;
 
 namespace WebPagePub.Services.Implementations
 {
     public class ImageUploaderService : IImageUploaderService
     {
-        const bool OptimizeImage = true;
-        private readonly ISiteFilesRepository _siteFilesRepository;
+        private const bool OptimizeImage = true;
+        private readonly ISiteFilesRepository siteFilesRepository;
 
         public ImageUploaderService(ISiteFilesRepository siteFilesRepository)
         {
-            _siteFilesRepository = siteFilesRepository;
+            this.siteFilesRepository = siteFilesRepository;
         }
 
         public async Task<Uri> UploadReducedQualityImage(string folderPath, Uri fullsizePhotoUrl, int maxWidthPx, int maxHeightPx, string suffix)
         {
-            var stream = await ToStreamAsync(fullsizePhotoUrl.ToString());
+            var stream = await this.ToStreamAsync(fullsizePhotoUrl.ToString());
             var imageHelper = new ImageUtilities();
             var extension = fullsizePhotoUrl.ToString().GetFileExtension();
             var resizedImage = imageHelper.ScaleImage(Image.FromStream(stream), maxWidthPx, maxHeightPx);
             var lowerQualityImageUrl = fullsizePhotoUrl.ToString().Replace(string.Format(".{0}", extension), string.Format("{0}.{1}", suffix, extension));
-            var streamRotated = ToAStream(resizedImage, SetImageFormat(lowerQualityImageUrl));
+            var streamRotated = this.ToAStream(resizedImage, this.SetImageFormat(lowerQualityImageUrl));
 
             if (OptimizeImage)
             {
@@ -38,7 +38,7 @@ namespace WebPagePub.Services.Implementations
                 optimizer.LosslessCompress(streamRotated);
             }
 
-            await _siteFilesRepository.UploadAsync(
+            await this.siteFilesRepository.UploadAsync(
                                         streamRotated,
                                         lowerQualityImageUrl.GetFileNameFromUrl(),
                                         folderPath);
@@ -48,7 +48,6 @@ namespace WebPagePub.Services.Implementations
 
             return new Uri(lowerQualityImageUrl);
         }
-
 
         public Stream ToAStream(Image image, ImageFormat formaw)
         {
@@ -60,11 +59,11 @@ namespace WebPagePub.Services.Implementations
 
                 return stream;
             }
-            catch {
+            catch
+            {
                 throw new Exception("failed to save to stream");
             }
         }
-
 
         public async Task<MemoryStream> ToStreamAsync(string imageUrl)
         {
@@ -81,11 +80,11 @@ namespace WebPagePub.Services.Implementations
 
                 return ms;
             }
-            catch {
+            catch
+            {
                 throw new Exception("failed to copy to stream");
             }
         }
-
 
         public ImageFormat SetImageFormat(string photoUrl)
         {
@@ -104,6 +103,5 @@ namespace WebPagePub.Services.Implementations
                     return ImageFormat.Jpeg;
             }
         }
-
     }
 }

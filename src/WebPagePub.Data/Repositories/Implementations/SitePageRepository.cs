@@ -1,41 +1,40 @@
-﻿using WebPagePub.Data.Repositories.Interfaces;
-using System;
-using WebPagePub.Data.Models;
-using WebPagePub.Data.DbContextInfo;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using log4net;
+using System.Linq;
 using System.Reflection;
+using log4net;
+using Microsoft.EntityFrameworkCore;
+using WebPagePub.Data.DbContextInfo;
+using WebPagePub.Data.Models;
+using WebPagePub.Data.Repositories.Interfaces;
 
 namespace WebPagePub.Data.Repositories.Implementations
 {
     public class SitePageRepository : ISitePageRepository
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public SitePageRepository(IApplicationDbContext context)
         {
-            Context = context;
+            this.Context = context;
         }
 
         public IApplicationDbContext Context { get; private set; }
- 
+
         public SitePage Create(SitePage model)
         {
             try
             {
-                Context.SitePage.Add(model);
-                Context.SaveChanges();
+                this.Context.SitePage.Add(model);
+                this.Context.SaveChanges();
 
                 return model;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 throw new Exception("DB error", ex.InnerException);
-
             }
         }
 
@@ -43,7 +42,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var model = Context.SitePage
+                var model = this.Context.SitePage
                                    .Where(x => x.SitePageSectionId == sitePageSectionId)
                                    .OrderBy(page => page.Title)
                                    .Skip(quantityPerPage * (pageNumber - 1))
@@ -51,13 +50,13 @@ namespace WebPagePub.Data.Repositories.Implementations
                                    .Include(x => x.SitePageSection)
                                    .ToList();
 
-                total = Context.SitePage.Where(x => x.SitePageSectionId == sitePageSectionId).Count();
-             
+                total = this.Context.SitePage.Where(x => x.SitePageSectionId == sitePageSectionId).Count();
+
                 return model;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 throw new Exception("DB error", ex.InnerException);
             }
@@ -69,7 +68,7 @@ namespace WebPagePub.Data.Repositories.Implementations
 
             try
             {
-                var model = Context.SitePage
+                var model = this.Context.SitePage
                                    .Where(x => x.IsLive == true && x.PublishDateTimeUtc < now)
                                    .Include(x => x.SitePageSection)
                                    .Include(x => x.Photos)
@@ -80,13 +79,13 @@ namespace WebPagePub.Data.Repositories.Implementations
                                    .Take(quantityPerPage)
                                    .ToList();
 
-                total = Context.SitePage.Where(x => x.IsLive == true && x.PublishDateTimeUtc < now).Count();
+                total = this.Context.SitePage.Where(x => x.IsLive == true && x.PublishDateTimeUtc < now).Count();
 
                 return model;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 throw new Exception("DB error", ex.InnerException);
             }
@@ -96,8 +95,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var model = Context.SitePage
-                                 
+                var model = this.Context.SitePage
                                    .Where(x => x.PublishDateTimeUtc < currentSitePagePublishDateTimeUtc && x.IsLive == true)
                                    .OrderByDescending(x => x.PublishDateTimeUtc)
                                    .Include(x => x.SitePageSection)
@@ -110,7 +108,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 throw new Exception("DB error", ex.InnerException);
             }
@@ -120,8 +118,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var model = Context.SitePage
-                                
+                var model = this.Context.SitePage
                                    .Where(x => x.PublishDateTimeUtc > currentSitePagePublishDateTimeUtc && x.IsLive == true)
                                    .OrderBy(x => x.PublishDateTimeUtc)
                                       .Include(x => x.Photos)
@@ -133,12 +130,11 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 throw new Exception("DB error", ex.InnerException);
             }
         }
-
 
         public List<SitePage> GetLivePageByTag(string tagKey, int pageNumber, int quantityPerPage, out int total)
         {
@@ -146,9 +142,9 @@ namespace WebPagePub.Data.Repositories.Implementations
 
             try
             {
-                var model = Context.SitePage
-                                   .Where(x => x.IsLive == true && 
-                                               x.PublishDateTimeUtc < now && 
+                var model = this.Context.SitePage
+                                   .Where(x => x.IsLive == true &&
+                                               x.PublishDateTimeUtc < now &&
                                                (x.SitePageTags.FirstOrDefault(y => y.Tag.Key == tagKey) != null))
                                    .Include(x => x.SitePageSection)
                                    .Include(x => x.Photos)
@@ -159,7 +155,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                                    .Take(quantityPerPage)
                                    .ToList();
 
-                total = Context.SitePage.Where(x => x.IsLive == true &&
+                total = this.Context.SitePage.Where(x => x.IsLive == true &&
                                                x.PublishDateTimeUtc < now &&
                                                (x.SitePageTags.FirstOrDefault(y => y.Tag.Key == tagKey) != null)).Count();
 
@@ -167,23 +163,22 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 throw new Exception("DB error", ex.InnerException);
             }
-
         }
 
         public void Dispose()
         {
-            Context.Dispose();
+            this.Context.Dispose();
         }
 
         public SitePage Get(int sitePageId)
         {
             try
             {
-                return Context.SitePage
+                return this.Context.SitePage
                               .Include(x => x.SitePageSection)
                               .Include(x => x.Photos)
                               .Include(x => x.SitePageTags)
@@ -200,7 +195,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.SitePage
+                return this.Context.SitePage
                               .Include(x => x.SitePageSection)
                               .Include(x => x.Photos)
                               .Include(x => x.SitePageTags)
@@ -209,10 +204,9 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 throw new Exception("DB error", ex.InnerException);
-
             }
         }
 
@@ -222,8 +216,8 @@ namespace WebPagePub.Data.Repositories.Implementations
             {
                 if (model.IsSectionHomePage)
                 {
-                    foreach (var page in Context.SitePage
-                                                .Where(x =>x.SitePageSectionId == model.SitePageSectionId)
+                    foreach (var page in this.Context.SitePage
+                                                .Where(x => x.SitePageSectionId == model.SitePageSectionId)
                                                 .ToList())
                     {
                         page.IsSectionHomePage = false;
@@ -235,37 +229,34 @@ namespace WebPagePub.Data.Repositories.Implementations
                     }
                 }
 
-                Context.SitePage.Update(model);
-                Context.SaveChanges();
+                this.Context.SitePage.Update(model);
+                this.Context.SaveChanges();
 
                 return true;
             }
-
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 throw new Exception("DB error", ex.InnerException);
-
             }
         }
 
-        public bool Delete(int SitePageId)
+        public bool Delete(int sitePageId)
         {
             try
             {
-                var entry = Context.SitePage
-                              .FirstOrDefault(x => x.SitePageId == SitePageId);
+                var entry = this.Context.SitePage
+                              .FirstOrDefault(x => x.SitePageId == sitePageId);
 
-                Context.SitePage.Remove(entry);
-                Context.SaveChanges();
+                this.Context.SitePage.Remove(entry);
+                this.Context.SaveChanges();
 
                 return true;
             }
             catch (Exception ex)
             {
-
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 return false;
             }
@@ -275,7 +266,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.SitePage
+                return this.Context.SitePage
                               .Include(x => x.SitePageSection)
                               .Include(x => x.Photos)
                               .Include(x => x.SitePageTags)
@@ -292,7 +283,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.SitePage
+                return this.Context.SitePage
                               .Include(x => x.SitePageSection)
                               .Include(x => x.Photos)
                               .Include(x => x.SitePageTags)
@@ -312,7 +303,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             var now = DateTime.UtcNow;
             try
             {
-                var model = Context.SitePage
+                var model = this.Context.SitePage
                                    .Where(x => x.IsLive == true &&
                                                x.PublishDateTimeUtc < now &&
                                                x.SitePageSectionId == sectionId)
@@ -325,7 +316,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                                    .Take(quantityPerPage)
                                    .ToList();
 
-                total = Context.SitePage.Where(x => x.IsLive == true &&
+                total = this.Context.SitePage.Where(x => x.IsLive == true &&
                                                x.PublishDateTimeUtc < now &&
                                                x.SitePageSectionId == sectionId).Count();
 
@@ -333,28 +324,26 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 throw new Exception("DB error", ex.InnerException);
             }
-
         }
 
         public SitePage GetSectionHomePage(int sitePageSectionId)
         {
             try
             {
-                return Context.SitePage
-                              .FirstOrDefault(x => x.IsSectionHomePage == true && 
+                return this.Context.SitePage
+                              .FirstOrDefault(x => x.IsSectionHomePage == true &&
                                                    x.SitePageSectionId == sitePageSectionId);
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 throw new Exception("DB error", ex.InnerException);
             }
         }
     }
 }
-

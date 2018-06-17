@@ -36,7 +36,7 @@ namespace WebPagePub.Data.Migrations
                 type: "nvarchar(255)",
                 maxLength: 255,
                 nullable: false,
-                defaultValue: "");
+                defaultValue: string.Empty);
 
             migrationBuilder.CreateIndex(
                 name: "IX_SitePageSection_Key",

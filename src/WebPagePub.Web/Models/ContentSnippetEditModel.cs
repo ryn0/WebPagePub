@@ -10,11 +10,5 @@ namespace WebPagePub.Web.Models
         public SiteConfigSetting SnippetType { get; set; }
 
         public string Content { get; set; }
-         
-    }
-
-    public class ContentSnippetEditListModel
-    {
-        public List<ContentSnippetEditModel> Items { get; set; } = new List<ContentSnippetEditModel>();
     }
 }

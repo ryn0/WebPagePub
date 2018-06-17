@@ -1,25 +1,55 @@
-﻿namespace WebPagePub.Services.Models
+﻿using Newtonsoft.Json;
+
+namespace WebPagePub.Services.Models
 {
-
-
     public class IpBlocklistModel
     {
-        public bool ishijacked { get; set; }
-        public bool isspider { get; set; }
-        public bool istor { get; set; }
-        public bool isdshield { get; set; }
-        public bool isvpn { get; set; }
-        public string ip { get; set; }
-        public bool isspyware { get; set; }
-        public bool isspambot { get; set; }
-        public object[] blocklists { get; set; }
-        public int lastseen { get; set; }
-        public bool isbot { get; set; }
-        public int listcount { get; set; }
-        public bool isproxy { get; set; }
-        public bool ismalware { get; set; }
-        public bool islisted { get; set; }
-        public bool isexploitbot { get; set; }
-    }
+        [JsonProperty("ishijacked")]
+        public bool Ishijacked { get; set; }
 
+        [JsonProperty("isspider")]
+        public bool Isspider { get; set; }
+
+        [JsonProperty("istor")]
+        public bool Istor { get; set; }
+
+        [JsonProperty("isdshield")]
+        public bool Isdshield { get; set; }
+
+        [JsonProperty("isvpn")]
+        public bool Isvpn { get; set; }
+
+        [JsonProperty("ip")]
+        public string Ip { get; set; }
+
+        [JsonProperty("isspyware")]
+        public bool Isspyware { get; set; }
+
+        [JsonProperty("isspambot")]
+        public bool Isspambot { get; set; }
+
+        [JsonProperty("blocklists")]
+        public object[] Blocklists { get; set; }
+
+        [JsonProperty("lastseen")]
+        public int Lastseen { get; set; }
+
+        [JsonProperty("isbot")]
+        public bool Isbot { get; set; }
+
+        [JsonProperty("listcount")]
+        public int Listcount { get; set; }
+
+        [JsonProperty("isproxy")]
+        public bool Isproxy { get; set; }
+
+        [JsonProperty("ismalware")]
+        public bool Ismalware { get; set; }
+
+        [JsonProperty("islisted")]
+        public bool Islisted { get; set; }
+
+        [JsonProperty("isexploitbot")]
+        public bool Isexploitbot { get; set; }
+    }
 }

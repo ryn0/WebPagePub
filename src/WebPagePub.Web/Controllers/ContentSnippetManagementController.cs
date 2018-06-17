@@ -1,31 +1,31 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Authorization;
-using WebPagePub.Data.Repositories.Interfaces;
-using WebPagePub.Web.Models;
+using Microsoft.AspNetCore.Mvc;
 using WebPagePub.Data.Models.Db;
-using System.Linq;
+using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
+using WebPagePub.Web.Models;
 
 namespace WebPagePub.Web.Controllers
 {
     [Authorize]
     public class ContentSnippetManagementController : Controller
     {
-        private readonly IContentSnippetRepository _contentSnippetRepository;
-        private readonly ICacheService _contentSnippetHelper;
+        private readonly IContentSnippetRepository contentSnippetRepository;
+        private readonly ICacheService contentSnippetHelper;
 
         public ContentSnippetManagementController(
-            IContentSnippetRepository contentSnippetRepository, 
+            IContentSnippetRepository contentSnippetRepository,
             ICacheService contentSnippetHelper)
         {
-            _contentSnippetRepository = contentSnippetRepository;
-            _contentSnippetHelper = contentSnippetHelper;
+            this.contentSnippetRepository = contentSnippetRepository;
+            this.contentSnippetHelper = contentSnippetHelper;
         }
 
         [Route("ContentSnippetManagement")]
         public IActionResult Index()
         {
-            var allSnippets = _contentSnippetRepository.GetAll().OrderBy(x => x.SnippetType.ToString());
+            var allSnippets = this.contentSnippetRepository.GetAll().OrderBy(x => x.SnippetType.ToString());
             var model = new ContentSnippetEditListModel();
 
             foreach (var snippet in allSnippets)
@@ -38,29 +38,33 @@ namespace WebPagePub.Web.Controllers
                 });
             }
 
-            return View(model);
+            return this.View(model);
         }
 
         [Route("ContentSnippetManagement/create")]
         [HttpPost]
         public IActionResult Create(ContentSnippetEditModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            if (!this.ModelState.IsValid)
+            {
+                return this.View(model);
+            }
 
-            var dbModel = _contentSnippetRepository.Get(model.ContentSnippetId);
+            var dbModel = this.contentSnippetRepository.Get(model.ContentSnippetId);
 
             if (dbModel != null)
+            {
                 throw new System.Exception("type already exists");
+            }
 
-            _contentSnippetRepository.Create(new ContentSnippet()
+            this.contentSnippetRepository.Create(new ContentSnippet()
             {
                 Content = model.Content.Trim(),
                 ContentSnippetId = model.ContentSnippetId,
                 SnippetType = model.SnippetType
             });
 
-            return RedirectToAction("index");
+            return this.RedirectToAction("index");
         }
 
         [Route("ContentSnippetManagement/create")]
@@ -69,56 +73,55 @@ namespace WebPagePub.Web.Controllers
         {
             var model = new ContentSnippetEditModel()
             {
-                
             };
-                
-            return View();
-        }
 
+            return this.View();
+        }
 
         [Route("ContentSnippetManagement/edit")]
         [HttpPost]
         public IActionResult Edit(ContentSnippetEditModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            if (!this.ModelState.IsValid)
+            {
+                return this.View(model);
+            }
 
-            var dbModel = _contentSnippetRepository.Get(model.ContentSnippetId);
+            var dbModel = this.contentSnippetRepository.Get(model.ContentSnippetId);
 
             dbModel.Content = model.Content.Trim();
             dbModel.SnippetType = model.SnippetType;
 
-            _contentSnippetRepository.Update(dbModel);
+            this.contentSnippetRepository.Update(dbModel);
 
-            _contentSnippetHelper.ClearSnippetCache(model.SnippetType);
+            this.contentSnippetHelper.ClearSnippetCache(model.SnippetType);
 
-            return RedirectToAction("index");
+            return this.RedirectToAction("index");
         }
 
         [Route("ContentSnippetManagement/edit")]
         [HttpGet]
         public IActionResult Edit(int contentSnippetId)
         {
-            var dbModel = _contentSnippetRepository.Get(contentSnippetId);
+            var dbModel = this.contentSnippetRepository.Get(contentSnippetId);
 
             var model = new ContentSnippetEditModel()
             {
                 Content = dbModel.Content,
                 ContentSnippetId = dbModel.ContentSnippetId,
                 SnippetType = dbModel.SnippetType,
-                
             };
 
-            return View(model);
+            return this.View(model);
         }
 
         [Route("ContentSnippetManagement/delete")]
         [HttpPost]
         public IActionResult Delete(int contentSnippetId)
         {
-            _contentSnippetRepository.Delete(contentSnippetId);
+            this.contentSnippetRepository.Delete(contentSnippetId);
 
-            return RedirectToAction("index");
+            return this.RedirectToAction("index");
         }
     }
 }

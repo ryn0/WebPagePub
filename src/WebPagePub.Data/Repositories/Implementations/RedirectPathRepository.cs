@@ -1,8 +1,8 @@
-﻿using log4net;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using log4net;
 using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
@@ -11,11 +11,11 @@ namespace WebPagePub.Data.Repositories.Implementations
 {
     public class RedirectPathRepository : IRedirectPathRepository
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public RedirectPathRepository(IApplicationDbContext context)
         {
-            Context = context;
+            this.Context = context;
         }
 
         public IApplicationDbContext Context { get; private set; }
@@ -24,14 +24,14 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                Context.RedirectPath.Add(model);
-                Context.SaveChanges();
+                this.Context.RedirectPath.Add(model);
+                this.Context.SaveChanges();
 
                 return model;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
                 throw new Exception("DB error", ex.InnerException);
             }
         }
@@ -40,17 +40,17 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var entry = Context.RedirectPath
+                var entry = this.Context.RedirectPath
                                    .FirstOrDefault(x => x.RedirectPathId == redirectPathId);
 
-                Context.RedirectPath.Remove(entry);
-                Context.SaveChanges();
+                this.Context.RedirectPath.Remove(entry);
+                this.Context.SaveChanges();
 
                 return true;
             }
             catch (Exception ex)
             {
-                log.Fatal(ex);
+                Log.Fatal(ex);
 
                 return false;
             }
@@ -58,14 +58,14 @@ namespace WebPagePub.Data.Repositories.Implementations
 
         public void Dispose()
         {
-            Context.Dispose();
+            this.Context.Dispose();
         }
 
         public RedirectPath Get(int redirectPathId)
         {
             try
             {
-                return Context.RedirectPath.FirstOrDefault(x => x.RedirectPathId == redirectPathId);
+                return this.Context.RedirectPath.FirstOrDefault(x => x.RedirectPathId == redirectPathId);
             }
             catch (Exception ex)
             {
@@ -77,7 +77,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.RedirectPath.FirstOrDefault(x => x.Path == path);
+                return this.Context.RedirectPath.FirstOrDefault(x => x.Path == path);
             }
             catch (Exception ex)
             {
@@ -89,7 +89,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return Context.RedirectPath.ToList();
+                return this.Context.RedirectPath.ToList();
             }
             catch (Exception ex)
             {

@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
@@ -14,23 +14,23 @@ namespace WebPagePub.Services.Implementations
     public class SpamFilterService : ISpamFilterService
     {
         private const string ApiUrlFormat = "https://neutrinoapi.com/ip-blocklist?ip={0}&user-id={1}&api-key={2}";
-        private readonly IBlockedIPRepository _blockedIPRepository;
-        private readonly string _userId;
-        private readonly string _apiKey;
+        private readonly IBlockedIPRepository blockedIPRepository;
+        private readonly string userId;
+        private readonly string apiKey;
 
         public SpamFilterService (
             IBlockedIPRepository blockedIPRepository,
             string userId,
             string apiKey)
         {
-            _blockedIPRepository = blockedIPRepository;
-            _userId = userId;
-            _apiKey = apiKey;
+            this.blockedIPRepository = blockedIPRepository;
+            this.userId = userId;
+            this.apiKey = apiKey;
         }
 
         public void Create(string ipAddress)
         {
-            Task.Run(() => _blockedIPRepository.CreateAsync(new Data.Models.Db.BlockedIP()
+            Task.Run(() => this.blockedIPRepository.CreateAsync(new Data.Models.Db.BlockedIP()
             {
                 IpAddress = ipAddress
             })).Wait();
@@ -38,13 +38,15 @@ namespace WebPagePub.Services.Implementations
 
         public bool IsBlocked(string ipAddress)
         {
-            if (_blockedIPRepository.IsBlockedIp(ipAddress))
+            if (this.blockedIPRepository.IsBlockedIp(ipAddress))
             {
                 return true;
             }
 
-            if (!HasConfigs())
+            if (!this.HasConfigs())
+            {
                 return false;
+            }
 
             var client = new HttpClient
             {
@@ -54,13 +56,13 @@ namespace WebPagePub.Services.Implementations
             client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue(StringConstants.ApplicationJson));
 
-            var response = Task.Run(() => client.GetStringAsync(FormattedUrl(ipAddress))).Result;
+            var response = Task.Run(() => client.GetStringAsync(this.FormattedUrl(ipAddress))).Result;
             var model = JsonConvert.DeserializeObject<IpBlocklistModel>(response);
-            if (model.blocklists.Any() ||
-                model.isbot || model.isexploitbot || model.ishijacked || model.ismalware || 
-                model.isproxy || model.isspambot || model.isspyware)
+            if (model.Blocklists.Any() ||
+                model.Isbot || model.Isexploitbot || model.Ishijacked || model.Ismalware ||
+                model.Isproxy || model.Isspambot || model.Isspyware)
             {
-                Task.Run(() => _blockedIPRepository.CreateAsync(new Data.Models.Db.BlockedIP()
+                Task.Run(() => this.blockedIPRepository.CreateAsync(new Data.Models.Db.BlockedIP()
                 {
                     IpAddress = ipAddress
                 }).Result);
@@ -73,14 +75,16 @@ namespace WebPagePub.Services.Implementations
 
         private string FormattedUrl(string ipAddress)
         {
-            return string.Format(ApiUrlFormat, ipAddress, _userId, _apiKey);
+            return string.Format(ApiUrlFormat, ipAddress, this.userId, this.apiKey);
         }
 
         private bool HasConfigs()
         {
-            if (string.IsNullOrWhiteSpace(_apiKey) ||
-                string.IsNullOrWhiteSpace(_userId))
+            if (string.IsNullOrWhiteSpace(this.apiKey) ||
+                string.IsNullOrWhiteSpace(this.userId))
+            {
                 return false;
+            }
 
             return true;
         }

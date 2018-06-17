@@ -1,21 +1,21 @@
 ﻿using System.IO;
-using Microsoft.AspNetCore.Hosting;
-using log4net.Config;
 using System.Reflection;
 using log4net;
+using log4net.Config;
+using Microsoft.AspNetCore.Hosting;
 
 namespace WebPagePub.Web
 {
     public class Program
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public static void Main(string[] args)
         {
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
             XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
 
-            log.Info("Application - Main is invoked");
+            Log.Info("Application - Main is invoked");
 
             var host = new WebHostBuilder()
                 .UseKestrel()

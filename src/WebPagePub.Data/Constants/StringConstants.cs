@@ -3,8 +3,10 @@
     public class StringConstants
     {
         public const string AdminRole = "Administrator";
-  
-        public static readonly string[] BotUserAgents = {
+        public const string ApplicationJson = "application/json";
+
+        public static readonly string[] BotUserAgents =
+        {
                 "Googlebot",
                 "Bingbot",
                 "Slurp",
@@ -14,8 +16,7 @@
                 "Sogou",
                 "Exabot",
                 "facebot",
-                "ia_archiver" };
-
-        public const string ApplicationJson = "application/json";
+                "ia_archiver"
+        };
     }
 }
