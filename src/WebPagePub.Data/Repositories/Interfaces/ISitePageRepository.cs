@@ -13,13 +13,11 @@ namespace WebPagePub.Data.Repositories.Interfaces
 
         bool Update(SitePage model);
 
-        SitePage Get(int SitePageId);
+        SitePage Get(int sitePageId);
 
-        bool Delete(int SitePageId);
+        bool Delete(int sitePageId);
 
         SitePage Get(string key);
-
-        SitePage GetHomePage();
 
         SitePage GetPreviousEntry(DateTime currentSitePagePublishDateTimeUtc);
 
@@ -35,6 +33,8 @@ namespace WebPagePub.Data.Repositories.Interfaces
 
         List<SitePage> GetLivePagesForSection(int sitePageSectionId);
 
-        List<SitePage> GetLivePageBySection(int sectionId, int pageNumber, int quantityPerPage, out int total);
+        List<SitePage> GetLivePageBySection(int sitePageSectionId, int pageNumber, int quantityPerPage, out int total);
+
+        SitePage GetSectionHomePage(int sitePageSectionId);
     }
 }
