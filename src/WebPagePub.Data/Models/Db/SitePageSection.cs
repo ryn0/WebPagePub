@@ -18,6 +18,9 @@ namespace WebPagePub.Data.Models.Db
         public string Key { get; set; }
 
         [Required]
+        public bool IsHomePageSection { get; set; }
+
+        [Required]
         [StringLength(255)]
         public string BreadcrumbName { get; set; }
     }
