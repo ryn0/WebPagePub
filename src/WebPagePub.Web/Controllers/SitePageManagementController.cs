@@ -436,7 +436,7 @@ namespace WebPagePub.Web.Controllers
                     Key = page.Key,
                     LiveUrlPath = UrlBuilder.BlogUrlPath(page.SitePageSection.Key, page.Key),
                     PreviewUrlPath = UrlBuilder.BlogPreviewUrlPath(page.SitePageId),
-                    IsIndex = page.IsHomePage
+                    IsIndex = page.IsSectionHomePage
                 });
             }
 
@@ -469,7 +469,7 @@ namespace WebPagePub.Web.Controllers
             dbModel.ReviewWorstValue = model.ReviewWorstValue;
             dbModel.MetaKeywords = (model.MetaKeywords != null) ? model.MetaKeywords.Trim() : string.Empty;
             dbModel.AllowsComments = model.AllowsComments;
-            dbModel.IsHomePage = model.IsHomePage;
+            dbModel.IsSectionHomePage = model.IsSectionHomePage;
 
             return dbModel;
         }
@@ -497,8 +497,7 @@ namespace WebPagePub.Web.Controllers
                 ReviewWorstValue = dbModel.ReviewWorstValue,
                 MetaKeywords = dbModel.MetaKeywords,
                 AllowsComments = dbModel.AllowsComments,
-                IsHomePage = dbModel.IsHomePage,
-                IsHomePageSection = isHomePageSection
+                IsSectionHomePage = dbModel.IsSectionHomePage,
             };
 
             var mc = new ModelConverter(_cacheService);

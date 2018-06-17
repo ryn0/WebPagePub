@@ -58,8 +58,6 @@ namespace WebPagePub.Web.Models
         [Display(Name = "Allows Comments")]
         public bool AllowsComments { get; set; }
 
-        public bool IsHomePage { get; set; }
-
-        public bool IsHomePageSection { get; set; }
+        public bool IsSectionHomePage { get; set; }
     }
 }

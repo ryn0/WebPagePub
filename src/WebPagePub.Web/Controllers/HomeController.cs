@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace WebPagePub.Web.Controllers
 {
+    // todo: cache keys which are retrieved for lookups
     public class HomeController : Controller
     {
         const string PreviewKey = "preview";
@@ -52,7 +53,7 @@ namespace WebPagePub.Web.Controllers
         public IActionResult Index()
         {
             var homeSection = _sitePageSectionRepository.GetHomeSection();
-            var homePage = _sitePageRepository.GetHomePage();
+            var homePage = _sitePageRepository.GetSectionHomePage(homeSection.SitePageSectionId);
 
             if(homePage == null)
             {
@@ -68,7 +69,8 @@ namespace WebPagePub.Web.Controllers
         [HttpGet]
         public IActionResult SectionPage(string sectionKey, int pageNumber = 1)
         {
-            var homePage = _sitePageRepository.GetHomePage();
+            var section = _sitePageSectionRepository.Get(sectionKey);
+            var homePage = _sitePageRepository.GetSectionHomePage(section.SitePageSectionId);
 
             return CatchAllRequests(sectionKey, homePage.Key, false, pageNumber);
         }
@@ -77,7 +79,8 @@ namespace WebPagePub.Web.Controllers
         [HttpGet]
         public IActionResult TagPage(string tagName, int pageNumber = 1)
         {
-            var homePage = _sitePageRepository.GetHomePage();
+            var homeSection = _sitePageSectionRepository.GetHomeSection();
+            var homePage = _sitePageRepository.GetSectionHomePage(homeSection.SitePageSectionId);
 
             return CatchAllRequests(
                         tagKey: tagName,
@@ -90,7 +93,8 @@ namespace WebPagePub.Web.Controllers
         [HttpGet]
         public IActionResult TagPage(string tagName)
         {
-            var homePage = _sitePageRepository.GetHomePage();
+            var homeSection = _sitePageSectionRepository.GetHomeSection();
+            var homePage = _sitePageRepository.GetSectionHomePage(homeSection.SitePageSectionId);
 
             return CatchAllRequests(
                         tagKey: tagName,
@@ -109,7 +113,8 @@ namespace WebPagePub.Web.Controllers
         [HttpGet]
         public IActionResult Index(string sectionKey)
         {
-            var homePage = _sitePageRepository.GetHomePage();
+            var section = _sitePageSectionRepository.Get(sectionKey);
+            var homePage = _sitePageRepository.GetSectionHomePage(section.SitePageSectionId);
 
             return CatchAllRequests(sectionKey, homePage.Key);
         }
@@ -257,7 +262,7 @@ namespace WebPagePub.Web.Controllers
                                                             PageSize,
                                                             out total);
 
-                pages = pages.Where(x => x.IsHomePage == false).ToList();
+                pages = pages.Where(x => x.IsSectionHomePage == false).ToList();
             }
             else
             {
@@ -481,7 +486,7 @@ namespace WebPagePub.Web.Controllers
                 });
             }
 
-            if (!sitePage.IsHomePage)
+            if (!sitePage.IsSectionHomePage)
             {
                 breadcrumbList.ItemListElement.Add(
                            new BreadcrumbListItem()

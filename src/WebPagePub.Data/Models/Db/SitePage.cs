@@ -69,6 +69,6 @@ namespace WebPagePub.Data.Models
         public SitePageSection SitePageSection { get; set; }
 
         [Required]
-        public bool IsHomePage { get; set; }
+        public bool IsSectionHomePage { get; set; }
     }
 }

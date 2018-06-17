@@ -220,15 +220,17 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                if (model.IsHomePage)
+                if (model.IsSectionHomePage)
                 {
-                    foreach (var page in Context.SitePage.ToList())
+                    foreach (var page in Context.SitePage
+                                                .Where(x =>x.SitePageSectionId == model.SitePageSectionId)
+                                                .ToList())
                     {
-                        page.IsHomePage = false;
+                        page.IsSectionHomePage = false;
 
                         if (page.SitePageId == model.SitePageId)
                         {
-                            page.IsHomePage = true;
+                            page.IsSectionHomePage = true;
                         }
                     }
                 }
@@ -338,12 +340,13 @@ namespace WebPagePub.Data.Repositories.Implementations
 
         }
 
-        public SitePage GetHomePage()
+        public SitePage GetSectionHomePage(int sitePageSectionId)
         {
             try
             {
                 return Context.SitePage
-                              .FirstOrDefault(x => x.IsHomePage == true);
+                              .FirstOrDefault(x => x.IsSectionHomePage == true && 
+                                                   x.SitePageSectionId == sitePageSectionId);
             }
             catch (Exception ex)
             {

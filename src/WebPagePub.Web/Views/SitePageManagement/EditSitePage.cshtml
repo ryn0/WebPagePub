@@ -9,7 +9,6 @@
 <h2>@ViewData["Title"]</h2>
 
  
-<i>Note: pages called 'index' are the section pages as in: /section </i>
 
 <a href="@Model.PreviewUrlPath">Preview</a>
  
@@ -88,15 +87,14 @@
         </div>
     </div>
 
-    @if (Model.IsHomePageSection)
-    {
+ 
     <div class="form-group">
-        <label asp-for="IsHomePage" class="col-md-2 control-label"></label>
+        <label asp-for="IsSectionHomePage" class="col-md-2 control-label"></label>
         <div class="col-md-10">
-            @Html.CheckBoxFor(x => x.IsHomePage)
+            @Html.CheckBoxFor(x => x.IsSectionHomePage)
         </div>
     </div>
-    }
+ 
 
     <div class="form-group">
         <label asp-for="AllowsComments" class="col-md-2 control-label"></label>

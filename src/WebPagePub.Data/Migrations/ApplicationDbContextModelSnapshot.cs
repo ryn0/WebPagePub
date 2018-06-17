@@ -422,9 +422,9 @@ namespace WebPagePub.Data.Migrations
 
                     b.Property<bool>("ExcludePageFromSiteMapXml");
 
-                    b.Property<bool>("IsHomePage");
-
                     b.Property<bool>("IsLive");
+
+                    b.Property<bool>("IsSectionHomePage");
 
                     b.Property<string>("Key")
                         .IsRequired()

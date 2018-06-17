@@ -30,7 +30,7 @@ namespace WebPagePub.Web.Controllers
                     continue;
 
                 string url;
-                if (page.IsHomePage)
+                if (page.IsSectionHomePage)
                 {
                     url = new Uri(UrlBuilder.GetCurrentDomain(HttpContext)).ToString();
                 }
@@ -60,7 +60,7 @@ namespace WebPagePub.Web.Controllers
             {
                 var allPagesInSection = allPages.Where(x => x.SitePageSectionId == sectionId).ToList();
 
-                var indexPage = allPagesInSection.First(x => x.IsHomePage == true);
+                var indexPage = allPagesInSection.First(x => x.IsSectionHomePage == true);
                 var sectionPath = UrlBuilder.BlogUrlPath(indexPage.SitePageSection.Key, indexPage.Key);
                 var sectionUrl = new Uri(UrlBuilder.GetCurrentDomain(HttpContext) + sectionPath).ToString().TrimEnd('/');
 
@@ -73,7 +73,7 @@ namespace WebPagePub.Web.Controllers
 
                 foreach (var page in allPagesInSection)
                 {
-                    if (!page.IsLive || page.IsHomePage)
+                    if (!page.IsLive || page.IsSectionHomePage)
                         continue;
 
                     var pagePath = UrlBuilder.BlogUrlPath(page.SitePageSection.Key, page.Key);
