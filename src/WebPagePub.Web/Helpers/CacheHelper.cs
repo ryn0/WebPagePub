@@ -4,7 +4,7 @@ using WebPagePub.Data.Models.Db;
 namespace WebPagePub.Web.Helpers
 {
     public class CacheHelper
-    { 
+    {
         public static string GetpPageCacheKey(
                                 string sectionKey = null,
                                 string pageKey = null,

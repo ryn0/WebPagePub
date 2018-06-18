@@ -15,7 +15,8 @@ namespace ConsoleApp1
             Console.WriteLine("Converting .pngs to .jpgs...");
 
             string[] filePaths = Directory.GetFiles(
-                                         directory, "*.png",
+                                         directory,
+                                         "*.png",
                                          SearchOption.TopDirectoryOnly);
 
             foreach (var file in filePaths)
@@ -34,7 +35,8 @@ namespace ConsoleApp1
             Console.WriteLine("Compressing images jpgs...");
 
             filePaths = Directory.GetFiles(
-                                        directory, "*.jpg",
+                                        directory,
+                                        "*.jpg",
                                         SearchOption.TopDirectoryOnly);
 
             foreach (var file in filePaths)

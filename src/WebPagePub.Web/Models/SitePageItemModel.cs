@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace WebPagePub.Web.Models
 {
-
     public class SitePageItemModel
     {
         public int SitePageId { get; set; }

@@ -1,9 +1,7 @@
 ﻿using Newtonsoft.Json;
-using WebPagePub.Services.Interfaces;
 
 namespace WebPagePub.Web.Models
 {
-
     public class ReviewRating
     {
         [JsonProperty("@type")]

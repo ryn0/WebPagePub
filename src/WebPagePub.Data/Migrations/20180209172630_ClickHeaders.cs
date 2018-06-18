@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
-using System;
-using System.Collections.Generic;
 
 namespace WebPagePub.Data.Migrations
 {
@@ -8,7 +6,6 @@ namespace WebPagePub.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-
             migrationBuilder.AddColumn<string>(
                 name: "Headers",
                 table: "ClickLog",
@@ -20,7 +17,6 @@ namespace WebPagePub.Data.Migrations
             migrationBuilder.DropColumn(
                 name: "Headers",
                 table: "ClickLog");
-            
         }
     }
 }

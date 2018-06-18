@@ -5,7 +5,7 @@ namespace WebPagePub.Web.Models
 {
     public class SitePageManagementCreateModel
     {
-        public string Title { get; set; }  
+        public string Title { get; set; }
 
         [Required]
         public int SiteSectionId { get; set; }

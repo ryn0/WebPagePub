@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
-using System;
-using System.Collections.Generic;
 
 namespace WebPagePub.Data.Migrations
 {
@@ -8,7 +6,7 @@ namespace WebPagePub.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn( "BlogPublishDateTimeUtc", "dbo.SitePage", "PublishDateTimeUtc");
+            migrationBuilder.RenameColumn("BlogPublishDateTimeUtc", "dbo.SitePage", "PublishDateTimeUtc");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

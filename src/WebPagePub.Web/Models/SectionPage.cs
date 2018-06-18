@@ -2,7 +2,6 @@
 
 namespace WebPagePub.Web.Models
 {
-
     public class SectionPage
     {
         public string CanonicalUrl { get; set; }
