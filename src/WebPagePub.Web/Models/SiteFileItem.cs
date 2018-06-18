@@ -2,7 +2,6 @@
 
 namespace WebPagePub.Web.Models
 {
-
     public class SiteFileItem
     {
         public bool IsFolder { get; set; } = false;

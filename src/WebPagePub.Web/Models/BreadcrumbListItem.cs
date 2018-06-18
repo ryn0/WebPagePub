@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace WebPagePub.Web.Models
 {
-
     public class BreadcrumbListItem
     {
         [JsonProperty("@type")]
@@ -16,5 +13,4 @@ namespace WebPagePub.Web.Models
         [JsonProperty("item")]
         public BreadcrumbListItemProperties Item { get; set; } = new BreadcrumbListItemProperties();
     }
-
 }

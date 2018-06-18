@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace WebPagePub.Web.Models
 {
-
     public class BreadcrumbListItemProperties
     {
         [JsonProperty("name")]
@@ -16,5 +14,4 @@ namespace WebPagePub.Web.Models
         [JsonProperty("image", NullValueHandling = NullValueHandling.Ignore)]
         public Uri ImageUrl { get; set; }
     }
-
 }

@@ -1,7 +1,7 @@
-﻿using WebPagePub.Data.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using WebPagePub.Data.Enums;
 
 namespace WebPagePub.Web.Models
 {
@@ -11,7 +11,7 @@ namespace WebPagePub.Web.Models
         public string Title { get; set; }
 
         [Required]
-        [Display( Name = "Page Header (H1)")]
+        [Display(Name = "Page Header (H1)")]
         public string PageHeader { get; set; }
 
         [Required]

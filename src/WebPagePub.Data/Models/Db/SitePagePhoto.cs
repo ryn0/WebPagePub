@@ -41,6 +41,6 @@ namespace WebPagePub.Data.Models
         [ForeignKey(nameof(SitePage))]
         public int SitePageId { get; set; }
 
-        public virtual SitePage SitePage  { get; set; }
+        public virtual SitePage SitePage { get; set; }
     }
 }

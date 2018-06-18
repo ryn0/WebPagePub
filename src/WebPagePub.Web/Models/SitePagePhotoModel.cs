@@ -1,12 +1,11 @@
 ﻿namespace WebPagePub.Web.Models
 {
-
     public class SitePagePhotoModel
     {
         public int SitePagePhotoId { get; set; }
 
         public string PhotoUrl { get; set; }
- 
+
         public string PhotoThumbUrl { get; set; }
 
         public string PhotoCdnUrl { get; set; }

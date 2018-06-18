@@ -3,7 +3,6 @@ using WebPagePub.Services.Interfaces;
 
 namespace WebPagePub.Web.Models
 {
-
     public class ItemReviewed
     {
         [JsonProperty("@type")]

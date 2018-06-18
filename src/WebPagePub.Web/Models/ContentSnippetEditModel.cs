@@ -1,5 +1,4 @@
 ﻿using WebPagePub.Data.Enums;
-using System.Collections.Generic;
 
 namespace WebPagePub.Web.Models
 {

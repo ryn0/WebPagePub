@@ -14,21 +14,6 @@ namespace WebPagePub.Web.Models
             this.SetProperties();
         }
 
-        private void SetProperties()
-        {
-            this.Logo = this.cacheService.GetSnippet(SiteConfigSetting.LogoUrl);
-
-            this.SameAs = new[]
-            {
-               this.cacheService.GetSnippet(SiteConfigSetting.FacebookUrl),
-               this.cacheService.GetSnippet(SiteConfigSetting.YouTubeUrl),
-               this.cacheService.GetSnippet(SiteConfigSetting.TwitterUrl)
-            };
-
-            this.Url = this.cacheService.GetSnippet(SiteConfigSetting.CanonicalDomain);
-            this.Name = this.cacheService.GetSnippet(SiteConfigSetting.WebsiteName);
-        }
-
         [JsonProperty("@context")]
         public string Context { get; set; } = "http://schema.org";
 
@@ -49,5 +34,20 @@ namespace WebPagePub.Web.Models
 
         [JsonProperty("sameAs")]
         public string[] SameAs { get; set; }
+
+        private void SetProperties()
+        {
+            this.Logo = this.cacheService.GetSnippet(SiteConfigSetting.LogoUrl);
+
+            this.SameAs = new[]
+            {
+               this.cacheService.GetSnippet(SiteConfigSetting.FacebookUrl),
+               this.cacheService.GetSnippet(SiteConfigSetting.YouTubeUrl),
+               this.cacheService.GetSnippet(SiteConfigSetting.TwitterUrl)
+            };
+
+            this.Url = this.cacheService.GetSnippet(SiteConfigSetting.CanonicalDomain);
+            this.Name = this.cacheService.GetSnippet(SiteConfigSetting.WebsiteName);
+        }
     }
 }
