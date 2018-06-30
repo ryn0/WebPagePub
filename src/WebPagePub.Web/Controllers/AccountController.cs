@@ -1,7 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using WebPagePub.Data.Constants;
+using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Models;
 using WebPagePub.Web.Models;
 
@@ -9,15 +12,18 @@ namespace WebPagePub.Web.Controllers
 {
     public class AccountController : Controller
     {
+        private readonly ApplicationDbContext context;
         private readonly UserManager<ApplicationUser> userManager;
         private readonly SignInManager<ApplicationUser> signInManager;
         private readonly RoleManager<IdentityRole> roleManager;
 
         public AccountController(
+          ApplicationDbContext context,
           UserManager<ApplicationUser> userManager,
           SignInManager<ApplicationUser> signInManager,
           RoleManager<IdentityRole> roleManager)
         {
+            this.context = context;
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.roleManager = roleManager;
@@ -28,6 +34,63 @@ namespace WebPagePub.Web.Controllers
         [AllowAnonymous]
         public IActionResult Login()
         {
+            if (!this.context.Users.Any())
+            {
+                return this.RedirectToAction(nameof(this.CreateAccount));
+            }
+
+            return this.View();
+        }
+
+        [Route("account/createaccount")]
+        [HttpGet]
+        public IActionResult CreateAccount()
+        {
+            return this.View();
+        }
+
+        [Route("account/createaccount")]
+        [HttpPost]
+        public IActionResult CreateAccount(RegistrationModel model)
+        {
+            if (!this.ModelState.IsValid)
+            {
+                return this.View();
+            }
+
+            if (!this.context.Roles.Any(r => r.Name == StringConstants.AdminRole))
+            {
+                Task.Run(() => this.roleManager.CreateAsync(new IdentityRole(StringConstants.AdminRole))).Wait();
+            }
+
+            var userResult = Task.Run(() => this.userManager.CreateAsync(
+                new ApplicationUser
+                {
+                    UserName = model.Email,
+                    Email = model.Email,
+                    EmailConfirmed = true
+                }, model.Password)).Result;
+
+            if (!userResult.Succeeded)
+            {
+                this.ModelState.AddModelError(string.Empty, string.Join(",", userResult.Errors.Select(x => x.Description)));
+                return this.View(model);
+            }
+
+            var addUserResult = Task.Run(() => this.userManager.AddToRoleAsync(
+                Task.Run(() => this.userManager.FindByNameAsync(model.Email)).Result, StringConstants.AdminRole)).Result;
+
+            if (this.IsValidPassword(new LoginViewModel()
+            {
+                Email = model.Email,
+                Password = model.Password,
+                RememberMe = false
+            }) &&
+            this.EmailIsConfirmed(model.Email, out ApplicationUser user))
+            {
+                return this.RedirectToAction("Index", "Admin");
+            }
+
             return this.View();
         }
 
