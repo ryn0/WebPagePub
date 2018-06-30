@@ -43,6 +43,9 @@ properties {
    # Git   
    $RemoteOriginName                  = "origin"
    $MasterBranchName                  = "master"
+
+   # General
+   $DefaultBroswer              = "chrome"
 }
 
 task default -depends RestorePackages # required task
