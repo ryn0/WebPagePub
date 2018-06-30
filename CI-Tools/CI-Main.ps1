@@ -1,5 +1,16 @@
-﻿# External scripts
-$CIRoot              = $PSScriptRoot
+﻿####################################################
+# WebPagePub CI Tool
+#
+# Example use: .\CI.bat TaskName -properties "@{'Key'='Value'}"
+####################################################
+
+
+# External scripts
+$CIRoot               = $PSScriptRoot
+$PowerShellScriptPath = "$CIRoot\Scripts\"
+$CIOutputDirectory    = "$CIRoot\..\CI-Output"
+Include (Join-Path $PowerShellScriptPath "HelperFunctions.ps1")
+Include (Join-Path $PowerShellScriptPath "GitPsakeTasks.ps1")
 
 # Define CLI input properties and defaults
 properties {
@@ -28,6 +39,10 @@ properties {
    $dbConnectionString          = ""
    $NeutrinoApiUserId           = ""
    $NeutrinoApiApiKey           = ""
+
+   # Git   
+   $RemoteOriginName                  = "origin"
+   $MasterBranchName                  = "master"
 }
 
 task default -depends RestorePackages # required task
