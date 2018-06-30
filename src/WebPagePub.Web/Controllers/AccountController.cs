@@ -145,6 +145,37 @@ namespace WebPagePub.Web.Controllers
             return this.RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
+        [Route("account/changepassword")]
+        [Authorize]
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            return this.View(nameof(this.ChangePassword), new ChangePasswordModel());
+        }
+
+        [Route("account/changepassword")]
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> ChangePasswordAsync(ChangePasswordModel model)
+        {
+            if (!this.ModelState.IsValid)
+            {
+                return this.View(model);
+            }
+
+            var currentUser = await this.userManager.GetUserAsync(this.HttpContext.User);
+            var result = await this.userManager.ChangePasswordAsync(currentUser, model.CurrentPassword, model.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                this.ModelState.AddModelError(string.Empty, string.Join(",", result.Errors.Select(x => x.Description)));
+
+                return this.View(model);
+            }
+
+            return this.RedirectToAction(nameof(this.Home));
+        }
+
         public async Task AddUserToRole(ApplicationUser user, string role)
         {
             var admin = await this.roleManager.FindByNameAsync(role);
