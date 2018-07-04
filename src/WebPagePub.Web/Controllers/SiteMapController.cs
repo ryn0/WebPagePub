@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using WebPagePub.Data.Models;
+using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Web.Helpers;
 using WebPagePub.Web.Models;
@@ -11,10 +13,14 @@ namespace WebPagePub.Web.Controllers
     {
         private const int MaxPageSizeForSiteMap = 50000;
         private readonly ISitePageRepository sitePageRepository;
+        private readonly ISitePageSectionRepository sitePageSectionRepository;
 
-        public SiteMapController(ISitePageRepository sitePageRepository)
+        public SiteMapController(
+            ISitePageRepository sitePageRepository,
+            ISitePageSectionRepository sitePageSectionRepository)
         {
            this.sitePageRepository = sitePageRepository;
+           this.sitePageSectionRepository = sitePageSectionRepository;
         }
 
         [Route("sitemap.xml")]
@@ -60,11 +66,16 @@ namespace WebPagePub.Web.Controllers
 
             foreach (var sectionId in sectionIds)
             {
+                var section = this.sitePageSectionRepository.Get(sectionId);
                 var allPagesInSection = allPages.Where(x => x.SitePageSectionId == sectionId).ToList();
+                var indexPage = allPagesInSection.FirstOrDefault(x => x.IsSectionHomePage == true);
 
-                var indexPage = allPagesInSection.First(x => x.IsSectionHomePage == true);
-                var sectionPath = UrlBuilder.BlogUrlPath(indexPage.SitePageSection.Key, indexPage.Key);
-                var sectionUrl = new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext) + sectionPath).ToString().TrimEnd('/');
+                if (indexPage == null)
+                {
+                    continue;
+                }
+
+                var sectionUrl = this.GetSectionUrl(section, indexPage);
 
                 var siteSectionPage =
                     new SectionPage()
@@ -99,6 +110,23 @@ namespace WebPagePub.Web.Controllers
             model.SectionPages = model.SectionPages.OrderBy(x => x.AnchorText).ToList();
 
             return this.View("Index", model);
+        }
+
+        private string GetSectionUrl(SitePageSection section, SitePage indexPage)
+        {
+            var sectionPath = UrlBuilder.BlogUrlPath(indexPage.SitePageSection.Key, indexPage.Key);
+
+            if (section.IsHomePageSection && indexPage.IsSectionHomePage)
+            {
+                return new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext)).ToString().TrimEnd('/');
+            }
+
+            if (indexPage.IsSectionHomePage)
+            {
+                return new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext) + indexPage.SitePageSection.Key).ToString().TrimEnd('/');
+            }
+
+            return new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext) + sectionPath).ToString().TrimEnd('/');
         }
     }
 }

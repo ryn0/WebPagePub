@@ -22,8 +22,8 @@ namespace WebPagePub.Web.Helpers
         public string GenerateXml()
         {
             var sb = new StringBuilder();
-            sb.Append(@"<?xml version=string.Empty1.0string.Empty encoding=string.EmptyUTF-8string.Empty?>");
-            sb.AppendLine(@"<urlset xmlns=string.Emptyhttp://www.sitemaps.org/schemas/sitemap/0.9string.Empty>");
+            sb.Append(@"<?xml version=""1.0"" encoding=""UTF-8""?>");
+            sb.AppendLine(@"<urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">");
 
             foreach (var siteMapItem in this.SiteMapItems)
             {
