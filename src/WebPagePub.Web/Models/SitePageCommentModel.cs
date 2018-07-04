@@ -32,5 +32,11 @@ namespace WebPagePub.Web.Models
         public CommentStatus CommentStatus { get; set; }
 
         public Guid RequestId { get; set; }
+
+        public int Number1 { get; set; }
+
+        public int Number2 { get; set; }
+
+        public int SumOf2Numbers { get; set; }
     }
 }
