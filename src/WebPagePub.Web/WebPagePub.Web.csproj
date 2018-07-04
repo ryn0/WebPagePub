@@ -62,6 +62,9 @@
     <Content Update="Views\Account\ChangePassword.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
+    <Content Update="Views\Shared\_captcha.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="wwwroot\img\" />
