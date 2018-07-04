@@ -144,6 +144,11 @@ namespace WebPagePub.Web.Controllers
                 return this.View("CommentError");
             }
 
+            if (!SiteUtilityHelper.IsCaptchaValid(this.Request.Form))
+            {
+                return this.View("CommentError");
+            }
+
             var ipAddress = this.accessor.HttpContext.Connection.RemoteIpAddress.ToString();
 
             if (this.spamFilterService.IsBlocked(ipAddress))
