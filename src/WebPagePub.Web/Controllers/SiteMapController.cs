@@ -123,10 +123,12 @@ namespace WebPagePub.Web.Controllers
 
             if (indexPage.IsSectionHomePage)
             {
-                return new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext) + indexPage.SitePageSection.Key).ToString().TrimEnd('/');
+                return new Uri(
+                    $"{UrlBuilder.GetCurrentDomain(this.HttpContext)}/{indexPage.SitePageSection.Key}").ToString().TrimEnd('/');
             }
 
-            return new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext) + sectionPath).ToString().TrimEnd('/');
+            return new Uri(
+                $"{UrlBuilder.GetCurrentDomain(this.HttpContext)}{sectionPath}").ToString().TrimEnd('/');
         }
     }
 }
