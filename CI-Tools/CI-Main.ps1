@@ -58,7 +58,7 @@ properties {
    $MasterBranchName            = "master"
 
    # General
-   $DefaultBroswer              = "chrome"
+   $DefaultBrowser              = "chrome"
 
    # Application Resources    
    $portalAppLocation                 = "West US"    
