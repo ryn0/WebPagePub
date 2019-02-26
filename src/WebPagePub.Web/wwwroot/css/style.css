@@ -461,3 +461,9 @@ ol.breadcrumbs {
 table.review-table > tbody > tr > td {
     vertical-align: middle;
 }
+
+
+.forward-backward-buttons a, .forward-backward-buttons  a:hover {
+    color: #333
+}
+ 
