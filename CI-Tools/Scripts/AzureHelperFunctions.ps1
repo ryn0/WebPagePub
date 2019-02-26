@@ -2,7 +2,6 @@
 # Azure Helper Functions
 ##########################
 
-
 function Create-TableIfNotExists{    
     Param($TableName, 
           $StorageContext)
@@ -144,7 +143,6 @@ function Has-AzureServiceBusNamespace {
         return [System.Convert]::ToBoolean($True) 
     }
 }
-
 
 # DNS CNAME
 function Add-DnsCnameIfNotExists {
@@ -660,117 +658,6 @@ function Has-AzureDnsZoneName {
 
     $hasService
 }
-
-
-################################################################################
-# Register-AzureServicePrincipal
-# Given the correct input, does one of the following: 
-# 1> checks for existence of application registration
-# 2> checks to see if the app is registered as a service principal
-# 3> if neither of those is true, creates the app and service principal
-# > outputs an object with all details possible. If the app already exists the 
-# password will be null because we can't look it up. 
-#  INPUT: servicePrincipalName, the displayname of the desired App/ServicePrincipal and the desired password.
-#       The password field is optional and if omitted a 30 character random password will be generated and returned. 
-#  OUTPUT: an object containing the following NoteProperties
-#       > ClientID: the GUID representing the application ID
-#       > ServicePrincipalID: the GUID representing the Service Principal association
-#       > SPNNames: The service principal names of the SP
-#       > ServicePrincipalPassword: A securestring of the Application Password. NOTE: This will be NULL if the app is already registered in AD as we cannot retrieve it.
-#       > ServicePrincipalAlreadyExists: boolean to indicate if the sp already existed or not
-# USAGE NOTES: Assumes already logged into Azure with proper permissions and that the desired subscription is selected. 
-
-Function Register-AzureServicePrincipal{
-    param(
-        # The name for the service principal. We won't make this mandatory to allow for manual entry mode with guidance. Obviously it needs to be specified for automation. 
-        [string]$servicePrincipalName,
-        # the password if you choose to specify it, otherwise the script will generate one for you. 
-        [string]$servicePrincipalPassword,
-        [string]$identifierUri
-    )
-    # Set the regex for the input validation on the SPN
-    $SPNNamingStandard='^[--z]{5,40}$'
-    Write-Host "Provisioning AzureAD App/Service Principal"
-    Write-Warning "The account operating this script MUST have the role Subscription Admin or Owner in the desired subscription"
-    $ErrorActionPreference = "Stop" # Error handing is not yet sufficient; try/catch the stuff below!
-    if (!$servicePrincipalName){
-        do {
-            Write-Host "SPN naming standard is (in RegEx): $SPNNamingStandard"
-            $servicePrincipalName=Read-Host "Service Principal Name not specified on startup; Please enter desired name or type GUID and press enter for a guid based random name"
-            if ($servicePrincipalName -eq "GUID"){
-                $guid=([guid]::NewGuid()).toString()
-                $servicePrincipalName="SPN-$guid"
-            }
-        } until ($servicePrincipalName -match $SPNNamingStandard)
-    }
-    # handle command line specification of GUID 
-    if ($servicePrincipalName -eq "GUID"){
-        $guid=([guid]::NewGuid()).toString()
-        $servicePrincipalName="SPN-$guid"
-    }
-    # set URL and IdentifierUris
-    $homePage = "http://" + $servicePrincipalName    
-
-    Write-Host "Desired Service Principal Name is $servicePrincipalName `n"
-    
-    # Now we need to determine if 1> the Application exists and 2> if it has been registered as a service principal. This will guide our execution through the end of the function. 
-    $appExists=Get-AzureRmADApplication -DisplayNameStartWith $servicePrincipalName -ErrorAction SilentlyContinue
-    
-    # check for SPN only if app exists. SPN can't exist without app so no reason to check if not. 
-    if ($appExists){$spnExists=Get-AzureRmADServicePrincipal | Where-Object {$_.ApplicationId -eq $appExists.ApplicationId} -ErrorAction SilentlyContinue}
-
-    # we only need a password if the app hasn't been created yet.
-    if (!$appExists){
-        # Generate a password if needed
-        if (!$servicePrincipalPassword){
-            $servicePrincipalPassword=New-RandomPassword -passwordLength 40
-        }
-        # NOTE! We had a convertto-securestring here but as it turns out new-azurermadapplication doesn't take a securestring, only a string
-        # NOTEUPDATE! AzureRM 5.0 and higher requires a securestring (yay!) This has been updated but notes left here for reference.
-        $securePassword=ConvertTo-SecureString -String $servicePrincipalPassword -AsPlainText -Force                                  
-    }
-    # we set this to NULL as a "valid" return as the appID already exists and we can't lookup the password from here 
-    else {$servicePrincipalPassword=$null}
-
-    
-    # Create the App if it wasn't already
-    if (!$appExists){
-    Write-Host "a"
-        $securePassword=ConvertTo-SecureString -String $servicePrincipalPassword -AsPlainText -Force        
-        Write-Host "b"
-        $azureADApplication=New-AzureRmADApplication -DisplayName "deployuser" -HomePage $homePage -IdentifierUris $identifierUri -Password $securePassword
-        Write-Host "c"
-        Write-Host "Azure AAD Application creation completed successfully"
-    }
-    # if it already exists we'll just redirect the variable
-    else{$azureADApplication=$appExists}
-    $appID=$azureADApplication.ApplicationId
-
-    # Create new SPN if needed
-    if (!$spnExists){
-        $spn=New-AzureRmADServicePrincipal -ApplicationId $appId
-        Write-Host "SPN creation completed successfully"
-    }
-    else{$spn=$spnExists}
-    $spnNames=$spn.ServicePrincipalNames
-
-    # Create object to store information. 
-    $outputObject=New-Object -TypeName PSObject
-    $outputObject | Add-Member -MemberType NoteProperty -Name ServicePrincipalName -Value $servicePrincipalName
-    $outputObject | Add-Member -MemberType NoteProperty -Name ClientID -Value $appID
-    $outputObject | Add-Member -MemberType NoteProperty -Name ServicePrincipalID -Value $spn.Id
-    $outputObject | Add-Member -MemberType NoteProperty -Name SPNNames -Value $spnNames
-    $outputObject | Add-Member -MemberType NoteProperty -Name ServicePrincipalPassword -Value $servicePrincipalPassword
-    if ($appExists -and $spnexists){$outputObject | Add-Member -MemberType NoteProperty -Name ServicePrincipalAlreadyExists -Value $true}
-    else {$outputObject | Add-Member -MemberType NoteProperty -Name ServicePrincipalAlreadyExists -Value $false}
-
-    return $outputObject
-}
-################################################################################
-
-
-
-
 function Create-TableIfNotExists{    
     Param($TableName, 
           $StorageContext)
@@ -1061,8 +948,16 @@ function Add-AzureQueueMessage {
 
     $Message = Get-JsonMessageFromId -Id $MessageId
     
-    $queueMesssage = New-Object -TypeName Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage `
-                               -ArgumentList $Message
+    if ($Script:AzurePowerShellVersion -eq "5.1.1")
+    {   
+        Write-Host "other"
+        $queueMesssage = $Message
+    }
+    else 
+    {
+        $queueMesssage = New-Object -TypeName Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage `
+                                -ArgumentList $Message
+    }
 
     Write-Host "Adding message to queue: '$Message'..." -NoNewline
     $queue.CloudQueue.AddMessage($queueMesssage)
@@ -1351,5 +1246,118 @@ function Get-JobCollectionName {
 
     "$AppShortName".ToLower() + "-" + "$EnvironmentName".ToLower() + "-job-collection"
 } 
+
+
+
+
+
+
+
+################################################################################
+# Register-AzureServicePrincipal
+# Given the correct input, does one of the following: 
+# 1> checks for existence of application registration
+# 2> checks to see if the app is registered as a service principal
+# 3> if neither of those is true, creates the app and service principal
+# > outputs an object with all details possible. If the app already exists the 
+# password will be null because we can't look it up. 
+#  INPUT: servicePrincipalName, the displayname of the desired App/ServicePrincipal and the desired password.
+#       The password field is optional and if omitted a 30 character random password will be generated and returned. 
+#  OUTPUT: an object containing the following NoteProperties
+#       > ClientID: the GUID representing the application ID
+#       > ServicePrincipalID: the GUID representing the Service Principal association
+#       > SPNNames: The service principal names of the SP
+#       > ServicePrincipalPassword: A securestring of the Application Password. NOTE: This will be NULL if the app is already registered in AD as we cannot retrieve it.
+#       > ServicePrincipalAlreadyExists: boolean to indicate if the sp already existed or not
+# USAGE NOTES: Assumes already logged into Azure with proper permissions and that the desired subscription is selected. 
+
+Function Register-AzureServicePrincipal{
+    param(
+        # The name for the service principal. We won't make this mandatory to allow for manual entry mode with guidance. Obviously it needs to be specified for automation. 
+        [string]$servicePrincipalName,
+        # the password if you choose to specify it, otherwise the script will generate one for you. 
+        [string]$servicePrincipalPassword,
+        [string]$identifierUri
+    )
+    # Set the regex for the input validation on the SPN
+    $SPNNamingStandard='^[--z]{5,40}$'
+    Write-Host "Provisioning AzureAD App/Service Principal"
+    Write-Warning "The account operating this script MUST have the role Subscription Admin or Owner in the desired subscription"
+    $ErrorActionPreference = "Stop" # Error handing is not yet sufficient; try/catch the stuff below!
+    if (!$servicePrincipalName){
+        do {
+            Write-Host "SPN naming standard is (in RegEx): $SPNNamingStandard"
+            $servicePrincipalName=Read-Host "Service Principal Name not specified on startup; Please enter desired name or type GUID and press enter for a guid based random name"
+            if ($servicePrincipalName -eq "GUID"){
+                $guid=([guid]::NewGuid()).toString()
+                $servicePrincipalName="SPN-$guid"
+            }
+        } until ($servicePrincipalName -match $SPNNamingStandard)
+    }
+    # handle command line specification of GUID 
+    if ($servicePrincipalName -eq "GUID"){
+        $guid=([guid]::NewGuid()).toString()
+        $servicePrincipalName="SPN-$guid"
+    }
+    # set URL and IdentifierUris
+    $homePage = "http://" + $servicePrincipalName    
+
+    Write-Host "Desired Service Principal Name is $servicePrincipalName `n"
+    
+    # Now we need to determine if 1> the Application exists and 2> if it has been registered as a service principal. This will guide our execution through the end of the function. 
+    $appExists=Get-AzureRmADApplication -DisplayNameStartWith $servicePrincipalName -ErrorAction SilentlyContinue
+    
+    # check for SPN only if app exists. SPN can't exist without app so no reason to check if not. 
+    if ($appExists){$spnExists=Get-AzureRmADServicePrincipal | Where-Object {$_.ApplicationId -eq $appExists.ApplicationId} -ErrorAction SilentlyContinue}
+
+    # we only need a password if the app hasn't been created yet.
+    if (!$appExists){
+        # Generate a password if needed
+        if (!$servicePrincipalPassword){
+            $servicePrincipalPassword=New-RandomPassword -passwordLength 40
+        }
+        # NOTE! We had a convertto-securestring here but as it turns out new-azurermadapplication doesn't take a securestring, only a string
+        # NOTEUPDATE! AzureRM 5.0 and higher requires a securestring (yay!) This has been updated but notes left here for reference.
+        $securePassword=ConvertTo-SecureString -String $servicePrincipalPassword -AsPlainText -Force                                  
+    }
+    # we set this to NULL as a "valid" return as the appID already exists and we can't lookup the password from here 
+    else {$servicePrincipalPassword=$null}
+
+    
+    # Create the App if it wasn't already
+    if (!$appExists){
+    Write-Host "a"
+        $securePassword=ConvertTo-SecureString -String $servicePrincipalPassword -AsPlainText -Force        
+        Write-Host "b"
+        $azureADApplication=New-AzureRmADApplication -DisplayName "deployuser" -HomePage $homePage -IdentifierUris $identifierUri -Password $securePassword
+        Write-Host "c"
+        Write-Host "Azure AAD Application creation completed successfully"
+    }
+    # if it already exists we'll just redirect the variable
+    else{$azureADApplication=$appExists}
+    $appID=$azureADApplication.ApplicationId
+
+    # Create new SPN if needed
+    if (!$spnExists){
+        $spn=New-AzureRmADServicePrincipal -ApplicationId $appId
+        Write-Host "SPN creation completed successfully"
+    }
+    else{$spn=$spnExists}
+    $spnNames=$spn.ServicePrincipalNames
+
+    # Create object to store information. 
+    $outputObject=New-Object -TypeName PSObject
+    $outputObject | Add-Member -MemberType NoteProperty -Name ServicePrincipalName -Value $servicePrincipalName
+    $outputObject | Add-Member -MemberType NoteProperty -Name ClientID -Value $appID
+    $outputObject | Add-Member -MemberType NoteProperty -Name ServicePrincipalID -Value $spn.Id
+    $outputObject | Add-Member -MemberType NoteProperty -Name SPNNames -Value $spnNames
+    $outputObject | Add-Member -MemberType NoteProperty -Name ServicePrincipalPassword -Value $servicePrincipalPassword
+    if ($appExists -and $spnexists){$outputObject | Add-Member -MemberType NoteProperty -Name ServicePrincipalAlreadyExists -Value $true}
+    else {$outputObject | Add-Member -MemberType NoteProperty -Name ServicePrincipalAlreadyExists -Value $false}
+
+    return $outputObject
+}
+################################################################################
+
 
 

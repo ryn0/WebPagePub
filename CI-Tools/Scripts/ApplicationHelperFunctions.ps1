@@ -44,7 +44,6 @@ function Create-ConfigSetting {
     
     
     $connection.Close()
-
 }
 
 function Get-ConfigSettingValue {
@@ -94,7 +93,6 @@ function Get-JsonMessageFromId {
     "{""id"":""$Id""}"
 }
 
-
 function Get-WebPackagePath {
     Param([Parameter(Mandatory=$true)]
           [string]$Directory,
@@ -102,5 +100,4 @@ function Get-WebPackagePath {
           [string]$FileName) 
 
  "$Directory\..\$FileName"
-
 }

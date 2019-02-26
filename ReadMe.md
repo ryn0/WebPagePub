@@ -36,3 +36,9 @@ Workflow
 -----
 git remote set-url origin https://github.com/ryn0/WebPagePub.git
 git remote set-url --push origin [YOUR_FORK_URL]
+
+Azure Service Principal
+------
+Create a user for deployments and associate them with the correct subscription.
+https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#required-permissions
+https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-how-subscriptions-associated-directory

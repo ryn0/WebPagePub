@@ -9,9 +9,6 @@ function Get-RandomLetters {
 
 }
 
-
- 
-
 function Stop-ProcessSafely {
     Param($Name)
 
@@ -22,7 +19,6 @@ function Stop-ProcessSafely {
         Stop-Process -Name $Name
     }
 }
-
 
 function Assign-VersionValue([string]$oldValue, [string]$newValue) {
     if ($newValue -eq $null -or $newValue -eq "") {
@@ -43,8 +39,6 @@ function Assign-VersionValue([string]$oldValue, [string]$newValue) {
     }
 }
 
-
-
 function Get-UtcDate {
 
     $now = Get-date
@@ -52,7 +46,6 @@ function Get-UtcDate {
 
     $utcTime
 }
-
 
 function SetFileSettings($fileLocation)
 {
@@ -63,4 +56,3 @@ function SetFileSettings($fileLocation)
     $envJson | ConvertTo-Json | set-content $fileLocation
     Write-Host "Saving $fileLocation..."
 }
-

@@ -46,8 +46,6 @@ function Get-GithubPullRequestUrl {
     }
 }
 
-
-
 function Push-ToGit {
 
     $currentBranch = git symbolic-ref --short -q HEAD
