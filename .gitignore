@@ -86,3 +86,10 @@ rcf/
 **/appsettings.development.json
 **/appsettings.staging.json
 **/appsettings.production.json
+**/usersettings.json
+
+# azure params
+/CI-Tools/Templates/azuredeploy-dns.parameters.current.json
+/CI-Tools/Templates/azuredeploy-dns.parameters.json
+/CI-Tools/Templates/azuredeploy.parameters.current.json
+/CI-Tools/Templates/azuredeploy.parameters.json
