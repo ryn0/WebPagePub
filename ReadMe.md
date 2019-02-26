@@ -42,3 +42,20 @@ Azure Service Principal
 Create a user for deployments and associate them with the correct subscription.
 https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#required-permissions
 https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-how-subscriptions-associated-directory
+
+### CI Deployment 
+
+To deploy to a custom server and database, in PowerShell (change variables for your settings):
+```
+$MsDeployLocation            = "https://YOURSITE.com:8172"
+$webAppHost                  = "YOUR_DOMAIN.com"
+$contentPathDes              = "C:\Sites\YOUR_DOMAIN.com\"
+$msDeployUserName            = 'USER';
+$msDeployPassword            = 'PASSWORD';
+$dbConnectionString          = 'CONNECTION_STRING'
+
+# repo path
+cd "C:\repos\WebPagePub"
+
+ci DeployWebApp  -properties "@{'NeutrinoApiUserId'='$NeutrinoApiUserId';'NeutrinoApiApiKey'='$NeutrinoApiApiKey';'MsDeployLocation'='$MsDeployLocation';'webAppHost'='$webAppHost';'contentPathDes'='$contentPathDes';'msDeployUserName'='$msDeployUserName';'msDeployPassword'='$msDeployPassword';'dbConnectionString'='$dbConnectionString';}"
+```
