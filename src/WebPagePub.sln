@@ -10,9 +10,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.Web", "WebPagePu
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Info", "Info", "{B12E401E-E123-42BB-97BB-C18C93C561E7}"
 	ProjectSection(SolutionItems) = preProject
-		..\.gitignore = ..\.gitignore
 		..\ReadMe.md = ..\ReadMe.md
-		usersettings.json = usersettings.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{D59CF966-1050-4FDE-92FF-15D79FC9FEA3}"
@@ -22,6 +20,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.ImageOptimizer", "ConsoleApp1\WebPagePub.ImageOptimizer.csproj", "{FF484E5F-8215-4F0A-9A3F-DA23203204A8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.Services", "WebPagePub.Services\WebPagePub.Services.csproj", "{AA6F9CA4-3531-4A8A-A677-98FD44432A24}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Settings", "Settings", "{144D9B86-80BF-4B1A-A842-C10BDD4720C1}"
+	ProjectSection(SolutionItems) = preProject
+		..\.gitignore = ..\.gitignore
+		usersettings.json = usersettings.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
