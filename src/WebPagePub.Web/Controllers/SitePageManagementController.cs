@@ -408,7 +408,7 @@ namespace WebPagePub.Web.Controllers
 
         private void ClearCache(SitePageEditModel model, SitePage dbModel)
         {
-            var cacheKey = CacheHelper.GetpPageCacheKey(dbModel.SitePageSection.Key, model.Key);
+            var cacheKey = CacheHelper.GetPageCacheKey(dbModel.SitePageSection.Key, model.Key);
             this.memoryCache.Remove(cacheKey);
         }
 

@@ -5,7 +5,7 @@ namespace WebPagePub.Web.Helpers
 {
     public class CacheHelper
     {
-        public static string GetpPageCacheKey(
+        public static string GetPageCacheKey(
                                 string sectionKey = null,
                                 string pageKey = null,
                                 bool isPreview = false,

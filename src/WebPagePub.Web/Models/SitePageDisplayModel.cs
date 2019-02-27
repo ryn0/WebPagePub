@@ -45,5 +45,7 @@ namespace WebPagePub.Web.Models
         public SitePageCommentModel PostComment { get; set; } = new SitePageCommentModel() { RequestId = Guid.NewGuid() };
 
         public bool AllowCommenting { get; set; }
+
+        public string SectionKey { get; set; }
     }
 }
