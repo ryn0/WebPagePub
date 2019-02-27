@@ -99,106 +99,112 @@
                             pagePathPrefix = "/tag/" + Model.TagKey ;
                         }
 
-                        <div class="clearfix">
-                            @if (Model.Paging.PageCount > 1 && Model.Paging.CurrentPageNumber != Model.Paging.PageCount)
+                    <div class="clearfix">
+                        @if (Model.Paging.PageCount > 1 && Model.Paging.CurrentPageNumber != Model.Paging.PageCount)
+                        {
+                            if (Model.TagKeyword != null)
                             {
-                                if (Model.TagKeyword != null)
-                                {
 
-                                    <a class="btn btn-secondary float-right" href="@pagePathPrefix/page/@(Model.Paging.CurrentPageNumber + 1)">Older posts about: @Model.TagKeyword &rarr;</a>
+                                <a class="btn btn-secondary float-right" href="~/tag/@Model.TagKey/page/@(Model.Paging.CurrentPageNumber + 1)">Older posts about: @Model.TagKeyword &rarr;</a>
 
-                                }
-                                else
-                                {
+                            }
+                            else
+                            {
 
-                                    <a class="btn btn-secondary float-right" href="@pagePathPrefix/page/@(Model.Paging.CurrentPageNumber + 1)">Older Posts    &rarr;</a>
-
-                                }
+                                <a class="btn btn-secondary float-right" href="~/@pagePathPrefix/page/@(Model.Paging.CurrentPageNumber + 1)">Older Posts    &rarr;</a>
 
                             }
 
+                        }
 
-                            @if (Model.Paging.PageCount > 1 && Model.Paging.PageCount == Model.Paging.CurrentPageNumber && Model.Paging.CurrentPageNumber != 2)
+                        @if (Model.Paging.PageCount > 1 && Model.Paging.PageCount == Model.Paging.CurrentPageNumber && Model.Paging.CurrentPageNumber != 2)
+                        {
+
+
+                            if (Model.TagKeyword != null)
                             {
 
 
-                                if (Model.TagKeyword != null)
-                                {
+                                <a class="btn btn-secondary float-left" href="~/@pagePathPrefix/page/@(Model.Paging.CurrentPageNumber - 1)">&larr; Newer posts about: @Model.TagKeyword</a>
 
-
-                                    <a class="btn btn-secondary float-left" href="@pagePathPrefix/page/@(Model.Paging.CurrentPageNumber - 1)">&larr; Newer posts about: @Model.TagKeyword</a>
-
-                                }
-                                else
-                                {
-
-                                    <a class="btn btn-secondary float-left" href="@pagePathPrefix/page/@(Model.Paging.CurrentPageNumber - 1)">&larr; Newer Posts</a>
-
-                                }
                             }
+                            else
+                            {
+
+                                <a class="btn btn-secondary float-left" href="~/@pagePathPrefix/page/@(Model.Paging.CurrentPageNumber - 1)">&larr; Newer Posts</a>
+
+                            }
+                        }
+
+                        @if (Model.Paging.PageCount > 1 && Model.Paging.PageCount == Model.Paging.CurrentPageNumber && Model.Paging.CurrentPageNumber == 2)
+                        {
 
 
-                            @if (Model.Paging.PageCount > 1 && Model.Paging.PageCount == Model.Paging.CurrentPageNumber && Model.Paging.CurrentPageNumber == 2)
+                            if (Model.TagKeyword != null)
                             {
 
 
-                                if (Model.TagKeyword != null)
+                                <a class="btn btn-secondary float-left" href="~/tag/@Model.TagKey">&larr; Newer Posts about: @Model.TagKeyword</a>
+
+                            }
+                            else
+                            {
+                                @if (Model.IsHomePageSection)
                                 {
-
-
-                                    <a class="btn btn-secondary float-left" href="tag/@Model.TagKey">&larr; Newer Posts about: @Model.TagKeyword</a>
-
-                                }
-                                else
-                                {
-
                                     <a class="btn btn-secondary float-left " href="~/">&larr; Newer Posts</a>
-
-                                }
-                            }
-
-
-                            @if (Model.Paging.PageCount > 1 && Model.Paging.CurrentPageNumber > 2 && Model.Paging.CurrentPageNumber != Model.Paging.PageCount)
-                            {
-
-
-                                if (Model.TagKeyword != null)
-                                {
-
-                                    <a class="btn btn-secondary float-left" href="@pagePathPrefix/@(Model.Paging.CurrentPageNumber - 1)">&larr; Newer Posts about: @Model.TagKeyword</a>
-
                                 }
                                 else
                                 {
-
-                                    <a class="btn btn-secondary float-left " href="@pagePathPrefix/@(Model.Paging.CurrentPageNumber - 1)">&larr; Newer Posts</a>
+                                    <a class="btn btn-secondary float-left " href="~/@pagePathPrefix">&larr; Newer Posts</a>
                                 }
+
+
                             }
+                        }
+
+                        @if (Model.Paging.PageCount > 1 && Model.Paging.CurrentPageNumber > 2 && Model.Paging.CurrentPageNumber != Model.Paging.PageCount)
+                        {
 
 
-
-                            @if (Model.Paging.PageCount > 1 && Model.Paging.CurrentPageNumber == 2 && Model.Paging.CurrentPageNumber != Model.Paging.PageCount)
+                            if (Model.TagKeyword != null)
                             {
 
+                                <a class="btn btn-secondary float-left" href="~/@pagePathPrefix/@(Model.Paging.CurrentPageNumber - 1)">&larr; Newer Posts about: @Model.TagKeyword</a>
 
-                                if (Model.TagKeyword != null)
+                            }
+                            else
+                            {
+
+                                <a class="btn btn-secondary float-left " href="~/@pagePathPrefix/page/@(Model.Paging.CurrentPageNumber - 1)">&larr; Newer Posts</a>
+                            }
+                        }
+
+                        @if (Model.Paging.PageCount > 1 && Model.Paging.CurrentPageNumber == 2 && Model.Paging.CurrentPageNumber != Model.Paging.PageCount)
+                        {
+
+
+                            if (Model.TagKeyword != null)
+                            {
+
+                                <a class="btn btn-secondary float-left" href="~/tag/@Model.TagKey">&larr; Newer Posts about: @Model.TagKeyword</a>
+
+                            }
+                            else
+                            {
+
+                                @if (Model.IsHomePageSection)
                                 {
-
-                                    <a class="btn btn-secondary float-left" href="~/tag/@Model.TagKey">&larr; Newer Posts about: @Model.TagKeyword</a>
-
+                                    <a class="btn btn-secondary float-left " href="~/">&larr; Newer Posts</a>
                                 }
                                 else
                                 {
-
-                                    <a class="btn btn-secondary float-left " href="~/@Model.PageContent.SectionKey">&larr; Newer Posts</a>
+                                    <a class="btn btn-secondary float-left " href="~/@pagePathPrefix">&larr; Newer Posts</a>
                                 }
                             }
+                        }
 
 
-
-
-
-                        </div>
+                    </div>
 
                     }
                 </div>

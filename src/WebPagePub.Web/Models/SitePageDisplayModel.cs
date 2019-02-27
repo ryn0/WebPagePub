@@ -47,5 +47,6 @@ namespace WebPagePub.Web.Models
         public bool AllowCommenting { get; set; }
 
         public string SectionKey { get; set; }
+        public bool IsHomePageSection { get; set; }
     }
 }
