@@ -92,9 +92,7 @@
 
                 <div class="forward-backward-buttons">
                     @{
-                        var pagePathPrefix = (Model.BreadcrumbList.ItemListElement.Count > 1) ? 
-                                                Model.BreadcrumbList.ItemListElement[1].Item.PageUrl.ToString() : 
-                                                "/";
+                        var pagePathPrefix = Model.SectionKey;
 
                         if (Model.TagKeyword != null)
                         {
