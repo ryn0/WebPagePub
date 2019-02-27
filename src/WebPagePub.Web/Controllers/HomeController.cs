@@ -178,7 +178,7 @@ namespace WebPagePub.Web.Controllers
                                 int pageNumber = 1,
                                 string tagKey = null)
         {
-            var cacheKey = CacheHelper.GetpPageCacheKey(sectionKey, pageKey, isPreview, pageNumber, tagKey);
+            var cacheKey = CacheHelper.GetPageCacheKey(sectionKey, pageKey, isPreview, pageNumber, tagKey);
             var cachedPage = this.memoryCache.Get(cacheKey);
 
             SitePageDisplayModel model;
@@ -215,6 +215,7 @@ namespace WebPagePub.Web.Controllers
                     }
 
                     model.SitePageId = dbModel.SitePageId;
+                    model.SectionKey = siteSection.Key;
                 }
                 else
                 {
