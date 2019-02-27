@@ -216,6 +216,7 @@ namespace WebPagePub.Web.Controllers
 
                     model.SitePageId = dbModel.SitePageId;
                     model.SectionKey = siteSection.Key;
+                    model.IsHomePageSection = siteSection.IsHomePageSection;
                 }
                 else
                 {
