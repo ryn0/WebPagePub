@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <RuntimeIdentifiers>win7-x64</RuntimeIdentifiers>
     <CodeAnalysisRuleSet>../StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
 
@@ -33,17 +33,17 @@
     <PackageReference Include="BuildBundlerMinifier" Version="2.8.391" />
     <PackageReference Include="CKEditor" Version="3.6.4" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.1" />
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.1.4" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.3" />
-    <PackageReference Include="Microsoft.AspNetCore.ResponseCompression" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Rewrite" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="2.1.2" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.1.2" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.1.1" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.ResponseCompression" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Rewrite" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.2.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.2.0" />
     <PackageReference Include="log4net" Version="2.0.8" />
-    <PackageReference Include="morelinq" Version="3.0.0" />
+    <PackageReference Include="morelinq" Version="3.1.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <PackageReference Include="System.Net.Sockets" Version="4.3.0" />

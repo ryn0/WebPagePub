@@ -23,7 +23,7 @@ properties {
    # Build
    $BuildConfiguration          = "release"
    $DotNetRunTime               = "win7-x64"
-   $DotNetFramework             = "netcoreapp2.1"
+   $DotNetFramework             = "netcoreapp2.2"
    $msDeploy                    = "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe"    
    
    # Project paths
