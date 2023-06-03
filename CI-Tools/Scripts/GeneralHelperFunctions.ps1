@@ -47,8 +47,9 @@ function Get-UtcDate {
     $utcTime
 }
 
-function SetFileSettings($fileLocation)
+function Set-FileSettings($fileLocation)
 {
+    Write-Host 'db string ' +  $dbConnectionString
     $envJson = Get-Content $fileLocation | ConvertFrom-Json
     $envJson.ConnectionStrings.SqlServerConnection = $dbConnectionString
     $envJson.NeutrinoApi.UserId = $NeutrinoApiUserId
