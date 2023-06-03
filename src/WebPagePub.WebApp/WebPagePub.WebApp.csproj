@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WebPagePub.Core\WebPagePub.Core.csproj" />
+    <ProjectReference Include="..\WebPagePub.Data\WebPagePub.Data.csproj" />
+    <ProjectReference Include="..\WebPagePub.Services\WebPagePub.Services.csproj" />
+  </ItemGroup>
+	<PropertyGroup>
+		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+	</PropertyGroup>
+	<PropertyGroup>
+		<EnableMSDeployAppOffline>true</EnableMSDeployAppOffline>
+ 
+	</PropertyGroup>
+
+</Project>

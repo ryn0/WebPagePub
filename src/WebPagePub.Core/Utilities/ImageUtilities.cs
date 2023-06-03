@@ -191,5 +191,10 @@ namespace WebPagePub.Core.Utilities
 
             return rotatedBmp;
         }
+
+        public Image ScaleImage(object value, int maxWidthPx, int maxHeightPx)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -1,0 +1,97 @@
+﻿@model WebPagePub.Web.Models.ClickReportModel
+ 
+ 
+@{
+    ViewData["Title"] = "Click Report";
+}
+ <h2>@ViewData["Title"]</h2>
+ <hr />
+
+
+
+<form method="get" action="~/reports/clicks">
+    <table class="table">
+        <thead>
+            <tr>
+
+                <th>Start Date UTC</th>
+                <th>End Date UTC</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <input type="date" name="startDate" />
+                </td>
+                <td>
+                    <input type="date" name="endDate" />
+                </td>
+                <td>
+                    <button type="submit" class="btn btn-success">Run Report</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+<hr />
+
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Selected Start Date UTC</th>
+            <th>Selected End Date UTC</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td> @Model.StartDate.ToString("u") </td>
+            <td> @Model.EndDate.ToString("u") </td>
+        </tr>
+    </tbody>
+
+</table>
+ 
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Total Clicks</th>
+            <th>Unique IPs</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td> @Model.TotalClicks</td>
+            <td> @Model.UniqueIps </td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>URL</th>
+            <th>Clicks</th>
+            <th>Unique Ips</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var item in Model.UrlClicks)
+        {
+            <tr>
+                <td> @item.Url</td>
+                <td> @item.TotalClicks</td>
+                <td> @item.UniqueIps</td>
+            </tr>
+
+        }
+        
+    </tbody>
+</table>
+
