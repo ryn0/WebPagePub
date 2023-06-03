@@ -23,16 +23,16 @@ properties {
    # Build
    $BuildConfiguration          = "release"
    $DotNetRunTime               = "win7-x64"
-   $DotNetFramework             = "netcoreapp2.2"
+   $DotNetFramework             = "net7.0"
    $msDeploy                    = "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe"    
    
    # Project paths
    $databaseProjectSourcePath   = "..\src\WebPagePub.Data"
-   $webProjectSourcePath        = "..\src\WebPagePub.Web"
+   $webProjectSourcePath        = "..\src\WebPagePub.WebApp"
    $testProjectSourcePath       = "..\WebPagePub.Core.UnitTests"
-   $compileSourcePath           = "..\src\WebPagePub.Web\bin\output"
+   $compileSourcePath           = "..\src\WebPagePub.WebApp\bin\output"
 
-   $WebAppSettings              = "..\src\WebPagePub.Web\appsettings.json"
+   $WebAppSettings              = "..\src\WebPagePub.WebApp\appsettings.json"
    $DatabaseAppSettings         = "..\src\WebPagePub.Data\appsettings.json"
 
    # Credentials
@@ -173,11 +173,11 @@ task -name RunUnitTests {
 task -name SetConfigs {
 
 
-    $WebAppSettings = "..\src\WebPagePub.Web\appsettings.json"
-    SetFileSettings -fileLocation $WebAppSettings
+    $WebAppSettings = "..\src\WebPagePub.WebApp\appsettings.json"
+    Set-FileSettings -fileLocation $WebAppSettings
 
     $DatabaseAppSettings = "..\src\WebPagePub.Data\appsettings.json"
-    SetFileSettings -fileLocation $DatabaseAppSettings
+    Set-FileSettings -fileLocation $DatabaseAppSettings
 
 }
 
