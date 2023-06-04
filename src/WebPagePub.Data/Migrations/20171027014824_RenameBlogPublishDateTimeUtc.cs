@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
+using System.Security.Cryptography.X509Certificates;
 
 namespace WebPagePub.Data.Migrations
 {
@@ -6,12 +7,12 @@ namespace WebPagePub.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn("BlogPublishDateTimeUtc", "dbo.SitePage", "PublishDateTimeUtc");
+            migrationBuilder.Sql("EXEC sp_rename N'dbo.SitePage.BlogPublishDateTimeUtc', N'PublishDateTimeUtc', N'COLUMN';");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn("PublishDateTimeUtc", "dbo.SitePage", "BlogPublishDateTimeUtc");
+             migrationBuilder.Sql("EXEC sp_rename N'dbo.SitePage.PublishDateTimeUtc', N'BlogPublishDateTimeUtc', N'COLUMN';");
         }
     }
 }
