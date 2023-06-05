@@ -213,6 +213,7 @@ namespace WebPagePub.Web.Controllers
                             break;
                         case PageType.Content:
                         case PageType.Review:
+                        case PageType.Photo:
                         default:
                             model = this.CreateDisplayModel(siteSection, dbModel);
                             break;
@@ -401,24 +402,22 @@ namespace WebPagePub.Web.Controllers
             {
                 foreach (var photo in sitePage.Photos)
                 {
-                    if (photo != null)
+                    displayModel.Photos.Add(new SitePagePhotoModel()
                     {
-                        displayModel.Photos.Add(new SitePagePhotoModel()
-                        {
-                            Description = photo.Description,
-                            IsDefault = photo.IsDefault,
-                            PhotoCdnUrl = photo.PhotoUrl, // todo: fix cdn url
-                            PhotoUrl = photo.PhotoUrl,
-                            PhotoFullScreenCdnUrl = photo.PhotoFullScreenUrl, // todo: fix cdn url
-                            PhotoFullScreenUrl = photo.PhotoFullScreenUrl, // todo: fix cdn url
-                            PhotoPreviewCdnUrl = photo.PhotoPreviewUrl, // todo: fix cdn url
-                            PhotoPreviewUrl = photo.PhotoPreviewUrl, // todo: fix cdn url
-                            PhotoThumbCdnUrl = photo.PhotoThumbUrl, // todo: fix cdn url
-                            PhotoThumbUrl = photo.PhotoThumbUrl, // todo: fix cdn url
-                            SitePagePhotoId = photo.SitePagePhotoId,
-                            Title = photo.Title
-                        });
-                    }
+                        Description = photo.Description,
+                        IsDefault = photo.IsDefault,
+                        PhotoCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoUrl),
+                        PhotoUrl = photo.PhotoUrl,
+                        PhotoFullScreenCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoFullScreenUrl),
+                        PhotoFullScreenUrl = photo.PhotoFullScreenUrl,
+                        PhotoPreviewCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoPreviewUrl),
+                        PhotoPreviewUrl = photo.PhotoPreviewUrl,
+                        PhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoThumbUrl),
+                        PhotoThumbUrl = photo.PhotoThumbUrl,
+                        SitePagePhotoId = photo.SitePagePhotoId,
+                        Title = photo.Title
+                    });
+
                 }
             }
 
