@@ -58,11 +58,8 @@
                             <b>Tagged:</b>
                             @foreach (var tag in Model.PageContent.Tags)
                             {
-                                <a href="~/tag/@tag.UrlKey()">@tag</a>if (current != Model.PageContent.Tags.Count)
-                                {<text>, </text>
-                                current++;
+                                <a href="~/tag/@tag.UrlKey()">@tag</a>if (current != Model.PageContent.Tags.Count){<text>, </text>current++;}
                             }
-                        }
                         </div>
                     }
                 </article>
