@@ -53,13 +53,17 @@ namespace WebPagePub.Web.Controllers
         public IActionResult Index()
         {
             var homeSection = this.sitePageSectionRepository.GetHomeSection();
+
+            if (homeSection == null)
+            {
+                return Show404Page();
+            }
+
             var homePage = this.sitePageRepository.GetSectionHomePage(homeSection.SitePageSectionId);
 
             if (homePage == null)
             {
-                this.Response.StatusCode = 404;
-
-                return this.View("Page404");
+                return Show404Page();
             }
 
             return this.CatchAllRequests(homeSection.Key, homePage.Key);
@@ -389,8 +393,34 @@ namespace WebPagePub.Web.Controllers
                 UrlPath = UrlBuilder.BlogUrlPath(sitePageSection.Key, sitePage.Key),
                 Key = sitePage.Key,
                 SectionKey = sitePageSection.Key,
-                DefaultPhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, defaultPhotoUrl?.PhotoThumbUrl)
+                DefaultPhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, defaultPhotoUrl?.PhotoThumbUrl),
+               
             };
+
+            if (sitePage.Photos.Any())
+            {
+                foreach (var photo in sitePage.Photos)
+                {
+                    if (photo != null)
+                    {
+                        displayModel.Photos.Add(new SitePagePhotoModel()
+                        {
+                            Description = photo.Description,
+                            IsDefault = photo.IsDefault,
+                            PhotoCdnUrl = photo.PhotoUrl, // todo: fix cdn url
+                            PhotoUrl = photo.PhotoUrl,
+                            PhotoFullScreenCdnUrl = photo.PhotoFullScreenUrl, // todo: fix cdn url
+                            PhotoFullScreenUrl = photo.PhotoFullScreenUrl, // todo: fix cdn url
+                            PhotoPreviewCdnUrl = photo.PhotoPreviewUrl, // todo: fix cdn url
+                            PhotoPreviewUrl = photo.PhotoPreviewUrl, // todo: fix cdn url
+                            PhotoThumbCdnUrl = photo.PhotoThumbUrl, // todo: fix cdn url
+                            PhotoThumbUrl = photo.PhotoThumbUrl, // todo: fix cdn url
+                            SitePagePhotoId = photo.SitePagePhotoId,
+                            Title = photo.Title
+                        });
+                    }
+                }
+            }
 
             if (displayModel.Tags != null)
             {
@@ -518,5 +548,13 @@ namespace WebPagePub.Web.Controllers
 
             return breadcrumbList;
         }
+
+        private IActionResult Show404Page()
+        {
+            this.Response.StatusCode = 404;
+
+            return this.View("Page404");
+        }
+
     }
 }
