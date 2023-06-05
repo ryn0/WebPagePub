@@ -75,12 +75,7 @@
                             <b>Tagged:</b>
                             @foreach (var tag in sitePage.Tags)
                             {
-                                <a href="~/tag/@tag.UrlKey()">@tag</a>
-                                if (current != sitePage.Tags.Count)
-                                {
-                                    <text>, </text>
-                                    current++;
-                                }
+                                <a href="~/tag/@tag.UrlKey()">@tag</a>if (current != sitePage.Tags.Count) {<text>, </text>current++;}
                             }
                         </div>
                     }

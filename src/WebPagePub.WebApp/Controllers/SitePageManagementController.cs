@@ -264,6 +264,49 @@ namespace WebPagePub.Web.Controllers
             return this.RedirectToAction(nameof(this.EditSitePage), new { SitePageId = entry.SitePageId });
         }
 
+        [Route("sitepages/RankPhotoUp/{sitePagePhotoId}")]
+        [HttpGet]
+        public IActionResult RankPhotoUp(int sitePagePhotoId)
+        {
+            var entry = sitePagePhotoRepository.Get(sitePagePhotoId);
+
+            if (entry.Rank == 1)
+                return RedirectToAction("editsitepage", new { sitePageId = entry.SitePageId });
+
+            var allBlogPhotos = sitePagePhotoRepository.GetBlogPhotos(entry.SitePageId);
+
+            var rankedHigher = allBlogPhotos.First(x => x.Rank == entry.Rank - 1);
+            var higherRankValue = rankedHigher.Rank;
+            rankedHigher.Rank = higherRankValue + 1;
+            sitePagePhotoRepository.Update(rankedHigher);
+
+            entry.Rank = higherRankValue;
+            sitePagePhotoRepository.Update(entry);
+
+            return RedirectToAction("editsitepage", new { sitePageId = entry.SitePageId });
+        }
+
+        [Route("sitepages/RankPhotoDown/{sitePagePhotoId}")]
+        [HttpGet]
+        public IActionResult RankPhotoDown(int sitePagePhotoId)
+        {
+            var entry = sitePagePhotoRepository.Get(sitePagePhotoId);
+            var allBlogPhotos = sitePagePhotoRepository.GetBlogPhotos(entry.SitePageId);
+
+            if (entry.Rank == allBlogPhotos.Count())
+                return RedirectToAction("editsitepage", new { sitePageId = entry.SitePageId });
+
+            var rankedLower = allBlogPhotos.First(x => x.Rank == entry.Rank + 1);
+            var lowerRankValue = rankedLower.Rank;
+            rankedLower.Rank = lowerRankValue - 1;
+            sitePagePhotoRepository.Update(rankedLower);
+
+            entry.Rank = lowerRankValue;
+            sitePagePhotoRepository.Update(entry);
+
+            return RedirectToAction("editsitepage", new { sitePageId = entry.SitePageId });
+        }
+
         [Route("sitepages/uploadphotos/{SitePageId}")]
         [HttpGet]
         public IActionResult UploadPhotos(int sitePageId)
@@ -349,13 +392,16 @@ namespace WebPagePub.Web.Controllers
             return this.RedirectToAction(nameof(this.SitePages));
         }
 
-        [Route("sitepages/rotate90degrees")]
+        [Route("sitepages/rotate90degrees/{sitePagePhotoId}")]
         [HttpGet]
         public async Task<IActionResult> Rotate90DegreesAsync(int sitePagePhotoId)
         {
             var entry = this.sitePagePhotoRepository.Get(sitePagePhotoId);
-            await this.RotateImage(entry.SitePageId, entry.PhotoUrl);
-            await this.RotateImage(entry.SitePageId, entry.PhotoThumbUrl);
+ 
+            await RotateImage(entry.SitePageId, entry.PhotoUrl);
+            await RotateImage(entry.SitePageId, entry.PhotoPreviewUrl);
+            await RotateImage(entry.SitePageId, entry.PhotoThumbUrl);
+            await RotateImage(entry.SitePageId, entry.PhotoFullScreenUrl);
 
             return this.RedirectToAction(nameof(this.EditSitePage), new { SitePageId = entry.SitePageId });
         }
@@ -390,8 +436,8 @@ namespace WebPagePub.Web.Controllers
 
                 foreach (var photo in allPhotos)
                 {
-                    photo.Title = this.Request.Form["PhotoTitle_" + photo.SitePageId];
-                    photo.Description = this.Request.Form["PhotoDescription_" + photo.SitePageId];
+                    photo.Title = this.Request.Form["PhotoTitle_" + photo.SitePagePhotoId];
+                    photo.Description = this.Request.Form["PhotoDescription_" + photo.SitePagePhotoId];
 
                     this.sitePagePhotoRepository.Update(photo);
                 }
@@ -514,6 +560,9 @@ namespace WebPagePub.Web.Controllers
                     SitePagePhotoId = photo.SitePagePhotoId,
                     IsDefault = photo.IsDefault,
                     PhotoUrl = photo.PhotoUrl,
+                    PhotoFullScreenUrl = photo.PhotoFullScreenUrl,
+                    PhotoThumbUrl = photo.PhotoThumbUrl,
+                    PhotoPreviewUrl = photo.PhotoPreviewUrl,
                     PhotoCdnUrl = mc.ConvertBlobToCdnUrl(photo.PhotoUrl),
                     PhotoThumbCdnUrl = mc.ConvertBlobToCdnUrl(photo.PhotoThumbUrl),
                     PhotoFullScreenCdnUrl = mc.ConvertBlobToCdnUrl(photo.PhotoFullScreenUrl),

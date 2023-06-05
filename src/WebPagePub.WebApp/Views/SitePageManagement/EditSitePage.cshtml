@@ -163,8 +163,8 @@
                         {
                             <tr>
                                 <td>
-                                    <a href="@photo.PhotoThumbCdnUrl">
-                                        <img style="width:200px;" class="img-responsive" src="@photo.PhotoThumbCdnUrl" />
+                                    <a href="@photo.PhotoThumbUrl">
+                                        <img style="width:200px;" class="img-responsive" src="@photo.PhotoThumbUrl" />
                                     </a>
                                     <ul>
                                         <li>
@@ -186,6 +186,25 @@
 
                                     </ul>
 
+                                    <a onclick="return confirm('Rotate 90 degrees, are you sure?')"
+                                       href="~/sitepages/rotate90degrees/@photo.SitePagePhotoId">Rotate</a>
+
+                                    <a href="~/sitepages/rankphotoup/@photo.SitePagePhotoId">&#x2191;</a>
+
+                                    <a href="~/sitepages/rankphotodown/@photo.SitePagePhotoId">&#x2193;</a>
+
+
+                                    <label class="col-md-2 control-label">Photo Title:</label>
+                                    <div class="col-md-10">
+                                        <input name="PhotoTitle_@photo.SitePagePhotoId" value="@photo.Title" class="form-control" />
+                                    </div>
+
+
+                                    <label class="col-md-2 control-label">Description:</label>
+                                    <div class="col-md-10">
+                                        <textarea name="PhotoDescription_@photo.SitePagePhotoId">@Html.Raw(photo.Description)</textarea>
+                                    </div>
+
                                 </td>
 
                                 <td>
@@ -195,11 +214,11 @@
                                     }
                                     else
                                     {
-
+         <a onclick="return confirm('are you sure?')"
+                                       href="~/sitepages/SetDefaultPhoto/@photo.SitePagePhotoId">Set as thumbnail</a>
 
                                     }
-                                    <a onclick="return confirm('are you sure?')"
-                                       href="~/sitepages/SetDefaultPhoto/@photo.SitePagePhotoId">Set as thumbnail</a>
+                           
                                 </td>
                                 <td>
 

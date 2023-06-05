@@ -15,7 +15,7 @@
                         <img src="@photo.PhotoThumbUrl" class="img-fluid" title="@photo.Title" alt="@photo.Title" />
                     </a>
  
-                    <div class="caption">
+                    <div class="photo-caption">
                         @if (!string.IsNullOrWhiteSpace(photo.Description))
                         {
                             @Html.Raw(photo.Description)
