@@ -25,7 +25,8 @@
         Unknown = 0,
         Content = 1,
         Review = 2,
-        PageList = 3
+        PageList = 3,
+        Photo = 4
     }
 
     public enum CommentStatus : byte

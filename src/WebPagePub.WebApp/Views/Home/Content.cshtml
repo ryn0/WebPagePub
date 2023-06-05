@@ -27,12 +27,14 @@
                 <article>
                     <i>Last updated:  @Model.PageContent.FriendlyLastUpdateDateDisplay</i>
                     <hr />
-                     @if (Model.PageContent.Photos.Any())
-                     {
-   
-                            await Html.RenderPartialAsync("_ListPhotos", Model.PageContent.Photos);
 
-                     }
+                    @if (Model.PageType == Data.Enums.PageType.Photo &&
+                         Model.PageContent.Photos.Any())
+                    {
+ 
+                       await Html.RenderPartialAsync("_ListPhotos", Model.PageContent.Photos);
+ 
+                    }
 
                     @Html.Raw(Model.PageContent.Content)
 
