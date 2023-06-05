@@ -10,7 +10,7 @@
   <partial name="_MetaTags" /> 
  
   <partial name="_FavIcons" /> 
-
+@*
     <environment names="Development">
         <link rel="stylesheet" href="~/css/bootstrap.min.css">
         <link rel="stylesheet" href="~/css/ionicons.min.css">
@@ -21,8 +21,8 @@
         <link rel="stylesheet" href="~/css/starratting.css" />
         <link rel="stylesheet" href="~/css/stacktable.css" />
         <link rel="stylesheet" href="~/css/lineratings.css" />
-    </environment>
-    <environment names="Staging,Production">
+    </environment>*@
+    <environment names="Development,Staging,Production">
        @Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.HeaderHtml))
     </environment>
 

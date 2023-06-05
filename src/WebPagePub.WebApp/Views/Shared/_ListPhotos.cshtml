@@ -8,14 +8,13 @@
     <div class="row">
         @foreach (var photo in Model)
         {
-
             <div class="col-md-12">
                 <div class="thumbnail">
 
-                    <a href="@photo.PhotoCdnUrl" data-toggle="lightbox" data-gallery="example-gallery" class="col-sm-4">
-                        <img src="@photo.PhotoPreviewCdnUrl" class="img-fluid" title="@photo.Title" alt="@photo.Title" />
+                    <a href="@photo.PhotoCdnUrl">
+                        <img src="@photo.PhotoThumbUrl" class="img-fluid" title="@photo.Title" alt="@photo.Title" />
                     </a>
-
+ 
                     <div class="caption">
                         @if (!string.IsNullOrWhiteSpace(photo.Description))
                         {
