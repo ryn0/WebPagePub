@@ -13,6 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 
+builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+
 builder.Services.AddTransient<ICacheService, CacheService>();
 
 builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
