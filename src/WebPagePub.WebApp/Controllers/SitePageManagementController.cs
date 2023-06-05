@@ -376,10 +376,11 @@ namespace WebPagePub.Web.Controllers
         [HttpPost]
         public IActionResult EditSitePage(SitePageEditModel model)
         {
-            if (!this.ModelState.IsValid)
-            {
-                return this.View(model);
-            }
+            // todo: do not validate all
+            //if (!this.ModelState.IsValid)
+            //{
+            //    return this.View(model);
+            //}
 
             var dbModel = this.ConvertToDbModel(model);
 
