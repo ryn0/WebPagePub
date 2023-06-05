@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
-using System.Security.Cryptography.X509Certificates;
 
 namespace WebPagePub.Data.Migrations
 {
