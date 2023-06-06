@@ -25,6 +25,7 @@
                 @{ await Html.RenderPartialAsync("_StructuredDataWebsite", Model.Website); }
 
                 <article>
+                    <hr />
                  @Html.Raw(Model.PageContent.Content)
                 </article>
             </div>

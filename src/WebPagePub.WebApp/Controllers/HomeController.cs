@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text;
 using WebPagePub.Data.Constants;
@@ -22,6 +23,7 @@ namespace WebPagePub.Web.Controllers
         private readonly ISitePageCommentRepository sitePageCommentRepository;
         private readonly ISitePageRepository sitePageRepository;
         private readonly ISitePageSectionRepository sitePageSectionRepository;
+        private readonly ISitePageTagRepository sitePageTagRepository;
         private readonly ITagRepository tagRepository;
         private readonly IMemoryCache memoryCache;
         private readonly ICacheService cacheService;
@@ -33,6 +35,7 @@ namespace WebPagePub.Web.Controllers
             ISitePageCommentRepository stePageCommentRepository,
             ISitePageRepository sitePageRepository,
             ISitePageSectionRepository sitePageSectionRepository,
+            ISitePageTagRepository sitePageTagRepository,
             ITagRepository tagRepository,
             IMemoryCache memoryCache,
             ICacheService cacheService)
@@ -42,6 +45,7 @@ namespace WebPagePub.Web.Controllers
             this.sitePageCommentRepository = stePageCommentRepository;
             this.sitePageRepository = sitePageRepository;
             this.sitePageSectionRepository = sitePageSectionRepository;
+            this.sitePageTagRepository = sitePageTagRepository;
             this.tagRepository = tagRepository;
             this.memoryCache = memoryCache;
             this.cacheService = cacheService;
@@ -133,8 +137,10 @@ namespace WebPagePub.Web.Controllers
 
         [Route(StringConstants.Tags)]
         [HttpGet]
+        //[ResponseCache(Duration = 120, Location = ResponseCacheLocation.Any, NoStore = false)]
         public IActionResult Tags()
         {
+            var allSitePageTags = sitePageTagRepository.GetAll();
             var allTags = tagRepository.GetAll();
 
             allTags = allTags.OrderBy(x => x.Name).ToList();
@@ -144,10 +150,14 @@ namespace WebPagePub.Web.Controllers
             sb.AppendLine("<ul>");
             foreach (var tag in allTags)
             {
-                sb.Append("<li>");
-                sb.AppendFormat(@"<a href=""tag/{0}"">{1}</a>", tag.Key, tag.Name);
-                sb.Append("</li>");
-                sb.AppendLine();
+                if (allSitePageTags.FirstOrDefault(x => x.TagId == tag.TagId) != null)
+                {
+                    var totalTagged = allSitePageTags.Count(x => x.TagId == tag.TagId);
+                    sb.Append("<li>");
+                    sb.AppendFormat(@"<a href=""/tag/{0}"">{1}</a> ({2})", tag.Key, tag.Name, totalTagged);
+                    sb.Append("</li>");
+                    sb.AppendLine();
+                }
             }
             sb.AppendLine("</ul>");
 
