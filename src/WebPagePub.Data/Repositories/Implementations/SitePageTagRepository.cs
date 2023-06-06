@@ -99,5 +99,18 @@ namespace WebPagePub.Data.Repositories.Implementations
                 throw new Exception("DB error", ex.InnerException);
             }
         }
+
+        public List<SitePageTag> GetAll()
+        {
+            try
+            {
+                return this.Context.SitePageTag.ToList();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex);
+                throw new Exception("DB error", ex.InnerException);
+            }
+        }
     }
 }
