@@ -186,13 +186,15 @@
 
                                     </ul>
 
-                                    <a onclick="return confirm('Rotate 90 degrees, are you sure?')"
-                                       href="~/sitepages/rotate90degrees/@photo.SitePagePhotoId">Rotate</a>
+                                    <a onclick="return confirm('Rotate 90 degrees right, are you sure?')"
+                                       href="~/sitepages/rotate90degrees/@photo.SitePagePhotoId">Rotate 90 degrees right</a>
+
+                                       <br />
 
                                     <a href="~/sitepages/rankphotoup/@photo.SitePagePhotoId">&#x2191;</a>
 
                                     <a href="~/sitepages/rankphotodown/@photo.SitePagePhotoId">&#x2193;</a>
-
+                                    <br />
 
                                     <label class="col-md-2 control-label">Photo Title:</label>
                                     <div class="col-md-10">
@@ -200,11 +202,16 @@
                                     </div>
 
 
+                                    <label class="col-md-2 control-label">File Name:</label>
+                                    <div class="col-md-10">
+                                    <input name="PhotoFileName_@photo.SitePagePhotoId" value="@photo.FileName" class="form-control" />
+                                    </div>
+@*
                                     <label class="col-md-2 control-label">Description:</label>
                                     <div class="col-md-10">
                                         <textarea name="PhotoDescription_@photo.SitePagePhotoId">@Html.Raw(photo.Description)</textarea>
                                     </div>
-
+*@
                                 </td>
 
                                 <td>

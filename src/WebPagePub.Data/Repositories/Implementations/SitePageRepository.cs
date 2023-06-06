@@ -44,7 +44,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             {
                 var model = this.Context.SitePage
                                    .Where(x => x.SitePageSectionId == sitePageSectionId)
-                                   .OrderBy(page => page.Title)
+                                   .OrderByDescending(page => page.PublishDateTimeUtc)
                                    .Skip(quantityPerPage * (pageNumber - 1))
                                    .Take(quantityPerPage)
                                    .Include(x => x.SitePageSection)

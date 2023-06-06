@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models;
@@ -194,16 +190,14 @@ namespace WebPagePub.Web.Controllers
                     var siteSection = this.sitePageSectionRepository.Get(sectionKey);
                     if (siteSection == null)
                     {
-                        return null;
+                        return this.Show404Page();
                     }
 
                     var dbModel = this.sitePageRepository.Get(siteSection.SitePageSectionId, pageKey);
 
                     if (dbModel == null || (!isPreview && !dbModel.IsLive))
                     {
-                        this.Response.StatusCode = 404;
-
-                        return this.View("Page404");
+                        return this.Show404Page();
                     }
 
                     switch (dbModel.PageType)
@@ -248,7 +242,7 @@ namespace WebPagePub.Web.Controllers
         }
 
         private SitePageDisplayModel CreateDisplayListModel(
-            SitePageSection sitePageSection = null,
+            SitePageSection? sitePageSection = null,
             SitePage sitePage = null,
             string tagKey = null,
             int pageNumber = 1)
@@ -377,7 +371,35 @@ namespace WebPagePub.Web.Controllers
 
             var defaultPhotoUrl = sitePage?.Photos.FirstOrDefault(x => x.IsDefault == true);
 
-            var displayModel = new SitePageContentModel()
+            var displayModel = CreateDisplayModel(sitePageSection, sitePage, blobPrefix, cdnPrefix, canonicalUrl, defaultPhotoUrl);
+
+            if (sitePage.Photos.Any())
+            {
+                LoadPhotos(sitePage, blobPrefix, cdnPrefix, displayModel);
+            }
+
+            if (displayModel.Tags != null)
+            {
+                foreach (var tagEntry in sitePage.SitePageTags)
+                {
+                    displayModel.Tags.Add(tagEntry.Tag.Name);
+                }
+
+                displayModel.Tags = displayModel.Tags.OrderBy(x => x).ToList();
+            }
+
+            return displayModel;
+        }
+
+        private SitePageContentModel CreateDisplayModel(
+            SitePageSection sitePageSection, 
+            SitePage sitePage, 
+            string blobPrefix, 
+            string cdnPrefix, 
+            Uri canonicalUrl, 
+            SitePagePhoto? defaultPhotoUrl)
+        {
+            return new SitePageContentModel()
             {
                 BreadcrumbName = sitePage.BreadcrumbName,
                 Title = sitePage.Title,
@@ -395,43 +417,34 @@ namespace WebPagePub.Web.Controllers
                 Key = sitePage.Key,
                 SectionKey = sitePageSection.Key,
                 DefaultPhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, defaultPhotoUrl?.PhotoThumbUrl),
-               
             };
+        }
 
-            if (sitePage.Photos.Any())
+        private void LoadPhotos(SitePage sitePage, string blobPrefix, string cdnPrefix, SitePageContentModel displayModel)
+        {
+            sitePage.Photos = sitePage.Photos.OrderBy(x => x.Rank).ToList();
+
+            foreach (var photo in sitePage.Photos)
             {
-                foreach (var photo in sitePage.Photos)
+                displayModel.Photos.Add(new SitePagePhotoModel()
                 {
-                    displayModel.Photos.Add(new SitePagePhotoModel()
-                    {
-                        Description = photo.Description,
-                        IsDefault = photo.IsDefault,
-                        PhotoCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoUrl),
-                        PhotoUrl = photo.PhotoUrl,
-                        PhotoFullScreenCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoFullScreenUrl),
-                        PhotoFullScreenUrl = photo.PhotoFullScreenUrl,
-                        PhotoPreviewCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoPreviewUrl),
-                        PhotoPreviewUrl = photo.PhotoPreviewUrl,
-                        PhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoThumbUrl),
-                        PhotoThumbUrl = photo.PhotoThumbUrl,
-                        SitePagePhotoId = photo.SitePagePhotoId,
-                        Title = photo.Title
-                    });
+                    Description = photo.Description,
+                    IsDefault = photo.IsDefault,
+                    PhotoCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoUrl),
+                    PhotoUrl = photo.PhotoUrl,
+                    PhotoFullScreenCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoFullScreenUrl),
+                    PhotoFullScreenUrl = photo.PhotoFullScreenUrl,
+                    PhotoPreviewCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoPreviewUrl),
+                    PhotoPreviewUrl = photo.PhotoPreviewUrl,
+                    PhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoThumbUrl),
+                    PhotoThumbUrl = photo.PhotoThumbUrl,
+                    SitePagePhotoId = photo.SitePagePhotoId,
+                    Title = photo.Title
+                });
 
-                }
             }
 
-            if (displayModel.Tags != null)
-            {
-                foreach (var tagEntry in sitePage.SitePageTags)
-                {
-                    displayModel.Tags.Add(tagEntry.Tag.Name);
-                }
-
-                displayModel.Tags = displayModel.Tags.OrderBy(x => x).ToList();
-            }
-
-            return displayModel;
+          //  displayModel.Photos = displayModel.Photos.OrderBy(x => x.);
         }
 
         private string ConvertBlobToCdnUrl(string blobPrefix, string cdnPrefix, string blobUrl)
