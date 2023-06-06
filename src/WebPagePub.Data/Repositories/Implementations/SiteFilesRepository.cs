@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,9 +17,9 @@ namespace WebPagePub.Data.Repositories.Implementations
     public class SiteFilesRepository : BaseBlobFiles, ISiteFilesRepository
     {
         private const string FolderFileName = "_.txt";
-        private const string ContainerName = "sitecontent";
         private readonly string connectionString;
         private readonly CloudStorageAccount storageAccount;
+        public const string ContainerName = "sitecontent";
 
         public SiteFilesRepository(string connectionString)
         {
@@ -269,6 +270,24 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
+        public async Task ChangeFileName(string currentFileName, string newFileName)
+        {
+            var blobClient = this.storageAccount.CreateCloudBlobClient();
+            var container = blobClient.GetContainerReference(ContainerName);
+            await container.CreateIfNotExistsAsync();
+            CloudBlockBlob blobCopy = container.GetBlockBlobReference(newFileName);
+            if (!await blobCopy.ExistsAsync())
+            {
+                CloudBlockBlob blob = container.GetBlockBlobReference(currentFileName);
+
+                if (await blob.ExistsAsync())
+                {
+                    await blobCopy.StartCopyAsync(blob);
+                    await blob.DeleteIfExistsAsync();
+                }
+            }
+        }
+
         private static bool IsFolderPath(string blobPath)
         {
             return blobPath.EndsWith("/");
@@ -319,5 +338,6 @@ namespace WebPagePub.Data.Repositories.Implementations
             Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
             return bytes;
         }
+
     }
 }

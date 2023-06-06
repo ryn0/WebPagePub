@@ -25,5 +25,7 @@
         public string PhotoFullScreenUrl { get; set; }
 
         public string PhotoFullScreenCdnUrl { get; set; }
+
+        public string FileName { get; set; }
     }
 }
