@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using log4net;
@@ -97,6 +98,19 @@ namespace WebPagePub.Data.Repositories.Implementations
                 Log.Fatal(ex);
 
                 return false;
+            }
+        }
+
+        public List<Tag> GetAll()
+        {
+            try
+            {
+                return this.Context.Tag.ToList();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex);
+                throw new Exception("DB error", ex.InnerException);
             }
         }
     }

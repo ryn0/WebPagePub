@@ -9,6 +9,8 @@
         public const string SuffixFullscreen = "_fullscreen";
         public const string SuffixPrevew = "_preview";
 
+        public const string Tags = "tags";
+
         public static readonly string[] BotUserAgents =
         {
                 "Googlebot",

@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using System.Text;
+using WebPagePub.Data.Constants;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Db;
@@ -127,6 +129,35 @@ namespace WebPagePub.Web.Controllers
             var siteSection = this.sitePageSectionRepository.Get(dbModel.SitePageSectionId);
 
             return this.CatchAllRequests(siteSection.Key, dbModel.Key, true);
+        }
+
+        [Route(StringConstants.Tags)]
+        [HttpGet]
+        public IActionResult Tags()
+        {
+            var allTags = tagRepository.GetAll();
+
+            allTags = allTags.OrderBy(x => x.Name).ToList();
+
+            var sb = new StringBuilder();
+
+            sb.AppendLine("<ul>");
+            foreach (var tag in allTags)
+            {
+                sb.Append("<li>");
+                sb.AppendFormat(@"<a href=""tag/{0}"">{1}</a>", tag.Key, tag.Name);
+                sb.Append("</li>");
+                sb.AppendLine();
+            }
+            sb.AppendLine("</ul>");
+
+            var title = "Tags";
+            var sitePage = new SitePageDisplayModel(cacheService);
+            sitePage.PageContent.Title = title;
+            sitePage.PageContent.PageHeader = title;
+            sitePage.PageContent.Content = sb.ToString();
+
+            return View(sitePage);
         }
 
         [HttpPost]
