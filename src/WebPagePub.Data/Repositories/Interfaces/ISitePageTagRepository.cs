@@ -18,5 +18,7 @@ namespace WebPagePub.Data.Repositories.Interfaces
         List<SitePageTag> GetTagsForBlog(int sitePageId);
 
         bool Delete(int tagId, int sitePageId);
+
+        List<SitePageTag> GetAll();
     }
 }
