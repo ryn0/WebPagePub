@@ -19,5 +19,7 @@ namespace WebPagePub.Data.Repositories.Interfaces
         Task CreateFolderAsync(string folderPath, string directory = null);
 
         Task DeleteFolderAsync(string folderPath);
+
+        Task ChangeFileName(string currentFileName,  string newFileName);
     }
 }

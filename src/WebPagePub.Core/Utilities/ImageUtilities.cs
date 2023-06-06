@@ -28,7 +28,7 @@ namespace WebPagePub.Core.Utilities
         {
             if (image == null)
             {
-                throw new ArgumentNullException("image");
+                throw new ArgumentNullException(nameof(image));
             }
 
             const double pi2 = Math.PI / 2.0;
