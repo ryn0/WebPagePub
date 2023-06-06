@@ -1,0 +1,41 @@
+﻿@model WebPagePub.Web.Models.SitePageDisplayModel
+@using WebPagePub.Core.Utilities
+@{
+    ViewData["Title"] = Model.PageContent.Title;
+    ViewData["PhotoUrl"] = Model.PageContent.PhotoUrl;
+    ViewData["PhotoUrlWidth"] = Model.PageContent.PhotoUrlWidth;
+    ViewData["PhotoUrlHeight"] = Model.PageContent.PhotoUrlHeight;
+    ViewData["MetaDescription"] = Model.PageContent.MetaDescription;
+    ViewData["MetaKeywords"] = Model.PageContent.MetaKeywords;
+    ViewData["CanonicalUrl"] = Model.PageContent.CanonicalUrl;
+}
+@section StylesHeader {
+}
+
+
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+
+                <h1 class="main-page-header">@Model.PageContent.PageHeader</h1>
+
+                @{ await Html.RenderPartialAsync("_BreadcrumbList", Model.BreadcrumbList); }
+                @{ await Html.RenderPartialAsync("_StructuredDataOrganization", Model.Organization); }
+                @{ await Html.RenderPartialAsync("_StructuredDataWebsite", Model.Website); }
+
+                <article>
+                 @Html.Raw(Model.PageContent.Content)
+                </article>
+            </div>
+        </div>
+
+
+    </div>
+</section>
+
+@section ScriptsFooter{
+
+}
+
+@{ await Html.RenderPartialAsync("_LoginPartialPageEdit", Model); }

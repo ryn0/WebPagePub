@@ -5,9 +5,10 @@
 @inject SignInManager<WebPagePub.Data.Models.ApplicationUser> SignInManager
 @inject UserManager<WebPagePub.Data.Models.ApplicationUser> UserManager
 
-@if (SignInManager.IsSignedIn(User))
+@if (SignInManager.IsSignedIn(User) && Model.SitePageId != 0)
 {
     <hr />
+    
      <a href="~/sitepages/editsitepage/@Model.SitePageId">Edit page</a>
 }
 else
