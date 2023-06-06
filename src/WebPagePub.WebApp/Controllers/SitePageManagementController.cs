@@ -444,13 +444,17 @@ namespace WebPagePub.Web.Controllers
                     photo.Description = photo.Title; // make this the same for now this.Request.Form["PhotoDescription_" + photo.SitePagePhotoId];
 
                     var photoFileName = this.Request.Form["PhotoFileName_" + photo.SitePagePhotoId].ToString().Trim();
+
                     var currentFileName = Path.GetFileName(photo.PhotoUrl);
-                    if (photoFileName != currentFileName)
+
+                    if (Path.HasExtension(photoFileName) && 
+                        Path.HasExtension(currentFileName) && 
+                        (photoFileName != currentFileName))
                     {
                         await RenameAllPhotoVarients(photo, photoFileName, currentFileName);
-                    }
 
-                    this.sitePagePhotoRepository.Update(photo);
+                        this.sitePagePhotoRepository.Update(photo);
+                    }
                 }
 
                 this.SetBlogTags(model, dbModel);
