@@ -96,7 +96,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             try
             {
                 var model = this.Context.SitePage
-                                   .Where(x => x.PublishDateTimeUtc < currentSitePagePublishDateTimeUtc && x.IsLive == true)
+                                   .Where(x => x.PublishDateTimeUtc < currentSitePagePublishDateTimeUtc && x.IsLive == true && x.IsSectionHomePage == false)
                                    .OrderByDescending(x => x.PublishDateTimeUtc)
                                    .Include(x => x.SitePageSection)
                                    .Include(x => x.Photos)
@@ -119,7 +119,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             try
             {
                 var model = this.Context.SitePage
-                                   .Where(x => x.PublishDateTimeUtc > currentSitePagePublishDateTimeUtc && x.IsLive == true)
+                                   .Where(x => x.PublishDateTimeUtc > currentSitePagePublishDateTimeUtc && x.IsLive == true && x.IsSectionHomePage == false)
                                    .OrderBy(x => x.PublishDateTimeUtc)
                                       .Include(x => x.Photos)
                                    .Include(x => x.SitePageTags)
