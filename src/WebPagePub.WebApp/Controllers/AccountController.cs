@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebPagePub.Data.Constants;
@@ -197,8 +195,8 @@ namespace WebPagePub.Web.Controllers
             var user = Task.Run(() => this.userManager.FindByNameAsync(email)).Result;
 
             applicationUser = user;
-
             applicationUser.EmailConfirmed = true;
+
             this.userManager.UpdateAsync(applicationUser);
 
             if (user == null)

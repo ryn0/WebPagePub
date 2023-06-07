@@ -6,6 +6,6 @@ namespace WebPagePub.Web.Models
     {
         [EmailAddress]
         [Required]
-        public string Email { get; set; }
+        public string Email { get; set; } = default!;
     }
 }

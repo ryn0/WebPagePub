@@ -4,28 +4,28 @@
     {
         public int SitePagePhotoId { get; set; }
 
-        public string PhotoUrl { get; set; }
+        public string PhotoOriginalUrl { get; set; } = default!;
 
-        public string PhotoThumbUrl { get; set; }
+        public string PhotoThumbUrl { get; set; } = default!;
 
-        public string PhotoCdnUrl { get; set; }
+        public string PhotoOriginalCdnUrl { get; set; } = default!;
 
-        public string PhotoThumbCdnUrl { get; set; }
+        public string PhotoThumbCdnUrl { get; set; } = default!;
 
-        public string Title { get; set; }
+        public string Title { get; set; } = default!;
 
-        public string Description { get; set; }
+        public string Description { get; set; } = default!;
 
         public bool IsDefault { get; set; }
 
-        public string PhotoPreviewUrl { get; internal set; }
+        public string PhotoPreviewUrl { get; internal set; } = default!;
 
-        public string PhotoPreviewCdnUrl { get; internal set; }
+        public string PhotoPreviewCdnUrl { get; internal set; } = default!;
 
-        public string PhotoFullScreenUrl { get; set; }
+        public string PhotoFullScreenUrl { get; set; } = default!;
 
-        public string PhotoFullScreenCdnUrl { get; set; }
+        public string PhotoFullScreenCdnUrl { get; set; } = default!;
 
-        public string FileName { get; set; }
+        public string FileName { get; set; } = default!;
     }
 }

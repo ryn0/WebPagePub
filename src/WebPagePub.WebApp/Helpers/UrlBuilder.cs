@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace WebPagePub.Web.Helpers
+﻿namespace WebPagePub.Web.Helpers
 {
     public class UrlBuilder
     {
@@ -18,9 +16,10 @@ namespace WebPagePub.Web.Helpers
 
         public static string GetCurrentDomain(HttpContext httpContext)
         {
-            return httpContext.Request.Scheme +
-                                    "://" +
-                                    httpContext.Request.Host.ToUriComponent();
+            return string.Format("{0}{1}{2}",
+                                    httpContext.Request.Scheme,
+                                    "://",
+                                    httpContext.Request.Host.ToUriComponent());
         }
     }
 }

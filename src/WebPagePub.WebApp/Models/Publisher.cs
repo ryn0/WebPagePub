@@ -8,6 +8,6 @@ namespace WebPagePub.Web.Models
         public string @Type { get; set; } = "Organization";
 
         [JsonProperty("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
     }
 }

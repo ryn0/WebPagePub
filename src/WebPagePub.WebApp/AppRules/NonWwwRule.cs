@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Rewrite;
 
 namespace WebPagePub.Web.AppRules
@@ -13,7 +12,11 @@ namespace WebPagePub.Web.AppRules
             if (currentHost.Host.StartsWith("www."))
             {
                 var newHost = new HostString(currentHost.Host.Substring(4), currentHost.Port ?? 443);
-                var newUrl = new StringBuilder().Append("https://").Append(newHost).Append(req.PathBase).Append(req.Path).Append(req.QueryString);
+                var newUrl = new StringBuilder().Append("https://")
+                                                .Append(newHost)
+                                                .Append(req.PathBase)
+                                                .Append(req.Path)
+                                                .Append(req.QueryString);
                 context.HttpContext.Response.Redirect(newUrl.ToString(), true);
                 context.Result = RuleResult.EndResponse;
             }

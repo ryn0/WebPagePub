@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 using ImageMagick;
 using WebPagePub.Core.Utilities;
@@ -22,6 +23,7 @@ namespace WebPagePub.Services.Implementations
 
         public async Task<Uri> UploadReducedQualityImage(string folderPath, Uri fullsizePhotoUrl, int maxWidthPx, int maxHeightPx, string suffix)
         {
+            // TODO: don't get the same photo agian and again
             var stream = await this.ToStreamAsync(fullsizePhotoUrl.ToString());
             var imageHelper = new ImageUtilities();
             var extension = fullsizePhotoUrl.ToString().GetFileExtension();
@@ -69,12 +71,14 @@ namespace WebPagePub.Services.Implementations
         {
             try
             {
-                var request = System.Net.WebRequest.Create(imageUrl);
-                var response = await request.GetResponseAsync();
-                var responseStream = response.GetResponseStream();
                 var ms = new MemoryStream();
 
-                await responseStream.CopyToAsync(ms);
+                using (var client = new HttpClient())
+                {
+                    var rsp = await client.GetAsync(imageUrl);
+                    var response = await rsp.Content.ReadAsStreamAsync();
+                    await response.CopyToAsync(ms);
+                }
 
                 ms.Seek(0, SeekOrigin.Begin);
 

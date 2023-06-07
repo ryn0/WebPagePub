@@ -3,12 +3,8 @@
 @{
     ViewData["Title"] = "Edit Page: " + Model.Title;
 }
- 
-
 
 <h2>@ViewData["Title"]</h2>
-
- 
 
 <a href="@Model.PreviewUrlPath">Preview</a>
  
@@ -169,19 +165,19 @@
                                     <ul>
                                         <li>
 
-                                            <a href="@photo.PhotoThumbCdnUrl">Thumb</a>
+                                            <a href="@photo.PhotoThumbUrl">Thumb</a>
                                         </li>
 
                                         <li>
 
-                                            <a href="@photo.PhotoPreviewCdnUrl">Preview</a>
+                                            <a href="@photo.PhotoPreviewUrl">Preview</a>
                                         </li>
 
                                         <li>
-                                            <a href="@photo.PhotoFullScreenCdnUrl">Full screen</a>
+                                            <a href="@photo.PhotoFullScreenUrl">Full screen</a>
                                         </li>
                                         <li>
-                                            <a href="@photo.PhotoCdnUrl">Original</a>
+                                            <a href="@photo.PhotoOriginalUrl">Original</a>
                                         </li>
 
                                     </ul>

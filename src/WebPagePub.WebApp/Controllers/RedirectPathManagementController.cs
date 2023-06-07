@@ -52,7 +52,7 @@ namespace WebPagePub.Web.Controllers
 
             if (dbModel != null)
             {
-                throw new System.Exception("already exists");
+                throw new Exception("already exists");
             }
 
             this.redirectPathRepository.Create(new Data.Models.Db.RedirectPath()

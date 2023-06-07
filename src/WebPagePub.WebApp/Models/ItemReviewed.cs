@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using WebPagePub.Services.Interfaces;
 
 namespace WebPagePub.Web.Models
 {
@@ -9,6 +8,6 @@ namespace WebPagePub.Web.Models
         public string @Type { get; set; } = "Thing";
 
         [JsonProperty("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
     }
 }
