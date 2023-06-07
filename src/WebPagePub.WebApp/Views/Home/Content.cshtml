@@ -56,7 +56,12 @@
                             }
                         </div>
                     }
+                    
                 </article>
+                <hr />
+                @{
+                    await Html.RenderPartialAsync("_PreviousAndNext", Model.PreviousAndNext);
+                }
             </div>
         </div>
     </div>

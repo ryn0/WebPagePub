@@ -1,0 +1,59 @@
+﻿@model WebPagePub.Web.Models.PreviousAndNextModel
+
+<div class="container">
+    <div class="row footer-photos">
+
+        <div class="col-lg-4">
+
+            @if (!string.IsNullOrWhiteSpace(Model.NextName))
+            {
+                <b>Next:</b>
+                <br />
+
+                if (string.IsNullOrEmpty(Model.DefaultNextPhotoThumbCdnUrl))
+                {
+                    <a href="@Model.NextUrlPath">@Model.NextName</a>
+                }
+                else
+                {
+                    <a href="@Model.NextUrlPath">@Model.NextName</a>
+                    <br />
+                    <a href="@Model.NextUrlPath">
+                        <img style="width:50%;   "
+                             class="img-responsive" src="@Model.DefaultNextPhotoThumbCdnUrl" title="@Model.NextName" alt="@Model.NextName" />
+                    </a>
+                }
+
+                <div style="clear:both"></div>
+            }
+        </div>
+
+        <div class="col-lg-4">
+
+            @if (!string.IsNullOrWhiteSpace(Model.PreviousName))
+            {
+                <b>Previous:</b>
+                <br />
+
+                if (string.IsNullOrEmpty(Model.DefaultPreviousPhotoThumbCdnUrl))
+                {
+                    <a href="@Model.PreviousUrlPath">@Model.PreviousName</a>
+                }
+                else
+                {
+                    <a href="@Model.PreviousUrlPath">@Model.PreviousName</a>
+                    <br />
+                    <a href="@Model.PreviousUrlPath">
+                        <img style="width:50%;"
+                             class="img-responsive" src="@Model.DefaultPreviousPhotoThumbCdnUrl" title="@Model.PreviousName" alt="@Model.PreviousName" />
+                    </a>
+                }
+
+
+                <div style="clear:both"></div>
+            }
+
+        </div>
+
+    </div>
+</div>
