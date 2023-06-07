@@ -47,6 +47,12 @@ namespace WebPagePub.Web.Controllers
                 }
 
                 var lastUpdated = page.UpdateDate == null ? page.CreateDate : (DateTime)page.UpdateDate;
+
+                if (siteMapHelper.SiteMapItems.FirstOrDefault(x => x.Url == url) != null)
+                {
+                    continue;
+                }
+
                 siteMapHelper.AddUrl(url, lastUpdated, ChangeFrequency.Weekly, .5);
             }
 
