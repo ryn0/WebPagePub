@@ -366,6 +366,18 @@ namespace WebPagePub.Web.Controllers
 
             displayModel.PostComment.SitePageId = sitePage.SitePageId;
 
+            var previous = this.CreatePageContentModel(sitePageSection, sitePageRepository.GetPreviousEntry(sitePage.PublishDateTimeUtc));
+            var next = this.CreatePageContentModel(sitePageSection, sitePageRepository.GetNextEntry(sitePage.PublishDateTimeUtc));
+            displayModel.PreviousAndNext = new PreviousAndNextModel()
+            {
+                DefaultNextPhotoThumbCdnUrl = next?.DefaultPhotoThumbCdnUrl,
+                DefaultPreviousPhotoThumbCdnUrl = previous?.DefaultPhotoThumbCdnUrl,
+                NextName = next?.Title,
+                NextUrlPath = next?.UrlPath,
+                PreviousUrlPath = previous?.UrlPath,
+                PreviousName = previous?.Title
+            };
+
             return displayModel;
         }
 
@@ -400,6 +412,11 @@ namespace WebPagePub.Web.Controllers
 
         private SitePageContentModel CreatePageContentModel(SitePageSection sitePageSection, SitePage sitePage)
         {
+            if (sitePage == null)
+            {
+                return new SitePageContentModel();
+            }
+
             var blobPrefix = this.cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
             var cdnPrefix = this.cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
 
