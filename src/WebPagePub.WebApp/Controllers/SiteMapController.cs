@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
@@ -109,7 +107,7 @@ namespace WebPagePub.Web.Controllers
 
             model.SectionPages = model.SectionPages.OrderBy(x => x.AnchorText).ToList();
 
-            return this.View("Index", model);
+            return this.View(nameof(Index), model);
         }
 
         private string GetSectionUrl(SitePageSection section, SitePage indexPage)
