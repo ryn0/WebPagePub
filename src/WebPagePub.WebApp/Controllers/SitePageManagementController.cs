@@ -439,19 +439,33 @@ namespace WebPagePub.Web.Controllers
 
                 foreach (var photo in allPhotos)
                 {
-                    photo.Title = this.Request.Form["PhotoTitle_" + photo.SitePagePhotoId];
-                    photo.Description = photo.Title; // make this the same for now this.Request.Form["PhotoDescription_" + photo.SitePagePhotoId];
+                    var hasChanged = false;
+
+                    var title = this.Request.Form["PhotoTitle_" + photo.SitePagePhotoId];
+
+                    if (title != photo.Title)
+                    {
+                        hasChanged = true;
+                        photo.Title = title;
+                        photo.Description = photo.Title;
+                    }
+
+                    // make this the same for now this.Request.Form["PhotoDescription_" + photo.SitePagePhotoId];
 
                     var photoFileName = this.Request.Form["PhotoFileName_" + photo.SitePagePhotoId].ToString().Trim();
 
                     var currentFileName = Path.GetFileName(photo.PhotoOriginalUrl);
 
-                    if (Path.HasExtension(photoFileName) && 
-                        Path.HasExtension(currentFileName) && 
+                    if (Path.HasExtension(photoFileName) &&
+                        Path.HasExtension(currentFileName) &&
                         (photoFileName != currentFileName))
                     {
+                        hasChanged = true;
                         await RenameAllPhotoVarients(photo, photoFileName, currentFileName);
+                    }
 
+                    if (hasChanged)
+                    {
                         this.sitePagePhotoRepository.Update(photo);
                     }
                 }
@@ -470,34 +484,34 @@ namespace WebPagePub.Web.Controllers
         {
             var blobPrefix = this.cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
 
-            var currentPathPhotoUrl = photo.PhotoOriginalUrl.Replace(
-               blobPrefix + "/" + StringConstants.ContainerName + "/", string.Empty);
+            var currentPathPhotoUrl = photo.PhotoOriginalUrl.Replace(string.Format("{0}/{1}/",
+               blobPrefix, StringConstants.ContainerName), string.Empty);
             var newFilePathPhotoUrl = currentPathPhotoUrl.Replace(currentFileName, newPhotoFileName);
             await siteFilesRepository.ChangeFileName(currentPathPhotoUrl, newFilePathPhotoUrl);
-            photo.PhotoOriginalUrl = blobPrefix + "/" + StringConstants.ContainerName + "/" + newFilePathPhotoUrl;
+            photo.PhotoOriginalUrl = string.Format("{0}/{1}/{2}", blobPrefix, StringConstants.ContainerName, newFilePathPhotoUrl);
 
             //
             var newPhotoExtension = Path.GetExtension(newPhotoFileName);
             
             //
-            var currentPathPhotoFullScreenUrl = photo.PhotoFullScreenUrl.Replace(
-                blobPrefix + "/" + StringConstants.ContainerName + "/", string.Empty);
+            var currentPathPhotoFullScreenUrl = photo.PhotoFullScreenUrl.Replace(string.Format("{0}/{1}/",
+                blobPrefix, StringConstants.ContainerName), string.Empty);
             var newFilePathPhotoFullScreenUrl = currentPathPhotoFullScreenUrl.Replace(Path.GetFileName(currentPathPhotoFullScreenUrl), 
                 string.Format("{0}{1}{2}", Path.GetFileNameWithoutExtension(newPhotoFileName), StringConstants.SuffixFullscreen, newPhotoExtension));
             await siteFilesRepository.ChangeFileName(currentPathPhotoFullScreenUrl, newFilePathPhotoFullScreenUrl);
             photo.PhotoFullScreenUrl = string.Format("{0}/{1}/{2}", blobPrefix, StringConstants.ContainerName,newFilePathPhotoFullScreenUrl);
 
             //
-            var currentPathPhotoPreviewUrl = photo.PhotoPreviewUrl.Replace(
-                blobPrefix + "/" + StringConstants.ContainerName + "/", string.Empty);
+            var currentPathPhotoPreviewUrl = photo.PhotoPreviewUrl.Replace(string.Format("{0}/{1}/",
+                blobPrefix, StringConstants.ContainerName), string.Empty);
             var newFilePathPhotoPreviewUrl = currentPathPhotoPreviewUrl.Replace(Path.GetFileName(currentPathPhotoPreviewUrl),
                 string.Format("{0}{1}{2}", Path.GetFileNameWithoutExtension(newPhotoFileName), StringConstants.SuffixPrevew, newPhotoExtension));
             await siteFilesRepository.ChangeFileName(currentPathPhotoPreviewUrl, newFilePathPhotoPreviewUrl);
             photo.PhotoPreviewUrl = string.Format("{0}/{1}/{2}", blobPrefix, StringConstants.ContainerName, newFilePathPhotoPreviewUrl);
 
             //
-            var currentPathPhotoThumbUrl = photo.PhotoThumbUrl.Replace(
-                blobPrefix + "/" + StringConstants.ContainerName + "/", string.Empty);
+            var currentPathPhotoThumbUrl = photo.PhotoThumbUrl.Replace(string.Format("{0}/{1}/",
+                blobPrefix, StringConstants.ContainerName), string.Empty);
             var newFilePathPhotoThumbUrl = currentPathPhotoThumbUrl.Replace(Path.GetFileName(currentPathPhotoThumbUrl),
                 string.Format("{0}{1}{2}", Path.GetFileNameWithoutExtension(newPhotoFileName), StringConstants.SuffixThumb, newPhotoExtension));
             await siteFilesRepository.ChangeFileName(currentPathPhotoThumbUrl, newFilePathPhotoThumbUrl);
