@@ -84,7 +84,7 @@ namespace WebPagePub.Services.Implementations
                 var amzClient = new AmazonSimpleEmailServiceClient(
                    this.amazonAccessKey,
                    this.amazonSecretKey,
-                    RegionEndpoint.USEast1);
+                   RegionEndpoint.USEast1);
 
                 var dest = new Destination();
 

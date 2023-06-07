@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using WebPagePub.Data.Enums;
+﻿using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.Web.Models;
@@ -18,7 +16,7 @@ namespace WebPagePub.Web.Helpers
 
         public SitePageDisplayModel ConvertToBlogDisplayModel(SitePage current, SitePage previous, SitePage next)
         {
-            var defaultPhotoUrl = current?.Photos.FirstOrDefault(x => x.IsDefault == true);
+            var defaultPhotoOriginalUrl = current?.Photos.FirstOrDefault(x => x.IsDefault == true);
             var previousPhotoUrl = previous?.Photos.FirstOrDefault(x => x.IsDefault == true);
             var nextPhotoUrl = next?.Photos.FirstOrDefault(x => x.IsDefault == true);
 
@@ -43,11 +41,11 @@ namespace WebPagePub.Web.Helpers
 
                     Photos = this.AddPhotos(current.Photos),
 
-                    DefaultPhotoThumbUrl = defaultPhotoUrl?.PhotoThumbUrl,
-                    DefaultPhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(defaultPhotoUrl?.PhotoThumbUrl),
+                    DefaultPhotoThumbUrl = defaultPhotoOriginalUrl?.PhotoThumbUrl,
+                    DefaultPhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(defaultPhotoOriginalUrl?.PhotoThumbUrl),
 
-                    DefaultPhotoUrl = defaultPhotoUrl?.PhotoPreviewUrl,
-                    DefaultPhotoCdnUrl = this.ConvertBlobToCdnUrl(defaultPhotoUrl?.PhotoPreviewUrl),
+                    DefaultPhotoOriginalUrl = defaultPhotoOriginalUrl?.PhotoPreviewUrl,
+                    DefaultPhotoOriginalCdnUrl = this.ConvertBlobToCdnUrl(defaultPhotoOriginalUrl?.PhotoPreviewUrl),
 
                     MetaDescription = current.MetaDescription
                 }
@@ -94,15 +92,15 @@ namespace WebPagePub.Web.Helpers
                     Description = photo.Description,
                     IsDefault = photo.IsDefault,
                     Title = photo.Title,
+                    PhotoOriginalUrl = photo.PhotoOriginalUrl,
+                    PhotoOriginalCdnUrl = this.ConvertBlobToCdnUrl(photo.PhotoOriginalUrl),
+                    PhotoFullScreenCdnUrl = this.ConvertBlobToCdnUrl(photo.PhotoFullScreenUrl),
 
-                    PhotoUrl = photo.PhotoUrl,
-                    PhotoCdnUrl = this.ConvertBlobToCdnUrl(photo?.PhotoUrl),
-                    PhotoFullScreenCdnUrl = this.ConvertBlobToCdnUrl(photo?.PhotoFullScreenUrl),
                     PhotoThumbUrl = photo.PhotoThumbUrl,
-                    PhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(photo?.PhotoThumbUrl),
+                    PhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(photo.PhotoThumbUrl),
 
                     PhotoPreviewUrl = photo.PhotoPreviewUrl,
-                    PhotoPreviewCdnUrl = this.ConvertBlobToCdnUrl(photo?.PhotoPreviewUrl),
+                    PhotoPreviewCdnUrl = this.ConvertBlobToCdnUrl(photo.PhotoPreviewUrl),
                 });
             }
 

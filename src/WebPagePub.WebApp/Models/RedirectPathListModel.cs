@@ -8,9 +8,9 @@ namespace WebPagePub.Web.Models
 
         public class RedirectPathItemModel
         {
-            public string Path { get; set; }
+            public string Path { get; set; } = default!;
 
-            public string PathDestination { get; set; }
+            public string PathDestination { get; set; } = default!;
             public int RedirectPathId { get; set; }
         }
     }

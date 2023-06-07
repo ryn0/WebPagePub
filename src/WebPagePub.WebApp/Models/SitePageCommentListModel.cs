@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using WebPagePub.Data.Enums;
-
-namespace WebPagePub.Web.Models
+﻿namespace WebPagePub.Web.Models
 {
     public class SitePageCommentListModel
     {

@@ -11,7 +11,7 @@ namespace WebPagePub.Data.Models
 
         [Required]
         [StringLength(255)]
-        public string PhotoUrl { get; set; }
+        public string PhotoOriginalUrl { get; set; }
 
         [Required]
         [StringLength(255)]

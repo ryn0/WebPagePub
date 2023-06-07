@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace WebPagePub.Web.Models
 {
@@ -7,7 +6,7 @@ namespace WebPagePub.Web.Models
     {
         [EmailAddress]
         [Required]
-        public string Email { get; set; }
+        public string Email { get; set; } = default!;
 
         public int EmailSubscriptionId { get; set; }
 

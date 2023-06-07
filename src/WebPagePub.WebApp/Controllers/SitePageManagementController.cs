@@ -1,22 +1,14 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.Caching.Memory;
 using WebPagePub.Core.Utilities;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Db;
-using WebPagePub.Data.Repositories.Implementations;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.Web.Helpers;
@@ -123,16 +115,19 @@ namespace WebPagePub.Web.Controllers
 
         [Route("sitepages/SetDefaultPhoto/{sitePagePhotoId}")]
         [HttpGet]
-        public IActionResult SetDefaultPhoto(int sitePagePhotoId)
+        public async Task<IActionResult> SetDefaultPhotoAsync(int sitePagePhotoId)
         {
             var entry = this.sitePagePhotoRepository.Get(sitePagePhotoId);
 
             try
             {
-                var req = WebRequest.Create(entry.PhotoFullScreenUrl);
-                var response = req.GetResponse();
-                var stream = response.GetResponseStream();
-                var img = new Bitmap(stream);
+                Bitmap img;
+
+                using (var client = new HttpClient())
+                {
+                    var rsp = await client.GetAsync(entry.PhotoFullScreenUrl);
+                    img = new Bitmap(await rsp.Content.ReadAsStreamAsync());
+                }
 
                 entry.PhotoFullScreenUrlHeight = img.Height;
                 entry.PhotoFullScreenUrlWidth = img.Width;
@@ -143,12 +138,14 @@ namespace WebPagePub.Web.Controllers
                 var sitePage = this.sitePageRepository.Get(entry.SitePageId);
                 var sitePageSection = this.siteSectionRepository.Get(sitePage.SitePageSectionId);
                 var editModel = this.ToUiEditModel(sitePage, sitePageSection.IsHomePageSection);
+                img.Dispose();
                 this.ClearCache(editModel, sitePage);
             }
             catch
             {
                 throw new Exception("could not set default");
             }
+          
 
             return this.RedirectToAction("EditSitePage", new { SitePageId = entry.SitePageId });
         }
@@ -344,14 +341,14 @@ namespace WebPagePub.Web.Controllers
                         var fullScreenPhotoUrl = await this.imageUploaderService.UploadReducedQualityImage(folderPath, fullsizePhotoUrl, 1600, 1200, StringConstants.SuffixFullscreen);
                         var previewPhotoUrl = await this.imageUploaderService.UploadReducedQualityImage(folderPath, fullsizePhotoUrl, 800, 600, StringConstants.SuffixPrevew);
 
-                        var existingPhoto = allBlogPhotos.FirstOrDefault(x => x.PhotoUrl == fullsizePhotoUrl.ToString());
+                        var existingPhoto = allBlogPhotos.FirstOrDefault(x => x.PhotoOriginalUrl == fullsizePhotoUrl.ToString());
 
                         if (existingPhoto == null)
                         {
                             this.sitePagePhotoRepository.Create(new SitePagePhoto()
                             {
                                 SitePageId = sitePageId,
-                                PhotoUrl = fullsizePhotoUrl.ToString(),
+                                PhotoOriginalUrl = fullsizePhotoUrl.ToString(),
                                 PhotoThumbUrl = thumbnailPhotoUrl.ToString(),
                                 PhotoFullScreenUrl = fullScreenPhotoUrl.ToString(),
                                 PhotoPreviewUrl = previewPhotoUrl.ToString(),
@@ -362,7 +359,7 @@ namespace WebPagePub.Web.Controllers
                         }
                         else
                         {
-                            existingPhoto.PhotoUrl = fullsizePhotoUrl.ToString();
+                            existingPhoto.PhotoOriginalUrl = fullsizePhotoUrl.ToString();
                             existingPhoto.PhotoThumbUrl = thumbnailPhotoUrl.ToString();
                             existingPhoto.PhotoFullScreenUrl = fullScreenPhotoUrl.ToString();
                             existingPhoto.PhotoPreviewUrl = previewPhotoUrl.ToString();
@@ -401,8 +398,10 @@ namespace WebPagePub.Web.Controllers
         public async Task<IActionResult> Rotate90DegreesAsync(int sitePagePhotoId)
         {
             var entry = this.sitePagePhotoRepository.Get(sitePagePhotoId);
+
+            // todo: store original and rotate it, resize it, to low quality loss
  
-            await RotateImage(entry.SitePageId, entry.PhotoUrl);
+            await RotateImage(entry.SitePageId, entry.PhotoOriginalUrl);
             await RotateImage(entry.SitePageId, entry.PhotoPreviewUrl);
             await RotateImage(entry.SitePageId, entry.PhotoThumbUrl);
             await RotateImage(entry.SitePageId, entry.PhotoFullScreenUrl);
@@ -445,7 +444,7 @@ namespace WebPagePub.Web.Controllers
 
                     var photoFileName = this.Request.Form["PhotoFileName_" + photo.SitePagePhotoId].ToString().Trim();
 
-                    var currentFileName = Path.GetFileName(photo.PhotoUrl);
+                    var currentFileName = Path.GetFileName(photo.PhotoOriginalUrl);
 
                     if (Path.HasExtension(photoFileName) && 
                         Path.HasExtension(currentFileName) && 
@@ -471,37 +470,38 @@ namespace WebPagePub.Web.Controllers
         {
             var blobPrefix = this.cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
 
-            var currentPathPhotoUrl = photo.PhotoUrl.Replace(
-               blobPrefix + "/" + SiteFilesRepository.ContainerName + "/", string.Empty);
+            var currentPathPhotoUrl = photo.PhotoOriginalUrl.Replace(
+               blobPrefix + "/" + StringConstants.ContainerName + "/", string.Empty);
             var newFilePathPhotoUrl = currentPathPhotoUrl.Replace(currentFileName, newPhotoFileName);
             await siteFilesRepository.ChangeFileName(currentPathPhotoUrl, newFilePathPhotoUrl);
-            photo.PhotoUrl = blobPrefix + "/" + SiteFilesRepository.ContainerName + "/" + newFilePathPhotoUrl;
+            photo.PhotoOriginalUrl = blobPrefix + "/" + StringConstants.ContainerName + "/" + newFilePathPhotoUrl;
 
             //
             var newPhotoExtension = Path.GetExtension(newPhotoFileName);
+            
             //
             var currentPathPhotoFullScreenUrl = photo.PhotoFullScreenUrl.Replace(
-                blobPrefix + "/" + SiteFilesRepository.ContainerName + "/", string.Empty);
+                blobPrefix + "/" + StringConstants.ContainerName + "/", string.Empty);
             var newFilePathPhotoFullScreenUrl = currentPathPhotoFullScreenUrl.Replace(Path.GetFileName(currentPathPhotoFullScreenUrl), 
                 string.Format("{0}{1}{2}", Path.GetFileNameWithoutExtension(newPhotoFileName), StringConstants.SuffixFullscreen, newPhotoExtension));
             await siteFilesRepository.ChangeFileName(currentPathPhotoFullScreenUrl, newFilePathPhotoFullScreenUrl);
-            photo.PhotoFullScreenUrl = blobPrefix + "/" + SiteFilesRepository.ContainerName + "/" + newFilePathPhotoFullScreenUrl;
+            photo.PhotoFullScreenUrl = string.Format("{0}/{1}/{2}", blobPrefix, StringConstants.ContainerName,newFilePathPhotoFullScreenUrl);
 
             //
             var currentPathPhotoPreviewUrl = photo.PhotoPreviewUrl.Replace(
-                blobPrefix + "/" + SiteFilesRepository.ContainerName + "/", string.Empty);
+                blobPrefix + "/" + StringConstants.ContainerName + "/", string.Empty);
             var newFilePathPhotoPreviewUrl = currentPathPhotoPreviewUrl.Replace(Path.GetFileName(currentPathPhotoPreviewUrl),
                 string.Format("{0}{1}{2}", Path.GetFileNameWithoutExtension(newPhotoFileName), StringConstants.SuffixPrevew, newPhotoExtension));
             await siteFilesRepository.ChangeFileName(currentPathPhotoPreviewUrl, newFilePathPhotoPreviewUrl);
-            photo.PhotoPreviewUrl = blobPrefix + "/" + SiteFilesRepository.ContainerName + "/" + newFilePathPhotoPreviewUrl;
+            photo.PhotoPreviewUrl = string.Format("{0}/{1}/{2}", blobPrefix, StringConstants.ContainerName, newFilePathPhotoPreviewUrl);
 
             //
             var currentPathPhotoThumbUrl = photo.PhotoThumbUrl.Replace(
-                blobPrefix + "/" + SiteFilesRepository.ContainerName + "/", string.Empty);
+                blobPrefix + "/" + StringConstants.ContainerName + "/", string.Empty);
             var newFilePathPhotoThumbUrl = currentPathPhotoThumbUrl.Replace(Path.GetFileName(currentPathPhotoThumbUrl),
                 string.Format("{0}{1}{2}", Path.GetFileNameWithoutExtension(newPhotoFileName), StringConstants.SuffixThumb, newPhotoExtension));
             await siteFilesRepository.ChangeFileName(currentPathPhotoThumbUrl, newFilePathPhotoThumbUrl);
-            photo.PhotoThumbUrl = blobPrefix + "/" + SiteFilesRepository.ContainerName + "/" + newFilePathPhotoThumbUrl;
+            photo.PhotoThumbUrl = string.Format("{0}/{1}/{2}", blobPrefix, StringConstants.ContainerName, newFilePathPhotoThumbUrl);
 
         }
 
@@ -515,7 +515,7 @@ namespace WebPagePub.Web.Controllers
         {
             var entry = this.sitePagePhotoRepository.Get(sitePagePhotoId);
 
-            await this.siteFilesRepository.DeleteFileAsync(entry.PhotoUrl);
+            await this.siteFilesRepository.DeleteFileAsync(entry.PhotoOriginalUrl);
             await this.siteFilesRepository.DeleteFileAsync(entry.PhotoThumbUrl);
             await this.siteFilesRepository.DeleteFileAsync(entry.PhotoFullScreenUrl);
             await this.siteFilesRepository.DeleteFileAsync(entry.PhotoPreviewUrl);
@@ -612,17 +612,17 @@ namespace WebPagePub.Web.Controllers
                 {
                     SitePagePhotoId = photo.SitePagePhotoId,
                     IsDefault = photo.IsDefault,
-                    PhotoUrl = photo.PhotoUrl,
+                    PhotoOriginalUrl = photo.PhotoOriginalUrl,
                     PhotoFullScreenUrl = photo.PhotoFullScreenUrl,
                     PhotoThumbUrl = photo.PhotoThumbUrl,
                     PhotoPreviewUrl = photo.PhotoPreviewUrl,
-                    PhotoCdnUrl = mc.ConvertBlobToCdnUrl(photo.PhotoUrl),
+                    PhotoOriginalCdnUrl = mc.ConvertBlobToCdnUrl(photo.PhotoOriginalUrl),
                     PhotoThumbCdnUrl = mc.ConvertBlobToCdnUrl(photo.PhotoThumbUrl),
                     PhotoFullScreenCdnUrl = mc.ConvertBlobToCdnUrl(photo.PhotoFullScreenUrl),
                     PhotoPreviewCdnUrl = mc.ConvertBlobToCdnUrl(photo.PhotoPreviewUrl),
                     Title = photo.Title,
                     Description = photo.Description,
-                    FileName = Path.GetFileName(photo.PhotoUrl)
+                    FileName = Path.GetFileName(photo.PhotoOriginalUrl)
                 });
             }
 
@@ -647,30 +647,41 @@ namespace WebPagePub.Web.Controllers
 
             var currentTags = model.Tags.Split(',');
             var currentTagsFormatted = new ArrayList();
+
             foreach (var tag in currentTags)
             {
                 currentTagsFormatted.Add(tag.UrlKey());
             }
 
             var currentTagsFormattedArray = currentTagsFormatted.ToArray();
-
             var previousTags = new ArrayList();
+
             foreach (var tag in dbModel.SitePageTags)
             {
                 previousTags.Add(tag.Tag.Key);
             }
 
-            var tagsToRemove = previousTags.ToArray().Except(currentTagsFormatted.ToArray());
+            var tagsToRemove = previousTags.ToArray().Except(currentTagsFormattedArray);
 
             this.AddNewTags(model, dbModel, currentTags);
 
             this.RemoveDeletedTags(model, tagsToRemove);
         }
 
-        private void RemoveDeletedTags(SitePageEditModel model, IEnumerable<object> tagsToRemove)
+        private void RemoveDeletedTags(SitePageEditModel model, IEnumerable<object?> tagsToRemove)
         {
+            if (tagsToRemove == null)
+            { 
+                return; 
+            }
+
             foreach (var tag in tagsToRemove)
             {
+                if (tag == null)
+                {
+                    continue;
+                }
+
                 var tagKey = tag.ToString().UrlKey();
 
                 var tagDb = this.tagRepository.Get(tagKey);
@@ -688,10 +699,7 @@ namespace WebPagePub.Web.Controllers
         {
             var folderPath = this.GetBlogPhotoFolder(sitePageId);
             var stream = await this.imageUploaderService.ToStreamAsync(photoUrl);
-            var imageHelper = new ImageUtilities();
-            const float angle = 90;
-            var rotatedBitmap = imageHelper.RotateImage(Image.FromStream(stream), angle);
-
+            var rotatedBitmap = ImageUtilities.Rotate90Degrees(Image.FromStream(stream));
             Image fullPhoto = rotatedBitmap;
 
             var streamRotated = this.imageUploaderService.ToAStream(

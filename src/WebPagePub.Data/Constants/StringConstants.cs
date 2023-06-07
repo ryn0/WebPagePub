@@ -5,9 +5,16 @@
         public const string AdminRole = "Administrator";
         public const string ApplicationJson = "application/json";
 
+        public const string ContainerName = "sitecontent";
+        public const string FolderFileName = "_.txt";
+
         public const string SuffixThumb = "_thumb";
         public const string SuffixFullscreen = "_fullscreen";
         public const string SuffixPrevew = "_preview";
+
+        public const string PreviewKey = "preview";
+
+        public const string UserAgent = "User-Agent";
 
         public const string Tags = "tags";
 
@@ -24,6 +31,5 @@
                 "facebot",
                 "ia_archiver"
         };
-
     }
 }

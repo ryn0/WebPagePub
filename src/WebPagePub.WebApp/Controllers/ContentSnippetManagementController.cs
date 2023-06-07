@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
@@ -59,7 +58,7 @@ namespace WebPagePub.Web.Controllers
 
             this.contentSnippetRepository.Create(new ContentSnippet()
             {
-                Content = model.Content.Trim(),
+                Content = model.Content?.Trim(),
                 ContentSnippetId = model.ContentSnippetId,
                 SnippetType = model.SnippetType
             });
@@ -85,6 +84,11 @@ namespace WebPagePub.Web.Controllers
             if (!this.ModelState.IsValid)
             {
                 return this.View(model);
+            }
+
+            if (model.Content == null)
+            {
+                model.Content = string.Empty;
             }
 
             var dbModel = this.contentSnippetRepository.Get(model.ContentSnippetId);

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Rewrite;
+﻿using Microsoft.AspNetCore.Rewrite;
 
 namespace WebPagePub.Web.AppRules
 {

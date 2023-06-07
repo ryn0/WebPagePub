@@ -63,7 +63,6 @@
             @RenderBody()
         </div>
 
-
         <footer class="site-footer">
             <a href="@_cacheHelper.GetSnippet(SiteConfigSetting.FacebookUrl)" class="btn btn-fb"><i class="fa fa-facebook left"></i> Facebook</a>
             <a href="@_cacheHelper.GetSnippet(SiteConfigSetting.YouTubeUrl)" class="btn btn-youtube"><i class="fa fa-youtube left"></i> YouTube</a>
@@ -78,27 +77,20 @@
             </div>
 
             <partial name="_LoginPartial" />
-
-
         </footer>
-
     </div>
     <!-- wrapper -->
     <!-- js -->
     @Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.GoogleAnalytics))
 
-
-    <environment names="Development">
+    @*    <environment names="Development">
         <script src="~/js/jquery-2.1.3.min.js"></script>
         <script src="~/js/bootstrap.min.js"></script>
         <script src="~/js/stacktable.js"></script>
-
-    </environment>
-    <environment names="Staging,Production">
-
+    </environment>*@
+    <environment names="Development,Staging,Production">
         @Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.FooterHtml))
     </environment>
-
 
     @RenderSection("ScriptsFooter", required: false)
 

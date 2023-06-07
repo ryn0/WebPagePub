@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +8,7 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using WebPagePub.Core.Utilities;
 using WebPagePub.Data.BaseClasses;
+using WebPagePub.Data.Constants;
 using WebPagePub.Data.Models.AzureStorage.Blob;
 using WebPagePub.Data.Repositories.Interfaces;
 
@@ -16,10 +16,8 @@ namespace WebPagePub.Data.Repositories.Implementations
 {
     public class SiteFilesRepository : BaseBlobFiles, ISiteFilesRepository
     {
-        private const string FolderFileName = "_.txt";
         private readonly string connectionString;
         private readonly CloudStorageAccount storageAccount;
-        public const string ContainerName = "sitecontent";
 
         public SiteFilesRepository(string connectionString)
         {
@@ -33,7 +31,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             this.storageAccount = CloudStorageAccount.Parse(this.connectionString);
 
             var blobClient = this.storageAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference(ContainerName);
+            var container = blobClient.GetContainerReference(StringConstants.ContainerName);
 
             // todo: run async elsewhere
             Task.Run(async () =>
@@ -49,7 +47,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             {
                 var directory = new SiteFileDirectory();
                 var blobClient = this.storageAccount.CreateCloudBlobClient();
-                var container = blobClient.GetContainerReference(ContainerName);
+                var container = blobClient.GetContainerReference(StringConstants.ContainerName);
 
                 if (prefix != null && prefix.StartsWith("/"))
                 {
@@ -57,14 +55,20 @@ namespace WebPagePub.Data.Repositories.Implementations
                 }
 
                 foreach (IListBlobItem item in container.ListBlobsSegmentedAsync(
-                                                            prefix, false, BlobListingDetails.None, int.MaxValue, null, null, null).Result.Results)
+                                                            prefix,
+                                                            false,
+                                                            BlobListingDetails.None,
+                                                            int.MaxValue,
+                                                            null,
+                                                            null,
+                                                            null).Result.Results)
                 {
                     if (item.GetType() == typeof(CloudBlockBlob))
                     {
                         var blob = (CloudBlockBlob)item;
                         var file = blob.Uri.ToString();
 
-                        if (!file.EndsWith(FolderFileName))
+                        if (!file.EndsWith(StringConstants.FolderFileName))
                         {
                             directory.FileItems.Add(new SiteFileItem
                             {
@@ -82,7 +86,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                         var pageBlob = (CloudPageBlob)item;
 
                         // todo: find out when this is used
-                        throw new Exception("CloudPageBlob");
+                        throw new Exception(nameof(CloudPageBlob));
                     }
                     else if (item.GetType() == typeof(CloudBlobDirectory))
                     {
@@ -108,11 +112,11 @@ namespace WebPagePub.Data.Repositories.Implementations
             try
             {
                 var blobClient = this.storageAccount.CreateCloudBlobClient();
-                var container = blobClient.GetContainerReference(ContainerName);
+                var container = blobClient.GetContainerReference(StringConstants.ContainerName);
 
                 if (IsFolderPath(blobPath))
                 {
-                    blobPath = string.Format("{0}{1}", blobPath, FolderFileName);
+                    blobPath = string.Format("{0}{1}", blobPath, StringConstants.FolderFileName);
 
                     if (blobPath.StartsWith("/"))
                     {
@@ -120,7 +124,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                     }
                 }
 
-                var endIndexOfCotainerName = blobPath.IndexOf(ContainerName) + ContainerName.Length;
+                var endIndexOfCotainerName = blobPath.IndexOf(StringConstants.ContainerName) + StringConstants.ContainerName.Length;
 
                 var path = blobPath.Substring(endIndexOfCotainerName, blobPath.Length - endIndexOfCotainerName).TrimStart('/');
 
@@ -183,7 +187,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             {
                 fileName = this.CleanFileName(fileName);
 
-                if (fileName == FolderFileName)
+                if (fileName == StringConstants.FolderFileName)
                 {
                     return null;
                 }
@@ -201,7 +205,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                 }
 
                 var blobClient = this.storageAccount.CreateCloudBlobClient();
-                var container = blobClient.GetContainerReference(ContainerName);
+                var container = blobClient.GetContainerReference(StringConstants.ContainerName);
                 var blockBlob = container.GetBlockBlobReference(filePath);
 
                 stream.Seek(0, SeekOrigin.Begin);
@@ -238,8 +242,8 @@ namespace WebPagePub.Data.Repositories.Implementations
                 tw.WriteLine(folderPath);
 
                 var blobClient = this.storageAccount.CreateCloudBlobClient();
-                var container = blobClient.GetContainerReference(ContainerName);
-                var path = string.Format("{0}/{1}", folderPath, FolderFileName);
+                var container = blobClient.GetContainerReference(StringConstants.ContainerName);
+                var path = string.Format("{0}/{1}", folderPath, StringConstants.FolderFileName);
 
                 if (!string.IsNullOrWhiteSpace(directory))
                 {
@@ -273,7 +277,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         public async Task ChangeFileName(string currentFileName, string newFileName)
         {
             var blobClient = this.storageAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference(ContainerName);
+            var container = blobClient.GetContainerReference(StringConstants.ContainerName);
             await container.CreateIfNotExistsAsync();
             CloudBlockBlob blobCopy = container.GetBlockBlobReference(newFileName);
             if (!await blobCopy.ExistsAsync())
@@ -295,9 +299,8 @@ namespace WebPagePub.Data.Repositories.Implementations
 
         private List<IListBlobItem> GetDirContents(string prefix = null)
         {
-            var directory = new SiteFileDirectory();
             var blobClient = this.storageAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference(ContainerName);
+            var container = blobClient.GetContainerReference(StringConstants.ContainerName);
 
             if (prefix != null && prefix.StartsWith("/"))
             {
@@ -321,7 +324,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             var cloudBlobDirectory = (CloudBlobDirectory)item;
             var folderName = cloudBlobDirectory.Uri.ToString().Split('/')[cloudBlobDirectory.Uri.ToString().Split('/').Length - 2];
-            var pathFromRoot = new Uri(cloudBlobDirectory.Uri.ToString()).LocalPath.Replace(string.Format("/{0}", ContainerName), string.Empty);
+            var pathFromRoot = new Uri(cloudBlobDirectory.Uri.ToString()).LocalPath.Replace(string.Format("/{0}", StringConstants.ContainerName), string.Empty);
 
             directory.FileItems.Add(new SiteFileItem
             {
@@ -331,13 +334,5 @@ namespace WebPagePub.Data.Repositories.Implementations
                 FolderPathFromRoot = pathFromRoot
             });
         }
-
-        private byte[] GetBytes(string str)
-        {
-            byte[] bytes = new byte[str.Length * sizeof(char)];
-            Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
-            return bytes;
-        }
-
     }
 }
