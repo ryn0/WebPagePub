@@ -4,10 +4,10 @@
     {
         public bool IsFolder { get; set; } = false;
 
-        public string FolderName { get; set; }
+        public string FolderName { get; set; } = default!;
 
-        public string FolderPathFromRoot { get; set; }
+        public string FolderPathFromRoot { get; set; } = default!;
 
-        public string FilePath { get; set; }
+        public string FilePath { get; set; } = default!;
     }
 }

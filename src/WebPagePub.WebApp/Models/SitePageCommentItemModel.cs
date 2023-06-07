@@ -1,5 +1,4 @@
-﻿using System;
-using WebPagePub.Data.Enums;
+﻿using WebPagePub.Data.Enums;
 
 namespace WebPagePub.Web.Models
 {
@@ -9,7 +8,7 @@ namespace WebPagePub.Web.Models
 
         public DateTime CreateDate { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
 
         public CommentStatus CommentStatus { get;   set; }
     }

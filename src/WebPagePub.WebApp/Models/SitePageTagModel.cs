@@ -2,6 +2,6 @@
 {
     public class SitePageTagModel
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
     }
 }

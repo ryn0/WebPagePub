@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Http;
+﻿using System.Text.RegularExpressions;
 
 namespace WebPagePub.Web.Helpers
 {

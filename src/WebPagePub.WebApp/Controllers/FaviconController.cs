@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Net;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WebPagePub.Core.Utilities;
 using WebPagePub.Data.Enums;
 using WebPagePub.Services.Interfaces;
@@ -51,9 +49,9 @@ namespace WebPagePub.Web.Controllers
         [Route(FavIconMaifestJson)]
         [Route(FavIconIco)]
         [HttpGet]
-        public IActionResult FavIcon()
+        public async Task<IActionResult> FavIcon()
         {
-            return this.ReturnContent(this.Request.Path.Value);
+            return await this.ReturnContentAsync(this.Request.Path.Value);
         }
 
         public string BuildPath(string fileName)
@@ -62,29 +60,32 @@ namespace WebPagePub.Web.Controllers
             return $"{cdnPrefix}{FavIconPath}{fileName}";
         }
 
-        private IActionResult ReturnContent(string fileName)
+        private async Task<IActionResult> ReturnContentAsync(string fileName)
         {
             fileName = fileName.TrimStart('/');
 
             try
             {
-                using (WebClient wc = new WebClient())
-                {
-                    var bytes = wc.DownloadData(this.BuildPath(fileName));
-                    var ms = new MemoryStream(bytes);
+                var ms = new MemoryStream();
 
-                    switch (fileName.GetFileExtensionLower())
-                    {
-                        case "png":
-                            this.Response.Headers.Add("Cache-Control", "public, max-age=604800");
-                            return this.File(ms, "image/png");
-                        case "json":
-                            return this.File(ms, "application/json");
-                        case "ico":
-                            return this.File(ms, "image/x-icon");
-                        default:
-                            return this.File(ms, "text/plain");
-                    }
+                using (var client = new HttpClient())
+                {
+                    var rsp = await client.GetAsync(this.BuildPath(fileName));
+                    var response = await rsp.Content.ReadAsStreamAsync();
+                    await response.CopyToAsync(ms);
+                }
+
+                switch (fileName.GetFileExtensionLower())
+                {
+                    case "png":
+                        this.Response.Headers.Add("Cache-Control", "public, max-age=604800");
+                        return this.File(ms, "image/png");
+                    case "json":
+                        return this.File(ms, "application/json");
+                    case "ico":
+                        return this.File(ms, "image/x-icon");
+                    default:
+                        return this.File(ms, "text/plain");
                 }
             }
             catch

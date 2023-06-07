@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using WebPagePub.Data.Enums;
+﻿using WebPagePub.Data.Enums;
 using WebPagePub.Services.Interfaces;
 
 namespace WebPagePub.Web.Models

@@ -8,6 +8,6 @@ namespace WebPagePub.Web.Models
 
         public SiteConfigSetting SnippetType { get; set; }
 
-        public string Content { get; set; }
+        public string? Content { get; set; }
     }
 }

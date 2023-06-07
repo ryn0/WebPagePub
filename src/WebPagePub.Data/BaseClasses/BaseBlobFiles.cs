@@ -10,7 +10,7 @@ namespace WebPagePub.Data.BaseClasses
     {
         protected async Task SetPropertiesAsync(CloudBlockBlob blockBlob, string extension)
         {
-            switch (extension)
+            switch (extension.ToLower())
             {
                 // images
                 case "png":

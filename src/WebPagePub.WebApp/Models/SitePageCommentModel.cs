@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using WebPagePub.Data.Enums;
 
 namespace WebPagePub.Web.Models
@@ -15,19 +14,19 @@ namespace WebPagePub.Web.Models
         [Display(Name = "Email")]
         [EmailAddress]
         [Required]
-        public string Email { get; set; }
+        public string Email { get; set; } = default!;
 
         [Display(Name = "Website (optional)")]
         [Url]
-        public string Website { get; set; }
+        public string Website { get; set; } = default!;
 
         [Display(Name = "Name")]
         [Required]
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
 
         [Display(Name = "Comment")]
         [Required]
-        public string Comment { get; set; }
+        public string Comment { get; set; } = default!;
 
         public CommentStatus CommentStatus { get; set; }
 

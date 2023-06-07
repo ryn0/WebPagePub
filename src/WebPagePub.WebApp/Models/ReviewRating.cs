@@ -8,15 +8,15 @@ namespace WebPagePub.Web.Models
         public string @Type { get; set; } = "Rating";
 
         [JsonProperty("ratingValue")]
-        public string RatingValue { get; set; }
+        public string RatingValue { get; set; } = default!;
 
         [JsonProperty("bestRating")]
-        public string BestRating { get; set; }
+        public string BestRating { get; set; } = default!;
 
         [JsonProperty("worstRating")]
-        public string WorstRating { get; set; }
+        public string WorstRating { get; set; } = default!;
 
         [JsonIgnore]
-        public string RatingPercentage { get; set; }
+        public string RatingPercentage { get; set; } = default!;
     }
 }

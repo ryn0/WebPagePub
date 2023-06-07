@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace WebPagePub.Web.Models
+﻿namespace WebPagePub.Web.Models
 {
     public class UrlClickReportModel
     {
-        public string Url { get; set; }
+        public string Url { get; set; } = default!;
 
         public int TotalClicks { get; set; }
 

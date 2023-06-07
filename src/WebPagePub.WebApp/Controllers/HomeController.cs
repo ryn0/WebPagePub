@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text;
 using WebPagePub.Data.Constants;
@@ -16,9 +15,6 @@ namespace WebPagePub.Web.Controllers
     // todo: cache keys which are retrieved for lookups
     public class HomeController : Controller
     {
-        private const string PreviewKey = "preview";
-        private const int PageSize = 10;
-
         private readonly ISpamFilterService spamFilterService;
         private readonly ISitePageCommentRepository sitePageCommentRepository;
         private readonly ISitePageRepository sitePageRepository;
@@ -125,7 +121,7 @@ namespace WebPagePub.Web.Controllers
             return this.CatchAllRequests(sectionKey, homePage.Key);
         }
 
-        [Route(PreviewKey + "/{sitePageId}")]
+        [Route(StringConstants.PreviewKey + "/{sitePageId}")]
         [HttpGet]
         public IActionResult Preview(int sitePageId)
         {
@@ -307,7 +303,7 @@ namespace WebPagePub.Web.Controllers
                 pages = this.sitePageRepository.GetLivePageBySection(
                                                             sitePageSection.SitePageSectionId,
                                                             pageNumber,
-                                                            PageSize,
+                                                            IntegerConstants.PageSize,
                                                             out total);
 
                 pages = pages.Where(x => x.IsSectionHomePage == false).ToList();
@@ -324,17 +320,17 @@ namespace WebPagePub.Web.Controllers
                 pages = this.sitePageRepository.GetLivePageByTag(
                                                             tagKey,
                                                             pageNumber,
-                                                            PageSize,
+                                                            IntegerConstants.PageSize,
                                                             out total);
             }
 
-            var pageCount = (double)total / PageSize;
+            var pageCount = (double)total / IntegerConstants.PageSize;
 
             displayModel.Paging = new SitePagePagingModel()
             {
                 CurrentPageNumber = pageNumber,
                 PageCount = (int)Math.Ceiling(pageCount),
-                QuantityPerPage = PageSize,
+                QuantityPerPage = IntegerConstants.PageSize,
                 Total = total
             };
 
@@ -450,7 +446,7 @@ namespace WebPagePub.Web.Controllers
                 LastUpdatedDateTimeUtc = sitePage.UpdateDate ?? sitePage.CreateDate,
                 PublishedDateTime = sitePage.PublishDateTimeUtc,
                 CanonicalUrl = canonicalUrl.ToString(),
-                PhotoUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, defaultPhotoUrl?.PhotoFullScreenUrl),
+                PhotoOriginalUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, defaultPhotoUrl?.PhotoFullScreenUrl),
                 PhotoUrlHeight = defaultPhotoUrl != null ? defaultPhotoUrl.PhotoFullScreenUrlHeight : 0,
                 PhotoUrlWidth = defaultPhotoUrl != null ? defaultPhotoUrl.PhotoFullScreenUrlWidth : 0,
                 MetaKeywords = sitePage.MetaKeywords,
@@ -471,8 +467,8 @@ namespace WebPagePub.Web.Controllers
                 {
                     Description = photo.Description,
                     IsDefault = photo.IsDefault,
-                    PhotoCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoUrl),
-                    PhotoUrl = photo.PhotoUrl,
+                    PhotoOriginalCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoOriginalUrl),
+                    PhotoOriginalUrl = photo.PhotoOriginalUrl,
                     PhotoFullScreenCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoFullScreenUrl),
                     PhotoFullScreenUrl = photo.PhotoFullScreenUrl,
                     PhotoPreviewCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoPreviewUrl),
@@ -482,10 +478,7 @@ namespace WebPagePub.Web.Controllers
                     SitePagePhotoId = photo.SitePagePhotoId,
                     Title = photo.Title
                 });
-
             }
-
-          //  displayModel.Photos = displayModel.Photos.OrderBy(x => x.);
         }
 
         private string ConvertBlobToCdnUrl(string blobPrefix, string cdnPrefix, string blobUrl)

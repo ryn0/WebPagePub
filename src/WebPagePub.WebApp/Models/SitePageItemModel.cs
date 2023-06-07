@@ -11,15 +11,15 @@ namespace WebPagePub.Web.Models
 
         public DateTime CreateDate { get; set; }
 
-        public string Title { get; set; }
+        public string Title { get; set; } = default!;
 
-        public string Key { get; set; }
+        public string Key { get; set; } = default!;
 
         public bool IsLive { get;  set; }
 
-        public string LiveUrlPath { get; set; }
+        public string LiveUrlPath { get; set; } = default!;
 
-        public string PreviewUrlPath { get; set; }
+        public string PreviewUrlPath { get; set; } = default!;
 
         public bool IsSiteSection { get; set; }
 

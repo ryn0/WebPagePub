@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Http;
+using WebPagePub.Data.Constants;
 
 namespace WebPagePub.Web.Helpers
 {
@@ -22,7 +22,7 @@ namespace WebPagePub.Web.Helpers
 
         public static string UserAgent(this HttpRequest request)
         {
-            return request.Headers["User-Agent"];
+            return request.Headers[StringConstants.UserAgent];
         }
     }
 }

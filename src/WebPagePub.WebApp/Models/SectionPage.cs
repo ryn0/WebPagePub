@@ -4,9 +4,9 @@ namespace WebPagePub.Web.Models
 {
     public class SectionPage
     {
-        public string CanonicalUrl { get; set; }
+        public string CanonicalUrl { get; set; } = default!;
 
-        public string AnchorText { get; set; }
+        public string AnchorText { get; set; } = default!;
 
         public bool HasChildren
         {

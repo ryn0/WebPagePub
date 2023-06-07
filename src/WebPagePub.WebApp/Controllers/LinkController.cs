@@ -49,7 +49,7 @@ namespace WebPagePub.Web.Controllers
 
         private async Task LogClickAsync()
         {
-            var userAgent = this.httpContextAccessor.HttpContext.Request?.Headers["User-Agent"].ToString();
+            var userAgent = this.httpContextAccessor.HttpContext.Request?.Headers[StringConstants.UserAgent].ToString();
 
             var headers = this.GetHeadersString(this.httpContextAccessor.HttpContext.Request);
 

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace WebPagePub.Web.Models
+﻿namespace WebPagePub.Web.Models
 {
     public class SitePageContentModel
     {
-        private string canonicalUrl = null;
+        private string canonicalUrl = default!;
 
         public string CanonicalUrl
         {
@@ -24,27 +21,27 @@ namespace WebPagePub.Web.Models
             }
         }
 
-        public string PhotoUrl { get; set; }
+        public string PhotoOriginalUrl { get; set; } = default!;
 
         public int PhotoUrlHeight { get; set; }
 
         public int PhotoUrlWidth { get; set; }
 
-        public string Title { get; set; }
+        public string Title { get; set; } = default!;
 
-        public string BreadcrumbName { get; set; }
+        public string BreadcrumbName { get; set; } = default!;
 
-        public string Key { get; set; }
+        public string Key { get; set; } = default!;
 
-        public string UrlPath { get; set; }
+        public string UrlPath { get; set; } = default!;
 
-        public string Content { get; set; }
+        public string Content { get; set; } = default!;
 
         public bool IsIndex { get; set; }
 
-        public string MetaKeywords { get; set; }
+        public string MetaKeywords { get; set; } = default!;
 
-        public string MetaDescription { get; set; }
+        public string MetaDescription { get; set; } = default!;
 
         public DateTime PublishedDateTime { get; set; }
 
@@ -66,26 +63,26 @@ namespace WebPagePub.Web.Models
             }
         }
 
-        public string DefaultPhotoUrl { get; set; }
+        public string DefaultPhotoOriginalUrl { get; set; } = default!;
 
-        public string DefaultPhotoCdnUrl { get; set; }
+        public string DefaultPhotoOriginalCdnUrl { get; set; } = default!;
 
         public List<string> Tags { get; set; } = new List<string>();
 
         public List<SitePagePhotoModel> Photos { get; set; } = new List<SitePagePhotoModel>();
 
-        public string DefaultPhotoThumbUrl { get; set; }
+        public string DefaultPhotoThumbUrl { get; set; } = default!;
 
-        public string DefaultPhotoThumbCdnUrl { get; set; }
-        public string PreviousUrlPath { get; set; }
-        public string NextUrlPath { get; set; }
-        public string PreviousName { get; set; }
-        public string NextName { get; set; }
-        public string DefaultPreviousPhotoThumbCdnUrl { get; set; }
-        public string DefaultNextPhotoThumbCdnUrl { get; set; }
+        public string DefaultPhotoThumbCdnUrl { get; set; } = default!;
+        public string PreviousUrlPath { get; set; } = default!;
+        public string NextUrlPath { get; set; } = default!;
+        public string PreviousName { get; set; } = default!;
+        public string NextName { get; set; } = default!;
+        public string DefaultPreviousPhotoThumbCdnUrl { get; set; } = default!;
+        public string DefaultNextPhotoThumbCdnUrl { get; set; } = default!;
 
-        public string PageHeader { get; set; }
-        public string SectionKey { get;  set; }
+        public string PageHeader { get; set; } = default!;
+        public string SectionKey { get;  set; } = default!;
 
         private string FormatDate(DateTime date)
         {

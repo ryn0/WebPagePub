@@ -1,7 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Http;
-
-namespace WebPagePub.Web.Helpers
+﻿namespace WebPagePub.Web.Helpers
 {
     public static class ContextHelper
     {
@@ -15,7 +12,7 @@ namespace WebPagePub.Web.Helpers
         public static Uri GetAbsoluteUri()
         {
             var request = httpContextAccessor.HttpContext.Request;
-            UriBuilder uriBuilder = new UriBuilder
+            UriBuilder uriBuilder = new()
             {
                 Scheme = request.Scheme,
                 Host = request.Host.ToString(),
