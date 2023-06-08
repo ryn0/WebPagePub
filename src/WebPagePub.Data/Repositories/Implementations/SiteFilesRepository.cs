@@ -168,7 +168,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                 await file.CopyToAsync(memoryStream);
 
                 memoryStream.Seek(0, SeekOrigin.Begin);
-                var fileName = FileNameUtilities.CleanFileName(file.FileName);
+                var fileName = FileNameUtilities.RemoveSpacesInFileName(file.FileName);
                 return await this.UploadAsync(memoryStream, fileName, directory);
             }
             catch (Exception ex)
@@ -185,7 +185,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                fileName = FileNameUtilities.CleanFileName(fileName);
+                fileName = FileNameUtilities.RemoveSpacesInFileName(fileName);
 
                 if (fileName == StringConstants.FolderFileName)
                 {

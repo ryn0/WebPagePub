@@ -2,7 +2,7 @@
 {
     public class FileNameUtilities
     {
-        public static string CleanFileName(string fileName)
+        public static string RemoveSpacesInFileName(string fileName)
         {
             return fileName.Replace(" ", string.Empty);
         }

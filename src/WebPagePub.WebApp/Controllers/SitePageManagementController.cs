@@ -361,8 +361,9 @@ namespace WebPagePub.Web.Controllers
             var memoryStream = new MemoryStream();
             await file.CopyToAsync(memoryStream);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            var fileName = FileNameUtilities.CleanFileName(file.FileName);
-            var originalPhotoUrl = await this.siteFilesRepository.UploadAsync(memoryStream, fileName, folderPath);
+            var fileExtension = file.FileName.GetFileExtension();
+            var newFileName = string.Format("{0}.{1}", Path.GetFileNameWithoutExtension(file.FileName).UrlKey(), fileExtension);
+            var originalPhotoUrl = await this.siteFilesRepository.UploadAsync(memoryStream, newFileName, folderPath);
             var thumbnailPhotoUrl = await this.imageUploaderService.UploadReducedQualityImage(folderPath, memoryStream, originalPhotoUrl, 300, 200, StringConstants.SuffixThumb);
             var fullScreenPhotoUrl = await this.imageUploaderService.UploadReducedQualityImage(folderPath, memoryStream, originalPhotoUrl, 1600, 1200, StringConstants.SuffixFullscreen);
             var previewPhotoUrl = await this.imageUploaderService.UploadReducedQualityImage(folderPath, memoryStream, originalPhotoUrl, 800, 600, StringConstants.SuffixPrevew);
@@ -455,12 +456,6 @@ namespace WebPagePub.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> EditSitePageAsync(SitePageEditModel model)
         {
-            // todo: do not validate all
-            //if (!this.ModelState.IsValid)
-            //{
-            //    return this.View(model);
-            //}
-
             var dbModel = this.ConvertToDbModel(model);
 
             if (this.sitePageRepository.Update(dbModel))
@@ -469,35 +464,7 @@ namespace WebPagePub.Web.Controllers
 
                 foreach (var photo in allPhotos)
                 {
-                    var hasChanged = false;
-
-                    var title = this.Request.Form["PhotoTitle_" + photo.SitePagePhotoId];
-
-                    if (title != photo.Title)
-                    {
-                        hasChanged = true;
-                        photo.Title = title;
-                        photo.Description = photo.Title;
-                    }
-
-                    // make this the same for now this.Request.Form["PhotoDescription_" + photo.SitePagePhotoId];
-
-                    var photoFileName = this.Request.Form["PhotoFileName_" + photo.SitePagePhotoId].ToString().Trim();
-
-                    var currentFileName = Path.GetFileName(photo.PhotoOriginalUrl);
-
-                    if (Path.HasExtension(photoFileName) &&
-                        Path.HasExtension(currentFileName) &&
-                        (photoFileName != currentFileName))
-                    {
-                        hasChanged = true;
-                        await RenameAllPhotoVarients(photo, photoFileName, currentFileName);
-                    }
-
-                    if (hasChanged)
-                    {
-                        this.sitePagePhotoRepository.Update(photo);
-                    }
+                    await UpdateImageProperties(photo);
                 }
 
                 this.SetBlogTags(model, dbModel);
@@ -508,6 +475,40 @@ namespace WebPagePub.Web.Controllers
             }
 
             return this.View(model);
+        }
+
+        private async Task UpdateImageProperties(SitePagePhoto photo)
+        {
+            var hasChanged = false;
+
+            var title = this.Request.Form["PhotoTitle_" + photo.SitePagePhotoId];
+
+            if (title != photo.Title)
+            {
+                hasChanged = true;
+                photo.Title = title;
+                photo.Description = photo.Title;
+            }
+
+            // make this the same for now this.Request.Form["PhotoDescription_" + photo.SitePagePhotoId];
+
+            var photoFileName = this.Request.Form[string.Format("PhotoFileName_{0}", photo.SitePagePhotoId)].ToString();
+            var fileExtension = photoFileName.GetFileExtension();
+            var newFileName = string.Format("{0}.{1}", Path.GetFileNameWithoutExtension(photoFileName).UrlKey(), fileExtension);
+            var currentFileName = Path.GetFileName(photo.PhotoOriginalUrl);
+
+            if (Path.HasExtension(newFileName) &&
+                Path.HasExtension(currentFileName) &&
+                (newFileName != currentFileName))
+            {
+                hasChanged = true;
+                await RenameAllPhotoVarients(photo, newFileName, currentFileName);
+            }
+
+            if (hasChanged)
+            {
+                this.sitePagePhotoRepository.Update(photo);
+            }
         }
 
         private async Task RenameAllPhotoVarients(SitePagePhoto photo, string newPhotoFileName, string currentFileName)
