@@ -17,7 +17,8 @@
         AzureStorageConnectionString = 12,
         HeaderHtml = 13,
         FooterHtml = 14,
-        MenuHtml = 15
+        MenuHtml = 15,
+        InstagramUrl = 16
     }
 
     public enum PageType
