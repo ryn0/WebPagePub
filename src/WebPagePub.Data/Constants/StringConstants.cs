@@ -18,6 +18,8 @@
 
         public const string Tags = "tags";
 
+        public const string FolderName = "page_img";
+
         public static readonly string[] BotUserAgents =
         {
                 "Googlebot",
