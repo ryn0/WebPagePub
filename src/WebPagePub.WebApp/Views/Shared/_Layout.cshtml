@@ -44,9 +44,17 @@
                         <span class="icon-bar"></span>
                     </button>
                     <a href="~/">
-                        <img class="logo" src="@_cacheHelper.GetSnippet(SiteConfigSetting.LogoUrl)"
-                             alt="@_cacheHelper.GetSnippet(SiteConfigSetting.WebsiteName)"
-                             title="@_cacheHelper.GetSnippet(SiteConfigSetting.WebsiteName)" />
+                        @if (!string.IsNullOrEmpty(_cacheHelper.GetSnippet(SiteConfigSetting.LogoUrl)))
+                        {
+                            <img class="logo" src="@_cacheHelper.GetSnippet(SiteConfigSetting.LogoUrl)"
+                                 alt="@_cacheHelper.GetSnippet(SiteConfigSetting.WebsiteName)"
+                            title="@_cacheHelper.GetSnippet(SiteConfigSetting.WebsiteName)" />
+                        }
+                        else
+                        {
+                            @Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.WebsiteName))
+                        }
+
                     </a>
                 </div>
                 <div id="navbar" class="navbar-collapse collapse">
@@ -64,9 +72,23 @@
         </div>
 
         <footer class="site-footer">
-            <a href="@_cacheHelper.GetSnippet(SiteConfigSetting.FacebookUrl)" class="btn btn-fb"><i class="fa fa-facebook left"></i> Facebook</a>
-            <a href="@_cacheHelper.GetSnippet(SiteConfigSetting.YouTubeUrl)" class="btn btn-youtube"><i class="fa fa-youtube left"></i> YouTube</a>
-            <a href="@_cacheHelper.GetSnippet(SiteConfigSetting.TwitterUrl)" class="btn btn-twitter"><i class="fa fa-twitter left"></i> Twitter</a>
+            @if (!string.IsNullOrEmpty(_cacheHelper.GetSnippet(SiteConfigSetting.InstagramUrl)))
+            {
+                <a href="@_cacheHelper.GetSnippet(SiteConfigSetting.InstagramUrl)" class="btn btn-ig"><i class="fa fa-instagram left"></i> Instagram</a>
+            }
+            @if (!string.IsNullOrEmpty(_cacheHelper.GetSnippet(SiteConfigSetting.FacebookUrl)))
+            {
+                <a href="@_cacheHelper.GetSnippet(SiteConfigSetting.FacebookUrl)" class="btn btn-fb"><i class="fa fa-facebook left"></i> Facebook</a>
+            }
+            @if (!string.IsNullOrEmpty(_cacheHelper.GetSnippet(SiteConfigSetting.YouTubeUrl)))
+            {
+                <a href="@_cacheHelper.GetSnippet(SiteConfigSetting.YouTubeUrl)" class="btn btn-youtube"><i class="fa fa-youtube left"></i> YouTube</a>
+            }
+            @if (!string.IsNullOrEmpty(_cacheHelper.GetSnippet(SiteConfigSetting.TwitterUrl)))
+            {
+                  <a href="@_cacheHelper.GetSnippet(SiteConfigSetting.TwitterUrl)" class="btn btn-twitter"><i class="fa fa-twitter left"></i> Twitter</a>
+            }
+          
             <div class="copyright">
                 &copy; @DateTime.UtcNow.Year <a href="~/">@_cacheHelper.GetSnippet(SiteConfigSetting.WebsiteName)</a>
                 | <a href="~/disclosure">Disclosure</a>
