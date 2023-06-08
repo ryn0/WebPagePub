@@ -6,14 +6,15 @@ namespace WebPagePub.Web.Helpers
     {
         public List<SiteMapItem> SiteMapItems { get; set; } = new List<SiteMapItem>();
 
-        public void AddUrl(string url, DateTime lastMod, ChangeFrequency changeFrequency, double priority)
+        public void AddUrl(string url, DateTime lastMod, ChangeFrequency changeFrequency, double priority, List<string> imageUrls)
         {
             this.SiteMapItems.Add(new SiteMapItem
             {
                 Url = url,
                 LastMode = lastMod,
                 ChangeFrequency = changeFrequency,
-                Priority = priority
+                Priority = priority,
+                ImageUrls = imageUrls
             });
         }
 
@@ -21,7 +22,7 @@ namespace WebPagePub.Web.Helpers
         {
             var sb = new StringBuilder();
             sb.Append(@"<?xml version=""1.0"" encoding=""UTF-8""?>");
-            sb.AppendLine(@"<urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">");
+            sb.AppendLine(@"<urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"" xmlns:image=""http://www.google.com/schemas/sitemap-image/1.1"">");
 
             foreach (var siteMapItem in this.SiteMapItems)
             {
@@ -30,6 +31,19 @@ namespace WebPagePub.Web.Helpers
                 sb.AppendFormat(@"<lastmod>{0}</lastmod>", siteMapItem.LastMode.ToString("yyyy-MM-dd"));
                 sb.AppendFormat(@"<changefreq>{0}</changefreq>", siteMapItem.ChangeFrequency.ToString());
                 sb.AppendFormat(@"<priority>{0}</priority>", Math.Round(siteMapItem.Priority, 2));
+
+                if (siteMapItem.HasImage())
+                {
+                    sb.AppendLine();
+                    foreach (var imageItem in siteMapItem.ImageUrls)
+                    {
+                        sb.AppendLine(@"<image:image>");
+                        sb.AppendFormat(@"<image:loc>{0}</image:loc>", imageItem);
+                        sb.AppendLine();
+                        sb.AppendLine(@"</image:image>");
+                    }
+                }
+                sb.AppendLine();
                 sb.AppendLine(@"</url>");
             }
 

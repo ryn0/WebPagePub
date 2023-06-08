@@ -19,7 +19,6 @@ namespace WebPagePub.Web.Controllers
     [Authorize(Roles = StringConstants.AdminRole)]
     public class SitePageManagementController : Controller
     {
-        private const string FolderName = "page_img";
         private const int AmountPerPage = 10;
         private readonly ISitePagePhotoRepository sitePagePhotoRepository;
         private readonly ISitePageTagRepository sitePageTagRepository;
@@ -481,7 +480,7 @@ namespace WebPagePub.Web.Controllers
         {
             var hasChanged = false;
 
-            var title = this.Request.Form["PhotoTitle_" + photo.SitePagePhotoId];
+            var title = this.Request.Form["PhotoTitle_" + photo.SitePagePhotoId].ToString();
 
             if (title != photo.Title)
             {
@@ -515,13 +514,12 @@ namespace WebPagePub.Web.Controllers
         {
             var blobPrefix = this.cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
 
+            //
             var currentPathPhotoUrl = photo.PhotoOriginalUrl.Replace(string.Format("{0}/{1}/",
                blobPrefix, StringConstants.ContainerName), string.Empty);
             var newFilePathPhotoUrl = currentPathPhotoUrl.Replace(currentFileName, newPhotoFileName);
             await siteFilesRepository.ChangeFileName(currentPathPhotoUrl, newFilePathPhotoUrl);
             photo.PhotoOriginalUrl = string.Format("{0}/{1}/{2}", blobPrefix, StringConstants.ContainerName, newFilePathPhotoUrl);
-
-            //
             var newPhotoExtension = Path.GetExtension(newPhotoFileName);
             
             //
@@ -547,7 +545,6 @@ namespace WebPagePub.Web.Controllers
                 string.Format("{0}{1}{2}", Path.GetFileNameWithoutExtension(newPhotoFileName), StringConstants.SuffixThumb, newPhotoExtension));
             await siteFilesRepository.ChangeFileName(currentPathPhotoThumbUrl, newFilePathPhotoThumbUrl);
             photo.PhotoThumbUrl = string.Format("{0}/{1}/{2}", blobPrefix, StringConstants.ContainerName, newFilePathPhotoThumbUrl);
-
         }
 
         private void ClearCache(SitePageEditModel model, SitePage dbModel)
@@ -653,22 +650,7 @@ namespace WebPagePub.Web.Controllers
 
             foreach (var photo in dbModel.Photos.OrderBy(x => x.Rank))
             {
-                model.BlogPhotos.Add(new SitePagePhotoModel
-                {
-                    SitePagePhotoId = photo.SitePagePhotoId,
-                    IsDefault = photo.IsDefault,
-                    PhotoOriginalUrl = photo.PhotoOriginalUrl,
-                    PhotoFullScreenUrl = photo.PhotoFullScreenUrl,
-                    PhotoThumbUrl = photo.PhotoThumbUrl,
-                    PhotoPreviewUrl = photo.PhotoPreviewUrl,
-                    PhotoOriginalCdnUrl = mc.ConvertBlobToCdnUrl(photo.PhotoOriginalUrl),
-                    PhotoThumbCdnUrl = mc.ConvertBlobToCdnUrl(photo.PhotoThumbUrl),
-                    PhotoFullScreenCdnUrl = mc.ConvertBlobToCdnUrl(photo.PhotoFullScreenUrl),
-                    PhotoPreviewCdnUrl = mc.ConvertBlobToCdnUrl(photo.PhotoPreviewUrl),
-                    Title = photo.Title,
-                    Description = photo.Description,
-                    FileName = Path.GetFileName(photo.PhotoOriginalUrl)
-                });
+                AddBlogPhotos(model, mc, photo);
             }
 
             foreach (var tagItem in dbModel.SitePageTags.OrderBy(x => x.Tag.Name))
@@ -681,6 +663,26 @@ namespace WebPagePub.Web.Controllers
             model.Tags = string.Join(", ", model.BlogTags);
 
             return model;
+        }
+
+        private static void AddBlogPhotos(SitePageEditModel model, ModelConverter mc, SitePagePhoto? photo)
+        {
+            model.BlogPhotos.Add(new SitePagePhotoModel
+            {
+                SitePagePhotoId = photo.SitePagePhotoId,
+                IsDefault = photo.IsDefault,
+                PhotoOriginalUrl = photo.PhotoOriginalUrl,
+                PhotoFullScreenUrl = photo.PhotoFullScreenUrl,
+                PhotoThumbUrl = photo.PhotoThumbUrl,
+                PhotoPreviewUrl = photo.PhotoPreviewUrl,
+                PhotoOriginalCdnUrl = mc.ConvertBlobToCdnUrl(photo.PhotoOriginalUrl),
+                PhotoThumbCdnUrl = mc.ConvertBlobToCdnUrl(photo.PhotoThumbUrl),
+                PhotoFullScreenCdnUrl = mc.ConvertBlobToCdnUrl(photo.PhotoFullScreenUrl),
+                PhotoPreviewCdnUrl = mc.ConvertBlobToCdnUrl(photo.PhotoPreviewUrl),
+                Title = photo.Title,
+                Description = photo.Description,
+                FileName = Path.GetFileName(photo.PhotoOriginalUrl)
+            });
         }
 
         private void SetBlogTags(SitePageEditModel model, SitePage dbModel)
@@ -737,7 +739,7 @@ namespace WebPagePub.Web.Controllers
 
         private string GetBlogPhotoFolder(int sitePageId)
         {
-            return $"/{FolderName}/{sitePageId}/";
+            return $"/{StringConstants.FolderName}/{sitePageId}/";
         }
 
         private async Task<Uri> RotateImage90Degrees(int sitePageId, string photoUrl)

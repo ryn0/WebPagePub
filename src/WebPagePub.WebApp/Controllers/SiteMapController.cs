@@ -2,6 +2,7 @@
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
+using WebPagePub.Services.Interfaces;
 using WebPagePub.Web.Helpers;
 using WebPagePub.Web.Models;
 
@@ -11,14 +12,20 @@ namespace WebPagePub.Web.Controllers
     {
         private const int MaxPageSizeForSiteMap = 50000;
         private readonly ISitePageRepository sitePageRepository;
+        private readonly ISitePagePhotoRepository sitePagePhotoRepository;
         private readonly ISitePageSectionRepository sitePageSectionRepository;
+        private readonly ICacheService cacheService;
 
         public SiteMapController(
             ISitePageRepository sitePageRepository,
-            ISitePageSectionRepository sitePageSectionRepository)
+            ISitePagePhotoRepository sitePagePhotoRepository,
+            ISitePageSectionRepository sitePageSectionRepository,
+            ICacheService cacheService)
         {
-           this.sitePageRepository = sitePageRepository;
-           this.sitePageSectionRepository = sitePageSectionRepository;
+            this.sitePageRepository = sitePageRepository;
+            this.sitePagePhotoRepository = sitePagePhotoRepository;
+            this.sitePageSectionRepository = sitePageSectionRepository;
+            this.cacheService = cacheService;
         }
 
         [Route("sitemap.xml")]
@@ -27,6 +34,7 @@ namespace WebPagePub.Web.Controllers
             var allPages = this.sitePageRepository.GetLivePage(1, MaxPageSizeForSiteMap, out int total);
 
             var siteMapHelper = new SiteMapHelper();
+            var mc = new ModelConverter(cacheService);
 
             foreach (var page in allPages)
             {
@@ -53,7 +61,21 @@ namespace WebPagePub.Web.Controllers
                     continue;
                 }
 
-                siteMapHelper.AddUrl(url, lastUpdated, ChangeFrequency.Weekly, .5);
+                if (page.PageType == Data.Enums.PageType.Photo)
+                {
+                    var photos = this.sitePagePhotoRepository.GetBlogPhotos(page.SitePageId);
+                    siteMapHelper.AddUrl(
+                        url,
+                        lastUpdated,
+                        ChangeFrequency.Weekly,
+                        .5,
+                        photos.Select(x => mc.ConvertBlobToCdnUrl(x.PhotoOriginalUrl)).ToList());
+                }
+                else
+                {
+                    siteMapHelper.AddUrl(url, lastUpdated, ChangeFrequency.Weekly, .5, new List<string>());
+                }
+
             }
 
             var xml = siteMapHelper.GenerateXml();
@@ -79,41 +101,51 @@ namespace WebPagePub.Web.Controllers
                     continue;
                 }
 
-                var sectionUrl = this.GetSectionUrl(section, indexPage);
-
-                var siteSectionPage =
-                    new SectionPage()
-                    {
-                        AnchorText = indexPage.BreadcrumbName,
-                        CanonicalUrl = sectionUrl
-                    };
-
-                foreach (var page in allPagesInSection)
-                {
-                    if (!page.IsLive || page.IsSectionHomePage)
-                    {
-                        continue;
-                    }
-
-                    var pagePath = UrlBuilder.BlogUrlPath(page.SitePageSection.Key, page.Key);
-                    var pageUrl = new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext) + pagePath).ToString().TrimEnd('/');
-
-                    siteSectionPage.ChildPages.Add(
-                        new SectionPage()
-                        {
-                            CanonicalUrl = pageUrl,
-                            AnchorText = page.BreadcrumbName
-                        });
-                }
-
-                siteSectionPage.ChildPages = siteSectionPage.ChildPages.OrderBy(x => x.AnchorText).ToList();
-
-                model.SectionPages.Add(siteSectionPage);
+                AddPagesToSection(model, section, allPagesInSection, indexPage);
             }
 
             model.SectionPages = model.SectionPages.OrderBy(x => x.AnchorText).ToList();
 
             return this.View(nameof(Index), model);
+        }
+
+        private void AddPagesToSection(HtmlSiteMapModel model, SitePageSection section, List<SitePage> allPagesInSection, SitePage? indexPage)
+        {
+            var sectionUrl = this.GetSectionUrl(section, indexPage);
+
+            var siteSectionPage =
+                new SectionPage()
+                {
+                    AnchorText = indexPage.BreadcrumbName,
+                    CanonicalUrl = sectionUrl
+                };
+
+            foreach (var page in allPagesInSection)
+            {
+                if (!page.IsLive || page.IsSectionHomePage)
+                {
+                    continue;
+                }
+
+                AddPagesInSection(siteSectionPage, page);
+            }
+
+            siteSectionPage.ChildPages = siteSectionPage.ChildPages.OrderBy(x => x.AnchorText).ToList();
+
+            model.SectionPages.Add(siteSectionPage);
+        }
+
+        private void AddPagesInSection(SectionPage siteSectionPage, SitePage page)
+        {
+            var pagePath = UrlBuilder.BlogUrlPath(page.SitePageSection.Key, page.Key);
+            var pageUrl = new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext) + pagePath).ToString().TrimEnd('/');
+
+            siteSectionPage.ChildPages.Add(
+                new SectionPage()
+                {
+                    CanonicalUrl = pageUrl,
+                    AnchorText = page.BreadcrumbName
+                });
         }
 
         private string GetSectionUrl(SitePageSection section, SitePage indexPage)
