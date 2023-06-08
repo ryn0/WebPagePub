@@ -15,6 +15,10 @@
     <ProjectReference Include="..\WebPagePub.Data\WebPagePub.Data.csproj" />
     <ProjectReference Include="..\WebPagePub.Services\WebPagePub.Services.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\img\" />
+  </ItemGroup>
 	<PropertyGroup>
 		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
 	</PropertyGroup>

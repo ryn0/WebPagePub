@@ -181,21 +181,27 @@ namespace WebPagePub.Web.Controllers
             }
             else
             {
-                model.IsSiteSectionPage = false;
-
-                var pages = this.sitePageRepository.GetPage(pageNumber, siteSectionId, AmountPerPage, out int total);
-
-                model = this.ConvertToListModel(pages);
-                model.Total = total;
-                model.CurrentPageNumber = pageNumber;
-                model.QuantityPerPage = AmountPerPage;
-                var pageCount = (double)model.Total / model.QuantityPerPage;
-                model.PageCount = (int)Math.Ceiling(pageCount);
-
-                model.SitePageSectionId = siteSectionId;
+                model = SetSitePageListModel(siteSectionId, pageNumber, model);
             }
 
             return this.View("Index", model);
+        }
+
+        private SitePageListModel SetSitePageListModel(int siteSectionId, int pageNumber, SitePageListModel model)
+        {
+            model.IsSiteSectionPage = false;
+
+            var pages = this.sitePageRepository.GetPage(pageNumber, siteSectionId, AmountPerPage, out int total);
+
+            model = this.ConvertToListModel(pages);
+            model.Total = total;
+            model.CurrentPageNumber = pageNumber;
+            model.QuantityPerPage = AmountPerPage;
+            var pageCount = (double)model.Total / model.QuantityPerPage;
+            model.PageCount = (int)Math.Ceiling(pageCount);
+
+            model.SitePageSectionId = siteSectionId;
+            return model;
         }
 
         [Route("sitepages/CreateSitePage/{sitePageSectionId}")]
@@ -338,35 +344,7 @@ namespace WebPagePub.Web.Controllers
                 {
                     if (file != null && file.Length > 0)
                     {
-                        var fullsizePhotoUrl = await this.siteFilesRepository.UploadAsync(file, folderPath);
-                        var thumbnailPhotoUrl = await this.imageUploaderService.UploadReducedQualityImage(folderPath, fullsizePhotoUrl, 300, 200, StringConstants.SuffixThumb);
-                        var fullScreenPhotoUrl = await this.imageUploaderService.UploadReducedQualityImage(folderPath, fullsizePhotoUrl, 1600, 1200, StringConstants.SuffixFullscreen);
-                        var previewPhotoUrl = await this.imageUploaderService.UploadReducedQualityImage(folderPath, fullsizePhotoUrl, 800, 600, StringConstants.SuffixPrevew);
-
-                        var existingPhoto = allBlogPhotos.FirstOrDefault(x => x.PhotoOriginalUrl == fullsizePhotoUrl.ToString());
-
-                        if (existingPhoto == null)
-                        {
-                            this.sitePagePhotoRepository.Create(new SitePagePhoto()
-                            {
-                                SitePageId = sitePageId,
-                                PhotoOriginalUrl = fullsizePhotoUrl.ToString(),
-                                PhotoThumbUrl = thumbnailPhotoUrl.ToString(),
-                                PhotoFullScreenUrl = fullScreenPhotoUrl.ToString(),
-                                PhotoPreviewUrl = previewPhotoUrl.ToString(),
-                                Rank = currentRank + 1
-                            });
-
-                            currentRank++;
-                        }
-                        else
-                        {
-                            existingPhoto.PhotoOriginalUrl = fullsizePhotoUrl.ToString();
-                            existingPhoto.PhotoThumbUrl = thumbnailPhotoUrl.ToString();
-                            existingPhoto.PhotoFullScreenUrl = fullScreenPhotoUrl.ToString();
-                            existingPhoto.PhotoPreviewUrl = previewPhotoUrl.ToString();
-                            this.sitePagePhotoRepository.Update(existingPhoto);
-                        }
+                        await UploadSizesOfPhotos(sitePageId, allBlogPhotos, currentRank, folderPath, file);
                     }
                 }
 
@@ -375,6 +353,43 @@ namespace WebPagePub.Web.Controllers
             catch (Exception ex)
             {
                 throw new Exception("Upload failed", ex.InnerException);
+            }
+        }
+
+        private async Task UploadSizesOfPhotos(int sitePageId, List<SitePagePhoto> allBlogPhotos, int currentRank, string folderPath, IFormFile file)
+        {
+            var memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream);
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            var fileName = FileNameUtilities.CleanFileName(file.FileName);
+            var originalPhotoUrl = await this.siteFilesRepository.UploadAsync(memoryStream, fileName, folderPath);
+            var thumbnailPhotoUrl = await this.imageUploaderService.UploadReducedQualityImage(folderPath, memoryStream, originalPhotoUrl, 300, 200, StringConstants.SuffixThumb);
+            var fullScreenPhotoUrl = await this.imageUploaderService.UploadReducedQualityImage(folderPath, memoryStream, originalPhotoUrl, 1600, 1200, StringConstants.SuffixFullscreen);
+            var previewPhotoUrl = await this.imageUploaderService.UploadReducedQualityImage(folderPath, memoryStream, originalPhotoUrl, 800, 600, StringConstants.SuffixPrevew);
+            var existingPhoto = allBlogPhotos.FirstOrDefault(x => x.PhotoOriginalUrl == originalPhotoUrl.ToString());
+            memoryStream.Dispose();
+
+            if (existingPhoto == null)
+            {
+                this.sitePagePhotoRepository.Create(new SitePagePhoto()
+                {
+                    SitePageId = sitePageId,
+                    PhotoOriginalUrl = originalPhotoUrl.ToString(),
+                    PhotoThumbUrl = thumbnailPhotoUrl.ToString(),
+                    PhotoFullScreenUrl = fullScreenPhotoUrl.ToString(),
+                    PhotoPreviewUrl = previewPhotoUrl.ToString(),
+                    Rank = currentRank + 1
+                });
+
+                currentRank++;
+            }
+            else
+            {
+                existingPhoto.PhotoOriginalUrl = originalPhotoUrl.ToString();
+                existingPhoto.PhotoThumbUrl = thumbnailPhotoUrl.ToString();
+                existingPhoto.PhotoFullScreenUrl = fullScreenPhotoUrl.ToString();
+                existingPhoto.PhotoPreviewUrl = previewPhotoUrl.ToString();
+                this.sitePagePhotoRepository.Update(existingPhoto);
             }
         }
 
@@ -403,10 +418,10 @@ namespace WebPagePub.Web.Controllers
 
             // todo: store original and rotate it, resize it, to low quality loss
 
-            var photoOriginalUrl = await RotateImage(entry.SitePageId, entry.PhotoOriginalUrl);
-            var photoPreviewUrl = await RotateImage(entry.SitePageId, entry.PhotoPreviewUrl);
-            var photoThumbUrl = await RotateImage(entry.SitePageId, entry.PhotoThumbUrl);
-            var photoFullScreenUrl = await RotateImage(entry.SitePageId, entry.PhotoFullScreenUrl);
+            var photoOriginalUrl = await RotateImage90Degrees(entry.SitePageId, entry.PhotoOriginalUrl);
+            var photoPreviewUrl = await RotateImage90Degrees(entry.SitePageId, entry.PhotoPreviewUrl);
+            var photoThumbUrl = await RotateImage90Degrees(entry.SitePageId, entry.PhotoThumbUrl);
+            var photoFullScreenUrl = await RotateImage90Degrees(entry.SitePageId, entry.PhotoFullScreenUrl);
 
             if (entry.PhotoOriginalUrl != photoOriginalUrl.ToString() ||
                entry.PhotoPreviewUrl != photoPreviewUrl.ToString() ||
@@ -724,10 +739,10 @@ namespace WebPagePub.Web.Controllers
             return $"/{FolderName}/{sitePageId}/";
         }
 
-        private async Task<Uri> RotateImage(int sitePageId, string photoUrl)
+        private async Task<Uri> RotateImage90Degrees(int sitePageId, string photoUrl)
         {
             var folderPath = this.GetBlogPhotoFolder(sitePageId);
-            var stream = await this.imageUploaderService.ToStreamAsync(photoUrl);
+            var stream = await this.imageUploaderService.ToStreamAsync(new Uri(photoUrl));
             var rotatedBitmap = ImageUtilities.Rotate90Degrees(Image.FromStream(stream));          
             var streamRotated = this.imageUploaderService.ToAStream(
                 rotatedBitmap,

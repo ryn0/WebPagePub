@@ -168,7 +168,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                 await file.CopyToAsync(memoryStream);
 
                 memoryStream.Seek(0, SeekOrigin.Begin);
-                var fileName = this.CleanFileName(file.FileName);
+                var fileName = FileNameUtilities.CleanFileName(file.FileName);
                 return await this.UploadAsync(memoryStream, fileName, directory);
             }
             catch (Exception ex)
@@ -185,7 +185,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                fileName = this.CleanFileName(fileName);
+                fileName = FileNameUtilities.CleanFileName(fileName);
 
                 if (fileName == StringConstants.FolderFileName)
                 {
@@ -220,10 +220,6 @@ namespace WebPagePub.Data.Repositories.Implementations
             catch (Exception ex)
             {
                 throw new Exception(ex.Message, ex);
-            }
-            finally
-            {
-                stream.Dispose();
             }
         }
 

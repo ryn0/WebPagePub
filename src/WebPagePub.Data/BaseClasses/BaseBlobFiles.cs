@@ -159,11 +159,6 @@ namespace WebPagePub.Data.BaseClasses
             await blobClient.SetServicePropertiesAsync(blobServiceProperties);
         }
 
-        protected string CleanFileName(string fileName)
-        {
-            return fileName.Replace(" ", string.Empty);
-        }
-
         protected async Task SetPublicContainerPermissionsAsync(CloudBlobContainer container)
         {
             var permissions = await container.GetPermissionsAsync();
