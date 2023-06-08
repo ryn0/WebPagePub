@@ -295,7 +295,9 @@ namespace WebPagePub.Web.Controllers
             var allBlogPhotos = sitePagePhotoRepository.GetBlogPhotos(entry.SitePageId);
 
             if (entry.Rank == allBlogPhotos.Count())
+            {
                 return RedirectToAction("editsitepage", new { sitePageId = entry.SitePageId });
+            }
 
             var rankedLower = allBlogPhotos.First(x => x.Rank == entry.Rank + 1);
             var lowerRankValue = rankedLower.Rank;
