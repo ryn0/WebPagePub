@@ -53,7 +53,7 @@ namespace WebPagePub.Web.Controllers
 
             if (dbModel != null)
             {
-                throw new System.Exception("type already exists");
+                throw new Exception("type already exists");
             }
 
             this.contentSnippetRepository.Create(new ContentSnippet()
