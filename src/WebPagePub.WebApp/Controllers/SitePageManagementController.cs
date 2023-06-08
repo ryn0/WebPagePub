@@ -402,11 +402,24 @@ namespace WebPagePub.Web.Controllers
             var entry = this.sitePagePhotoRepository.Get(sitePagePhotoId);
 
             // todo: store original and rotate it, resize it, to low quality loss
- 
-            await RotateImage(entry.SitePageId, entry.PhotoOriginalUrl);
-            await RotateImage(entry.SitePageId, entry.PhotoPreviewUrl);
-            await RotateImage(entry.SitePageId, entry.PhotoThumbUrl);
-            await RotateImage(entry.SitePageId, entry.PhotoFullScreenUrl);
+
+            var photoOriginalUrl = await RotateImage(entry.SitePageId, entry.PhotoOriginalUrl);
+            var photoPreviewUrl = await RotateImage(entry.SitePageId, entry.PhotoPreviewUrl);
+            var photoThumbUrl = await RotateImage(entry.SitePageId, entry.PhotoThumbUrl);
+            var photoFullScreenUrl = await RotateImage(entry.SitePageId, entry.PhotoFullScreenUrl);
+
+            if (entry.PhotoOriginalUrl != photoOriginalUrl.ToString() ||
+               entry.PhotoPreviewUrl != photoPreviewUrl.ToString() ||
+               entry.PhotoThumbUrl != photoThumbUrl.ToString() ||
+               entry.PhotoFullScreenUrl != photoFullScreenUrl.ToString())
+            {
+                entry.PhotoOriginalUrl = photoOriginalUrl.ToString();
+                entry.PhotoPreviewUrl = photoPreviewUrl.ToString();
+                entry.PhotoThumbUrl = photoThumbUrl.ToString();
+                entry.PhotoFullScreenUrl = photoFullScreenUrl.ToString();
+
+                this.sitePagePhotoRepository.Update(entry);
+            }
 
             return this.RedirectToAction(nameof(this.EditSitePage), new { SitePageId = entry.SitePageId });
         }
@@ -711,25 +724,25 @@ namespace WebPagePub.Web.Controllers
             return $"/{FolderName}/{sitePageId}/";
         }
 
-        private async Task RotateImage(int sitePageId, string photoUrl)
+        private async Task<Uri> RotateImage(int sitePageId, string photoUrl)
         {
             var folderPath = this.GetBlogPhotoFolder(sitePageId);
             var stream = await this.imageUploaderService.ToStreamAsync(photoUrl);
-            var rotatedBitmap = ImageUtilities.Rotate90Degrees(Image.FromStream(stream));
-            Image fullPhoto = rotatedBitmap;
-
+            var rotatedBitmap = ImageUtilities.Rotate90Degrees(Image.FromStream(stream));          
             var streamRotated = this.imageUploaderService.ToAStream(
-                fullPhoto,
+                rotatedBitmap,
                 this.imageUploaderService.SetImageFormat(photoUrl));
 
-            await this.siteFilesRepository.UploadAsync(
+            var url = await this.siteFilesRepository.UploadAsync(
                                         streamRotated,
                                         photoUrl.GetFileNameFromUrl(),
                                         folderPath);
 
-            fullPhoto.Dispose();
+            rotatedBitmap.Dispose();
             streamRotated.Dispose();
             rotatedBitmap.Dispose();
+
+            return url;
         }
 
         private void AddNewTags(SitePageEditModel model, SitePage dbModel, string[] currentTags)

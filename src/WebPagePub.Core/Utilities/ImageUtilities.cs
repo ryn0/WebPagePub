@@ -28,6 +28,7 @@ namespace WebPagePub.Core.Utilities
         {
             image.RotateFlip(RotateFlipType.Rotate90FlipNone);
             var rotatedBmp = new Bitmap(image);
+
             return rotatedBmp;
         }
     }
