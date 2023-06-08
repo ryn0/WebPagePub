@@ -21,14 +21,12 @@ namespace WebPagePub.Services.Implementations
             this.siteFilesRepository = siteFilesRepository;
         }
 
-        public async Task<Uri> UploadReducedQualityImage(string folderPath, Uri fullsizePhotoUrl, int maxWidthPx, int maxHeightPx, string suffix)
+        public async Task<Uri> UploadReducedQualityImage(string folderPath, MemoryStream stream, Uri originalPhotoUrl, int maxWidthPx, int maxHeightPx, string suffix)
         {
-            // TODO: don't get the same photo agian and again
-            var stream = await this.ToStreamAsync(fullsizePhotoUrl.ToString());
             var imageHelper = new ImageUtilities();
-            var extension = fullsizePhotoUrl.ToString().GetFileExtension();
+            var extension = originalPhotoUrl.ToString().GetFileExtension();
             var resizedImage = imageHelper.ScaleImage(Image.FromStream(stream), maxWidthPx, maxHeightPx);
-            var lowerQualityImageUrl = fullsizePhotoUrl.ToString().Replace(string.Format(".{0}", extension), string.Format("{0}.{1}", suffix, extension));
+            var lowerQualityImageUrl = originalPhotoUrl.ToString().Replace(string.Format(".{0}", extension), string.Format("{0}.{1}", suffix, extension));
             var streamRotated = this.ToAStream(resizedImage, this.SetImageFormat(lowerQualityImageUrl));
 
             if (OptimizeImage)
@@ -45,12 +43,11 @@ namespace WebPagePub.Services.Implementations
                                         lowerQualityImageUrl.GetFileNameFromUrl(),
                                         folderPath);
 
-            stream.Dispose();
             resizedImage.Dispose();
 
             return new Uri(lowerQualityImageUrl);
         }
-
+ 
         public Stream ToAStream(Image image, ImageFormat formaw)
         {
             try
@@ -67,7 +64,7 @@ namespace WebPagePub.Services.Implementations
             }
         }
 
-        public async Task<MemoryStream> ToStreamAsync(string imageUrl)
+        public async Task<MemoryStream> ToStreamAsync(Uri imageUrl)
         {
             try
             {

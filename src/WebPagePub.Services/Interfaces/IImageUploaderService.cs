@@ -8,11 +8,11 @@ namespace WebPagePub.Services.Interfaces
 {
     public interface IImageUploaderService
     {
-        Task<Uri> UploadReducedQualityImage(string folderPath, Uri fullsizePhotoUrl, int maxWidthPx, int maxHeightPx, string suffix);
+        Task<Uri> UploadReducedQualityImage(string folderPath, MemoryStream stream, Uri originalPhotoUrl, int maxWidthPx, int maxHeightPx, string suffix);
 
         Stream ToAStream(Image image, ImageFormat formaw);
 
-        Task<MemoryStream> ToStreamAsync(string imageUrl);
+        Task<MemoryStream> ToStreamAsync(Uri imageUrl);
 
         ImageFormat SetImageFormat(string photoUrl);
     }
