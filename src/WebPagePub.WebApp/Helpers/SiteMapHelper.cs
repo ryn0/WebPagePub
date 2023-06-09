@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using WebPagePub.WebApp.Models;
 
 namespace WebPagePub.Web.Helpers
 {
@@ -6,7 +7,7 @@ namespace WebPagePub.Web.Helpers
     {
         public List<SiteMapItem> SiteMapItems { get; set; } = new List<SiteMapItem>();
 
-        public void AddUrl(string url, DateTime lastMod, ChangeFrequency changeFrequency, double priority, List<string> imageUrls)
+        public void AddUrl(string url, DateTime lastMod, ChangeFrequency changeFrequency, double priority, List<SiteMapImageItem> images)
         {
             this.SiteMapItems.Add(new SiteMapItem
             {
@@ -14,7 +15,7 @@ namespace WebPagePub.Web.Helpers
                 LastMode = lastMod,
                 ChangeFrequency = changeFrequency,
                 Priority = priority,
-                ImageUrls = imageUrls
+                Images = images
             });
         }
 
@@ -35,12 +36,12 @@ namespace WebPagePub.Web.Helpers
                 if (siteMapItem.HasImage())
                 {
                     sb.AppendLine();
-                    foreach (var imageItem in siteMapItem.ImageUrls)
+                    foreach (var imageItem in siteMapItem.Images)
                     {
-                        sb.AppendLine(@"<image:image>");
-                        sb.AppendFormat(@"<image:loc>{0}</image:loc>", imageItem);
+                        sb.AppendLine(@"     <image:image>");
+                        sb.AppendFormat(@"         <image:loc>{0}</image:loc>", imageItem.ImageLocation);
                         sb.AppendLine();
-                        sb.AppendLine(@"</image:image>");
+                        sb.AppendLine(@"     </image:image>");
                     }
                 }
                 sb.AppendLine();

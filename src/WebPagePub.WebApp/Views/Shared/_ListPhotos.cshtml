@@ -1,35 +1,33 @@
 ﻿@model List<WebPagePub.Web.Models.SitePagePhotoModel>
 
-
 @if (Model.Count > 0)
 {
-    
-<div class="gallery">
-    <div class="row">
-        @foreach (var photo in Model)
-        {
-            <div class="col-md-12">
-                <div class="thumbnail">
+    <div class="gallery">
+        <div class="row">
+            @foreach (var photo in Model)
+            {
+                <div class="col-md-12">
+                    <div class="thumbnail">
 
-                    <a href="@photo.PhotoOriginalCdnUrl">
-                        <img src="@photo.PhotoThumbUrl" class="img-fluid" title="@photo.Title" alt="@photo.Title" />
-                    </a>
+                        <a href="@photo.PhotoFullScreenCdnUrl"><img 
+                            src="@photo.PhotoThumbUrl" 
+                            class="img-fluid" 
+                            title="@photo.Title" 
+                            alt="@photo.Title" /></a>
  
-                    <div class="photo-caption">
-                        @if (!string.IsNullOrWhiteSpace(photo.Description))
-                        {
-                            @Html.Raw(photo.Description)
-                        }
-                        else
-                        {
-                            <br />
-                        }
+                        <div class="photo-caption">
+                            @if (!string.IsNullOrWhiteSpace(photo.Description))
+                            {
+                                @Html.Raw(photo.Description)
+                            }
+                            else
+                            {
+                                <br />
+                            }
+                        </div>
                     </div>
                 </div>
-            </div>
-
-        }
+            }
+        </div>
     </div>
-
-</div>
 }

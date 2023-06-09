@@ -1,0 +1,16 @@
+﻿@model List<string>
+@using WebPagePub.Core.Utilities
+@{var current = 1; }
+
+<div class="page-tags">
+    <b>Tagged:</b>
+    @foreach (var tag in Model)
+    {
+        <a href="~/tag/@tag.UrlKey()">@tag</a>
+        if (current != Model.Count)
+        {
+            <text>, </text>
+            current++;
+        }
+    }
+</div>
