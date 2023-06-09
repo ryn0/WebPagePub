@@ -5,6 +5,7 @@ using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.Web.Helpers;
 using WebPagePub.Web.Models;
+using WebPagePub.WebApp.Models;
 
 namespace WebPagePub.Web.Controllers
 {
@@ -34,7 +35,6 @@ namespace WebPagePub.Web.Controllers
             var allPages = this.sitePageRepository.GetLivePage(1, MaxPageSizeForSiteMap, out int total);
 
             var siteMapHelper = new SiteMapHelper();
-            var mc = new ModelConverter(cacheService);
 
             foreach (var page in allPages)
             {
@@ -64,23 +64,42 @@ namespace WebPagePub.Web.Controllers
                 if (page.PageType == Data.Enums.PageType.Photo)
                 {
                     var photos = this.sitePagePhotoRepository.GetBlogPhotos(page.SitePageId);
+                    var siteMapPhotoItems = ConvertToSiteMapImages(photos);
                     siteMapHelper.AddUrl(
                         url,
                         lastUpdated,
                         ChangeFrequency.Weekly,
                         .5,
-                        photos.Select(x => mc.ConvertBlobToCdnUrl(x.PhotoOriginalUrl)).ToList());
+                        siteMapPhotoItems);
                 }
                 else
                 {
-                    siteMapHelper.AddUrl(url, lastUpdated, ChangeFrequency.Weekly, .5, new List<string>());
+                    siteMapHelper.AddUrl(url, lastUpdated, ChangeFrequency.Weekly, .5, new List<SiteMapImageItem>());
                 }
-
             }
 
             var xml = siteMapHelper.GenerateXml();
 
             return this.Content(xml, "text/xml");
+        }
+
+        private List<SiteMapImageItem> ConvertToSiteMapImages(List<SitePagePhoto> photos)
+        {
+            var mc = new ModelConverter(cacheService);
+
+            var items = new List<SiteMapImageItem>();
+
+            foreach (var photo in photos)
+            {
+                items.Add(new SiteMapImageItem()
+                {
+                    ImageLocation = mc.ConvertBlobToCdnUrl(photo.PhotoFullScreenUrl),
+                    Title = photo.Title,
+                    Caption = photo.Description
+                });
+            }
+
+            return items;
         }
 
         [Route("sitemap")]

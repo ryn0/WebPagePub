@@ -62,7 +62,6 @@
                 return this.FormatDate(this.LastUpdatedDateTimeUtc);
             }
         }
-
         public string DefaultPhotoOriginalUrl { get; set; } = default!;
 
         public string DefaultPhotoOriginalCdnUrl { get; set; } = default!;
