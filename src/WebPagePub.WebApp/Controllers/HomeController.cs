@@ -374,10 +374,10 @@ namespace WebPagePub.Web.Controllers
                 {
                     DefaultNextPhotoThumbCdnUrl = next?.DefaultPhotoThumbCdnUrl,
                     DefaultPreviousPhotoThumbCdnUrl = previous?.DefaultPhotoThumbCdnUrl,
-                    NextName = next?.Title,
+                    NextName = next?.BreadcrumbName,
                     NextUrlPath = next?.UrlPath,
                     PreviousUrlPath = previous?.UrlPath,
-                    PreviousName = previous?.Title
+                    PreviousName = previous?.BreadcrumbName
                 };
             }
 

@@ -43,22 +43,13 @@
 
                         <hr />
                     }
-
-                    @if (Model.PageContent.Tags.Count > 0)
-                    {
-                        var current = 1;
-
-                        <div class="page-tags">
-                            <b>Tagged:</b>
-                            @foreach (var tag in Model.PageContent.Tags)
-                            {
-                                <a href="~/tag/@tag.UrlKey()">@tag</a>if (current != Model.PageContent.Tags.Count){<text>, </text>current++;}
-                            }
-                        </div>
-                    }
-                    
                 </article>
- 
+
+                @if (Model.PageContent.Tags.Count > 0)
+                {
+                    await Html.RenderPartialAsync("_TagFooter", Model.PageContent.Tags);
+                }
+
                 @{
                     await Html.RenderPartialAsync("_PreviousAndNext", Model.PreviousAndNext);
                 }

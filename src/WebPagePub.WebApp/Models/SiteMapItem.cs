@@ -1,4 +1,6 @@
-﻿namespace WebPagePub.Web.Helpers
+﻿using WebPagePub.Web.Helpers;
+
+namespace WebPagePub.WebApp.Models
 {
     public class SiteMapItem
     {
@@ -10,11 +12,11 @@
 
         public double Priority { get; set; }
 
-        public List<string> ImageUrls { get; set; }
+        public List<SiteMapImageItem> Images { get; set; }
 
         public bool HasImage()
         {
-            return ImageUrls != null && ImageUrls.Any();
+            return Images != null && Images.Any();
         }
     }
 }
