@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace WebPagePub.Core.Utilities
 {
@@ -18,6 +19,9 @@ namespace WebPagePub.Core.Utilities
 
             using (var graphics = Graphics.FromImage(newImage))
             {
+                graphics.SmoothingMode = SmoothingMode.HighQuality;
+                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
                 graphics.DrawImage(image, 0, 0, newWidth, newHeight);
             }
 
