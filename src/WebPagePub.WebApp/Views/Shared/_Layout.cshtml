@@ -43,19 +43,18 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a href="~/">
+               
                         @if (!string.IsNullOrEmpty(_cacheHelper.GetSnippet(SiteConfigSetting.LogoUrl)))
                         {
-                            <img class="logo" src="@_cacheHelper.GetSnippet(SiteConfigSetting.LogoUrl)"
+                            <a href="~/"><img class="logo" src="@_cacheHelper.GetSnippet(SiteConfigSetting.LogoUrl)"
                                  alt="@_cacheHelper.GetSnippet(SiteConfigSetting.WebsiteName)"
-                            title="@_cacheHelper.GetSnippet(SiteConfigSetting.WebsiteName)" />
+                                 title="@_cacheHelper.GetSnippet(SiteConfigSetting.WebsiteName)" /></a>
                         }
                         else
                         {
-                            @Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.WebsiteName))
+                        <a class="site-title" href="~/">@Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.WebsiteName))</a>
                         }
-
-                    </a>
+                
                 </div>
                 <div id="navbar" class="navbar-collapse collapse">
                     @Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.MenuHtml))
