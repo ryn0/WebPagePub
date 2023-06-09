@@ -290,38 +290,11 @@ namespace WebPagePub.Web.Controllers
 
             if (string.IsNullOrWhiteSpace(tagKey))
             {
-                var contentModel = this.CreatePageContentModel(sitePageSection, sitePage);
-
-                displayModel = new SitePageDisplayModel(this.cacheService)
-                {
-                    BreadcrumbList = this.BuildBreadcrumbList(sitePageSection, sitePage),
-                    PageType = sitePage.PageType,
-                    Review = this.BuildReviewModel(sitePageSection, sitePage),
-                    PageContent = contentModel
-                };
-
-                pages = this.sitePageRepository.GetLivePageBySection(
-                                                            sitePageSection.SitePageSectionId,
-                                                            pageNumber,
-                                                            IntegerConstants.PageSize,
-                                                            out total);
-
-                pages = pages.Where(x => x.IsSectionHomePage == false).ToList();
+                SetPageDisplayWithoutTags(sitePageSection, sitePage, pageNumber, out displayModel, out pages, out total);
             }
             else
             {
-                displayModel.TagKey = tagKey;
-                displayModel.TagKeyword = this.tagRepository.Get(tagKey).Name;
-                displayModel.PageContent.Title = $"{displayModel.TagKeyword} - Pages Tagged";
-                displayModel.PageContent.PageHeader = displayModel.PageContent.Title;
-                displayModel.PageContent.MetaDescription = $"Pages which are tagged {displayModel.TagKeyword}";
-                displayModel.PageType = PageType.PageList;
-
-                pages = this.sitePageRepository.GetLivePageByTag(
-                                                            tagKey,
-                                                            pageNumber,
-                                                            IntegerConstants.PageSize,
-                                                            out total);
+                SetPageDisplayWithTags(tagKey, pageNumber, displayModel, out pages, out total);
             }
 
             var pageCount = (double)total / IntegerConstants.PageSize;
@@ -347,6 +320,43 @@ namespace WebPagePub.Web.Controllers
             }
 
             return displayModel;
+        }
+
+        private void SetPageDisplayWithoutTags(SitePageSection? sitePageSection, SitePage sitePage, int pageNumber, out SitePageDisplayModel displayModel, out List<SitePage> pages, out int total)
+        {
+            var contentModel = this.CreatePageContentModel(sitePageSection, sitePage);
+
+            displayModel = new SitePageDisplayModel(this.cacheService)
+            {
+                BreadcrumbList = this.BuildBreadcrumbList(sitePageSection, sitePage),
+                PageType = sitePage.PageType,
+                Review = this.BuildReviewModel(sitePageSection, sitePage),
+                PageContent = contentModel
+            };
+
+            pages = this.sitePageRepository.GetLivePageBySection(
+                                                        sitePageSection.SitePageSectionId,
+                                                        pageNumber,
+                                                        IntegerConstants.PageSize,
+                                                        out total);
+
+            pages = pages.Where(x => x.IsSectionHomePage == false).ToList();
+        }
+
+        private void SetPageDisplayWithTags(string tagKey, int pageNumber, SitePageDisplayModel displayModel, out List<SitePage> pages, out int total)
+        {
+            displayModel.TagKey = tagKey;
+            displayModel.TagKeyword = this.tagRepository.Get(tagKey).Name;
+            displayModel.PageContent.Title = $"{displayModel.TagKeyword} - Pages Tagged";
+            displayModel.PageContent.PageHeader = displayModel.PageContent.Title;
+            displayModel.PageContent.MetaDescription = $"Pages which are tagged {displayModel.TagKeyword}";
+            displayModel.PageType = PageType.PageList;
+
+            pages = this.sitePageRepository.GetLivePageByTag(
+                                                        tagKey,
+                                                        pageNumber,
+                                                        IntegerConstants.PageSize,
+                                                        out total);
         }
 
         private SitePageDisplayModel CreateDisplayModel(SitePageSection sitePageSection, SitePage sitePage)
