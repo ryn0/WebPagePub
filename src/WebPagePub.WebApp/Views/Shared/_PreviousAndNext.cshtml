@@ -6,7 +6,8 @@
 
 <div class="container">
     <div class="row footer-photos">
-
+            <div class="col-lg-2">
+            </div>
         <div class="col-lg-4">
 
             @if (!string.IsNullOrWhiteSpace(Model.NextName))
@@ -23,8 +24,11 @@
                     <a href="@Model.NextUrlPath">@Model.NextName</a>
                     <br />
                     <a href="@Model.NextUrlPath">
-                        <img style="width:50%;   "
-                             class="img-responsive" src="@Model.DefaultNextPhotoThumbCdnUrl" title="@Model.NextName" alt="@Model.NextName" />
+                        <img style="width:50%;"
+                             class="img-responsive"
+                             src="@Model.DefaultNextPhotoThumbCdnUrl"
+                             title="@Model.NextName"
+                             alt="@Model.NextName" />
                     </a>
                 }
 
@@ -49,7 +53,10 @@
                     <br />
                     <a href="@Model.PreviousUrlPath">
                         <img style="width:50%;"
-                             class="img-responsive" src="@Model.DefaultPreviousPhotoThumbCdnUrl" title="@Model.PreviousName" alt="@Model.PreviousName" />
+                             class="img-responsive"
+                             src="@Model.DefaultPreviousPhotoThumbCdnUrl"
+                             title="@Model.PreviousName"
+                             alt="@Model.PreviousName" />
                     </a>
                 }
 
