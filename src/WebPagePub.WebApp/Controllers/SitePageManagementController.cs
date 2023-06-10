@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Drawing;
+using System.IO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -355,44 +356,6 @@ namespace WebPagePub.Web.Controllers
             }
         }
 
-        private async Task UploadSizesOfPhotos(int sitePageId, List<SitePagePhoto> allBlogPhotos, int currentRank, string folderPath, IFormFile file)
-        {
-            var memoryStream = new MemoryStream();
-            await file.CopyToAsync(memoryStream);
-            memoryStream.Seek(0, SeekOrigin.Begin);
-            var fileExtension = file.FileName.GetFileExtension();
-            var newFileName = string.Format("{0}.{1}", Path.GetFileNameWithoutExtension(file.FileName).UrlKey(), fileExtension);
-            var originalPhotoUrl = await this.siteFilesRepository.UploadAsync(memoryStream, newFileName, folderPath);
-            var thumbnailPhotoUrl = await this.imageUploaderService.UploadReducedQualityImage(folderPath, memoryStream, originalPhotoUrl, 300, 200, StringConstants.SuffixThumb);
-            var fullScreenPhotoUrl = await this.imageUploaderService.UploadReducedQualityImage(folderPath, memoryStream, originalPhotoUrl, 1600, 1200, StringConstants.SuffixFullscreen);
-            var previewPhotoUrl = await this.imageUploaderService.UploadReducedQualityImage(folderPath, memoryStream, originalPhotoUrl, 800, 600, StringConstants.SuffixPrevew);
-            var existingPhoto = allBlogPhotos.FirstOrDefault(x => x.PhotoOriginalUrl == originalPhotoUrl.ToString());
-            memoryStream.Dispose();
-
-            if (existingPhoto == null)
-            {
-                this.sitePagePhotoRepository.Create(new SitePagePhoto()
-                {
-                    SitePageId = sitePageId,
-                    PhotoOriginalUrl = originalPhotoUrl.ToString(),
-                    PhotoThumbUrl = thumbnailPhotoUrl.ToString(),
-                    PhotoFullScreenUrl = fullScreenPhotoUrl.ToString(),
-                    PhotoPreviewUrl = previewPhotoUrl.ToString(),
-                    Rank = currentRank + 1
-                });
-
-                currentRank++;
-            }
-            else
-            {
-                existingPhoto.PhotoOriginalUrl = originalPhotoUrl.ToString();
-                existingPhoto.PhotoThumbUrl = thumbnailPhotoUrl.ToString();
-                existingPhoto.PhotoFullScreenUrl = fullScreenPhotoUrl.ToString();
-                existingPhoto.PhotoPreviewUrl = previewPhotoUrl.ToString();
-                this.sitePagePhotoRepository.Update(existingPhoto);
-            }
-        }
-
         [Route("sitepages/deletepage/{SitePageId}")]
         [HttpPost]
         public async Task<IActionResult> DeleteAsync(int sitePageId)
@@ -507,6 +470,55 @@ namespace WebPagePub.Web.Controllers
             if (hasChanged)
             {
                 this.sitePagePhotoRepository.Update(photo);
+            }
+        }
+
+        private async Task UploadSizesOfPhotos(int sitePageId, List<SitePagePhoto> allBlogPhotos, int currentRank, string folderPath, IFormFile file)
+        {
+            var memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream);
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            await UploadSizesOfPhotos(sitePageId, allBlogPhotos, currentRank, folderPath, memoryStream, file.FileName);
+        }
+
+        private async Task UploadSizesOfPhotos(
+            int sitePageId,
+            List<SitePagePhoto> allBlogPhotos,
+            int currentRank,
+            string folderPath,
+            MemoryStream memoryStream,
+            string fileName)
+        {
+            var fileExtension = fileName.GetFileExtension();
+            var newFileName = string.Format("{0}.{1}", Path.GetFileNameWithoutExtension(fileName).UrlKey(), fileExtension);
+            var originalPhotoUrl = await this.siteFilesRepository.UploadAsync(memoryStream, newFileName, folderPath);
+            var thumbnailPhotoUrl = await this.imageUploaderService.UploadResizedVersionOfPhoto(folderPath, memoryStream, originalPhotoUrl, 300, 200, StringConstants.SuffixThumb);
+            var fullScreenPhotoUrl = await this.imageUploaderService.UploadResizedVersionOfPhoto(folderPath, memoryStream, originalPhotoUrl, 1600, 1200, StringConstants.SuffixFullscreen);
+            var previewPhotoUrl = await this.imageUploaderService.UploadResizedVersionOfPhoto(folderPath, memoryStream, originalPhotoUrl, 800, 600, StringConstants.SuffixPrevew);
+            var existingPhoto = allBlogPhotos.FirstOrDefault(x => x.PhotoOriginalUrl == originalPhotoUrl.ToString());
+            memoryStream.Dispose();
+
+            if (existingPhoto == null)
+            {
+                this.sitePagePhotoRepository.Create(new SitePagePhoto()
+                {
+                    SitePageId = sitePageId,
+                    PhotoOriginalUrl = originalPhotoUrl.ToString(),
+                    PhotoThumbUrl = thumbnailPhotoUrl.ToString(),
+                    PhotoFullScreenUrl = fullScreenPhotoUrl.ToString(),
+                    PhotoPreviewUrl = previewPhotoUrl.ToString(),
+                    Rank = currentRank + 1
+                });
+
+                currentRank++;
+            }
+            else
+            {
+                existingPhoto.PhotoOriginalUrl = originalPhotoUrl.ToString();
+                existingPhoto.PhotoThumbUrl = thumbnailPhotoUrl.ToString();
+                existingPhoto.PhotoFullScreenUrl = fullScreenPhotoUrl.ToString();
+                existingPhoto.PhotoPreviewUrl = previewPhotoUrl.ToString();
+                this.sitePagePhotoRepository.Update(existingPhoto);
             }
         }
 
@@ -650,7 +662,7 @@ namespace WebPagePub.Web.Controllers
 
             foreach (var photo in dbModel.Photos.OrderBy(x => x.Rank))
             {
-                AddBlogPhotos(model, mc, photo);
+                NewMethod(model, mc, photo);
             }
 
             foreach (var tagItem in dbModel.SitePageTags.OrderBy(x => x.Tag.Name))
@@ -665,7 +677,7 @@ namespace WebPagePub.Web.Controllers
             return model;
         }
 
-        private static void AddBlogPhotos(SitePageEditModel model, ModelConverter mc, SitePagePhoto? photo)
+        private static void NewMethod(SitePageEditModel model, ModelConverter mc, SitePagePhoto? photo)
         {
             model.BlogPhotos.Add(new SitePagePhotoModel
             {
