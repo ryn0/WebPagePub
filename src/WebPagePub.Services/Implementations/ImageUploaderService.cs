@@ -21,7 +21,7 @@ namespace WebPagePub.Services.Implementations
             this.siteFilesRepository = siteFilesRepository;
         }
 
-        public async Task<Uri> UploadReducedQualityImage(string folderPath, MemoryStream stream, Uri originalPhotoUrl, int maxWidthPx, int maxHeightPx, string suffix)
+        public async Task<Uri> UploadResizedVersionOfPhoto(string folderPath, MemoryStream stream, Uri originalPhotoUrl, int maxWidthPx, int maxHeightPx, string suffix)
         {
             var imageHelper = new ImageUtilities();
             var extension = originalPhotoUrl.ToString().GetFileExtension();
