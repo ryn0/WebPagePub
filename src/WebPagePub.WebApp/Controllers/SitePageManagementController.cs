@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Drawing;
-using System.IO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
