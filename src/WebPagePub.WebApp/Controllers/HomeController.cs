@@ -133,7 +133,6 @@ namespace WebPagePub.Web.Controllers
 
         [Route(StringConstants.Tags)]
         [HttpGet]
-        //[ResponseCache(Duration = 120, Location = ResponseCacheLocation.Any, NoStore = false)]
         public IActionResult Tags()
         {
             var allSitePageTags = sitePageTagRepository.GetAll();
@@ -259,7 +258,7 @@ namespace WebPagePub.Web.Controllers
                     model = this.CreateDisplayListModel(tagKey: tagKey, pageNumber: pageNumber);
                 }
 
-                this.memoryCache.Set(cacheKey, model, DateTime.UtcNow.AddMinutes(10));
+                this.memoryCache.Set(cacheKey, model, DateTime.UtcNow.AddMinutes(IntegerConstants.PageCachingMinutes));
             }
             else
             {
@@ -279,7 +278,7 @@ namespace WebPagePub.Web.Controllers
         }
 
         private SitePageDisplayModel CreateDisplayListModel(
-            SitePageSection? sitePageSection = null,
+            SitePageSection sitePageSection = null,
             SitePage sitePage = null,
             string tagKey = null,
             int pageNumber = 1)
@@ -322,7 +321,12 @@ namespace WebPagePub.Web.Controllers
             return displayModel;
         }
 
-        private void SetPageDisplayWithoutTags(SitePageSection? sitePageSection, SitePage sitePage, int pageNumber, out SitePageDisplayModel displayModel, out List<SitePage> pages, out int total)
+        private void SetPageDisplayWithoutTags(
+            SitePageSection sitePageSection,
+            SitePage sitePage,
+            int pageNumber,
+            out SitePageDisplayModel displayModel,
+            out List<SitePage> pages, out int total)
         {
             var contentModel = this.CreatePageContentModel(sitePageSection, sitePage);
 
@@ -343,7 +347,12 @@ namespace WebPagePub.Web.Controllers
             pages = pages.Where(x => x.IsSectionHomePage == false).ToList();
         }
 
-        private void SetPageDisplayWithTags(string tagKey, int pageNumber, SitePageDisplayModel displayModel, out List<SitePage> pages, out int total)
+        private void SetPageDisplayWithTags(
+            string tagKey,
+            int pageNumber,
+            SitePageDisplayModel displayModel,
+            out List<SitePage> pages,
+            out int total)
         {
             displayModel.TagKey = tagKey;
             displayModel.TagKeyword = this.tagRepository.Get(tagKey).Name;
@@ -378,8 +387,12 @@ namespace WebPagePub.Web.Controllers
 
             if (!sitePage.IsSectionHomePage)
             {
-                var previous = this.CreatePageContentModel(sitePageSection, sitePageRepository.GetPreviousEntry(sitePage.PublishDateTimeUtc));
-                var next = this.CreatePageContentModel(sitePageSection, sitePageRepository.GetNextEntry(sitePage.PublishDateTimeUtc));
+                var previous = this.CreatePageContentModel(
+                    sitePageSection,
+                    sitePageRepository.GetPreviousEntry(sitePage.PublishDateTimeUtc));
+                var next = this.CreatePageContentModel(
+                    sitePageSection,
+                    sitePageRepository.GetNextEntry(sitePage.PublishDateTimeUtc));
                 displayModel.PreviousAndNext = new PreviousAndNextModel()
                 {
                     DefaultNextPhotoThumbCdnUrl = next?.DefaultPhotoThumbCdnUrl,
@@ -403,7 +416,9 @@ namespace WebPagePub.Web.Controllers
                 return commentModel;
             }
 
-            var pageComments = this.sitePageCommentRepository.GetCommentsForPage(sitePage.SitePageId, CommentStatus.Approved);
+            var pageComments = this.sitePageCommentRepository.GetCommentsForPage(
+                sitePage.SitePageId,
+                CommentStatus.Approved);
 
             foreach (var commentItem in pageComments)
             {
@@ -438,7 +453,13 @@ namespace WebPagePub.Web.Controllers
 
             var defaultPhotoUrl = sitePage?.Photos.FirstOrDefault(x => x.IsDefault == true);
 
-            var displayModel = CreateDisplayModel(sitePageSection, sitePage, blobPrefix, cdnPrefix, canonicalUrl, defaultPhotoUrl);
+            var displayModel = CreateDisplayModel(
+                sitePageSection,
+                sitePage,
+                blobPrefix,
+                cdnPrefix,
+                canonicalUrl,
+                defaultPhotoUrl);
 
             if (sitePage.Photos.Any())
             {
@@ -528,7 +549,8 @@ namespace WebPagePub.Web.Controllers
                 return null;
             }
 
-            var ratingPercentage = (sitePage.ReviewRatingValue / (sitePage.ReviewBestValue - sitePage.ReviewWorstValue)) * 100;
+            var ratingPercentage = 
+                (sitePage.ReviewRatingValue / (sitePage.ReviewBestValue - sitePage.ReviewWorstValue)) * 100;
 
             return new StructureDataReviewModel(this.cacheService)
             {
@@ -617,7 +639,8 @@ namespace WebPagePub.Web.Controllers
                                Item = new BreadcrumbListItemProperties()
                                {
                                    Name = sitePage.BreadcrumbName,
-                                   PageUrl = new Uri(new Uri(domain), UrlBuilder.BlogUrlPath(sitePageSection.Key, sitePage.Key))
+                                   PageUrl = new Uri(new Uri(domain),
+                                    UrlBuilder.BlogUrlPath(sitePageSection.Key, sitePage.Key))
                                }
                            });
             }

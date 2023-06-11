@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using log4net;
+using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models.Db;
@@ -33,7 +34,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-                throw new Exception("DB error", ex.InnerException);
+                throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
 
@@ -50,7 +51,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
             catch (Exception ex)
             {
-                throw new Exception("DB error", ex.InnerException);
+                throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
 
@@ -63,7 +64,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-                throw new Exception("DB error", ex.InnerException);
+                throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
 
@@ -79,7 +80,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-                throw new Exception("DB error", ex.InnerException);
+                throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
 
@@ -111,7 +112,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-                throw new Exception("DB error", ex.InnerException);
+                throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
     }

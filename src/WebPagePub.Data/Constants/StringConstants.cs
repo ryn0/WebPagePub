@@ -33,5 +33,8 @@
                 "facebot",
                 "ia_archiver"
         };
+
+
+        public const string DBErrorMessage = "DB error";
     }
 }

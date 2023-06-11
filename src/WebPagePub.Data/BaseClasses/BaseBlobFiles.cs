@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Shared.Protocol;
+using WebPagePub.Data.Constants;
 
 namespace WebPagePub.Data.BaseClasses
 {
@@ -129,7 +130,7 @@ namespace WebPagePub.Data.BaseClasses
                     break;
             }
 
-            blockBlob.Properties.CacheControl = "public, max-age=604800"; // 1 week
+            blockBlob.Properties.CacheControl = string.Format("public, max-age={0}", IntegerConstants.OneWeekInSeconds);
 
             try
             {
@@ -153,7 +154,7 @@ namespace WebPagePub.Data.BaseClasses
                 AllowedMethods = CorsHttpMethods.Put | CorsHttpMethods.Get | CorsHttpMethods.Head | CorsHttpMethods.Post,
                 AllowedOrigins = new List<string>() { "*" },
                 ExposedHeaders = new List<string>() { "*" },
-                MaxAgeInSeconds = 1800 // 30 minutes
+                MaxAgeInSeconds = IntegerConstants.MaxAgeInSeconds
             });
 
             await blobClient.SetServicePropertiesAsync(blobServiceProperties);
