@@ -8,7 +8,11 @@ namespace WebPagePub.Web.Helpers
         {
             var replaceRegex = Regex.Replace(key, @"[\W_-[#]]+", " ");
 
-            var beforeTrim = replaceRegex.Trim().Replace("  ", " ").Replace(" ", "-").Replace("%", string.Empty).ToLowerInvariant();
+            var beforeTrim = replaceRegex.Trim()
+                                         .Replace("  ", " ")
+                                         .Replace(" ", "-")
+                                         .Replace("%", string.Empty)
+                                         .ToLowerInvariant();
 
             if (beforeTrim.EndsWith("#"))
             {

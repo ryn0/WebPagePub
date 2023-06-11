@@ -26,7 +26,8 @@ namespace WebPagePub.Services.Implementations
             var imageHelper = new ImageUtilities();
             var extension = originalPhotoUrl.ToString().GetFileExtension();
             var resizedImage = imageHelper.ScaleImage(Image.FromStream(stream), maxWidthPx, maxHeightPx);
-            var lowerQualityImageUrl = originalPhotoUrl.ToString().Replace(string.Format(".{0}", extension), string.Format("{0}.{1}", suffix, extension));
+            var lowerQualityImageUrl = originalPhotoUrl.ToString()
+                                                       .Replace(string.Format(".{0}", extension), string.Format("{0}.{1}", suffix, extension));
             var streamRotated = this.ToAStream(resizedImage, this.SetImageFormat(lowerQualityImageUrl));
 
             if (OptimizeImage)

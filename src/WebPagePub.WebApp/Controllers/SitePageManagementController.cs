@@ -87,7 +87,7 @@ namespace WebPagePub.Web.Controllers
         {
             var siteSection = this.siteSectionRepository.Get(sitePageSectionId);
 
-            return this.View("EditSiteSection", new EditSiteSectionModel()
+            return this.View(nameof(EditSiteSection), new EditSiteSectionModel()
             {
                 SiteSectionId = siteSection.SitePageSectionId,
                 Title = siteSection.Title,
@@ -146,7 +146,7 @@ namespace WebPagePub.Web.Controllers
             }
           
 
-            return this.RedirectToAction("EditSitePage", new { SitePageId = entry.SitePageId });
+            return this.RedirectToAction(nameof(EditSitePage), new { SitePageId = entry.SitePageId });
         }
 
         [Route("sitepages")]
@@ -183,7 +183,7 @@ namespace WebPagePub.Web.Controllers
                 model = SetSitePageListModel(siteSectionId, pageNumber, model);
             }
 
-            return this.View("Index", model);
+            return this.View(nameof(Index), model);
         }
 
         private SitePageListModel SetSitePageListModel(int siteSectionId, int pageNumber, SitePageListModel model)
@@ -277,7 +277,7 @@ namespace WebPagePub.Web.Controllers
             var entry = sitePagePhotoRepository.Get(sitePagePhotoId);
 
             if (entry.Rank == 1)
-                return RedirectToAction("editsitepage", new { sitePageId = entry.SitePageId });
+                return RedirectToAction(nameof(EditSitePage), new { sitePageId = entry.SitePageId });
 
             var allBlogPhotos = sitePagePhotoRepository.GetBlogPhotos(entry.SitePageId);
 
@@ -289,7 +289,7 @@ namespace WebPagePub.Web.Controllers
             entry.Rank = higherRankValue;
             sitePagePhotoRepository.Update(entry);
 
-            return RedirectToAction("editsitepage", new { sitePageId = entry.SitePageId });
+            return RedirectToAction(nameof(EditSitePage), new { sitePageId = entry.SitePageId });
         }
 
         [Route("sitepages/RankPhotoDown/{sitePagePhotoId}")]
@@ -301,7 +301,7 @@ namespace WebPagePub.Web.Controllers
 
             if (entry.Rank == allBlogPhotos.Count())
             {
-                return RedirectToAction("editsitepage", new { sitePageId = entry.SitePageId });
+                return RedirectToAction(nameof(EditSitePage), new { sitePageId = entry.SitePageId });
             }
 
             var rankedLower = allBlogPhotos.First(x => x.Rank == entry.Rank + 1);
@@ -312,7 +312,7 @@ namespace WebPagePub.Web.Controllers
             entry.Rank = lowerRankValue;
             sitePagePhotoRepository.Update(entry);
 
-            return RedirectToAction("editsitepage", new { sitePageId = entry.SitePageId });
+            return RedirectToAction(nameof(EditSitePage), new { sitePageId = entry.SitePageId });
         }
 
         [Route("sitepages/uploadphotos/{SitePageId}")]

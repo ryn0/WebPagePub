@@ -19,7 +19,8 @@ namespace WebPagePub.Web.Controllers
         [Route("admin/index")]
         public IActionResult Index()
         {
-            var totalRequiringModeration = this.sitePageCommentRepository.GetCommentCountForStatus(CommentStatus.AwaitingModeration);
+            var totalRequiringModeration = this.sitePageCommentRepository
+                                               .GetCommentCountForStatus(CommentStatus.AwaitingModeration);
 
             var model = new AdminManagementModel()
             {
