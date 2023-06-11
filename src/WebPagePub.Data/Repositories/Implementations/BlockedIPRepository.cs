@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using log4net;
+using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
@@ -32,7 +33,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-                throw new Exception("DB error", ex.InnerException);
+                throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
 
@@ -52,7 +53,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-                throw new Exception("DB error", ex.InnerException);
+                throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
     }
