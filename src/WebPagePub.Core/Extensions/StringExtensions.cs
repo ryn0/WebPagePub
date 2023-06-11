@@ -10,7 +10,11 @@ namespace WebPagePub.Core.Utilities
         {
             var replaceRegex = Regex.Replace(p, @"[\W_-[#]]+", " ");
 
-            var beforeTrim = replaceRegex.Trim().Replace("  ", " ").Replace(" ", "-").Replace("%", string.Empty).ToLowerInvariant();
+            var beforeTrim = replaceRegex.Trim()
+                                         .Replace("  ", " ")
+                                         .Replace(" ", "-")
+                                         .Replace("%", string.Empty)
+                                         .ToLowerInvariant();
 
             if (beforeTrim.EndsWith("#"))
             {
@@ -36,7 +40,8 @@ namespace WebPagePub.Core.Utilities
 
         public static string GetFileExtensionLower(this string fileName)
         {
-            return Path.GetExtension(fileName).ToLower().Replace(".", string.Empty);
+            return Path.GetExtension(fileName).ToLower()
+                                              .Replace(".", string.Empty);
         }
 
         public static string GetFileExtension(this string fileName)

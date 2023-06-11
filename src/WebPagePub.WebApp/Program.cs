@@ -13,9 +13,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 
-// builder.Services.AddResponseCaching();
-
-
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 builder.Services.AddTransient<ICacheService, CacheService>();
@@ -71,12 +68,7 @@ builder.Services.AddTransient<ISpamFilterService>(x => new SpamFilterService(
              builder.Configuration.GetSection("NeutrinoApi:UserId").Value,
               builder.Configuration.GetSection("NeutrinoApi:ApiKey").Value));
 
-
-
 var app = builder.Build();
-
-// app.UseResponseCaching();
-
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -96,7 +88,5 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.UseAuthorization();
-
-//app.MapRazorPages();
 
 app.Run();

@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using WebPagePub.Core.Utilities;
@@ -60,7 +59,7 @@ namespace WebPagePub.Web.Controllers
                 UrlDestination = model.UrlDestination
             });
 
-            return this.RedirectToAction("index");
+            return this.RedirectToAction(nameof(Index));
         }
 
         [Route("linkmanagement/create")]
@@ -89,7 +88,7 @@ namespace WebPagePub.Web.Controllers
             var cacheKey = CacheHelper.GetLinkCacheKey(linkDbModel.LinkKey);
             this.memoryCache.Remove(cacheKey);
 
-            return this.RedirectToAction("index");
+            return this.RedirectToAction(nameof(Index));
         }
 
         [Route("linkmanagement/edit")]
@@ -114,7 +113,7 @@ namespace WebPagePub.Web.Controllers
         {
             this.linkRedirectionRepository.Delete(linkRedirectionId);
 
-            return this.RedirectToAction("index");
+            return this.RedirectToAction(nameof(Index));
         }
     }
 }
