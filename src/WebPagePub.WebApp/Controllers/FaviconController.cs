@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebPagePub.Core.Utilities;
+using WebPagePub.Data.Constants;
 using WebPagePub.Data.Enums;
 using WebPagePub.Services.Interfaces;
 
@@ -78,7 +79,7 @@ namespace WebPagePub.Web.Controllers
                 switch (fileName.GetFileExtensionLower())
                 {
                     case "png":
-                        this.Response.Headers.Add("Cache-Control", "public, max-age=604800");
+                        this.Response.Headers.Add("Cache-Control", string.Format("public, max-age={0}", IntegerConstants.OneWeekInSeconds));
                         return this.File(ms, "image/png");
                     case "json":
                         return this.File(ms, "application/json");
