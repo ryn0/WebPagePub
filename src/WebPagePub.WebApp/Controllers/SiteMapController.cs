@@ -128,7 +128,11 @@ namespace WebPagePub.Web.Controllers
             return this.View(nameof(Index), model);
         }
 
-        private void AddPagesToSection(HtmlSiteMapModel model, SitePageSection section, List<SitePage> allPagesInSection, SitePage? indexPage)
+        private void AddPagesToSection(
+            HtmlSiteMapModel model,
+            SitePageSection section,
+            List<SitePage> allPagesInSection,
+            SitePage? indexPage)
         {
             var sectionUrl = this.GetSectionUrl(section, indexPage);
 
