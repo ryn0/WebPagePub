@@ -9,7 +9,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.5" />
   </ItemGroup>
-
+	<PropertyGroup>
+		<IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
+	</PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\WebPagePub.Core\WebPagePub.Core.csproj" />
     <ProjectReference Include="..\WebPagePub.Data\WebPagePub.Data.csproj" />
