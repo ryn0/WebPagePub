@@ -224,13 +224,20 @@ namespace WebPagePub.Web.Controllers
                 throw new Exception();
             }
 
-            var title = model.Title.Trim();
+            var titleFormattted = model.Title.Trim();
+            var key = titleFormattted.UrlKey();
+
+            if (this.sitePageRepository.Get(titleFormattted) != null)
+            {
+                throw new Exception($"Page with key '{titleFormattted}' already exists");
+            }
+
             var entry = this.sitePageRepository.Create(new SitePage()
             {
-                Title = title,
-                Key = title.UrlKey(),
-                PageHeader = title,
-                BreadcrumbName = title,
+                Title = titleFormattted,
+                Key = key,
+                PageHeader = titleFormattted,
+                BreadcrumbName = titleFormattted,
                 PublishDateTimeUtc = DateTime.UtcNow,
                 SitePageSectionId = model.SiteSectionId,
                 CreatedByUserId = this.userManager.GetUserId(this.User)
