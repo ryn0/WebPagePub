@@ -17,7 +17,7 @@ namespace WebPagePub.Web.Controllers
             var sb = new StringBuilder();
 
             sb.AppendLine("User-agent: *");
-            sb.AppendLine("Disallow: ");
+            sb.AppendLine("Disallow: /go/*");
             sb.AppendLine();
 
             var siteMapUrl = new Uri(new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext)), "sitemap.xml");
