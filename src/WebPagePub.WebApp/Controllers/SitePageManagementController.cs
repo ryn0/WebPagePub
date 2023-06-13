@@ -350,6 +350,8 @@ namespace WebPagePub.Web.Controllers
                 {
                     if (file != null && file.Length > 0)
                     {
+                        currentRank++;
+
                         await UploadSizesOfPhotos(sitePageId, allBlogPhotos, currentRank, folderPath, file);
                     }
                 }
@@ -513,10 +515,8 @@ namespace WebPagePub.Web.Controllers
                     PhotoThumbUrl = thumbnailPhotoUrl.ToString(),
                     PhotoFullScreenUrl = fullScreenPhotoUrl.ToString(),
                     PhotoPreviewUrl = previewPhotoUrl.ToString(),
-                    Rank = currentRank + 1
+                    Rank = currentRank
                 });
-
-                currentRank++;
             }
             else
             {
