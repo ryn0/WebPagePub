@@ -453,6 +453,11 @@ namespace WebPagePub.Web.Controllers
 
             var title = this.Request.Form["PhotoTitle_" + photo.SitePagePhotoId].ToString();
 
+            if (title != null)
+            {
+                title = title.Trim();
+            }
+
             if (title != photo.Title)
             {
                 hasChanged = true;
