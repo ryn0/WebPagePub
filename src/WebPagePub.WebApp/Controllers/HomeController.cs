@@ -98,6 +98,11 @@ namespace WebPagePub.Web.Controllers
             var homeSection = this.sitePageSectionRepository.GetHomeSection();
             var homePage = this.sitePageRepository.GetSectionHomePage(homeSection.SitePageSectionId);
 
+            if (homePage == null)
+            {
+                return Show404Page();
+            }
+
             return this.CatchAllRequests(
                         tagKey: tagName,
                         pageKey: homePage.Key,
