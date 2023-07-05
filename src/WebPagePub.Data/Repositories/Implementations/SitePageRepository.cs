@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Models;
+using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
 
 namespace WebPagePub.Data.Repositories.Implementations
@@ -92,12 +93,14 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public SitePage GetPreviousEntry(DateTime currentSitePagePublishDateTimeUtc)
+        public SitePage GetPreviousEntry(DateTime currentSitePagePublishDateTimeUtc, int sitePageSectionId)
         {
             try
             {
                 var model = this.Context.SitePage
-                                   .Where(x => x.PublishDateTimeUtc < currentSitePagePublishDateTimeUtc && x.IsLive == true && x.IsSectionHomePage == false)
+                                   .Where(x => x.PublishDateTimeUtc < currentSitePagePublishDateTimeUtc &&
+                                               x.IsLive == true && x.IsSectionHomePage == false &&
+                                               x.SitePageSectionId == sitePageSectionId)
                                    .OrderByDescending(x => x.PublishDateTimeUtc)
                                    .Include(x => x.SitePageSection)
                                    .Include(x => x.Photos)
@@ -115,12 +118,14 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public SitePage GetNextEntry(DateTime currentSitePagePublishDateTimeUtc)
+        public SitePage GetNextEntry(DateTime currentSitePagePublishDateTimeUtc, int sitePageSectionId)
         {
             try
             {
                 var model = this.Context.SitePage
-                                   .Where(x => x.PublishDateTimeUtc > currentSitePagePublishDateTimeUtc && x.IsLive == true && x.IsSectionHomePage == false)
+                                   .Where(x => x.PublishDateTimeUtc > currentSitePagePublishDateTimeUtc &&
+                                               x.IsLive == true && x.IsSectionHomePage == false &&
+                                               x.SitePageSectionId == sitePageSectionId)
                                    .OrderBy(x => x.PublishDateTimeUtc)
                                       .Include(x => x.Photos)
                                    .Include(x => x.SitePageTags)

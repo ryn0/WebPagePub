@@ -394,10 +394,10 @@ namespace WebPagePub.Web.Controllers
             {
                 var previous = this.CreatePageContentModel(
                     sitePageSection,
-                    sitePageRepository.GetPreviousEntry(sitePage.PublishDateTimeUtc));
+                    sitePageRepository.GetPreviousEntry(sitePage.PublishDateTimeUtc, sitePage.SitePageSectionId));
                 var next = this.CreatePageContentModel(
                     sitePageSection,
-                    sitePageRepository.GetNextEntry(sitePage.PublishDateTimeUtc));
+                    sitePageRepository.GetNextEntry(sitePage.PublishDateTimeUtc, sitePage.SitePageSectionId));
                 displayModel.PreviousAndNext = new PreviousAndNextModel()
                 {
                     DefaultNextPhotoThumbCdnUrl = next?.DefaultPhotoThumbCdnUrl,
