@@ -112,7 +112,7 @@
                             else
                             {
 
-                                <a class="btn btn-secondary float-right" href="~/@pagePathPrefix/page/@(Model.Paging.CurrentPageNumber + 1)">Older Posts    &rarr;</a>
+                                <a class="btn btn-secondary float-right" href="~/@pagePathPrefix/page/@(Model.Paging.CurrentPageNumber + 1)">Older Posts &rarr;</a>
 
                             }
 
@@ -144,8 +144,7 @@
                             if (Model.TagKeyword != null)
                             {
 
-
-                                <a class="btn btn-secondary float-left" href="~/tag/@Model.TagKey">&larr; Newer Posts about: @Model.TagKeyword</a>
+                                <a class="btn btn-secondary float-left" href="~/tag/@Model.TagKey/page/@(Model.Paging.CurrentPageNumber - 1)">&larr; Newer Posts about: @Model.TagKeyword</a>
 
                             }
                             else
@@ -165,7 +164,6 @@
 
                         @if (Model.Paging.PageCount > 1 && Model.Paging.CurrentPageNumber > 2 && Model.Paging.CurrentPageNumber != Model.Paging.PageCount)
                         {
-
 
                             if (Model.TagKeyword != null)
                             {
