@@ -38,6 +38,26 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
+        public bool Delete(int sitePageSectionId)
+        {
+            try
+            {
+                var entry = this.Context.SitePageSection
+                              .FirstOrDefault(x => x.SitePageSectionId == sitePageSectionId);
+
+                this.Context.SitePageSection.Remove(entry);
+                this.Context.SaveChanges();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex);
+
+                return false;
+            }
+        }
+
         public void Dispose()
         {
             this.Context.Dispose();

@@ -96,6 +96,23 @@ namespace WebPagePub.Web.Controllers
             });
         }
 
+
+        [Route("sitepagemanagement/DeleteSiteSection")]
+        [HttpPost]
+        public IActionResult DeleteSiteSection(int siteSectionId)
+        {
+            this.sitePageRepository.GetPage(1, siteSectionId, 1, out int total);
+
+            if (total > 0)
+            {
+                throw new Exception("There are pages for this section");
+            }
+
+            this.siteSectionRepository.Delete(siteSectionId);
+
+            return this.View(nameof(SitePages));
+        }
+
         [Route("sitepages/EditSiteSection/{sitePageSectionId}")]
         [HttpPost]
         public IActionResult EditSiteSection(EditSiteSectionModel model)
