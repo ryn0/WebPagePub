@@ -105,7 +105,7 @@ namespace WebPagePub.Web.Controllers
 
             if (total > 0)
             {
-                throw new Exception("There are pages for this section");
+                throw new Exception("There are pages for this section, they must be deleted first");
             }
 
             this.siteSectionRepository.Delete(siteSectionId);
