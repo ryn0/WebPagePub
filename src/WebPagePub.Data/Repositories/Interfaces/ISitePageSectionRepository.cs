@@ -20,5 +20,6 @@ namespace WebPagePub.Data.Repositories.Interfaces
         List<SitePageSection> GetAll();
 
         SitePageSection Get(string key);
+        bool Delete(int sitePageSectionId);
     }
 }
