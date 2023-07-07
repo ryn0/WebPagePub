@@ -14,10 +14,8 @@
  
     }
 
-
 <section>
     <div class="container">
-
 
         <div class="row">
             
@@ -31,24 +29,18 @@
 
                 }
 
-
                 @{ await Html.RenderPartialAsync("_BreadcrumbList", Model.BreadcrumbList); }
                 @{ await Html.RenderPartialAsync("_StructuredDataOrganization", Model.Organization); }
                 @{ await Html.RenderPartialAsync("_StructuredDataWebsite", Model.Website); }
 
-
             <hr />
-
 
             @foreach (var sitePage in Model.Items)
             {
                 var sitePageUrlPath = sitePage.UrlPath.TrimStart('/');
                 <div class="post-preview">
 
-
                     <h3 class="post-title"><a href="~/@sitePageUrlPath" title="@sitePage.PageHeader">@sitePage.BreadcrumbName</a></h3>
-
-
 
                     @if (!string.IsNullOrWhiteSpace(sitePage.DefaultPhotoThumbCdnUrl))
                     {
@@ -64,7 +56,6 @@
                     <p class="post-subtitle">
                         @sitePage.MetaDescription
                     </p>
-
 
                     @if (sitePage.Tags.Count > 0)
                     {
@@ -85,137 +76,13 @@
                 </div>
             }
 
+            <partial name="_PagingPartial" />
 
-
-
-
-                <!-- Pager -->
-
-                <div class="forward-backward-buttons">
-                    @{
-                        var pagePathPrefix = Model.SectionKey;
-
-                        if (Model.TagKeyword != null)
-                        {
-                            pagePathPrefix = "/tag/" + Model.TagKey ;
-                        }
-
-                    <div class="clearfix">
-                        @if (Model.Paging.PageCount > 1 && Model.Paging.CurrentPageNumber != Model.Paging.PageCount)
-                        {
-                            if (Model.TagKeyword != null)
-                            {
-
-                                <a class="btn btn-secondary float-right" href="~/tag/@Model.TagKey/page/@(Model.Paging.CurrentPageNumber + 1)">Older posts about: @Model.TagKeyword &rarr;</a>
-
-                            }
-                            else
-                            {
-
-                                <a class="btn btn-secondary float-right" href="~/@pagePathPrefix/page/@(Model.Paging.CurrentPageNumber + 1)">Older Posts &rarr;</a>
-
-                            }
-
-                        }
-
-                        @if (Model.Paging.PageCount > 1 && Model.Paging.PageCount == Model.Paging.CurrentPageNumber && Model.Paging.CurrentPageNumber != 2)
-                        {
-
-
-                            if (Model.TagKeyword != null)
-                            {
-
-
-                                <a class="btn btn-secondary float-left" href="~/tag/@Model.TagKey/page/@(Model.Paging.CurrentPageNumber - 1)">&larr; Newer posts about: @Model.TagKeyword</a>
-
-                            }
-                            else
-                            {
-
-                                <a class="btn btn-secondary float-left" href="~/@pagePathPrefix/page/@(Model.Paging.CurrentPageNumber - 1)">&larr; Newer Posts</a>
-
-                            }
-                        }
-
-                        @if (Model.Paging.PageCount > 1 && Model.Paging.PageCount == Model.Paging.CurrentPageNumber && Model.Paging.CurrentPageNumber == 2)
-                        {
-
-
-                            if (Model.TagKeyword != null)
-                            {
-
-
-                                <a class="btn btn-secondary float-left" href="~/tag/@Model.TagKey/page/@(Model.Paging.CurrentPageNumber - 1)">&larr; Newer Posts about: @Model.TagKeyword</a>
-
-                            }
-                            else
-                            {
-                                @if (Model.IsHomePageSection)
-                                {
-                                    <a class="btn btn-secondary float-left " href="~/">&larr; Newer Posts</a>
-                                }
-                                else
-                                {
-                                    <a class="btn btn-secondary float-left " href="~/@pagePathPrefix">&larr; Newer Posts</a>
-                                }
-
-
-                            }
-                        }
-
-                        @if (Model.Paging.PageCount > 1 && Model.Paging.CurrentPageNumber > 2 && Model.Paging.CurrentPageNumber != Model.Paging.PageCount)
-                        {
-
-                            if (Model.TagKeyword != null)
-                            {
-
-                                <a class="btn btn-secondary float-left" href="~/tag/@Model.TagKey/page/@(Model.Paging.CurrentPageNumber - 1)">&larr; Newer Posts about: @Model.TagKeyword</a>
-
-                            }
-                            else
-                            {
-
-                                <a class="btn btn-secondary float-left " href="~/@pagePathPrefix/page/@(Model.Paging.CurrentPageNumber - 1)">&larr; Newer Posts</a>
-                            }
-                        }
-
-                        @if (Model.Paging.PageCount > 1 && Model.Paging.CurrentPageNumber == 2 && Model.Paging.CurrentPageNumber != Model.Paging.PageCount)
-                        {
-
-
-                            if (Model.TagKeyword != null)
-                            {
-
-                                <a class="btn btn-secondary float-left" href="~/tag/@Model.TagKey">&larr; Newer Posts about: @Model.TagKeyword</a>
-
-                            }
-                            else
-                            {
-
-                                @if (Model.IsHomePageSection)
-                                {
-                                    <a class="btn btn-secondary float-left " href="~/">&larr; Newer Posts</a>
-                                }
-                                else
-                                {
-                                    <a class="btn btn-secondary float-left " href="~/@pagePathPrefix">&larr; Newer Posts</a>
-                                }
-                            }
-                        }
-
-
-                    </div>
-
-                    }
-                </div>
-            </div>
+        </div>
      
-
-      
     </div>
 </section>
  
-
 @section ScriptsFooter{
 
 
