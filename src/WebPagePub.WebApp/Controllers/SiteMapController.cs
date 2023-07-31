@@ -47,7 +47,17 @@ namespace WebPagePub.Web.Controllers
                 if (page.IsSectionHomePage)
                 {
                     // TODO: prevent duplicate content and pages which can be indexed a different way ex: /blog/ryan-into-travel is the homepage of blog
-                    url = new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext)).ToString();
+                    var siteSection = sitePageSectionRepository.Get(page.SitePageSectionId);
+                    if (siteSection.IsHomePageSection)
+                    {
+                        url = new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext)).ToString();
+                    }
+                    else
+                    {
+                        url = new Uri(string.Format("{0}/{1}",
+                            UrlBuilder.GetCurrentDomain(this.HttpContext),
+                            siteSection.Key)).ToString();
+                    }
                 }
                 else
                 {
