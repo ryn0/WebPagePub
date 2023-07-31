@@ -29,7 +29,7 @@ namespace WebPagePub.Web.Controllers
             var allLinks = this.linkRedirectionRepository.GetAll();
             var model = new LinkListModel();
 
-            allLinks = allLinks.OrderByDescending(x => x.CreateDate).ToList();
+            allLinks = allLinks.OrderByDescending(x => x.LinkKey).ToList();
 
             foreach (var link in allLinks)
             {
