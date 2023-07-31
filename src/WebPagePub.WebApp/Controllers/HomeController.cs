@@ -223,12 +223,13 @@ namespace WebPagePub.Web.Controllers
             var cachedPage = this.memoryCache.Get(cacheKey);
 
             SitePageDisplayModel model;
+            SitePageSection siteSection;
 
             if (cachedPage == null)
             {
                 if (string.IsNullOrWhiteSpace(tagKey))
                 {
-                    var siteSection = this.sitePageSectionRepository.Get(sectionKey);
+                    siteSection = this.sitePageSectionRepository.Get(sectionKey);
                     if (siteSection == null)
                     {
                         return this.Show404Page();
@@ -270,6 +271,11 @@ namespace WebPagePub.Web.Controllers
                 model = (SitePageDisplayModel)cachedPage;
             }
 
+            if (IsPagePathDuplicateContent(sectionKey, model))
+            {
+                return RedirectPermanent("~/");
+            }
+
             switch (model.PageType)
             {
                 case PageType.PageList:
@@ -280,6 +286,11 @@ namespace WebPagePub.Web.Controllers
                 default:
                     return this.View("Content", model);
             }
+        }
+
+        private bool IsPagePathDuplicateContent(string sectionKey, SitePageDisplayModel model)
+        {
+            return model.IsHomePageSection && !string.IsNullOrEmpty(sectionKey) && Request.Path != "/";
         }
 
         private SitePageDisplayModel CreateDisplayListModel(
