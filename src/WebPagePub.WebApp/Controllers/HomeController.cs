@@ -300,7 +300,10 @@ namespace WebPagePub.Web.Controllers
 
         private bool IsPagePathDuplicateContent(string sectionKey, SitePageDisplayModel model)
         {
-            return model.IsHomePageSection && !string.IsNullOrEmpty(sectionKey) && Request.Path != "/";
+            return model.IsHomePageSection &&
+                   model.PageContent.IsIndex && 
+                   !string.IsNullOrEmpty(sectionKey) && 
+                   Request.Path != "/";
         }
 
         private SitePageDisplayModel CreateDisplayListModel(
