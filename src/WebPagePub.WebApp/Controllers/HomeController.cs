@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using System.Security.Cryptography;
 using System.Text;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.Enums;
+using WebPagePub.Data.Migrations;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
@@ -223,41 +225,12 @@ namespace WebPagePub.Web.Controllers
             var cachedPage = this.memoryCache.Get(cacheKey);
 
             SitePageDisplayModel model;
-            SitePageSection siteSection;
 
             if (cachedPage == null)
             {
                 if (string.IsNullOrWhiteSpace(tagKey))
                 {
-                    siteSection = this.sitePageSectionRepository.Get(sectionKey);
-                    if (siteSection == null)
-                    {
-                        return this.Show404Page();
-                    }
-
-                    var dbModel = this.sitePageRepository.Get(siteSection.SitePageSectionId, pageKey);
-
-                    if (dbModel == null || (!isPreview && !dbModel.IsLive))
-                    {
-                        return this.Show404Page();
-                    }
-
-                    switch (dbModel.PageType)
-                    {
-                        case PageType.PageList:
-                            model = this.CreateDisplayListModel(siteSection, dbModel, tagKey, pageNumber);
-                            break;
-                        case PageType.Content:
-                        case PageType.Review:
-                        case PageType.Photo:
-                        default:
-                            model = this.CreateDisplayModel(siteSection, dbModel);
-                            break;
-                    }
-
-                    model.SitePageId = dbModel.SitePageId;
-                    model.SectionKey = siteSection.Key;
-                    model.IsHomePageSection = siteSection.IsHomePageSection;
+                    model = this.GetPageContentForRequest(sectionKey, pageKey, tagKey, pageNumber, isPreview);
                 }
                 else
                 {
@@ -286,6 +259,43 @@ namespace WebPagePub.Web.Controllers
                 default:
                     return this.View("Content", model);
             }
+        }
+
+        private SitePageDisplayModel GetPageContentForRequest(string sectionKey, string pageKey, string tagKey, int pageNumber, bool isPreview)
+        {
+            SitePageDisplayModel model;
+            var siteSection = this.sitePageSectionRepository.Get(sectionKey);
+
+            if (siteSection == null)
+            {
+                RedirectToAction(nameof(Show404Page));
+            }
+
+            var dbModel = this.sitePageRepository.Get(siteSection.SitePageSectionId, pageKey);
+
+            if (dbModel == null || (!isPreview && !dbModel.IsLive))
+            {
+                RedirectToAction(nameof(Show404Page));
+            }
+
+            switch (dbModel.PageType)
+            {
+                case PageType.PageList:
+                    model = this.CreateDisplayListModel(siteSection, dbModel, tagKey, pageNumber);
+                    break;
+                case PageType.Content:
+                case PageType.Review:
+                case PageType.Photo:
+                default:
+                    model = this.CreateDisplayModel(siteSection, dbModel);
+                    break;
+            }
+
+            model.SitePageId = dbModel.SitePageId;
+            model.SectionKey = siteSection.Key;
+            model.IsHomePageSection = siteSection.IsHomePageSection;
+
+            return model;
         }
 
         private bool IsPagePathDuplicateContent(string sectionKey, SitePageDisplayModel model)
