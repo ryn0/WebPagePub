@@ -32,6 +32,9 @@ namespace WebPagePub.Data.Models
         [StringLength(255)]
         public string MetaKeywords { get; set; }
 
+        /// <summary>
+        /// Ignores the page from the XML sitemap and robots.txt
+        /// </summary>
         public bool ExcludePageFromSiteMapXml { get; set; }
 
         public string Content { get; set; }

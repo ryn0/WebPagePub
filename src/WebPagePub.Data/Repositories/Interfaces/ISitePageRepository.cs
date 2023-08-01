@@ -36,5 +36,7 @@ namespace WebPagePub.Data.Repositories.Interfaces
         List<SitePage> GetLivePageBySection(int sitePageSectionId, int pageNumber, int quantityPerPage, out int total);
 
         SitePage GetSectionHomePage(int sitePageSectionId);
+
+        List<SitePage> GetIgnoredPages();
     }
 }
