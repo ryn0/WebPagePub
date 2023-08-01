@@ -351,5 +351,21 @@ namespace WebPagePub.Data.Repositories.Implementations
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
+
+        public List<SitePage> GetIgnoredPages()
+        {
+            try
+            {
+                return this.Context.SitePage
+                              .Where(x => x.ExcludePageFromSiteMapXml == true && x.IsLive == true)
+                              .ToList();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex);
+
+                throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
+            }
+        }
     }
 }
