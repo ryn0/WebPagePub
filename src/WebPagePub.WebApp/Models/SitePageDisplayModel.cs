@@ -1,5 +1,6 @@
 ﻿using WebPagePub.Data.Enums;
 using WebPagePub.Services.Interfaces;
+using WebPagePub.WebApp.Models.StructuredData;
 
 namespace WebPagePub.Web.Models
 {
@@ -48,5 +49,6 @@ namespace WebPagePub.Web.Models
 
         public string SectionKey { get; set; }
         public bool IsHomePageSection { get; set; }
+        public bool IsSectionHomePage { get; set; }
     }
 }

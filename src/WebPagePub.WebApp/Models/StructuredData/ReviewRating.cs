@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace WebPagePub.Web.Models
+namespace WebPagePub.WebApp.Models.StructuredData
 {
     public class ReviewRating
     {

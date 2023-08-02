@@ -2,7 +2,7 @@
 using WebPagePub.Data.Enums;
 using WebPagePub.Services.Interfaces;
 
-namespace WebPagePub.Web.Models
+namespace WebPagePub.WebApp.Models.StructuredData
 {
     public class StructedDataOrganizationModel
     {
@@ -11,7 +11,7 @@ namespace WebPagePub.Web.Models
         public StructedDataOrganizationModel(ICacheService cacheService)
         {
             this.cacheService = cacheService;
-            this.SetProperties();
+            SetProperties();
         }
 
         [JsonProperty("@context")]
@@ -37,17 +37,17 @@ namespace WebPagePub.Web.Models
 
         private void SetProperties()
         {
-            this.Logo = this.cacheService.GetSnippet(SiteConfigSetting.LogoUrl);
+            Logo = cacheService.GetSnippet(SiteConfigSetting.LogoUrl);
 
-            this.SameAs = new[]
+            SameAs = new[]
             {
-               this.cacheService.GetSnippet(SiteConfigSetting.FacebookUrl),
-               this.cacheService.GetSnippet(SiteConfigSetting.YouTubeUrl),
-               this.cacheService.GetSnippet(SiteConfigSetting.TwitterUrl)
+               cacheService.GetSnippet(SiteConfigSetting.FacebookUrl),
+               cacheService.GetSnippet(SiteConfigSetting.YouTubeUrl),
+               cacheService.GetSnippet(SiteConfigSetting.TwitterUrl)
             };
 
-            this.Url = this.cacheService.GetSnippet(SiteConfigSetting.CanonicalDomain);
-            this.Name = this.cacheService.GetSnippet(SiteConfigSetting.WebsiteName);
+            Url = cacheService.GetSnippet(SiteConfigSetting.CanonicalDomain);
+            Name = cacheService.GetSnippet(SiteConfigSetting.WebsiteName);
         }
     }
 }

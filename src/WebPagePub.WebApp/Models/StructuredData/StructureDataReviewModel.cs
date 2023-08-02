@@ -1,7 +1,8 @@
 ﻿using Newtonsoft.Json;
 using WebPagePub.Services.Interfaces;
+using WebPagePub.Web.Models;
 
-namespace WebPagePub.Web.Models
+namespace WebPagePub.WebApp.Models.StructuredData
 {
     public class StructureDataReviewModel
     {
@@ -11,11 +12,11 @@ namespace WebPagePub.Web.Models
         {
             this.cacheService = cacheService;
 
-            this.Author = new StructedDataOrganizationModel(this.cacheService);
+            Author = new StructedDataOrganizationModel(this.cacheService);
         }
 
         [JsonProperty("@context")]
-        public string Context { get; set; } = "http://schema.org";
+        public string Context { get; set; } = "https://schema.org";
 
         [JsonProperty("@type")]
         public string @Type { get; set; } = "Review";

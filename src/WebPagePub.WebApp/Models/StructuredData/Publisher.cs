@@ -1,11 +1,11 @@
 ﻿using Newtonsoft.Json;
 
-namespace WebPagePub.Web.Models
+namespace WebPagePub.WebApp.Models.StructuredData
 {
-    public class Author
+    public class Publisher
     {
         [JsonProperty("@type")]
-        public string @Type { get; set; } = "Person";
+        public string @Type { get; set; } = "Organization";
 
         [JsonProperty("name")]
         public string Name { get; set; } = default!;

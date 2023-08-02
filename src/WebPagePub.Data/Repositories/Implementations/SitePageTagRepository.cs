@@ -113,5 +113,18 @@ namespace WebPagePub.Data.Repositories.Implementations
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
+
+        public List<SitePageTag> GetTagsForLivePages()
+        {
+            try
+            {
+                return this.Context.SitePageTag.Where(x => x.SitePage.IsLive == true).ToList();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex);
+                throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
+            }
+        }
     }
 }

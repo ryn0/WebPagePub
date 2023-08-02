@@ -11,6 +11,7 @@ using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.Web.Helpers;
 using WebPagePub.Web.Models;
+using WebPagePub.WebApp.Models.StructuredData;
 
 namespace WebPagePub.Web.Controllers
 {
@@ -142,7 +143,7 @@ namespace WebPagePub.Web.Controllers
         [HttpGet]
         public IActionResult Tags()
         {
-            var allSitePageTags = sitePageTagRepository.GetAll();
+            var allSitePageTags = sitePageTagRepository.GetTagsForLivePages();
             var allTags = tagRepository.GetAll();
 
             allTags = allTags.OrderBy(x => x.Name).ToList();
@@ -244,9 +245,14 @@ namespace WebPagePub.Web.Controllers
                 model = (SitePageDisplayModel)cachedPage;
             }
 
-            if (IsPagePathDuplicateContent(sectionKey, model))
+            if (IsHomePagePathDuplicateContent(sectionKey, model))
             {
                 return RedirectPermanent("~/");
+            }
+
+            if (IsSectionPagePathDuplicateContent(model))
+            {
+                return RedirectPermanent(string.Format("~/{0}", model.SectionKey));
             }
 
             switch (model.PageType)
@@ -268,14 +274,14 @@ namespace WebPagePub.Web.Controllers
 
             if (siteSection == null)
             {
-                RedirectToAction(nameof(Show404Page));
+                throw new Exception();
             }
 
             var dbModel = this.sitePageRepository.Get(siteSection.SitePageSectionId, pageKey);
 
             if (dbModel == null || (!isPreview && !dbModel.IsLive))
             {
-                RedirectToAction(nameof(Show404Page));
+                throw new Exception();
             }
 
             switch (dbModel.PageType)
@@ -294,15 +300,24 @@ namespace WebPagePub.Web.Controllers
             model.SitePageId = dbModel.SitePageId;
             model.SectionKey = siteSection.Key;
             model.IsHomePageSection = siteSection.IsHomePageSection;
+            model.IsSectionHomePage = dbModel.IsSectionHomePage;
 
             return model;
         }
 
-        private bool IsPagePathDuplicateContent(string sectionKey, SitePageDisplayModel model)
+        private bool IsHomePagePathDuplicateContent(string sectionKey, SitePageDisplayModel model)
         {
             return model.IsHomePageSection &&
-                   model.PageContent.IsIndex && 
-                   !string.IsNullOrEmpty(sectionKey) && 
+                   model.PageContent.IsIndex &&
+                   !string.IsNullOrEmpty(sectionKey) &&
+                   Request.Path != "/";
+        }
+
+        private bool IsSectionPagePathDuplicateContent(SitePageDisplayModel model)
+        {
+            return model.IsSectionHomePage &&
+                   !Request.Path.Value.Contains(string.Format("/{0}/page", model.SectionKey)) &&
+                   !Request.Path.Value.EndsWith(string.Format("/{0}", model.SectionKey)) &&
                    Request.Path != "/";
         }
 

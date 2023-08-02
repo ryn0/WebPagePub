@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Models;
-using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
 
 namespace WebPagePub.Data.Repositories.Implementations
