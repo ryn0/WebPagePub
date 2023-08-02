@@ -29,11 +29,16 @@ namespace WebPagePub.Web.Controllers
             this.cacheService = cacheService;
         }
 
+        [Route("sitemap_index.xml")]
+        public IActionResult SiteMapIndex()
+        {
+            return RedirectPermanent("~/sitemap.xml");
+        }
+
         [Route("sitemap.xml")]
         public IActionResult Index()
         {
             var allPages = this.sitePageRepository.GetLivePage(1, MaxPageSizeForSiteMap, out int total);
-
             var siteMapHelper = new SiteMapHelper();
 
             foreach (var page in allPages)
@@ -43,75 +48,12 @@ namespace WebPagePub.Web.Controllers
                     continue;
                 }
 
-                string url;
-                if (page.IsSectionHomePage)
-                {
-                    // TODO: prevent duplicate content and pages which can be indexed a different way ex: /blog/ryan-into-travel is the homepage of blog
-                    var siteSection = sitePageSectionRepository.Get(page.SitePageSectionId);
-                    if (siteSection.IsHomePageSection)
-                    {
-                        url = new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext)).ToString();
-                    }
-                    else
-                    {
-                        url = new Uri(string.Format("{0}/{1}",
-                            UrlBuilder.GetCurrentDomain(this.HttpContext),
-                            siteSection.Key)).ToString();
-                    }
-                }
-                else
-                {
-                    url = new Uri(string.Format("{0}{1}",
-                                     UrlBuilder.GetCurrentDomain(this.HttpContext),
-                                     UrlBuilder.BlogUrlPath(page.SitePageSection.Key, page.Key))).ToString().TrimEnd('/');
-                }
-
-                var lastUpdated = page.UpdateDate == null ? page.CreateDate : (DateTime)page.UpdateDate;
-
-                if (siteMapHelper.SiteMapItems.FirstOrDefault(x => x.Url == url) != null)
-                {
-                    continue;
-                }
-
-                if (page.PageType == Data.Enums.PageType.Photo)
-                {
-                    var photos = this.sitePagePhotoRepository.GetBlogPhotos(page.SitePageId);
-                    var siteMapPhotoItems = ConvertToSiteMapImages(photos);
-                    siteMapHelper.AddUrl(
-                        url,
-                        lastUpdated,
-                        ChangeFrequency.Weekly,
-                        .5,
-                        siteMapPhotoItems);
-                }
-                else
-                {
-                    siteMapHelper.AddUrl(url, lastUpdated, ChangeFrequency.Weekly, .5, new List<SiteMapImageItem>());
-                }
+                AddPageToSiteMap(page, siteMapHelper);
             }
 
             var xml = siteMapHelper.GenerateXml();
 
             return this.Content(xml, "text/xml");
-        }
-
-        private List<SiteMapImageItem> ConvertToSiteMapImages(List<SitePagePhoto> photos)
-        {
-            var mc = new ModelConverter(cacheService);
-
-            var items = new List<SiteMapImageItem>();
-
-            foreach (var photo in photos)
-            {
-                items.Add(new SiteMapImageItem()
-                {
-                    ImageLocation = mc.ConvertBlobToCdnUrl(photo.PhotoFullScreenUrl),
-                    Title = photo.Title,
-                    Caption = photo.Description
-                });
-            }
-
-            return items;
         }
 
         [Route("sitemap")]
@@ -138,6 +80,74 @@ namespace WebPagePub.Web.Controllers
             model.SectionPages = model.SectionPages.OrderBy(x => x.AnchorText).ToList();
 
             return this.View(nameof(Index), model);
+        }
+
+        private void AddPageToSiteMap(SitePage page, SiteMapHelper siteMapHelper)
+        {
+            string url;
+            if (page.IsSectionHomePage)
+            {
+                // TODO: prevent duplicate content and pages which can be indexed a different way ex: /blog/ryan-into-travel is the homepage of blog
+                var siteSection = sitePageSectionRepository.Get(page.SitePageSectionId);
+                if (siteSection.IsHomePageSection)
+                {
+                    url = new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext)).ToString();
+                }
+                else
+                {
+                    url = new Uri(string.Format("{0}/{1}",
+                        UrlBuilder.GetCurrentDomain(this.HttpContext),
+                        siteSection.Key)).ToString();
+                }
+            }
+            else
+            {
+                url = new Uri(string.Format("{0}{1}",
+                                 UrlBuilder.GetCurrentDomain(this.HttpContext),
+                                 UrlBuilder.BlogUrlPath(page.SitePageSection.Key, page.Key))).ToString().TrimEnd('/');
+            }
+
+            var lastUpdated = page.UpdateDate == null ? page.CreateDate : (DateTime)page.UpdateDate;
+
+            if (siteMapHelper.SiteMapItems.FirstOrDefault(x => x.Url == url) != null)
+            {
+                return;
+            }
+
+            if (page.PageType == Data.Enums.PageType.Photo)
+            {
+                var photos = this.sitePagePhotoRepository.GetBlogPhotos(page.SitePageId);
+                var siteMapPhotoItems = ConvertToSiteMapImages(photos);
+                siteMapHelper.AddUrl(
+                    url,
+                    lastUpdated,
+                    ChangeFrequency.Weekly,
+                    .5,
+                    siteMapPhotoItems);
+            }
+            else
+            {
+                siteMapHelper.AddUrl(url, lastUpdated, ChangeFrequency.Weekly, .5, new List<SiteMapImageItem>());
+            }
+        }
+
+        private List<SiteMapImageItem> ConvertToSiteMapImages(List<SitePagePhoto> photos)
+        {
+            var mc = new ModelConverter(cacheService);
+
+            var items = new List<SiteMapImageItem>();
+
+            foreach (var photo in photos)
+            {
+                items.Add(new SiteMapImageItem()
+                {
+                    ImageLocation = mc.ConvertBlobToCdnUrl(photo.PhotoFullScreenUrl),
+                    Title = photo.Title,
+                    Caption = photo.Description
+                });
+            }
+
+            return items;
         }
 
         private void AddPagesToSection(

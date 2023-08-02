@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
+using WebPagePub.Web.Models;
 
-namespace WebPagePub.Web.Models
+namespace WebPagePub.WebApp.Models.StructuredData
 {
     public class StructuredDataBreadcrumbModel
     {

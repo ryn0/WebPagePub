@@ -2,7 +2,7 @@
 using WebPagePub.Data.Enums;
 using WebPagePub.Services.Interfaces;
 
-namespace WebPagePub.Web.Models
+namespace WebPagePub.WebApp.Models.StructuredData
 {
     public class StructedDataWebsiteModel
     {
@@ -11,8 +11,8 @@ namespace WebPagePub.Web.Models
         public StructedDataWebsiteModel(ICacheService cacheService)
         {
             this.cacheService = cacheService;
-            this.Url = this.cacheService.GetSnippet(SiteConfigSetting.CanonicalDomain);
-            this.Name = this.cacheService.GetSnippet(SiteConfigSetting.WebsiteName);
+            Url = this.cacheService.GetSnippet(SiteConfigSetting.CanonicalDomain);
+            Name = this.cacheService.GetSnippet(SiteConfigSetting.WebsiteName);
         }
 
         [JsonProperty("@context")]
