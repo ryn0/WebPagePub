@@ -593,31 +593,27 @@ namespace WebPagePub.Web.Controllers
                 return null;
             }
 
-            var ratingPercentage = 
+            var ratingPercentage =
                 (sitePage.ReviewRatingValue / (sitePage.ReviewBestValue - sitePage.ReviewWorstValue)) * 100;
 
             return new StructureDataReviewModel(this.cacheService)
             {
-                ItemReviewed = new ItemReviewed()
+                Name = sitePage.ReviewItemName,
+                Description = sitePage.MetaDescription,
+                Review = new Review()
                 {
-                    Name = sitePage.ReviewItemName
+                    Author = new Author()
+                    {
+                        Name = StringConstants.DefaultAuthorName
+                    },
+                    ReviewRating = new ReviewRating()
+                    {
+                        BestRating = sitePage.ReviewBestValue.ToString("0.0"),
+                        RatingValue = sitePage.ReviewRatingValue.ToString("0.0"),
+                        WorstRating = sitePage.ReviewWorstValue.ToString("0.0"),
+                        RatingPercentage = ratingPercentage.ToString("0.0")
+                    }
                 },
-                ReviewRating = new ReviewRating()
-                {
-                    BestRating = sitePage.ReviewBestValue.ToString("0.0"),
-                    RatingValue = sitePage.ReviewRatingValue.ToString("0.0"),
-                    WorstRating = sitePage.ReviewWorstValue.ToString("0.0"),
-                    RatingPercentage = ratingPercentage.ToString("0.0")
-                },
-
-                // Author = new Author()
-                // {
-                //    Name = StringConstants.WebsiteAuthor //TODO: GET FROM SITEPAGE USER
-                // },
-                Publisher = new Publisher()
-                {
-                    Name = this.cacheService.GetSnippet(SiteConfigSetting.WebsiteName)
-                }
             };
         }
 
