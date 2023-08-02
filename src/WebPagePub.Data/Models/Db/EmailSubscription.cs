@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using WebPagePub.Data.DbModels.BaseDbModels;
 
 namespace WebPagePub.Data.Models.Db
@@ -10,6 +11,7 @@ namespace WebPagePub.Data.Models.Db
         public int EmailSubscriptionId { get; set; }
 
         [StringLength(100)]
+        [Required]
         public string Email { get; set; }
 
         public bool IsSubscribed { get; set; }

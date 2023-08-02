@@ -37,7 +37,13 @@
 
         public string Content { get; set; } = default!;
 
-        public bool IsIndex { get; set; }
+        public bool IsIndex
+        {
+            get
+            {
+                return this.Key.ToLower() == "index";
+            }
+        }
 
         public string MetaKeywords { get; set; } = default!;
 

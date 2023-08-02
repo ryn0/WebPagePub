@@ -1,15 +1,14 @@
-﻿@model WebPagePub.Web.Models.StructureDataReviewModel
+﻿@model StructureDataReviewModel
 @using Newtonsoft.Json;
+@using WebPagePub.WebApp.Models.StructuredData;
 
 @if (Model != null)
 {
     <script type="application/ld+json">
-
         @Html.Raw(JsonConvert.SerializeObject(Model))
     </script>
 
     <br />
-
 
     <div property="reviewRating" typeof="http://schema.org/Rating">
         <meta property="bestRating" content="@Model.ReviewRating.BestRating">
@@ -21,10 +20,6 @@
             <div class="star-ratings-css-top" style="width:@Model.ReviewRating.RatingPercentage%"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
             <div class="star-ratings-css-bottom"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
         </div>
-
-
-
-
 
     </div>
 
