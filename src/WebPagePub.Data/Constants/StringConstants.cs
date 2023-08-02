@@ -20,6 +20,10 @@
 
         public const string FolderName = "page_img";
 
+        public const string DBErrorMessage = "DB error";
+
+        public const string DefaultAuthorName = "Nathan Foster";
+
         public static readonly string[] BotUserAgents =
         {
                 "Googlebot",
@@ -33,8 +37,5 @@
                 "facebot",
                 "ia_archiver"
         };
-
-
-        public const string DBErrorMessage = "DB error";
     }
 }

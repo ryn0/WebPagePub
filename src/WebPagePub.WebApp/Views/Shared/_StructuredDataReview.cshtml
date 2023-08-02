@@ -11,15 +11,15 @@
     <br />
 
     <div property="reviewRating" typeof="http://schema.org/Rating">
-        <meta property="bestRating" content="@Model.ReviewRating.BestRating">
-        <meta property="worstRating" content="@Model.ReviewRating.WorstRating">
+        <meta property="bestRating" content="@Model.Review.ReviewRating.BestRating">
+        <meta property="worstRating" content="@Model.Review.ReviewRating.WorstRating">
         <b>Overall Rating:</b>
-        <span property="ratingValue">@Model.ReviewRating.RatingValue</span>
+        <span property="ratingValue">@Model.Review.ReviewRating.RatingValue</span>
 
-        <div class="star-ratings-css">
-            <div class="star-ratings-css-top" style="width:@Model.ReviewRating.RatingPercentage%"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        @*<div class="star-ratings-css">
+            <div class="star-ratings-css-top" style="width:@Model.Review.RatingPercentage%"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
             <div class="star-ratings-css-bottom"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
-        </div>
+        </div>*@
 
     </div>
 
