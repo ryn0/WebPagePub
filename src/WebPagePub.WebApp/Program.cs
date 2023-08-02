@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Enums;
@@ -78,7 +79,9 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+var options = new RewriteOptions().AddRedirectToHttpsPermanent();
+app.UseRewriter(options);
+
 app.UseStaticFiles();
 
 app.UseRouting();
