@@ -1,0 +1,45 @@
+﻿@model WebPagePub.Web.Models.AuthorListModel
+ 
+@{
+    ViewData["Title"] = "Authors";
+}
+ <h2>@ViewData["Title"]</h2>
+ <hr />
+
+<a class="btn btn-success" href="~/AuthorManagement/create">Create new author</a>
+
+
+@if (Model != null && Model.Items.Count() > 0)
+{
+<table class="table">
+    <thead>
+        <tr>
+            <th>Full Name</th>
+            <th></th>
+         
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+        <tr>
+            <td>
+                        @item.FullName
+
+            </td>
+
+            <td>
+                        <a class="btn btn-sm btn-info"
+                           href="~/authormanagement/edit/@item.AuthorId">Edit</a>
+
+        </tr>
+        }
+    </tbody>
+</table>
+}
+else
+{
+    <br />
+    <i>No Authors</i>
+}
+ 

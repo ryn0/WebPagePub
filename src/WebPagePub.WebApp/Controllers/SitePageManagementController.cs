@@ -3,6 +3,7 @@ using System.Drawing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Caching.Memory;
 using WebPagePub.Core.Utilities;
 using WebPagePub.Data.Constants;
@@ -27,6 +28,7 @@ namespace WebPagePub.Web.Controllers
         private readonly ISitePageRepository sitePageRepository;
         private readonly ISiteFilesRepository siteFilesRepository;
         private readonly IImageUploaderService imageUploaderService;
+        private readonly IAuthorRepository authorRepository;
         private readonly IMemoryCache memoryCache;
         private readonly ICacheService cacheService;
         private readonly UserManager<ApplicationUser> userManager;
@@ -39,6 +41,7 @@ namespace WebPagePub.Web.Controllers
             ISitePageRepository sitePageRepository,
             ISiteFilesRepository siteFilesRepository,
             IImageUploaderService imageUploaderService,
+            IAuthorRepository authorRepository,
             IMemoryCache memoryCache,
             ICacheService cacheService,
             UserManager<ApplicationUser> userManager)
@@ -50,6 +53,7 @@ namespace WebPagePub.Web.Controllers
             this.sitePageRepository = sitePageRepository;
             this.siteFilesRepository = siteFilesRepository;
             this.imageUploaderService = imageUploaderService;
+            this.authorRepository = authorRepository;
             this.memoryCache = memoryCache;
             this.cacheService = cacheService;
             this.userManager = userManager;
@@ -656,13 +660,14 @@ namespace WebPagePub.Web.Controllers
             dbModel.MetaKeywords = (model.MetaKeywords != null) ? model.MetaKeywords.Trim() : string.Empty;
             dbModel.AllowsComments = model.AllowsComments;
             dbModel.IsSectionHomePage = model.IsSectionHomePage;
+            dbModel.AuthorId = model.AuthorId;
 
             return dbModel;
         }
 
         private SitePageEditModel ToUiEditModel(SitePage dbModel, bool isHomePageSection)
         {
-            var model = new SitePageEditModel()
+            var model = new SitePageEditModel
             {
                 Key = dbModel.Key,
                 BreadcrumbName = dbModel.BreadcrumbName,
@@ -684,13 +689,15 @@ namespace WebPagePub.Web.Controllers
                 MetaKeywords = dbModel.MetaKeywords,
                 AllowsComments = dbModel.AllowsComments,
                 IsSectionHomePage = dbModel.IsSectionHomePage,
+                AuthorId = dbModel.AuthorId,
+                Authors = AddAuthors()
             };
 
             var mc = new ModelConverter(this.cacheService);
 
             foreach (var photo in dbModel.Photos.OrderBy(x => x.Rank))
             {
-                NewMethod(model, mc, photo);
+                AddBlogPhotoToModel(model, mc, photo);
             }
 
             foreach (var tagItem in dbModel.SitePageTags.OrderBy(x => x.Tag.Name))
@@ -705,7 +712,35 @@ namespace WebPagePub.Web.Controllers
             return model;
         }
 
-        private static void NewMethod(SitePageEditModel model, ModelConverter mc, SitePagePhoto? photo)
+        private List<SelectListItem> AddAuthors()
+        {
+            var authorList = new List<SelectListItem>();
+            var allAuthors = authorRepository.GetAll().OrderBy(x => x.FirstName);
+
+            authorList.Add(new SelectListItem()
+            {
+                Text = StringConstants.NoneSelected,
+                Value = StringConstants.NoneSelected,
+            });
+
+            foreach (var author in allAuthors)
+            {
+                var authorItem = new AuthorItem(
+                    author.AuthorId,
+                    author.FirstName,
+                    author.LastName);
+
+                authorList.Add(new SelectListItem()
+                {
+                    Text = authorItem.FullName,
+                    Value = authorItem.AuthorId.ToString()
+                });
+            }
+
+            return authorList;
+        }
+
+        private static void AddBlogPhotoToModel(SitePageEditModel model, ModelConverter mc, SitePagePhoto? photo)
         {
             model.BlogPhotos.Add(new SitePagePhotoModel
             {
@@ -779,7 +814,7 @@ namespace WebPagePub.Web.Controllers
 
         private string GetBlogPhotoFolder(int sitePageId)
         {
-            return $"/{StringConstants.FolderName}/{sitePageId}/";
+            return $"/{StringConstants.SitePhotoBlobPhotoName}/{sitePageId}/";
         }
 
         private async Task<Uri> RotateImage90Degrees(int sitePageId, string photoUrl)

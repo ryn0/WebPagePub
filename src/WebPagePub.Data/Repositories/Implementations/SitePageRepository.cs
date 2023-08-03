@@ -71,8 +71,9 @@ namespace WebPagePub.Data.Repositories.Implementations
             {
                 var model = this.Context.SitePage
                                    .Where(x => x.IsLive == true && x.PublishDateTimeUtc < now)
-                                   .Include(x => x.SitePageSection)
                                    .Include(x => x.Photos)
+                                   .Include(x => x.Author)
+                                   .Include(x => x.SitePageSection)
                                    .Include(x => x.SitePageTags)
                                    .Include("SitePageTags.Tag")
                                    .OrderByDescending(blog => blog.PublishDateTimeUtc)
@@ -101,8 +102,9 @@ namespace WebPagePub.Data.Repositories.Implementations
                                                x.IsLive == true && x.IsSectionHomePage == false &&
                                                x.SitePageSectionId == sitePageSectionId)
                                    .OrderByDescending(x => x.PublishDateTimeUtc)
-                                   .Include(x => x.SitePageSection)
                                    .Include(x => x.Photos)
+                                   .Include(x => x.Author)
+                                   .Include(x => x.SitePageSection)
                                    .Include(x => x.SitePageTags)
                                    .Include("SitePageTags.Tag")
                                    .FirstOrDefault();
@@ -126,7 +128,9 @@ namespace WebPagePub.Data.Repositories.Implementations
                                                x.IsLive == true && x.IsSectionHomePage == false &&
                                                x.SitePageSectionId == sitePageSectionId)
                                    .OrderBy(x => x.PublishDateTimeUtc)
-                                      .Include(x => x.Photos)
+                                   .Include(x => x.Photos)
+                                   .Include(x => x.Author)
+                                   .Include(x => x.SitePageSection)
                                    .Include(x => x.SitePageTags)
                                    .Include("SitePageTags.Tag")
                                    .FirstOrDefault();
@@ -154,6 +158,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                                    .Include(x => x.SitePageSection)
                                    .Include(x => x.Photos)
                                    .Include(x => x.SitePageTags)
+                                   .Include(x => x.Author)
                                    .Include("SitePageTags.Tag")
                                    .OrderByDescending(blog => blog.PublishDateTimeUtc)
                                    .Skip(quantityPerPage * (pageNumber - 1))
@@ -187,6 +192,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                               .Include(x => x.SitePageSection)
                               .Include(x => x.Photos)
                               .Include(x => x.SitePageTags)
+                              .Include(x => x.Author)
                               .Include("SitePageTags.Tag")
                               .FirstOrDefault(x => x.SitePageId == sitePageId);
             }
@@ -204,6 +210,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                               .Include(x => x.SitePageSection)
                               .Include(x => x.Photos)
                               .Include(x => x.SitePageTags)
+                              .Include(x => x.Author)
                               .Include("SitePageTags.Tag")
                               .FirstOrDefault(x => x.Key == key);
             }
@@ -275,6 +282,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                               .Include(x => x.SitePageSection)
                               .Include(x => x.Photos)
                               .Include(x => x.SitePageTags)
+                              .Include(x => x.Author)
                               .Include("SitePageTags.Tag")
                               .FirstOrDefault(x => x.SitePageSectionId == sitePageSectionId && x.Key == key);
             }
@@ -292,6 +300,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                               .Include(x => x.SitePageSection)
                               .Include(x => x.Photos)
                               .Include(x => x.SitePageTags)
+                              .Include(x => x.Author)
                               .Include("SitePageTags.Tag")
                               .Where(x => x.SitePageSectionId == sitePageSectionId && x.IsLive == true)
                               .OrderByDescending(x => x.PublishDateTimeUtc)
@@ -315,6 +324,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                                    .Include(x => x.SitePageSection)
                                    .Include(x => x.Photos)
                                    .Include(x => x.SitePageTags)
+                                   .Include(x => x.Author)
                                    .Include("SitePageTags.Tag")
                                    .OrderByDescending(blog => blog.PublishDateTimeUtc)
                                    .Skip(quantityPerPage * (pageNumber - 1))

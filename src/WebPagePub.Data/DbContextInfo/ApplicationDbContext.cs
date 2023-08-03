@@ -43,7 +43,10 @@ namespace WebPagePub.Data.DbContextInfo
         public DbSet<ClickLog> ClickLog { get; set; }
 
         public DbSet<BlockedIP> BlockedIP { get; set; }
+
         public DbSet<RedirectPath> RedirectPath { get; set; }
+
+        public DbSet<Author> Author { get; set; }
 
         public override int SaveChanges()
         {
@@ -97,6 +100,10 @@ namespace WebPagePub.Data.DbContextInfo
 
             builder.Entity<Tag>()
                 .HasIndex(p => p.Key)
+                .IsUnique();
+
+            builder.Entity<Author>()
+                .HasIndex(p => p.AuthorId)
                 .IsUnique();
 
             base.OnModelCreating(builder);

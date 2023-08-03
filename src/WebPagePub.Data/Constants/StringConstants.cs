@@ -18,11 +18,15 @@
 
         public const string Tags = "tags";
 
-        public const string FolderName = "page_img";
+        public const string SitePhotoBlobPhotoName = "page_img";
+
+        public const string AuthorPhotoBlobPhotoName = "author_img";
 
         public const string DBErrorMessage = "DB error";
 
         public const string DefaultAuthorName = "Nathan Foster";
+
+        public const string NoneSelected = "- none -";
 
         public static readonly string[] BotUserAgents =
         {

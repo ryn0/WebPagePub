@@ -596,16 +596,15 @@ namespace WebPagePub.Web.Controllers
             var ratingPercentage =
                 (sitePage.ReviewRatingValue / (sitePage.ReviewBestValue - sitePage.ReviewWorstValue)) * 100;
 
+            WebApp.Models.StructuredData.Author author = SetAuthor(sitePage.Author);
+
             return new StructureDataReviewModel(this.cacheService)
             {
                 Name = sitePage.ReviewItemName,
                 Description = sitePage.MetaDescription,
                 Review = new Review()
                 {
-                    Author = new Author()
-                    {
-                        Name = StringConstants.DefaultAuthorName
-                    },
+                    Author = author,
                     ReviewRating = new ReviewRating()
                     {
                         BestRating = sitePage.ReviewBestValue.ToString("0.0"),
@@ -615,6 +614,21 @@ namespace WebPagePub.Web.Controllers
                     }
                 },
             };
+        }
+
+        private WebApp.Models.StructuredData.Author SetAuthor(Data.Models.Db.Author author)
+        {
+            if (author == null)
+            {
+                return new WebApp.Models.StructuredData.Author();
+            }
+            var authorItem = new AuthorItem(author.AuthorId, author.FirstName, author.LastName);
+            var structuredDataAuthor = new WebApp.Models.StructuredData.Author()
+            {
+                Name = authorItem.FullName,
+            };
+
+            return structuredDataAuthor;
         }
 
         private StructuredDataBreadcrumbModel BuildBreadcrumbList(SitePageSection sitePageSection, SitePage sitePage)
