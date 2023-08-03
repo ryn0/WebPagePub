@@ -16,27 +16,19 @@
  
     }
 
-
- 
-
-<section  >
+<section>
     <div class="container">
         <div class="row">
             <div class="col-md-12">
                 <h1 class="main-page-header">@Model.PageContent.PageHeader</h1>
-              
 
                 @{ await Html.RenderPartialAsync("_BreadcrumbList", Model.BreadcrumbList); }
                 @{ await Html.RenderPartialAsync("_StructuredDataOrganization", Model.Organization); }
                 @{ await Html.RenderPartialAsync("_StructuredDataWebsite", Model.Website); }
-
  
                 <article>
                     <i>Last updated:  @Model.PageContent.FriendlyLastUpdateDateDisplay</i>
                     <hr />
-
-
-
 
                     @Html.Raw(Model.PageContent.Content)
 
@@ -44,12 +36,10 @@
 
                     <hr />
 
-
                     @if (Model.AllowCommenting)
                     {
                         await Html.RenderPartialAsync("_ListComments", Model.Comments);
-
-
+                        
                         await Html.RenderPartialAsync("_PostComment", Model.PostComment);
 
                 <hr />

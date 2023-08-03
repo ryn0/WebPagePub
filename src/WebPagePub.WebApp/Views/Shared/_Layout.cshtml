@@ -6,10 +6,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@ViewData["Title"]</title>
-
-  <partial name="_MetaTags" /> 
- 
-  <partial name="_FavIcons" /> 
+    <partial name="_MetaTags" /> 
+    <partial name="_FavIcons" /> 
 @*
     <environment names="Development">
         <link rel="stylesheet" href="~/css/bootstrap.min.css">
@@ -25,11 +23,8 @@
     <environment names="Development,Staging,Production">
        @Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.HeaderHtml))
     </environment>
-
     @RenderSection("StylesHeader", required: false)
-
     @RenderSection("ScriptsHeader", required: false)
-
 </head>
 <body>
     <div id="wrapper">
