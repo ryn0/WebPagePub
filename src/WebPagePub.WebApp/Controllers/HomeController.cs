@@ -310,7 +310,8 @@ namespace WebPagePub.Web.Controllers
             return model.IsHomePageSection &&
                    model.PageContent.IsIndex &&
                    !string.IsNullOrEmpty(sectionKey) &&
-                   Request.Path != "/";
+                   Request.Path != "/" &&
+                   model?.Paging?.CurrentPageNumber == 1;
         }
 
         private bool IsSectionPagePathDuplicateContent(SitePageDisplayModel model)
@@ -338,6 +339,14 @@ namespace WebPagePub.Web.Controllers
             else
             {
                 SetPageDisplayWithTags(tagKey, pageNumber, displayModel, out pages, out total);
+            }
+
+            if (pageNumber > 1)
+            {
+                displayModel.PageContent.Title =
+                    string.Format("{0} page: {1} ", displayModel.PageContent.Title, pageNumber);
+                displayModel.PageContent.MetaDescription =
+                    string.Format("{0} - Page: {1} ", displayModel.PageContent.MetaDescription, pageNumber);
             }
 
             var pageCount = (double)total / IntegerConstants.PageSize;
