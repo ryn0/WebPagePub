@@ -17,7 +17,7 @@ namespace WebPagePub.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.5")
+                .HasAnnotation("ProductVersion", "7.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -243,6 +243,68 @@ namespace WebPagePub.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("WebPagePub.Data.Models.Db.Author", b =>
+                {
+                    b.Property<int>("AuthorId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuthorId"));
+
+                    b.Property<string>("AuthorBio")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByUserId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<string>("FirstName")
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("LastName")
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("PhotoFullScreenUrl")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("PhotoOriginalUrl")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("PhotoPreviewUrl")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("PhotoThumbUrl")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedByUserId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.HasKey("AuthorId");
+
+                    b.HasIndex("AuthorId")
+                        .IsUnique();
+
+                    b.ToTable("Author");
+                });
+
             modelBuilder.Entity("WebPagePub.Data.Models.Db.BlockedIP", b =>
                 {
                     b.Property<int>("BlockedIPId")
@@ -333,6 +395,7 @@ namespace WebPagePub.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -496,6 +559,9 @@ namespace WebPagePub.Data.Migrations
                     b.Property<bool>("AllowsComments")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("AuthorId")
+                        .HasColumnType("int");
+
                     b.Property<string>("BreadcrumbName")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -573,6 +639,8 @@ namespace WebPagePub.Data.Migrations
                         .HasColumnType("nvarchar(36)");
 
                     b.HasKey("SitePageId");
+
+                    b.HasIndex("AuthorId");
 
                     b.HasIndex("SitePageSectionId", "Key")
                         .IsUnique();
@@ -768,11 +836,17 @@ namespace WebPagePub.Data.Migrations
 
             modelBuilder.Entity("WebPagePub.Data.Models.SitePage", b =>
                 {
+                    b.HasOne("WebPagePub.Data.Models.Db.Author", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId");
+
                     b.HasOne("WebPagePub.Data.Models.Db.SitePageSection", "SitePageSection")
                         .WithMany()
                         .HasForeignKey("SitePageSectionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Author");
 
                     b.Navigation("SitePageSection");
                 });

@@ -1,10 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 using WebPagePub.Data.Enums;
 
 namespace WebPagePub.Web.Models
 {
     public class SitePageEditModel
     {
+        public int SitePageId { get; set; }
+
         [Required]
         public string Title { get; set; } = default!;
 
@@ -18,8 +21,6 @@ namespace WebPagePub.Web.Models
         public string Content { get; set; } = default!;
 
         public DateTime PublishDateTimeUtc { get; set; } = DateTime.UtcNow;
-
-        public int SitePageId { get;  set; }
 
         [Display(Name = "Is Live")]
         public bool IsLive { get;   set; }
@@ -57,5 +58,11 @@ namespace WebPagePub.Web.Models
         public bool AllowsComments { get; set; }
 
         public bool IsSectionHomePage { get; set; }
+
+        [Display(Name = "Author")]
+        public int? AuthorId { get; set; }
+
+        public List<SelectListItem> Authors = new List<SelectListItem>();
+
     }
 }
