@@ -1,6 +1,6 @@
 ﻿@inject WebPagePub.Services.Interfaces.ICacheService _cacheHelper
 @using WebPagePub.Data.Enums;
-<meta property="og:type" content="website" />
+    <meta property="og:type" content="website" />
 @if (ViewData["Title"] != null &&
 !string.IsNullOrWhiteSpace(ViewData["Title"].ToString()))
 {
@@ -21,31 +21,27 @@
 {
     <meta property="og:image" content="@ViewData["PhotoUrl"]" />
 }
-
 @if (ViewData["PhotoUrlWidth"] != null &&
 !string.IsNullOrWhiteSpace(ViewData["PhotoUrlWidth"].ToString()))
 {
     <meta property="og:image:width" content="@ViewData["PhotoUrlWidth"]" />
 }
-
 @if (ViewData["PhotoUrlHeight"] != null &&
 !string.IsNullOrWhiteSpace(ViewData["PhotoUrlHeight"].ToString()))
 {
     <meta property="og:image:height" content="@ViewData["PhotoUrlHeight"]" />
 }
-
 @{var siteName = _cacheHelper.GetSnippet(SiteConfigSetting.WebsiteName); }
 @if (!string.IsNullOrWhiteSpace(siteName))
 {
     <meta property="og:site_name" content="@siteName" />
 }
-<meta property="og:locale" content="en_US" />
+    <meta property="og:locale" content="en_US" />
 @if (ViewData["MetaDescription"] != null &&
 !string.IsNullOrWhiteSpace(ViewData["MetaDescription"].ToString()))
 {
     <meta name="description" content="@ViewData["MetaDescription"]" />
 }
-
 @if (ViewData["MetaKeywords"] != null &&
 !string.IsNullOrWhiteSpace(ViewData["MetaKeywords"].ToString()))
 {
@@ -56,7 +52,6 @@
 {
     <link rel="canonical" href="@ViewData["CanonicalUrl"]" />
 }
-
 @{ var googleSiteVerification = _cacheHelper.GetSnippet(SiteConfigSetting.GoogleSiteVerification); }
 @if (!string.IsNullOrWhiteSpace(googleSiteVerification))
 {
