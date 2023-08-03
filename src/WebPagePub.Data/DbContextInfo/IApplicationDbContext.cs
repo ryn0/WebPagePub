@@ -37,6 +37,8 @@ namespace WebPagePub.Data.DbContextInfo
 
         DbSet<RedirectPath> RedirectPath { get; set; }
 
+        DbSet<Author> Author { get; set; }
+
         int SaveChanges();
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken));

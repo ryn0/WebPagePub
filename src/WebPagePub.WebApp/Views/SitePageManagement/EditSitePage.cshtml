@@ -63,6 +63,16 @@
     </div>
 
 
+
+
+    <div class="form-group">
+        <label asp-for="AuthorId" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <select class="form-control" asp-for="AuthorId" asp-items="Model.Authors"></select>
+        </div>
+    </div>
+
+
     <div class="form-group">
         <label asp-for="PublishDateTimeUtc" class="col-md-2 control-label"></label>
         <div class="col-md-10">

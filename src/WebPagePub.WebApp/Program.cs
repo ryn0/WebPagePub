@@ -41,6 +41,7 @@ builder.Services.AddTransient<IClickLogRepository, ClickLogRepository>();
 builder.Services.AddTransient<ISitePageCommentRepository, SitePageCommentRepository>();
 builder.Services.AddTransient<IBlockedIPRepository, BlockedIPRepository>();
 builder.Services.AddTransient<IRedirectPathRepository, RedirectPathRepository>();
+builder.Services.AddTransient<IAuthorRepository, AuthorRepository>();
 
 // db context
 builder.Services.AddTransient<IApplicationDbContext, ApplicationDbContext>();
