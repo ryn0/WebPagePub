@@ -24,7 +24,7 @@
 
         public const string DBErrorMessage = "DB error";
 
-        public const string DefaultAuthorName = "Nathan Foster";
+        public const string DefaultAuthorName = "Unknown";
 
         public const string NoneSelected = "- none -";
 

@@ -80,7 +80,10 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-var options = new RewriteOptions().AddRedirectToHttpsPermanent();
+var options = new RewriteOptions()
+    .AddRedirectToHttpsPermanent()
+    .AddRedirectToNonWwwPermanent();
+
 app.UseRewriter(options);
 
 app.UseStaticFiles();

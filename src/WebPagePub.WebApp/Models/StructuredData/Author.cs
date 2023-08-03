@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using WebPagePub.Data.Constants;
 
 namespace WebPagePub.WebApp.Models.StructuredData
 {
@@ -8,6 +9,6 @@ namespace WebPagePub.WebApp.Models.StructuredData
         public string @Type { get; set; } = "Person";
 
         [JsonProperty("name")]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = StringConstants.DefaultAuthorName;
     }
 }
