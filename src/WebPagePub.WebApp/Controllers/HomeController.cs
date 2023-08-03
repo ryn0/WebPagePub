@@ -491,10 +491,7 @@ namespace WebPagePub.Web.Controllers
 
             var blobPrefix = this.cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
             var cdnPrefix = this.cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
-
-            var canonicalUrl = new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext) +
-                    UrlBuilder.BlogUrlPath(sitePageSection.Key, sitePage.Key));
-
+            Uri canonicalUrl = SetCanonicalUrl();
             var defaultPhotoUrl = sitePage?.Photos.FirstOrDefault(x => x.IsDefault == true);
 
             var displayModel = CreateDisplayModel(
@@ -521,6 +518,14 @@ namespace WebPagePub.Web.Controllers
             }
 
             return displayModel;
+        }
+
+        private Uri SetCanonicalUrl()
+        {
+            var location = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}{Request.QueryString}");
+            var url = location.AbsoluteUri;
+            var canonicalUrl = new Uri(url);
+            return canonicalUrl;
         }
 
         private SitePageContentModel CreateDisplayModel(

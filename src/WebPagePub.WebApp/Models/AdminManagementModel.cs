@@ -3,5 +3,7 @@
     public class AdminManagementModel
     {
         public int CountOfCommentsToModerate { get; set; }
+
+        public string DebugText { get; set; }
     }
 }

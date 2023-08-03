@@ -1,9 +1,11 @@
-﻿@model WebPagePub.Web.Models.AdminManagementModel
+﻿@using WebPagePub.Web.Helpers;
+@model WebPagePub.Web.Models.AdminManagementModel
 @{
     ViewData["Title"] = "Home";
 }
   <h2>Admin</h2>
 <hr />
+@Model.DebugText
 <ul>
     <li>
         <a href="~/AuthorManagement">Author Management</a>
