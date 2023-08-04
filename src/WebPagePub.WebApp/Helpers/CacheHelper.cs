@@ -7,7 +7,6 @@ namespace WebPagePub.Web.Helpers
         public static string GetPageCacheKey(
                                 string sectionKey = null,
                                 string pageKey = null,
-                                bool isPreview = false,
                                 int pageNumber = 1,
                                 string tagKey = null)
         {
