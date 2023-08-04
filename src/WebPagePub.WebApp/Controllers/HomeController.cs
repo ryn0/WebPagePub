@@ -216,13 +216,17 @@ namespace WebPagePub.Web.Controllers
         }
 
         private IActionResult CatchAllRequests(
-                                string sectionKey = null,
-                                string pageKey = null,
+                                string? sectionKey = null,
+                                string? pageKey = null,
                                 bool isPreview = false,
                                 int pageNumber = 1,
-                                string tagKey = null)
+                                string? tagKey = null)
         {
-            var cacheKey = CacheHelper.GetPageCacheKey(sectionKey, pageKey, isPreview, pageNumber, tagKey);
+            sectionKey ??= string.Empty;
+            pageKey ??= string.Empty;
+            tagKey ??= string.Empty;
+
+            var cacheKey = CacheHelper.GetPageCacheKey(sectionKey, pageKey, pageNumber, tagKey);
             var cachedPage = this.memoryCache.Get(cacheKey);
 
             SitePageDisplayModel? model;
@@ -272,7 +276,12 @@ namespace WebPagePub.Web.Controllers
             }
         }
 
-        private SitePageDisplayModel? GetPageContentForRequest(string sectionKey, string pageKey, string tagKey, int pageNumber, bool isPreview)
+        private SitePageDisplayModel? GetPageContentForRequest(
+            string sectionKey,
+            string pageKey,
+            string tagKey,
+            int pageNumber,
+            bool isPreview)
         {
             SitePageDisplayModel model;
             var siteSection = this.sitePageSectionRepository.Get(sectionKey);
@@ -310,7 +319,7 @@ namespace WebPagePub.Web.Controllers
             return model;
         }
 
-        private bool IsHomePagePathDuplicateContent(string sectionKey, SitePageDisplayModel model)
+        private bool IsHomePagePathDuplicateContent(string? sectionKey, SitePageDisplayModel model)
         {
             return model.IsHomePageSection &&
                    model.PageContent.IsIndex &&
@@ -328,15 +337,14 @@ namespace WebPagePub.Web.Controllers
         }
 
         private SitePageDisplayModel CreateDisplayListModel(
-            SitePageSection sitePageSection = null,
-            SitePage sitePage = null,
-            string tagKey = null,
+            SitePageSection? sitePageSection = null,
+            SitePage? sitePage = null,
+            string? tagKey = null,
             int pageNumber = 1)
         {
             var displayModel = new SitePageDisplayModel(this.cacheService);
             List<SitePage> pages;
-            int total = 0;
-
+            int total;
             if (string.IsNullOrWhiteSpace(tagKey))
             {
                 SetPageDisplayWithoutTags(sitePageSection, sitePage, pageNumber, out displayModel, out pages, out total);
@@ -348,10 +356,12 @@ namespace WebPagePub.Web.Controllers
 
             if (pageNumber > 1)
             {
+                var pagingFormat = "{0} - Page: {1} ";
+
                 displayModel.PageContent.Title =
-                    string.Format("{0} page: {1} ", displayModel.PageContent.Title, pageNumber);
+                    string.Format(pagingFormat, displayModel.PageContent.Title, pageNumber);
                 displayModel.PageContent.MetaDescription =
-                    string.Format("{0} - Page: {1} ", displayModel.PageContent.MetaDescription, pageNumber);
+                    string.Format(pagingFormat, displayModel.PageContent.MetaDescription, pageNumber);
             }
 
             var pageCount = (double)total / IntegerConstants.PageSize;
