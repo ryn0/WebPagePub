@@ -111,6 +111,7 @@
     </div>
 
     <hr />
+
     <h4>Review</h4>
     <div class="form-group">
         <label asp-for="ReviewItemName" class="col-md-2 control-label"></label>
@@ -144,7 +145,6 @@
 
         @if (Model.BlogPhotos.Count() > 0)
         {
-
             <div class="col-md-10">
                 <table class="table  ">
                     <thead>
@@ -200,7 +200,6 @@
                                         <input name="PhotoTitle_@photo.SitePagePhotoId" value="@photo.Title" class="form-control" />
                                     </div>
 
-
                                     <label class="col-md-2 control-label">File Name:</label>
                                     <div class="col-md-10">
                                     <input name="PhotoFileName_@photo.SitePagePhotoId" value="@photo.FileName" class="form-control" />
@@ -223,7 +222,6 @@
                                        <a onclick="return confirm('are you sure?')"
                                        href="~/sitepages/SetDefaultPhoto/@photo.SitePagePhotoId">Set as thumbnail</a>
                                     }
-                           
                                 </td>
                                 <td>
                                     <a onclick="return confirm('are you sure?')"
@@ -236,8 +234,6 @@
                     </tbody>
                 </table>
             </div>
-
-
         }
     </div>
 
