@@ -316,7 +316,7 @@ namespace WebPagePub.Web.Controllers
                    model.PageContent.IsIndex &&
                    !string.IsNullOrEmpty(sectionKey) &&
                    Request.Path != "/" &&
-                   model?.Paging?.CurrentPageNumber == 1;
+                   (model?.Paging?.CurrentPageNumber == 1 || model?.Paging?.CurrentPageNumber == 0);
         }
 
         private bool IsSectionPagePathDuplicateContent(SitePageDisplayModel model)
