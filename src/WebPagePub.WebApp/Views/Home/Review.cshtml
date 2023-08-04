@@ -9,12 +9,11 @@
     ViewData["MetaDescription"] = Model.PageContent.MetaDescription;
     ViewData["MetaKeywords"] = Model.PageContent.MetaKeywords;
     ViewData["CanonicalUrl"] = Model.PageContent.CanonicalUrl;
-
 }
 
 @section StylesHeader {
  
-    }
+}
 
 <section>
     <div class="container">
@@ -42,23 +41,24 @@
                         
                         await Html.RenderPartialAsync("_PostComment", Model.PostComment);
 
-                <hr />
-}
-                    @if (Model.PageContent.Tags.Count > 0)
-    {
-        var current = 1;
+                        <hr />
+                    }
+        @if (Model.PageContent.Tags.Count > 0)
+        {
+            var current = 1;
 
-                <div class="page-tags">
-                    <b>Tagged:</b>
-                    @foreach (var tag in Model.PageContent.Tags)
-    {
+            <div class="page-tags">
+            <b>Tagged:</b>
+            
+            @foreach (var tag in Model.PageContent.Tags)
+            {
                 <a href="~/tag/@tag.UrlKey()">@tag</a>if (current != Model.PageContent.Tags.Count)
-{<text>, </text>
-current++;
-}
-}
+                        {<text>, </text>
+                        current++;
+                        }
+            }
                 </div>
-}
+        }
                 </article>
                  
             </div>

@@ -106,7 +106,7 @@ namespace WebPagePub.Web.Controllers
 
             this.sitePageCommentRepository.Update(dbModel);
 
-            return this.RedirectToAction("Index");
+            return this.RedirectToAction(nameof(Index));
         }
     }
 }
