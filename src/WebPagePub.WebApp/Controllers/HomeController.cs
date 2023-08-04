@@ -225,7 +225,7 @@ namespace WebPagePub.Web.Controllers
             var cacheKey = CacheHelper.GetPageCacheKey(sectionKey, pageKey, isPreview, pageNumber, tagKey);
             var cachedPage = this.memoryCache.Get(cacheKey);
 
-            SitePageDisplayModel model;
+            SitePageDisplayModel? model;
 
             if (cachedPage == null)
             {
@@ -242,7 +242,12 @@ namespace WebPagePub.Web.Controllers
             }
             else
             {
-                model = (SitePageDisplayModel)cachedPage;
+                model = (SitePageDisplayModel?)cachedPage;
+            }
+
+            if (model == default)
+            {
+                return Show404Page();
             }
 
             if (IsHomePagePathDuplicateContent(sectionKey, model))
@@ -267,21 +272,21 @@ namespace WebPagePub.Web.Controllers
             }
         }
 
-        private SitePageDisplayModel GetPageContentForRequest(string sectionKey, string pageKey, string tagKey, int pageNumber, bool isPreview)
+        private SitePageDisplayModel? GetPageContentForRequest(string sectionKey, string pageKey, string tagKey, int pageNumber, bool isPreview)
         {
             SitePageDisplayModel model;
             var siteSection = this.sitePageSectionRepository.Get(sectionKey);
 
             if (siteSection == null)
             {
-                throw new Exception();
+                return default;
             }
 
             var dbModel = this.sitePageRepository.Get(siteSection.SitePageSectionId, pageKey);
 
             if (dbModel == null || (!isPreview && !dbModel.IsLive))
             {
-                throw new Exception();
+                return default;
             }
 
             switch (dbModel.PageType)
