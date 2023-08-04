@@ -7,7 +7,6 @@
     ViewData["MetaDescription"] = Model.PageContent.MetaDescription;
     ViewData["MetaKeywords"] = Model.PageContent.MetaKeywords;
     ViewData["CanonicalUrl"] = Model.PageContent.CanonicalUrl;
-
 }
 
 @section StylesHeader {
@@ -26,9 +25,7 @@
                 else
                 {
                     <h1 class="main-page-header">Tagged &quot;@Model.TagKeyword&quot;</h1>
-
                 }
-
                 @{ await Html.RenderPartialAsync("_BreadcrumbList", Model.BreadcrumbList); }
                 @{ await Html.RenderPartialAsync("_StructuredDataOrganization", Model.Organization); }
                 @{ await Html.RenderPartialAsync("_StructuredDataWebsite", Model.Website); }
@@ -84,8 +81,6 @@
 </section>
  
 @section ScriptsFooter{
-
-
 
 }
 

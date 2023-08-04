@@ -62,14 +62,12 @@
         </div>
     </div>
 
-
     <div class="form-group">
         <label asp-for="AuthorId" class="col-md-2 control-label"></label>
         <div class="col-md-10">
             <select class="form-control" asp-for="AuthorId" asp-items="Model.Authors"></select>
         </div>
     </div>
-
 
     <div class="form-group">
         <label asp-for="PublishDateTimeUtc" class="col-md-2 control-label"></label>
@@ -91,14 +89,12 @@
         </div>
     </div>
 
- 
     <div class="form-group">
         <label asp-for="IsSectionHomePage" class="col-md-2 control-label"></label>
         <div class="col-md-10">
             @Html.CheckBoxFor(x => x.IsSectionHomePage)
         </div>
     </div>
- 
 
     <div class="form-group">
         <label asp-for="AllowsComments" class="col-md-2 control-label"></label>
@@ -106,7 +102,6 @@
             @Html.CheckBoxFor(x => x.AllowsComments)
         </div>
     </div>
-
 
     <div class="form-group">
         <label asp-for="PageType" class="col-md-2 control-label"></label>
@@ -225,23 +220,18 @@
                                     }
                                     else
                                     {
-         <a onclick="return confirm('are you sure?')"
+                                       <a onclick="return confirm('are you sure?')"
                                        href="~/sitepages/SetDefaultPhoto/@photo.SitePagePhotoId">Set as thumbnail</a>
-
                                     }
                            
                                 </td>
                                 <td>
-
-
                                     <a onclick="return confirm('are you sure?')"
                                        class="btn-danger btn-sm"
                                        href="~/sitepages/deletephoto/@photo.SitePagePhotoId">&#x1F5D1;</a>
 
                                 </td>
                             </tr>
-
-
                         }
                     </tbody>
                 </table>
@@ -255,7 +245,6 @@
 
     @Html.HiddenFor(x => x.SitePageId)
 
-
     <div class="form-group">
         <label class="col-md-2 control-label">Body</label>
         <div class="col-md-10">
@@ -265,37 +254,25 @@
 
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
-            <button type="submit" class="btn btn-default">Update</button>
+            <button type="submit" class="btn btn-success">Update</button>
         </div>
     </div>
 </form>
 
  
-
-
 @section ScriptsHeader {
 
-<script src="~/lib/ckeditor/ckeditor.js"></script> 
+    <script src="~/lib/ckeditor/ckeditor.js"></script> 
   
-<script src="~/lib/ckeditor/config.js"></script>
-
-
+    <script src="~/lib/ckeditor/config.js"></script>
 }
 
- 
-
-
 @section ScriptsFooter {
-
     
-<script>
+    <script>
     CKEDITOR.replace('Content');  
-    
      
     CKEDITOR.config.allowedContent = true;
-
-
-
 
     CKEDITOR.on('instanceReady', function (ev) {
         var editor = ev.editor;
@@ -315,11 +292,5 @@
             }
         });
     })
-</script>
- 
-
-
-
-        }
-
-
+    </script>
+}
