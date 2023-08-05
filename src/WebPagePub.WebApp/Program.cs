@@ -67,7 +67,7 @@ var blockedIPRepository = sp.GetService<IBlockedIPRepository>();
 
 builder.Services.AddTransient<ISpamFilterService>(x => new SpamFilterService(
               blockedIPRepository,
-             builder.Configuration.GetSection("NeutrinoApi:UserId").Value,
+              builder.Configuration.GetSection("NeutrinoApi:UserId").Value,
               builder.Configuration.GetSection("NeutrinoApi:ApiKey").Value));
 
 var app = builder.Build();
@@ -83,6 +83,29 @@ if (!app.Environment.IsDevelopment())
 var options = new RewriteOptions()
     .AddRedirectToHttpsPermanent()
     .AddRedirectToNonWwwPermanent();
+
+var redirects = sp.GetService<IRedirectPathRepository>();
+var allRedirects = redirects?.GetAll();
+
+app.Use(async (context, next) =>
+{
+    if (allRedirects != null)
+    {
+        var path = context.Request.Path.Value;
+
+        if (path != null)
+        {
+            var redirect = allRedirects.FirstOrDefault(x => x.Path.EndsWith(path));
+
+            if (redirect != null)
+            {
+                context.Request.Path = redirect.PathDestination;
+            }
+        }
+    }
+
+    await next();
+});
 
 app.UseRewriter(options);
 
