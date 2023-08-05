@@ -38,7 +38,8 @@
             {
                 if (Model.TagKeyword != null)
                 {
-                    <a class="btn btn-secondary float-left" href="~/tag/@Model.TagKey/page/@(Model.Paging.CurrentPageNumber - 1)">&larr; Newer Posts about: @Model.TagKeyword</a>
+                    <a class="btn btn-secondary float-left" href="~/tag/@Model.TagKey">&larr; Newer Posts about: @Model.TagKeyword</a>
+
                 }
                 else
                 {
