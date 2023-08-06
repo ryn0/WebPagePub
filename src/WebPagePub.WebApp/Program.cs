@@ -99,6 +99,7 @@ app.Use(async (context, next) =>
 
             if (redirect != null)
             {
+                context.Response.Redirect(redirect.PathDestination, true);
                 context.Request.Path = redirect.PathDestination;
             }
         }
