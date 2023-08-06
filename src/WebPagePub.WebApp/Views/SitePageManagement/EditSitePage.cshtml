@@ -18,7 +18,7 @@
     <div class="form-group">
         <label asp-for="Title" class="col-md-2 control-label"></label>
         <div class="col-md-10">
-            <input asp-for="Title" class="form-control" autocomplete="off" data-limit-input="70" />
+            <input asp-for="Title" class="form-control" autocomplete="off" data-limit-input="70" maxlength="70" />
             <span>@Model.Title?.Length of 70 characters used</span>
         </div>
     </div>
@@ -50,7 +50,7 @@
     <div class="form-group">
         <label asp-for="MetaDescription" class="col-md-2 control-label"></label>
         <div class="col-md-10">
-            <input asp-for="MetaDescription" class="form-control" data-limit-input="160" autocomplete="off" />
+            <input asp-for="MetaDescription" class="form-control" data-limit-input="160" autocomplete="off" maxlength="160" />
             <span>@Model.MetaDescription?.Length of 160 characters used</span>
         </div>
     </div>
