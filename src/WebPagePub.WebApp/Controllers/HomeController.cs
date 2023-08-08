@@ -455,12 +455,13 @@ namespace WebPagePub.Web.Controllers
 
             if (!sitePage.IsSectionHomePage)
             {
+                var now = DateTime.UtcNow;
                 var previous = this.CreatePageContentModel(
                     sitePageSection,
-                    sitePageRepository.GetPreviousEntry(sitePage.PublishDateTimeUtc, sitePage.SitePageSectionId));
+                    sitePageRepository.GetPreviousEntry(sitePage.PublishDateTimeUtc, now, sitePage.SitePageSectionId));
                 var next = this.CreatePageContentModel(
                     sitePageSection,
-                    sitePageRepository.GetNextEntry(sitePage.PublishDateTimeUtc, sitePage.SitePageSectionId));
+                    sitePageRepository.GetNextEntry(sitePage.PublishDateTimeUtc, now, sitePage.SitePageSectionId));
                 displayModel.PreviousAndNext = new PreviousAndNextModel()
                 {
                     DefaultNextPhotoThumbCdnUrl = next?.DefaultPhotoThumbCdnUrl,
