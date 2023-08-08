@@ -45,7 +45,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             {
                 var model = this.Context.SitePage
                                    .Where(x => x.SitePageSectionId == sitePageSectionId)
-                                   .OrderByDescending(page => page.PublishDateTimeUtc)
+                                   .OrderByDescending(page => page.CreateDate)
                                    .Skip(quantityPerPage * (pageNumber - 1))
                                    .Take(quantityPerPage)
                                    .Include(x => x.SitePageSection)
@@ -93,12 +93,13 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public SitePage GetPreviousEntry(DateTime currentSitePagePublishDateTimeUtc, int sitePageSectionId)
+        public SitePage GetPreviousEntry(DateTime currentSitePagePublishDateTimeUtc, DateTime now, int sitePageSectionId)
         {
             try
             {
                 var model = this.Context.SitePage
-                                   .Where(x => x.PublishDateTimeUtc < currentSitePagePublishDateTimeUtc &&
+                                   .Where(x => x.PublishDateTimeUtc < now &&
+                                               x.PublishDateTimeUtc < currentSitePagePublishDateTimeUtc &&
                                                x.IsLive == true && x.IsSectionHomePage == false &&
                                                x.SitePageSectionId == sitePageSectionId)
                                    .OrderByDescending(x => x.PublishDateTimeUtc)
@@ -119,12 +120,13 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public SitePage GetNextEntry(DateTime currentSitePagePublishDateTimeUtc, int sitePageSectionId)
+        public SitePage GetNextEntry(DateTime currentSitePagePublishDateTimeUtc, DateTime now, int sitePageSectionId)
         {
             try
             {
                 var model = this.Context.SitePage
-                                   .Where(x => x.PublishDateTimeUtc > currentSitePagePublishDateTimeUtc &&
+                                   .Where(x => x.PublishDateTimeUtc < now &&
+                                               x.PublishDateTimeUtc > currentSitePagePublishDateTimeUtc &&
                                                x.IsLive == true && x.IsSectionHomePage == false &&
                                                x.SitePageSectionId == sitePageSectionId)
                                    .OrderBy(x => x.PublishDateTimeUtc)
