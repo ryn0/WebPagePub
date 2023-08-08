@@ -19,9 +19,9 @@ namespace WebPagePub.Data.Repositories.Interfaces
 
         SitePage Get(string key);
 
-        SitePage GetPreviousEntry(DateTime currentSitePagePublishDateTimeUtc, int sitePageSectionId);
+        SitePage GetPreviousEntry(DateTime currentSitePagePublishDateTimeUtc, DateTime now, int sitePageSectionId);
 
-        SitePage GetNextEntry(DateTime currentSitePagePublishDateTimeUtc, int sitePageSectionId);
+        SitePage GetNextEntry(DateTime currentSitePagePublishDateTimeUtc, DateTime now, int sitePageSectionId);
 
         List<SitePage> GetPage(int pageNumber, int sitePageSectionId, int quantityPerPage, out int total);
 
