@@ -49,7 +49,7 @@
 
         public string MetaDescription { get; set; } = default!;
 
-        public DateTime PublishedDateTime { get; set; }
+        public DateTime PublishedDateTimeUtc { get; set; }
 
         public DateTime LastUpdatedDateTimeUtc { get; set; }
 
@@ -57,7 +57,7 @@
         {
             get
             {
-                return this.FormatDate(this.PublishedDateTime);
+                return this.FormatDate(this.PublishedDateTimeUtc);
             }
         }
 
@@ -65,7 +65,14 @@
         {
             get
             {
-                return this.FormatDate(this.LastUpdatedDateTimeUtc);
+                if (this.LastUpdatedDateTimeUtc > this.PublishedDateTimeUtc)
+                {
+                    return this.FormatDate(this.LastUpdatedDateTimeUtc);
+                }
+                else
+                {
+                    return this.FormatDate(this.PublishedDateTimeUtc);
+                }
             }
         }
         public string DefaultPhotoOriginalUrl { get; set; } = default!;

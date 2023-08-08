@@ -60,7 +60,6 @@
         </nav>
         <div class="clear"></div>
 
-        <!-- section-2 -->
         <div class="container">
             @RenderBody()
         </div>
@@ -80,7 +79,7 @@
             }
             @if (!string.IsNullOrEmpty(_cacheHelper.GetSnippet(SiteConfigSetting.TwitterUrl)))
             {
-                  <a href="@_cacheHelper.GetSnippet(SiteConfigSetting.TwitterUrl)" class="btn btn-twitter"><i class="fa fa-twitter left"></i> Twitter</a>
+                <a href="@_cacheHelper.GetSnippet(SiteConfigSetting.TwitterUrl)" class="btn btn-twitter"><i class="fa fa-twitter left"></i> Twitter</a>
             }
           
             <div class="copyright">

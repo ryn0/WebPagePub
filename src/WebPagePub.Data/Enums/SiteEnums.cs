@@ -18,7 +18,8 @@
         HeaderHtml = 13,
         FooterHtml = 14,
         MenuHtml = 15,
-        InstagramUrl = 16
+        InstagramUrl = 16,
+        AboveReview = 17
     }
 
     public enum PageType
@@ -27,7 +28,8 @@
         Content = 1,
         Review = 2,
         PageList = 3,
-        Photo = 4
+        Photo = 4,
+        Informational = 5
     }
 
     public enum CommentStatus : byte

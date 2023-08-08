@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebPagePub.Data.Repositories.Interfaces;
+using WebPagePub.Services.Interfaces;
 using WebPagePub.Web.Models;
 
 namespace WebPagePub.Web.Controllers
@@ -7,10 +8,17 @@ namespace WebPagePub.Web.Controllers
     public class EmailSubscriptionController : Controller
     {
         private readonly IEmailSubscriptionRepository emailSubscriptionRepository;
+        private readonly ISpamFilterService spamFilterService;
+        private IHttpContextAccessor accessor;
 
-        public EmailSubscriptionController(IEmailSubscriptionRepository emailSubscriptionRepository)
+        public EmailSubscriptionController(
+                IEmailSubscriptionRepository emailSubscriptionRepository,
+                ISpamFilterService spamFilterService,
+                IHttpContextAccessor accessor)
         {
             this.emailSubscriptionRepository = emailSubscriptionRepository;
+            this.spamFilterService = spamFilterService;
+            this.accessor = accessor;
         }
 
         [Route("EmailSubscription/subscribe")]
@@ -20,6 +28,13 @@ namespace WebPagePub.Web.Controllers
             if (!this.ModelState.IsValid)
             {
                 throw new Exception("invalid email submission");
+            }
+
+            var ipAddress = this.accessor.HttpContext.Connection.RemoteIpAddress.ToString();
+
+            if (spamFilterService.IsBlocked(ipAddress))
+            {
+                throw new Exception("Invalid IP");
             }
 
             var emailDbModel = this.emailSubscriptionRepository.Get(model.Email);

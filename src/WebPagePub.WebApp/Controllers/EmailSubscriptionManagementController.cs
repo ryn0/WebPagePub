@@ -11,6 +11,7 @@ namespace WebPagePub.Web.Controllers
         private readonly IEmailSubscriptionRepository emailSubscriptionRepository;
         private readonly IEmailSender emailSender;
 
+
         public EmailSubscriptionManagementController(
             IEmailSubscriptionRepository emailSubscriptionRepository,
             IEmailSender emailSender)
@@ -65,6 +66,13 @@ namespace WebPagePub.Web.Controllers
         [HttpPost]
         public IActionResult SendMail(EmailSendModel model)
         {
+            if (string.IsNullOrWhiteSpace(model.EmailMessage) ||
+                string.IsNullOrWhiteSpace(model.EmailTitle) ||
+                string.IsNullOrWhiteSpace(model.SendToEmails))
+            {
+                throw new InvalidOperationException();
+            }
+
             var emails = model.SendToEmails.Split(',');
 
             foreach (var email in emails)

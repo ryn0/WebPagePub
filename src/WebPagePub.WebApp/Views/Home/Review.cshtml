@@ -1,4 +1,6 @@
 ﻿@model WebPagePub.Web.Models.SitePageDisplayModel
+@inject WebPagePub.Services.Interfaces.ICacheService _cacheHelper
+@using WebPagePub.Data.Enums;
 @using WebPagePub.Core.Utilities
 
 @{
@@ -28,22 +30,22 @@
                 <article>
                     <i>Last updated:  @Model.PageContent.FriendlyLastUpdateDateDisplay</i>
                     <hr />
+                    @Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.AboveReview))
 
                     @Html.Raw(Model.PageContent.Content)
 
                     @{await Html.RenderPartialAsync("_StructuredDataReview", Model.Review); }
 
-                    <hr />
-
                     @if (Model.AllowCommenting)
                     {
+                        <hr />
                         <h3>Comments</h3>
 
                         await Html.RenderPartialAsync("_ListComments", Model.Comments);
                         
                         await Html.RenderPartialAsync("_PostComment", Model.PostComment);
-
                         <hr />
+
                     }
         @if (Model.PageContent.Tags.Count > 0)
         {
@@ -62,6 +64,12 @@
                 </div>
         }
                 </article>
+
+                @{
+                    <hr />
+                    await Html.RenderPartialAsync("_EmailSubscribePartial", Model);
+                }
+                <br />
                  
             </div>
         </div>
