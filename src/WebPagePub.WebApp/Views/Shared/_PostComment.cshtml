@@ -1,6 +1,7 @@
 ﻿@model WebPagePub.Web.Models.SitePageCommentModel
 
 
+
 <form asp-controller="Home" asp-action="Comment" method="post" class="form-horizontal">
     <h4>Post Comment</h4>
     <input type="hidden" asp-for="RequestId" />
@@ -26,7 +27,7 @@
     <div class="form-group">
         <label asp-for="Email" class="col-md-2 control-label"></label>
         <div class="col-md-4">
-            <input asp-for="Email" class="form-control" />
+            <input asp-for="Email" class="form-control" type="email" />
             <span asp-validation-for="Email" class="text-danger"></span>
         </div>
     </div>

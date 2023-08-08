@@ -18,7 +18,7 @@ namespace WebPagePub.Web.Models
 
         [Display(Name = "Website (optional)")]
         [Url]
-        public string Website { get; set; } = default!;
+        public string? Website { get; set; } = default;
 
         [Display(Name = "Name")]
         [Required]
