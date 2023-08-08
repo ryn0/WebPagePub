@@ -37,6 +37,8 @@
 
                     @if (Model.AllowCommenting)
                     {
+                        <h3>Comments</h3>
+
                         await Html.RenderPartialAsync("_ListComments", Model.Comments);
                         
                         await Html.RenderPartialAsync("_PostComment", Model.PostComment);

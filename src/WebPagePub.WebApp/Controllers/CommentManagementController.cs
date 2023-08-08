@@ -1,8 +1,8 @@
-﻿using System;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebPagePub.Data.Constants;
+using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
@@ -96,15 +96,22 @@ namespace WebPagePub.Web.Controllers
             dbModel.WebSite = model.Website?.Trim();
             dbModel.CommentStatus = model.CommentStatus;
 
-            if (model.CommentStatus == Data.Enums.CommentStatus.Spam)
+            if (model.CommentStatus == Data.Enums.CommentStatus.Spam &&
+                !this.spamFilterService.IsBlocked(dbModel.IpAddress))
             {
-                if (!this.spamFilterService.IsBlocked(dbModel.IpAddress))
-                {
-                    this.spamFilterService.Create(dbModel.IpAddress);
-                }
+                this.spamFilterService.Create(dbModel.IpAddress);
             }
 
             this.sitePageCommentRepository.Update(dbModel);
+
+            return this.RedirectToAction(nameof(Index));
+        }
+
+        [Route("CommentManagement/deletespam")]
+        [HttpGet]
+        public IActionResult DeleteSpam()
+        {
+            var dbModel = this.sitePageCommentRepository.DeleteStaus(CommentStatus.Spam);
 
             return this.RedirectToAction(nameof(Index));
         }

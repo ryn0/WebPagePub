@@ -6,6 +6,7 @@ using log4net;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Enums;
+using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
 
@@ -145,6 +146,25 @@ namespace WebPagePub.Data.Repositories.Implementations
                 total = this.Context.SitePageComment.Count();
 
                 return model;
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex);
+
+                throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
+            }
+        }
+
+        public bool DeleteStaus(CommentStatus commentStatus)
+        {
+            try
+            {
+                var model = this.Context.SitePageComment.Where(x => x.CommentStatus == commentStatus);
+
+                this.Context.SitePageComment.RemoveRange(model);
+                this.Context.SaveChanges();
+
+                return model.Count() > 0;
             }
             catch (Exception ex)
             {
