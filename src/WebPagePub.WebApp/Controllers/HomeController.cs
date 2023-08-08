@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using System.Security.Cryptography;
 using System.Text;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.Enums;
-using WebPagePub.Data.Migrations;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
@@ -266,6 +264,8 @@ namespace WebPagePub.Web.Controllers
 
             switch (model.PageType)
             {
+                case PageType.Informational:
+                    return this.View("Informational", model);
                 case PageType.PageList:
                     return this.View("SectionList", model);
                 case PageType.Review:
@@ -569,7 +569,7 @@ namespace WebPagePub.Web.Controllers
                 MetaDescription = sitePage.MetaDescription,
                 Content = sitePage.Content,
                 LastUpdatedDateTimeUtc = sitePage.UpdateDate ?? sitePage.CreateDate,
-                PublishedDateTime = sitePage.PublishDateTimeUtc,
+                PublishedDateTimeUtc = sitePage.PublishDateTimeUtc,
                 CanonicalUrl = canonicalUrl.ToString(),
                 PhotoOriginalUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, defaultPhotoUrl?.PhotoFullScreenUrl),
                 PhotoUrlHeight = defaultPhotoUrl != null ? defaultPhotoUrl.PhotoFullScreenUrlHeight : 0,

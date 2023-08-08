@@ -37,29 +37,7 @@
                     @Html.Raw(Model.PageContent.Content)
 
                     <hr />
-                    @if (Model.AllowCommenting)
-                    {
-                        await Html.RenderPartialAsync("_ListComments", Model.Comments);
-                        await Html.RenderPartialAsync("_PostComment", Model.PostComment);
-
-                        <hr />
-                    }
                 </article>
-
-                @if (Model.PageContent.Tags.Count > 0)
-                {
-                    await Html.RenderPartialAsync("_TagFooter", Model.PageContent.Tags);
-                }
-
-                <hr />
-                @{
-                    await Html.RenderPartialAsync("_EmailSubscribePartial", Model);
-                }
-                <br />
-
-                @{
-                    await Html.RenderPartialAsync("_PreviousAndNext", Model.PreviousAndNext);
-                }
             </div>
         </div>
     </div>
