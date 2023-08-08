@@ -7,9 +7,15 @@
 <h2>@ViewData["Title"]</h2>
 <hr />
 
+ 
+
+<a href="~/commentmanagement/deletespam"
+   onclick="return confirm('Are you sure you want to delete all posts marked as spam?')">Delete spam</a>
 
 @if (Model != null && Model.Items.Count() > 0)
 {
+
+
     <table class="table">
         <thead>
             <tr>
