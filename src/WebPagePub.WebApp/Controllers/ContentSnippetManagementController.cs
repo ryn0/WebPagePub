@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
-using WebPagePub.Web.Models;
+using WebPagePub.WebApp.Models.ContentSnippet;
 
 namespace WebPagePub.Web.Controllers
 {

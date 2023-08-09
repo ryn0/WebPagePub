@@ -1,8 +1,9 @@
 ﻿using WebPagePub.Data.Enums;
 using WebPagePub.Services.Interfaces;
+using WebPagePub.Web.Models;
 using WebPagePub.WebApp.Models.StructuredData;
 
-namespace WebPagePub.Web.Models
+namespace WebPagePub.WebApp.Models.SitePage
 {
     public class SitePageDisplayModel
     {
@@ -12,9 +13,9 @@ namespace WebPagePub.Web.Models
         {
             this.cacheService = cacheService;
 
-            this.Organization = new StructedDataOrganizationModel(this.cacheService);
-            this.Review = new StructureDataReviewModel(this.cacheService);
-            this.Website = new StructedDataWebsiteModel(this.cacheService);
+            Organization = new StructedDataOrganizationModel(this.cacheService);
+            Review = new StructureDataReviewModel(this.cacheService);
+            Website = new StructedDataWebsiteModel(this.cacheService);
         }
 
         public SitePageContentModel PageContent { get; set; } = new SitePageContentModel();
@@ -31,7 +32,7 @@ namespace WebPagePub.Web.Models
 
         public List<SitePageContentModel> Items { get; set; } = new List<SitePageContentModel>();
 
-        public List<SitePageCommentModel> Comments { get; set; } = new List<SitePageCommentModel>();
+        public List<SitePageCommentDisplayModel> Comments { get; set; } = new List<SitePageCommentDisplayModel>();
 
         public SitePagePagingModel Paging { get; set; } = new SitePagePagingModel();
 

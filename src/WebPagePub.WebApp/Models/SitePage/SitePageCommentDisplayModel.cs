@@ -1,14 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using WebPagePub.Data.Enums;
 
-namespace WebPagePub.Web.Models
+namespace WebPagePub.WebApp.Models.SitePage
 {
-    public class SitePageCommentModel
+    public class SitePageCommentDisplayModel
     {
-        public int SitePageCommentId { get; set; }
-
-        public int SitePageId { get; set; }
-
         public DateTime CreateDate { get; set; }
 
         [Display(Name = "Email")]
@@ -27,15 +23,5 @@ namespace WebPagePub.Web.Models
         [Display(Name = "Comment")]
         [Required]
         public string Comment { get; set; } = default!;
-
-        public CommentStatus CommentStatus { get; set; }
-
-        public Guid RequestId { get; set; }
-
-        public int Number1 { get; set; }
-
-        public int Number2 { get; set; }
-
-        public int SumOf2Numbers { get; set; }
     }
 }

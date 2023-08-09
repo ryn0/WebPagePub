@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace WebPagePub.Web.Models
+namespace WebPagePub.WebApp.Models.ContentSnippet
 {
     public class ContentSnippetEditListModel
     {

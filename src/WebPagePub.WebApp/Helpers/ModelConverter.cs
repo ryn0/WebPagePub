@@ -1,7 +1,7 @@
 ﻿using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models;
 using WebPagePub.Services.Interfaces;
-using WebPagePub.Web.Models;
+using WebPagePub.WebApp.Models.SitePage;
 
 namespace WebPagePub.Web.Helpers
 {

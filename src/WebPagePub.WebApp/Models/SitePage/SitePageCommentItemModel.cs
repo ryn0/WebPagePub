@@ -1,6 +1,6 @@
 ﻿using WebPagePub.Data.Enums;
 
-namespace WebPagePub.Web.Models
+namespace WebPagePub.WebApp.Models.SitePage
 {
     public class SitePageCommentItemModel
     {
@@ -10,6 +10,6 @@ namespace WebPagePub.Web.Models
 
         public string Name { get; set; } = default!;
 
-        public CommentStatus CommentStatus { get;   set; }
+        public CommentStatus CommentStatus { get; set; }
     }
 }

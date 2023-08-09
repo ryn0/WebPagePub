@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebPagePub.Web.Models
+namespace WebPagePub.WebApp.Models.Author
 {
     public class AuthorEditModel
     {

@@ -6,22 +6,23 @@
 }
  <h2>@ViewData["Title"]</h2>
  
-<a class="btn btn-success"  href="~/LinkManagement/create">Create new</a>
-<hr />
+ <hr />
 
 
 <form asp-controller="EmailSubscriptionManagement" asp-action="SendMail" method="post" class="form-horizontal">
     <div class="form-group"> <i>Comma seperated</i>
         <label   class="col-md-2 control-label"></label>
         <div class="col-md-10">
-      <b>To:</b>      <input name="SendToEmails" class="form-control" />
+      <b>To:</b>      
+      <input name="SendToEmails" class="form-control" />
         </div>
     </div>
 
     <div class="form-group">
         <label  class="col-md-2 control-label"></label>
         <div class="col-md-10">
-            <b>Title:</b>      <input name="EmailTitle" class="form-control" />
+            <b>Title:</b>      
+            <input name="EmailTitle" class="form-control" />
         </div>
     </div>
 
