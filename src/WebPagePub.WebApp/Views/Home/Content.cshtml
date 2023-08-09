@@ -1,4 +1,4 @@
-﻿@model WebPagePub.Web.Models.SitePageDisplayModel
+﻿@model WebPagePub.WebApp.Models.SitePage.SitePageDisplayModel
 
 @using WebPagePub.Core.Utilities
 @{
@@ -51,15 +51,17 @@
                     await Html.RenderPartialAsync("_TagFooter", Model.PageContent.Tags);
                 }
 
-                <hr />
-                @{
-                    await Html.RenderPartialAsync("_EmailSubscribePartial", Model);
-                }
-                <br />
-
+          
                 @{
                     await Html.RenderPartialAsync("_PreviousAndNext", Model.PreviousAndNext);
                 }
+
+          <hr />
+
+                @{
+                    await Html.RenderPartialAsync("_EmailSubscribePartial", Model);
+                }
+                      <br />
             </div>
         </div>
     </div>

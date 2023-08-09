@@ -1,6 +1,6 @@
-﻿namespace WebPagePub.Web.Models
+﻿namespace WebPagePub.WebApp.Models.SitePage
 {
-    public class SitePagePagingModel
+    public class SitePageCommentListModel
     {
         public int PageCount { get; set; }
 
@@ -9,5 +9,7 @@
         public int CurrentPageNumber { get; set; }
 
         public int QuantityPerPage { get; set; }
+
+        public List<SitePageCommentItemModel> Items { get; set; } = new List<SitePageCommentItemModel>();
     }
 }

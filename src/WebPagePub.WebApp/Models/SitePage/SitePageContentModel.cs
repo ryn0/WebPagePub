@@ -1,4 +1,4 @@
-﻿namespace WebPagePub.Web.Models
+﻿namespace WebPagePub.WebApp.Models.SitePage
 {
     public class SitePageContentModel
     {
@@ -8,15 +8,15 @@
         {
             get
             {
-                return this.canonicalUrl;
+                return canonicalUrl;
             }
             set
             {
-                this.canonicalUrl = value;
+                canonicalUrl = value;
 
-                if (!string.IsNullOrWhiteSpace(this.canonicalUrl))
+                if (!string.IsNullOrWhiteSpace(canonicalUrl))
                 {
-                    this.canonicalUrl = this.canonicalUrl.TrimEnd('/');
+                    canonicalUrl = canonicalUrl.TrimEnd('/');
                 }
             }
         }
@@ -41,7 +41,7 @@
         {
             get
             {
-                return this.Key.ToLower() == "index";
+                return Key.ToLower() == "index";
             }
         }
 
@@ -57,7 +57,7 @@
         {
             get
             {
-                return this.FormatDate(this.PublishedDateTimeUtc);
+                return FormatDate(PublishedDateTimeUtc);
             }
         }
 
@@ -65,13 +65,13 @@
         {
             get
             {
-                if (this.LastUpdatedDateTimeUtc > this.PublishedDateTimeUtc)
+                if (LastUpdatedDateTimeUtc > PublishedDateTimeUtc)
                 {
-                    return this.FormatDate(this.LastUpdatedDateTimeUtc);
+                    return FormatDate(LastUpdatedDateTimeUtc);
                 }
                 else
                 {
-                    return this.FormatDate(this.PublishedDateTimeUtc);
+                    return FormatDate(PublishedDateTimeUtc);
                 }
             }
         }
@@ -94,7 +94,7 @@
         public string DefaultNextPhotoThumbCdnUrl { get; set; } = default!;
 
         public string PageHeader { get; set; } = default!;
-        public string SectionKey { get;  set; } = default!;
+        public string SectionKey { get; set; } = default!;
 
         private string FormatDate(DateTime date)
         {

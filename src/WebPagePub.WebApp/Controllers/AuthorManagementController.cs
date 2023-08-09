@@ -7,6 +7,7 @@ using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.Core.Utilities;
 using WebPagePub.Web.Models;
+using WebPagePub.WebApp.Models.Author;
 
 namespace WebPagePub.WebApp.Controllers
 {

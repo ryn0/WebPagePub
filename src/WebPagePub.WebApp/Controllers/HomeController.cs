@@ -9,6 +9,8 @@ using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.Web.Helpers;
 using WebPagePub.Web.Models;
+using WebPagePub.WebApp.Models.Author;
+using WebPagePub.WebApp.Models.SitePage;
 using WebPagePub.WebApp.Models.StructuredData;
 
 namespace WebPagePub.Web.Controllers
@@ -476,9 +478,9 @@ namespace WebPagePub.Web.Controllers
             return displayModel;
         }
 
-        private List<SitePageCommentModel> BuildComments(SitePage sitePage)
+        private List<SitePageCommentDisplayModel> BuildComments(SitePage sitePage)
         {
-            var commentModel = new List<SitePageCommentModel>();
+            var commentModel = new List<SitePageCommentDisplayModel>();
 
             if (!sitePage.AllowsComments)
             {
@@ -491,14 +493,11 @@ namespace WebPagePub.Web.Controllers
 
             foreach (var commentItem in pageComments)
             {
-                commentModel.Add(new SitePageCommentModel()
+                commentModel.Add(new SitePageCommentDisplayModel()
                 {
                     Comment = commentItem.Comment,
-                    CommentStatus = commentItem.CommentStatus,
                     Email = commentItem.Email,
                     Name = commentItem.Name,
-                    SitePageCommentId = commentItem.SitePageCommentId,
-                    SitePageId = sitePage.SitePageId,
                     Website = commentItem.WebSite,
                     CreateDate = commentItem.CreateDate
                 });

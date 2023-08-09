@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using WebPagePub.Data.Enums;
 
-namespace WebPagePub.Web.Models
+namespace WebPagePub.WebApp.Models.SitePage
 {
     public class SitePageEditModel
     {
@@ -23,7 +23,7 @@ namespace WebPagePub.Web.Models
         public DateTime PublishDateTimeUtc { get; set; } = DateTime.UtcNow;
 
         [Display(Name = "Is Live")]
-        public bool IsLive { get;   set; }
+        public bool IsLive { get; set; }
 
         [Display(Name = "Exclude From XML")]
         public bool ExcludePageFromSiteMapXml { get; set; }
@@ -51,8 +51,8 @@ namespace WebPagePub.Web.Models
 
         [StringLength(160)]
         public string MetaDescription { get; set; } = default!;
-        public string BreadcrumbName { get;   set; } = default!;
-        public string MetaKeywords { get;  set; } = default!;
+        public string BreadcrumbName { get; set; } = default!;
+        public string MetaKeywords { get; set; } = default!;
 
         [Display(Name = "Allows Comments")]
         public bool AllowsComments { get; set; }

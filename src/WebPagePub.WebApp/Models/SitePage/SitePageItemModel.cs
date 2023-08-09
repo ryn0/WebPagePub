@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WebPagePub.Web.Models
+namespace WebPagePub.WebApp.Models.SitePage
 {
     public class SitePageItemModel
     {
@@ -15,7 +15,7 @@ namespace WebPagePub.Web.Models
 
         public string Key { get; set; } = default!;
 
-        public bool IsLive { get;  set; }
+        public bool IsLive { get; set; }
 
         public string LiveUrlPath { get; set; } = default!;
 
@@ -23,6 +23,6 @@ namespace WebPagePub.Web.Models
 
         public bool IsSiteSection { get; set; }
 
-        public int SitePageSectionId { get;  set; }
+        public int SitePageSectionId { get; set; }
     }
 }
