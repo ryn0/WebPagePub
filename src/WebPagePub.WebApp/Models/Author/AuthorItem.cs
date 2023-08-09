@@ -1,6 +1,6 @@
 ﻿using WebPagePub.Data.Constants;
 
-namespace WebPagePub.Web.Models
+namespace WebPagePub.WebApp.Models.Author
 {
     public class AuthorItem
     {
@@ -9,9 +9,9 @@ namespace WebPagePub.Web.Models
             string firstName,
             string lastName)
         {
-            this.AuthorId = authorId;
-            this.FirstName = firstName;
-            this.LastName = lastName;
+            AuthorId = authorId;
+            FirstName = firstName;
+            LastName = lastName;
         }
 
         public string FirstName { get; private set; } = StringConstants.DefaultAuthorName;
@@ -22,7 +22,7 @@ namespace WebPagePub.Web.Models
         {
             get
             {
-                return string.Format("{0} {1}", this.FirstName, this.LastName);
+                return string.Format("{0} {1}", FirstName, LastName);
             }
         }
     }

@@ -1,6 +1,6 @@
 ﻿using WebPagePub.Data.Enums;
 
-namespace WebPagePub.Web.Models
+namespace WebPagePub.WebApp.Models.ContentSnippet
 {
     public class ContentSnippetDisplayModel
     {

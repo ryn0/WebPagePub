@@ -14,6 +14,8 @@ using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.Web.Helpers;
 using WebPagePub.Web.Models;
+using WebPagePub.WebApp.Models.Author;
+using WebPagePub.WebApp.Models.SitePage;
 
 namespace WebPagePub.Web.Controllers
 {
