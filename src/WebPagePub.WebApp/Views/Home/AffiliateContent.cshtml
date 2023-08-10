@@ -2,7 +2,6 @@
 @inject WebPagePub.Services.Interfaces.ICacheService _cacheHelper
 @using WebPagePub.Data.Enums;
 @using WebPagePub.Core.Utilities
-
 @{
     ViewData["Title"] = Model.PageContent.Title;
     ViewData["PhotoUrl"] = Model.PageContent.PhotoOriginalUrl;
@@ -12,21 +11,20 @@
     ViewData["MetaKeywords"] = Model.PageContent.MetaKeywords;
     ViewData["CanonicalUrl"] = Model.PageContent.CanonicalUrl;
 }
-
 @section StylesHeader {
- 
 }
 
 <section>
     <div class="container">
         <div class="row">
             <div class="col-md-12">
+
                 <h1 class="main-page-header">@Model.PageContent.PageHeader</h1>
 
                 @{ await Html.RenderPartialAsync("_BreadcrumbList", Model.BreadcrumbList); }
                 @{ await Html.RenderPartialAsync("_StructuredDataOrganization", Model.Organization); }
                 @{ await Html.RenderPartialAsync("_StructuredDataWebsite", Model.Website); }
- 
+
                 <article>
                     <i>Last updated:  @Model.PageContent.FriendlyLastUpdateDateDisplay</i>
                     <hr />
@@ -34,54 +32,14 @@
 
                     @Html.Raw(Model.PageContent.Content)
 
-                    @{await Html.RenderPartialAsync("_StructuredDataReview", Model.Review); }
-
-                    @if (Model.AllowCommenting)
-                    {
-                        <hr />
-                        <h3>Comments</h3>
-
-                        await Html.RenderPartialAsync("_ListComments", Model.Comments);
-                        
-                        await Html.RenderPartialAsync("_PostComment", Model.PostComment);
-                        <hr />
-
-                    }
-        @if (Model.PageContent.Tags.Count > 0)
-        {
-            var current = 1;
-
-            <div class="page-tags">
-            <b>Tagged:</b>
-            
-            @foreach (var tag in Model.PageContent.Tags)
-            {
-                <a href="~/tag/@tag.UrlKey()">@tag</a>if (current != Model.PageContent.Tags.Count)
-                        {<text>, </text>
-                        current++;
-                        }
-            }
-                </div>
-        }
-                </article>
-
-                @{
                     <hr />
-                    await Html.RenderPartialAsync("_EmailSubscribePartial", Model);
-                }
-                <br />
-                 
+                </article>
             </div>
         </div>
-
-      
     </div>
 </section>
- 
 
 @section ScriptsFooter{
-
-
 
 }
 

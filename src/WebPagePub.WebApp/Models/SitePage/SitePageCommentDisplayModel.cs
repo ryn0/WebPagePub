@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WebPagePub.Core.Utilities;
 using WebPagePub.Data.Enums;
 
 namespace WebPagePub.WebApp.Models.SitePage
@@ -11,6 +12,14 @@ namespace WebPagePub.WebApp.Models.SitePage
         [EmailAddress]
         [Required]
         public string Email { get; set; } = default!;
+
+        public string FriendlyCreateDateDisplay
+        {
+            get
+            {
+                return DateUtilities.FormatDate(CreateDate);
+            }
+        }
 
         [Display(Name = "Website (optional)")]
         [Url]

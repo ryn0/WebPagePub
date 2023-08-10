@@ -19,7 +19,7 @@
         FooterHtml = 14,
         MenuHtml = 15,
         InstagramUrl = 16,
-        AboveReview = 17
+        AffiliateMessage = 17
     }
 
     public enum PageType
@@ -29,7 +29,8 @@
         Review = 2,
         PageList = 3,
         Photo = 4,
-        Informational = 5
+        Informational = 5,
+        AffiliateContent = 6
     }
 
     public enum CommentStatus : byte

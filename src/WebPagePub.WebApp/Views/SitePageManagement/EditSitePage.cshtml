@@ -6,6 +6,9 @@
 
 <h2>@ViewData["Title"]</h2>
 
+<a href="~/sitepages/?siteSectionId=@Model.SitePageSectionId">&lt; back</a>
+
+<br />
 <a href="@Model.PreviewUrlPath">Preview</a> <span>|</span>
  
 <a href="@Model.LiveUrlPath">Live</a>
@@ -106,39 +109,42 @@
     <div class="form-group">
         <label asp-for="PageType" class="col-md-2 control-label"></label>
         <div class="col-md-10">
-            <select class="form-control" asp-for="PageType" asp-items="Html.GetEnumSelectList<PageType>()"></select>
+            <select class="form-control" asp-for="PageType" asp-items="Html.GetEnumSelectList<PageType>().OrderBy(x => x.Text)"></select>
         </div>
     </div>
 
     <hr />
 
-    <h4>Review</h4>
-    <div class="form-group">
-        <label asp-for="ReviewItemName" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="ReviewItemName" class="form-control" />
+    @if (Model.PageType == PageType.Review)
+    {
+        <h4>Review</h4>
+        <div class="form-group">
+            <label asp-for="ReviewItemName" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ReviewItemName" class="form-control" />
+            </div>
         </div>
-    </div>
-    <div class="form-group">
-        <label asp-for="ReviewRatingValue" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="ReviewRatingValue" class="form-control" />
+        <div class="form-group">
+            <label asp-for="ReviewRatingValue" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ReviewRatingValue" class="form-control" />
+            </div>
         </div>
-    </div>
 
-    <div class="form-group">
-        <label asp-for="ReviewWorstValue" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="ReviewWorstValue" class="form-control" />
+        <div class="form-group">
+            <label asp-for="ReviewWorstValue" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ReviewWorstValue" class="form-control" />
+            </div>
         </div>
-    </div>
-    <div class="form-group">
-        <label asp-for="ReviewBestValue" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="ReviewBestValue" class="form-control" />
+        <div class="form-group">
+            <label asp-for="ReviewBestValue" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ReviewBestValue" class="form-control" />
+            </div>
         </div>
-    </div>
-    <hr />
+        <hr />
+    }
     <div class="form-group">
         <label class="col-md-2 control-label">Photos</label>
         <a class="btn btn-info" href="~/sitepages/uploadphotos/@Model.SitePageId">Upload Photos</a>
@@ -168,19 +174,35 @@
                                     <ul>
                                         <li>
 
-                                            <a href="@photo.PhotoThumbUrl">Thumb</a> | <a href="@photo.PhotoThumbCdnUrl">CDN</a>
+                                            <a href="@photo.PhotoThumbUrl">Thumb</a> | 
+                                            @if (!string.IsNullOrEmpty(photo.PhotoThumbCdnUrl))
+                                            {
+                                                <a href="@photo.PhotoThumbCdnUrl">CDN</a>
+                                            }
                                         </li>
 
                                         <li>
 
-                                            <a href="@photo.PhotoPreviewUrl">Preview</a> | <a href="@photo.PhotoPreviewCdnUrl">CDN</a>
+                                            <a href="@photo.PhotoPreviewUrl">Preview</a> |
+                                            @if (!string.IsNullOrEmpty(photo.PhotoPreviewCdnUrl))
+                                            {
+                                                <a href="@photo.PhotoPreviewCdnUrl">CDN</a>
+                                            }
                                         </li>
 
                                         <li>
-                                            <a href="@photo.PhotoFullScreenUrl">Full screen</a> | <a href="@photo.PhotoFullScreenCdnUrl">CDN</a>
+                                            <a href="@photo.PhotoFullScreenUrl">Full screen</a> |
+                                            @if (!string.IsNullOrEmpty(photo.PhotoFullScreenCdnUrl))
+                                            {
+                                                <a href="@photo.PhotoFullScreenCdnUrl">CDN</a>
+                                            }
                                         </li>
                                         <li>
-                                            <a href="@photo.PhotoOriginalUrl">Original</a> | <a href="@photo.PhotoOriginalCdnUrl">CDN</a>
+                                            <a href="@photo.PhotoOriginalUrl">Original</a> | 
+                                            @if (!string.IsNullOrEmpty(photo.PhotoOriginalCdnUrl))
+                                            {
+                                                <a href="@photo.PhotoOriginalCdnUrl">CDN</a>
+                                            }
                                         </li>
 
                                     </ul>

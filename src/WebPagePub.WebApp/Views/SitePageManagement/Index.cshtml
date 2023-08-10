@@ -2,7 +2,7 @@
  
  
 @{
-    ViewData["Title"] = "Pages";
+    ViewData["Title"] = "Pages: " + Model.SitePageSectionTitle;
 }
  <h2>@ViewData["Title"]</h2>
  <hr />
@@ -10,13 +10,13 @@
 @if (Model.IsSiteSectionPage)
 {
     <a class="btn btn-success" href="~/sitepages/createsitesection">Create new section</a>
-
 }
 else
 {
+    <a href="~/sitepages">&lt; back</a>
+    <hr />
     <a class="btn btn-success"  href="~/sitepages/createsitepage/@Model.SitePageSectionId">Create new page</a>
 }
-
 
 @if (Model != null && Model.Items.Count() > 0)
 {
@@ -40,46 +40,34 @@ else
                     <span>
                         &#x1f4c2;
                     </span>
-                    <a href="~/sitepages/?siteSectionId=@item.SitePageSectionId">@item.Title</a>
+                    <a title="@item.Title" href="~/sitepages/?siteSectionId=@item.SitePageSectionId">/@item.Key</a>
                 }
                 else
                 {
                     <a href="@item.LiveUrlPath">@item.Title</a>
-
                 }
-
             </td>
             <td>
                 @item.CreateDate
             </td>
- 
-
             <td>
                 @if (item.IsSiteSection)
                 {
-
                     <a class="btn btn-sm btn-info"
                        href="~/sitepages/EditSiteSection/@item.SitePageSectionId">Edit</a>
-
                 }
                 else
                 {
-
-
-
-                <a class="btn btn-sm btn-info" 
-                   href="~/sitepages/editsitepage/@item.SitePageId">Edit</a>
+                    <a class="btn btn-sm btn-info" 
+                       href="~/sitepages/editsitepage/@item.SitePageId">Edit</a>
                 }
-
             </td>
             <td>
                 @if (item.IsIndex)
                 {
                     @if (item.IsSiteSection)
                     {
-
                         <span>Home Section</span>
-
                     }
                     else
                     {

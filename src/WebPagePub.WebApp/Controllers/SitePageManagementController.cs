@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Memory;
 using WebPagePub.Core.Utilities;
 using WebPagePub.Data.Constants;
@@ -77,11 +78,22 @@ namespace WebPagePub.Web.Controllers
                 throw new Exception("invalid page model");
             }
 
-            this.siteSectionRepository.Create(new SitePageSection()
+            var siteSection = this.siteSectionRepository.Create(new SitePageSection()
             {
                 Title = model.Title.Trim(),
                 Key = model.Title.UrlKey(),
                 BreadcrumbName = model.Title.Trim()
+            });
+
+            var entry = this.sitePageRepository.Create(new SitePage()
+            {
+                Title = siteSection.Title,
+                Key = StringConstants.DefaultKey,
+                PageHeader = siteSection.Title,
+                BreadcrumbName = siteSection.Title,
+                PublishDateTimeUtc = DateTime.UtcNow,
+                SitePageSectionId = siteSection.SitePageSectionId,
+                CreatedByUserId = this.userManager.GetUserId(this.User)
             });
 
             return this.RedirectToAction(nameof(this.SitePages));
@@ -98,7 +110,8 @@ namespace WebPagePub.Web.Controllers
                 SiteSectionId = siteSection.SitePageSectionId,
                 Title = siteSection.Title,
                 BreadcrumbName = siteSection.BreadcrumbName,
-                IsHomePageSection = siteSection.IsHomePageSection
+                IsHomePageSection = siteSection.IsHomePageSection,
+                Key = siteSection.Key
             });
         }
 
@@ -123,10 +136,15 @@ namespace WebPagePub.Web.Controllers
         [HttpPost]
         public IActionResult EditSiteSection(EditSiteSectionModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                throw new Exception();
+            }
+
             var siteSection = this.siteSectionRepository.Get(model.SiteSectionId);
 
             siteSection.Title = model.Title.Trim();
-            siteSection.Key = model.Title.UrlKey();
+            siteSection.Key = model.Key.UrlKey();
             siteSection.BreadcrumbName = model.BreadcrumbName.Trim();
             siteSection.IsHomePageSection = model.IsHomePageSection;
 
@@ -159,7 +177,7 @@ namespace WebPagePub.Web.Controllers
 
                 var sitePage = this.sitePageRepository.Get(entry.SitePageId);
                 var sitePageSection = this.siteSectionRepository.Get(sitePage.SitePageSectionId);
-                var editModel = this.ToUiEditModel(sitePage, sitePageSection.IsHomePageSection);
+                var editModel = this.ToUiEditModel(sitePage, sitePageSection);
                 img.Dispose();
                 this.ClearCache(editModel, sitePage);
             }
@@ -206,11 +224,12 @@ namespace WebPagePub.Web.Controllers
                 model = SetSitePageListModel(siteSectionId, pageNumber, model);
             }
 
-            return this.View(nameof(Index), model);
+            return this.View("index", model);
         }
 
         private SitePageListModel SetSitePageListModel(int siteSectionId, int pageNumber, SitePageListModel model)
         {
+            var sitePageSection = this.siteSectionRepository.Get(siteSectionId);
             model.IsSiteSectionPage = false;
 
             var pages = this.sitePageRepository.GetPage(pageNumber, siteSectionId, AmountPerPage, out int total);
@@ -223,6 +242,7 @@ namespace WebPagePub.Web.Controllers
             model.PageCount = (int)Math.Ceiling(pageCount);
 
             model.SitePageSectionId = siteSectionId;
+            model.SitePageSectionTitle = sitePageSection.Title;
             return model;
         }
 
@@ -230,9 +250,12 @@ namespace WebPagePub.Web.Controllers
         [HttpGet]
         public IActionResult CreateSitePage(int sitePageSectionId)
         {
+            var siteSection = this.siteSectionRepository.Get(sitePageSectionId);
+
             var model = new SitePageManagementCreateModel()
             {
-                SiteSectionId = sitePageSectionId
+                SiteSectionId = siteSection.SitePageSectionId,
+                SiteSectionKey = siteSection.Key
             };
 
             return this.View(model);
@@ -250,7 +273,7 @@ namespace WebPagePub.Web.Controllers
             var titleFormattted = model.Title.Trim();
             var key = titleFormattted.UrlKey();
 
-            if (this.sitePageRepository.Get(titleFormattted) != null)
+            if (this.sitePageRepository.Get(key) != null)
             {
                 throw new Exception($"Page with key '{titleFormattted}' already exists");
             }
@@ -263,7 +286,8 @@ namespace WebPagePub.Web.Controllers
                 BreadcrumbName = titleFormattted,
                 PublishDateTimeUtc = DateTime.UtcNow,
                 SitePageSectionId = model.SiteSectionId,
-                CreatedByUserId = this.userManager.GetUserId(this.User)
+                CreatedByUserId = this.userManager.GetUserId(this.User),
+                AllowsComments = true
             });
 
             if (entry.SitePageId > 0)
@@ -440,7 +464,7 @@ namespace WebPagePub.Web.Controllers
             var dbModel = this.sitePageRepository.Get(sitePageId);
             var sitePageSection = this.siteSectionRepository.Get(dbModel.SitePageSectionId);
 
-            var model = this.ToUiEditModel(dbModel, sitePageSection.IsHomePageSection);
+            var model = this.ToUiEditModel(dbModel, sitePageSection);
 
             return this.View(model);
         }
@@ -667,42 +691,43 @@ namespace WebPagePub.Web.Controllers
             return dbModel;
         }
 
-        private SitePageEditModel ToUiEditModel(SitePage dbModel, bool isHomePageSection)
+        private SitePageEditModel ToUiEditModel(SitePage sitePage, SitePageSection sitePageSection)
         {
             var model = new SitePageEditModel
             {
-                Key = dbModel.Key,
-                BreadcrumbName = dbModel.BreadcrumbName,
-                Content = dbModel.Content,
-                PageHeader = dbModel.PageHeader,
-                Title = dbModel.Title,
-                SitePageId = dbModel.SitePageId,
-                PublishDateTimeUtc = dbModel.PublishDateTimeUtc,
-                IsLive = dbModel.IsLive,
-                ExcludePageFromSiteMapXml = dbModel.ExcludePageFromSiteMapXml,
-                LiveUrlPath = UrlBuilder.BlogUrlPath(dbModel.SitePageSection.Key, dbModel.Key),
-                PreviewUrlPath = UrlBuilder.BlogPreviewUrlPath(dbModel.SitePageId),
-                MetaDescription = dbModel.MetaDescription,
-                PageType = dbModel.PageType,
-                ReviewBestValue = dbModel.ReviewBestValue,
-                ReviewItemName = dbModel.ReviewItemName,
-                ReviewRatingValue = dbModel.ReviewRatingValue,
-                ReviewWorstValue = dbModel.ReviewWorstValue,
-                MetaKeywords = dbModel.MetaKeywords,
-                AllowsComments = dbModel.AllowsComments,
-                IsSectionHomePage = dbModel.IsSectionHomePage,
-                AuthorId = dbModel.AuthorId,
-                Authors = AddAuthors()
+                Key = sitePage.Key,
+                BreadcrumbName = sitePage.BreadcrumbName,
+                Content = sitePage.Content,
+                PageHeader = sitePage.PageHeader,
+                Title = sitePage.Title,
+                SitePageId = sitePage.SitePageId,
+                PublishDateTimeUtc = sitePage.PublishDateTimeUtc,
+                IsLive = sitePage.IsLive,
+                ExcludePageFromSiteMapXml = sitePage.ExcludePageFromSiteMapXml,
+                LiveUrlPath = UrlBuilder.BlogUrlPath(sitePageSection.Key, sitePage.Key),
+                PreviewUrlPath = UrlBuilder.BlogPreviewUrlPath(sitePage.SitePageId),
+                MetaDescription = sitePage.MetaDescription,
+                PageType = sitePage.PageType,
+                ReviewBestValue = sitePage.ReviewBestValue,
+                ReviewItemName = sitePage.ReviewItemName,
+                ReviewRatingValue = sitePage.ReviewRatingValue,
+                ReviewWorstValue = sitePage.ReviewWorstValue,
+                MetaKeywords = sitePage.MetaKeywords,
+                AllowsComments = sitePage.AllowsComments,
+                IsSectionHomePage = sitePage.IsSectionHomePage,
+                AuthorId = sitePage.AuthorId,
+                Authors = AddAuthors(),
+                SitePageSectionId = sitePageSection.SitePageSectionId
             };
 
             var mc = new ModelConverter(this.cacheService);
 
-            foreach (var photo in dbModel.Photos.OrderBy(x => x.Rank))
+            foreach (var photo in sitePage.Photos.OrderBy(x => x.Rank))
             {
                 AddBlogPhotoToModel(model, mc, photo);
             }
 
-            foreach (var tagItem in dbModel.SitePageTags.OrderBy(x => x.Tag.Name))
+            foreach (var tagItem in sitePage.SitePageTags.OrderBy(x => x.Tag.Name))
             {
                 model.BlogTags.Add(tagItem.Tag.Name);
             }

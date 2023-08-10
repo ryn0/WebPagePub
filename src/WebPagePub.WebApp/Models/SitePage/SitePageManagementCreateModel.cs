@@ -8,5 +8,7 @@ namespace WebPagePub.WebApp.Models.SitePage
 
         [Required]
         public int SiteSectionId { get; set; }
+
+        public string? SiteSectionKey { get; set; }
     }
 }

@@ -28,6 +28,8 @@
 
         public const string NoneSelected = "- none -";
 
+        public const string DefaultKey = "index";
+
         public static readonly string[] BotUserAgents =
         {
                 "Googlebot",

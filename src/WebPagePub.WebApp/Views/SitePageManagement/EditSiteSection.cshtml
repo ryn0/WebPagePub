@@ -20,6 +20,12 @@
         </div>
     </div>
     <div class="form-group">
+        <label asp-for="Key" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="Key" class="form-control" autocomplete="off" />
+        </div>
+    </div>
+    <div class="form-group">
         <label asp-for="IsHomePageSection" class="col-md-2 control-label"></label>
         <div class="col-md-10">
             @Html.CheckBoxFor(x => x.IsHomePageSection)
@@ -27,7 +33,7 @@
     </div>
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
-            <button type="submit" class="btn btn-default">Update</button>
+            <button type="submit" class="btn btn-success">Update</button>
         </div>
     </div>
 </form>

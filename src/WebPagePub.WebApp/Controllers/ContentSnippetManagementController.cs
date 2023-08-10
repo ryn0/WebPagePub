@@ -72,9 +72,10 @@ namespace WebPagePub.Web.Controllers
         {
             var model = new ContentSnippetEditModel()
             {
+                SnippetType = Data.Enums.SiteConfigSetting.Unknown
             };
 
-            return this.View();
+            return this.View(model);
         }
 
         [Route("ContentSnippetManagement/edit")]

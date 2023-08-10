@@ -126,6 +126,11 @@ namespace WebPagePub.Web.Controllers
             var section = this.sitePageSectionRepository.Get(sectionKey);
             var homePage = this.sitePageRepository.GetSectionHomePage(section.SitePageSectionId);
 
+            if (homePage == null)
+            {
+                return Show404Page();
+            }
+
             return this.CatchAllRequests(sectionKey, homePage.Key);
         }
 
@@ -266,6 +271,8 @@ namespace WebPagePub.Web.Controllers
 
             switch (model.PageType)
             {
+                case PageType.AffiliateContent:
+                    return this.View("AffiliateContent", model);
                 case PageType.Informational:
                     return this.View("Informational", model);
                 case PageType.PageList:
@@ -607,7 +614,9 @@ namespace WebPagePub.Web.Controllers
 
         private string ConvertBlobToCdnUrl(string blobPrefix, string cdnPrefix, string blobUrl)
         {
-            if (string.IsNullOrWhiteSpace(blobUrl))
+            if (string.IsNullOrWhiteSpace(blobPrefix) ||
+                string.IsNullOrWhiteSpace(cdnPrefix) ||
+                string.IsNullOrWhiteSpace(blobUrl))
             {
                 return null;
             }
