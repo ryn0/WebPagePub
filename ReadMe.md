@@ -5,9 +5,14 @@ WebPagePub is a blogging platform. It was written in C# and runs on .NET Core.
 
 Deployment
 -----
-You will need to add a SQL Server and Azure Storage connection string to the appsettings.json file for the web and data projects. Both should have the same values.
+1. Create an SQL Server database instance and update the appsettings.json file with the connection string.
+2. Create an IIS website which can you deploy the project to.
+3. Deploy the site with the proper settings using the CI.bat file. It needs the parameters for SQL and IIS
+4. At this time, you will have to manually create the first Administrator user in the SQL database. 
+5. Once you have the site running and can log in, you need to add an Azure storage connection string (you will need an Azure storage account created to do this)
+6. From here, you should be able to use most of the site features.
 
-The website and database can be deployed using the CI.bat file which needs parameters for the IIS server it should be deployed to. 
+For updates: The website and database can be deployed using the CI.bat file which needs parameters for the IIS server it should be deployed to. 
 
 
 How to add a database migration

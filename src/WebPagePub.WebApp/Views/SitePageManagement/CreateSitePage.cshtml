@@ -4,6 +4,10 @@
 }
 
 <h2>@ViewData["Title"]</h2>
+
+<a href="~/sitepages/?siteSectionId=@Model.SiteSectionId">&lt; back</a>
+<br />
+<span>/@Model.SiteSectionKey</span> 
  
 <form asp-controller="SitePageManagement" asp-action="CreateSitePage" method="post" class="form-horizontal">
     
@@ -12,13 +16,13 @@
     <div class="form-group">
         <label asp-for="Title" class="col-md-2 control-label"></label>
         <div class="col-md-10">
-            <input asp-for="Title" class="form-control" autocomplete="off"  />
+            <input asp-for="Title" class="form-control" autocomplete="off" maxlength="70"  />
         </div>
     </div>
 
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
-            <button type="submit" class="btn btn-default">Create</button>
+            <button type="submit" class="btn btn-success">Create</button>
         </div>
     </div>
 
