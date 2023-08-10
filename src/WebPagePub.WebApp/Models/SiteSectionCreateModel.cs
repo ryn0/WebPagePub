@@ -1,6 +1,6 @@
 ﻿namespace WebPagePub.Web.Models
 {
-    public class CreateSiteSectionModel
+    public class SiteSectionCreateModel
     {
         public string Title { get; set; } = default!;
     }

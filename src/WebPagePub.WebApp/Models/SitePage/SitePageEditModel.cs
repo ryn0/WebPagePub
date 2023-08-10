@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Amazon.Runtime.Internal.Transform;
+using Amazon.SimpleEmail.Model.Internal.MarshallTransformations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 using WebPagePub.Data.Enums;
 
@@ -8,6 +10,7 @@ namespace WebPagePub.WebApp.Models.SitePage
     {
         public int SitePageId { get; set; }
 
+        [Display(Name = "Section")]
         public int SitePageSectionId { get; set; }
 
         [Display(Name = "Title")]
@@ -58,10 +61,10 @@ namespace WebPagePub.WebApp.Models.SitePage
         public double ReviewRatingValue { get; set; }
 
         [Display(Name = "Review Worst Value")]
-        public double ReviewWorstValue { get; set; }
+        public double ReviewWorstValue { get; set; } = 0;
 
         [Display(Name = "Review Best Value")]
-        public double ReviewBestValue { get; set; }
+        public double ReviewBestValue { get; set; } = 5.0;
 
         [Display(Name = "Meta Description")]
         [StringLength(160)]
@@ -83,6 +86,27 @@ namespace WebPagePub.WebApp.Models.SitePage
         public int? AuthorId { get; set; }
 
         public List<SelectListItem> Authors = new();
+
+        public List<SelectListItem> SiteSections = new();
+
+        public IEnumerable<SelectListItem> ReviewRatingOptions
+        {
+            get
+            {
+                var list = new List<SelectListItem>();
+                
+                for (decimal i = 0; i <= 5; i += 0.1m) {
+
+                    list.Add(new SelectListItem()
+                    {
+                        Text = i.ToString(),
+                        Value = i.ToString()
+                    });
+                }
+
+                return list;
+            }
+        }
 
     }
 }
