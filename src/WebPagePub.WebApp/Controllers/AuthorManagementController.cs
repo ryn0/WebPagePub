@@ -99,7 +99,7 @@ namespace WebPagePub.WebApp.Controllers
             {
                 FirstName = model.FirstName.Trim(),
                 LastName = model.LastName.Trim(),
-                AuthorBio = model.AuthorBio.Trim()
+                AuthorBio = model?.AuthorBio?.Trim()
             });
 
             return this.RedirectToAction(nameof(Index));

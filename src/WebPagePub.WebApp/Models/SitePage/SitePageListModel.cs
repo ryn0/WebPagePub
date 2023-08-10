@@ -6,6 +6,8 @@
 
         public int SitePageSectionId { get; set; }
 
+        public string SitePageSectionTitle { get; set; }
+
         public int PageCount { get; set; }
 
         public int Total { get; set; }

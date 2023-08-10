@@ -75,6 +75,11 @@ namespace WebPagePub.Web.Helpers
 
             var cdnPrefix = this.cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
 
+            if (string.IsNullOrWhiteSpace(cdnPrefix))
+            {
+                return null;
+            }
+
             return blobUrl.Replace(blobPrefix, cdnPrefix);
         }
 
