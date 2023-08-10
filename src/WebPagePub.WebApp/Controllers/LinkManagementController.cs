@@ -28,8 +28,20 @@ namespace WebPagePub.Web.Controllers
         {
             var allLinks = this.linkRedirectionRepository.GetAll();
             var model = new LinkListModel();
+            var mostRecentLink = allLinks.OrderByDescending(t => t.CreateDate)
+                                         .FirstOrDefault();
 
-            allLinks = allLinks.OrderByDescending(x => x.LinkKey).ToList();
+            if (mostRecentLink != null)
+            {
+                model.NewestLink = new LinkEditModel()
+                {
+                    LinkKey = mostRecentLink.LinkKey,
+                    LinkRedirectionId = mostRecentLink.LinkRedirectionId,
+                    UrlDestination = mostRecentLink.UrlDestination
+                };
+            }
+
+            allLinks = allLinks.OrderBy(x => x.LinkKey).ToList();
 
             foreach (var link in allLinks)
             {
@@ -40,6 +52,19 @@ namespace WebPagePub.Web.Controllers
                     UrlDestination = link.UrlDestination
                 });
             }
+
+
+            // TODO: organize links by letter
+            foreach (var link in allLinks)
+            {
+                char firstLetter = Convert.ToChar(link.LinkKey.ToString().Substring(0, 1));
+
+                if (!model.UniqueFirstLetters.Contains(firstLetter))
+                {
+                    model.UniqueFirstLetters.Add(firstLetter);
+                }
+            }
+
 
             return this.View(model);
         }

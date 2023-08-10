@@ -2,7 +2,7 @@
 
 namespace WebPagePub.Web.Models
 {
-    public class EditSiteSectionModel
+    public class SiteSectionEditModel
     {
         [Display(Name = "Title")]
         [Required]

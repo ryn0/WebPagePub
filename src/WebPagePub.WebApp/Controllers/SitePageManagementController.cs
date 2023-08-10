@@ -71,7 +71,7 @@ namespace WebPagePub.Web.Controllers
 
         [Route("sitepages/CreateSiteSection")]
         [HttpPost]
-        public IActionResult CreateSiteSection(CreateSiteSectionModel model)
+        public IActionResult CreateSiteSection(SiteSectionCreateModel model)
         {
             if (!this.ModelState.IsValid)
             {
@@ -93,7 +93,9 @@ namespace WebPagePub.Web.Controllers
                 BreadcrumbName = siteSection.Title,
                 PublishDateTimeUtc = DateTime.UtcNow,
                 SitePageSectionId = siteSection.SitePageSectionId,
-                CreatedByUserId = this.userManager.GetUserId(this.User)
+                CreatedByUserId = this.userManager.GetUserId(this.User),
+                PageType = PageType.Informational,
+                AllowsComments = false
             });
 
             return this.RedirectToAction(nameof(this.SitePages));
@@ -105,7 +107,7 @@ namespace WebPagePub.Web.Controllers
         {
             var siteSection = this.siteSectionRepository.Get(sitePageSectionId);
 
-            return this.View(nameof(EditSiteSection), new EditSiteSectionModel()
+            return this.View(nameof(EditSiteSection), new SiteSectionEditModel()
             {
                 SiteSectionId = siteSection.SitePageSectionId,
                 Title = siteSection.Title,
@@ -134,7 +136,7 @@ namespace WebPagePub.Web.Controllers
 
         [Route("sitepages/EditSiteSection/{sitePageSectionId}")]
         [HttpPost]
-        public IActionResult EditSiteSection(EditSiteSectionModel model)
+        public IActionResult EditSiteSection(SiteSectionEditModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -287,7 +289,8 @@ namespace WebPagePub.Web.Controllers
                 PublishDateTimeUtc = DateTime.UtcNow,
                 SitePageSectionId = model.SiteSectionId,
                 CreatedByUserId = this.userManager.GetUserId(this.User),
-                AllowsComments = true
+                AllowsComments = true,
+                PageType = PageType.Content
             });
 
             if (entry.SitePageId > 0)
@@ -619,8 +622,11 @@ namespace WebPagePub.Web.Controllers
 
         private void ClearCache(SitePageEditModel model, SitePage dbModel)
         {
-            var cacheKey = CacheHelper.GetPageCacheKey(dbModel.SitePageSection.Key, model.Key);
-            this.memoryCache.Remove(cacheKey);
+            if (dbModel.SitePageSection != null)
+            {
+                var cacheKey = CacheHelper.GetPageCacheKey(dbModel.SitePageSection.Key, model.Key);
+                this.memoryCache.Remove(cacheKey);
+            }
         }
 
         private async Task<SitePagePhoto> DeleteBlogPhoto(int sitePagePhotoId)
@@ -668,6 +674,7 @@ namespace WebPagePub.Web.Controllers
                 dbModel.CreatedByUserId = this.userManager.GetUserId(this.User);
             }
 
+            dbModel.SitePageSectionId = model.SitePageSectionId;
             dbModel.UpdatedByUserId = this.userManager.GetUserId(this.User);
             dbModel.Key = model.Key.UrlKey();
             dbModel.BreadcrumbName = model.BreadcrumbName.Trim();
@@ -717,7 +724,8 @@ namespace WebPagePub.Web.Controllers
                 IsSectionHomePage = sitePage.IsSectionHomePage,
                 AuthorId = sitePage.AuthorId,
                 Authors = AddAuthors(),
-                SitePageSectionId = sitePageSection.SitePageSectionId
+                SitePageSectionId = sitePageSection.SitePageSectionId,
+                SiteSections = AddSiteSections()
             };
 
             var mc = new ModelConverter(this.cacheService);
@@ -737,6 +745,23 @@ namespace WebPagePub.Web.Controllers
             model.Tags = string.Join(", ", model.BlogTags);
 
             return model;
+        }
+
+        private List<SelectListItem> AddSiteSections()
+        {
+            var sectionList = new List<SelectListItem>();
+            var allSections = this.siteSectionRepository.GetAll().OrderBy(x => x.Key);
+
+            foreach (var section in allSections)
+            {
+                sectionList.Add(new SelectListItem()
+                {
+                    Text = section.Key,
+                    Value = section.SitePageSectionId.ToString()
+                });
+            }
+
+            return sectionList;
         }
 
         private List<SelectListItem> AddAuthors()

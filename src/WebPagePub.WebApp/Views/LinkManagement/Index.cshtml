@@ -9,6 +9,14 @@
 
 <a class="btn btn-success"  href="~/LinkManagement/create">Create new</a>
 
+@if (Model.NewestLink != null)
+{
+    <br />
+    <p><i>Newest link:</i></p>
+    <a href="~/go/@Model.NewestLink.LinkKey">@Model.NewestLink.LinkKey</a>
+}
+
+
 @if (Model != null && Model.Items.Count() > 0)
 {
 <table class="table">

@@ -18,6 +18,13 @@
 @Html.ValidationSummary()
 
 <form asp-controller="SitePages" asp-action="EditSitePage" method="post" class="form-horizontal">
+        <div class="form-group">
+        <label asp-for="SitePageSectionId" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <select class="form-control" asp-for="SitePageSectionId" asp-items="Model.SiteSections"></select>
+        </div>
+    </div>
+
     <div class="form-group">
         <label asp-for="Title" class="col-md-2 control-label"></label>
         <div class="col-md-10">
@@ -124,27 +131,18 @@
                 <input asp-for="ReviewItemName" class="form-control" />
             </div>
         </div>
+
         <div class="form-group">
             <label asp-for="ReviewRatingValue" class="col-md-2 control-label"></label>
             <div class="col-md-10">
-                <input asp-for="ReviewRatingValue" class="form-control" />
+                <select class="form-control" asp-for="ReviewRatingValue" asp-items="@Model.ReviewRatingOptions"></select>
             </div>
         </div>
-
-        <div class="form-group">
-            <label asp-for="ReviewWorstValue" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
-                <input asp-for="ReviewWorstValue" class="form-control" />
-            </div>
-        </div>
-        <div class="form-group">
-            <label asp-for="ReviewBestValue" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
-                <input asp-for="ReviewBestValue" class="form-control" />
-            </div>
-        </div>
+ 
         <hr />
     }
+
+
     <div class="form-group">
         <label class="col-md-2 control-label">Photos</label>
         <a class="btn btn-info" href="~/sitepages/uploadphotos/@Model.SitePageId">Upload Photos</a>
