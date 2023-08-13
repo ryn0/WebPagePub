@@ -1,6 +1,4 @@
-﻿using Amazon.Runtime.Internal.Transform;
-using Amazon.SimpleEmail.Model.Internal.MarshallTransformations;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 using WebPagePub.Data.Enums;
 
@@ -95,12 +93,12 @@ namespace WebPagePub.WebApp.Models.SitePage
             {
                 var list = new List<SelectListItem>();
                 
-                for (decimal i = 0; i <= 5; i += 0.1m) {
+                for (decimal i = 5; i >= 0; i -= 0.1m) {
 
                     list.Add(new SelectListItem()
                     {
-                        Text = i.ToString(),
-                        Value = i.ToString()
+                        Text = i.ToString("G29"),
+                        Value = i.ToString("G29"),
                     });
                 }
 

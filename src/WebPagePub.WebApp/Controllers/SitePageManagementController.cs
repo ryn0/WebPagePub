@@ -95,7 +95,8 @@ namespace WebPagePub.Web.Controllers
                 SitePageSectionId = siteSection.SitePageSectionId,
                 CreatedByUserId = this.userManager.GetUserId(this.User),
                 PageType = PageType.Informational,
-                AllowsComments = false
+                AllowsComments = false,
+                IsSectionHomePage = true
             });
 
             return this.RedirectToAction(nameof(this.SitePages));
@@ -391,6 +392,7 @@ namespace WebPagePub.Web.Controllers
             var allBlogPhotos = this.sitePagePhotoRepository.GetBlogPhotos(sitePageId);
             var highestRank = allBlogPhotos.Count();
             int currentRank = highestRank;
+            var isFirstPhotoToSitePage = allBlogPhotos.Count() == 0;
 
             try
             {
@@ -402,7 +404,13 @@ namespace WebPagePub.Web.Controllers
                     {
                         currentRank++;
 
-                        await UploadSizesOfPhotos(sitePageId, allBlogPhotos, currentRank, folderPath, file);
+                        await UploadSizesOfPhotos(
+                            sitePageId, 
+                            allBlogPhotos, 
+                            currentRank, 
+                            isFirstPhotoToSitePage, 
+                            folderPath, 
+                            file);
                     }
                 }
 
@@ -536,12 +544,18 @@ namespace WebPagePub.Web.Controllers
             }
         }
 
-        private async Task UploadSizesOfPhotos(int sitePageId, List<SitePagePhoto> allBlogPhotos, int currentRank, string folderPath, IFormFile file)
+        private async Task UploadSizesOfPhotos(
+            int sitePageId, 
+            List<SitePagePhoto> allBlogPhotos, 
+            int currentRank,
+            bool isFirstPhotoToSitePage,
+            string folderPath,
+            IFormFile file)
         {
             var memoryStream = new MemoryStream();
             await file.CopyToAsync(memoryStream);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            await UploadSizesOfPhotos(sitePageId, allBlogPhotos, currentRank, folderPath, memoryStream, file.FileName);
+            await UploadSizesOfPhotos(sitePageId, allBlogPhotos, currentRank, folderPath, memoryStream, file.FileName, isFirstPhotoToSitePage);
         }
 
         private async Task UploadSizesOfPhotos(
@@ -550,7 +564,8 @@ namespace WebPagePub.Web.Controllers
             int currentRank,
             string folderPath,
             MemoryStream memoryStream,
-            string fileName)
+            string fileName,
+            bool isFirstPhotoToSitePage)
         {
             var fileExtension = fileName.GetFileExtension();
             var newFileName = string.Format("{0}.{1}", Path.GetFileNameWithoutExtension(fileName).UrlKey(), fileExtension);
@@ -570,7 +585,8 @@ namespace WebPagePub.Web.Controllers
                     PhotoThumbUrl = thumbnailPhotoUrl.ToString(),
                     PhotoFullScreenUrl = fullScreenPhotoUrl.ToString(),
                     PhotoPreviewUrl = previewPhotoUrl.ToString(),
-                    Rank = currentRank
+                    Rank = currentRank,
+                    IsDefault = isFirstPhotoToSitePage
                 });
             }
             else
@@ -814,30 +830,36 @@ namespace WebPagePub.Web.Controllers
 
         private void SetBlogTags(SitePageEditModel model, SitePage dbModel)
         {
+            var previousTags = new ArrayList();
+            var currentTagsFormatted = new ArrayList();
+            var currentTagsFormattedArray = currentTagsFormatted.ToArray();
+
             if (model.Tags == null)
             {
+                var previousTagsToRemove = new ArrayList();
+                foreach (var tag in dbModel.SitePageTags)
+                {
+                    previousTagsToRemove.Add(tag.Tag.Key);
+                }
+                this.RemoveDeletedTags(model, previousTagsToRemove.ToArray());
                 return;
             }
 
             var currentTags = model.Tags.Split(',');
-            var currentTagsFormatted = new ArrayList();
 
             foreach (var tag in currentTags)
             {
                 currentTagsFormatted.Add(tag.UrlKey());
             }
 
-            var currentTagsFormattedArray = currentTagsFormatted.ToArray();
-            var previousTags = new ArrayList();
-
             foreach (var tag in dbModel.SitePageTags)
             {
                 previousTags.Add(tag.Tag.Key);
             }
 
-            var tagsToRemove = previousTags.ToArray().Except(currentTagsFormattedArray);
-
             this.AddNewTags(model, dbModel, currentTags);
+
+            var tagsToRemove = previousTags.ToArray().Except(currentTagsFormattedArray);
 
             this.RemoveDeletedTags(model, tagsToRemove);
         }
