@@ -10,9 +10,8 @@
     <div class="form-group">
         <label asp-for="SnippetType" class="col-md-2 control-label"></label>
         <div class="col-md-10">
-            <select asp-for="SnippetType" 
-            
-            asp-items="Html.GetEnumSelectList<WebPagePub.Data.Enums.SiteConfigSetting>().OrderBy(x => x.Text)"></select>
+            <select asp-for="SnippetType"
+                    asp-items="Model.UnusedSnippetTypes"></select>
         </div>
     </div>
 

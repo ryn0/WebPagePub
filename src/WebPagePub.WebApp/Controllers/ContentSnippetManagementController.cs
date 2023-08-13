@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.WebApp.Models.ContentSnippet;
+using static log4net.Appender.ColoredConsoleAppender;
 
 namespace WebPagePub.Web.Controllers
 {
@@ -70,10 +72,26 @@ namespace WebPagePub.Web.Controllers
         [HttpGet]
         public IActionResult Create()
         {
+            var existingSnippets = this.contentSnippetRepository.GetAll().OrderBy(x => x.SnippetType.ToString());
+            
             var model = new ContentSnippetEditModel()
             {
                 SnippetType = Data.Enums.SiteConfigSetting.Unknown
             };
+
+            foreach (string snippetType in Enum.GetNames(typeof(Data.Enums.SiteConfigSetting)))
+            {
+                if (existingSnippets.FirstOrDefault(x => x.SnippetType.ToString() == snippetType) != null)
+                {
+                    continue;
+                }
+
+                model.UnusedSnippetTypes.Add(new SelectListItem()
+                {
+                    Text = snippetType.ToString(),
+                    Value = snippetType.ToString(),
+                });
+            }
 
             return this.View(model);
         }

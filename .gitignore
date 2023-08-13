@@ -93,3 +93,4 @@ rcf/
 /CI-Tools/Templates/azuredeploy-dns.parameters.json
 /CI-Tools/Templates/azuredeploy.parameters.current.json
 /CI-Tools/Templates/azuredeploy.parameters.json
+/src/PageCreationAutomat
