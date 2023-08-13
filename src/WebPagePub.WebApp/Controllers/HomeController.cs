@@ -124,6 +124,12 @@ namespace WebPagePub.Web.Controllers
         public IActionResult Index(string sectionKey)
         {
             var section = this.sitePageSectionRepository.Get(sectionKey);
+            
+            if (section == null)
+            {
+                return Show404Page();
+            }
+
             var homePage = this.sitePageRepository.GetSectionHomePage(section.SitePageSectionId);
 
             if (homePage == null)
