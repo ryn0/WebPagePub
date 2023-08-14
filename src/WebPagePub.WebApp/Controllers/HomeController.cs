@@ -591,6 +591,7 @@ namespace WebPagePub.Web.Controllers
                 Key = sitePage.Key,
                 SectionKey = sitePageSection.Key,
                 DefaultPhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, defaultPhotoUrl?.PhotoThumbUrl),
+                ExcludePage = sitePage.ExcludePageFromSiteMapXml
             };
         }
 

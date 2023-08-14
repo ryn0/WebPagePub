@@ -1,5 +1,5 @@
 ﻿@model WebPagePub.WebApp.Models.SitePage.SitePageDisplayModel
-
+@using WebPagePub.Data.Constants;
 @using WebPagePub.Core.Utilities
 @{
     ViewData["Title"] = Model.PageContent.Title;
@@ -7,8 +7,8 @@
     ViewData["PhotoUrlWidth"] = Model.PageContent.PhotoUrlWidth;
     ViewData["PhotoUrlHeight"] = Model.PageContent.PhotoUrlHeight;
     ViewData["MetaDescription"] = Model.PageContent.MetaDescription;
-    ViewData["MetaKeywords"] = Model.PageContent.MetaKeywords;
-    ViewData["CanonicalUrl"] = Model.PageContent.CanonicalUrl;
+    ViewData[StringConstants.CanonicalUrl] = Model.PageContent.CanonicalUrl;
+    ViewData["ExcludePage"] = Model.PageContent.ExcludePage;
 }
 @section StylesHeader {
 }

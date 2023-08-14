@@ -1,15 +1,16 @@
 ﻿@inject WebPagePub.Services.Interfaces.ICacheService _cacheHelper
 @using WebPagePub.Data.Enums;
+@using WebPagePub.Data.Constants;
 <meta property="og:type" content="website" />
 @if (ViewData["Title"] != null &&
 !string.IsNullOrWhiteSpace(ViewData["Title"].ToString()))
 {
     <meta property="og:title" content="@ViewData["Title"]" />
 }
-@if (ViewData["CanonicalUrl"] != null &&
-!string.IsNullOrWhiteSpace(ViewData["CanonicalUrl"].ToString()))
+@if (ViewData[StringConstants.CanonicalUrl] != null &&
+!string.IsNullOrWhiteSpace(ViewData[StringConstants.CanonicalUrl].ToString()))
 {
-    <meta property="og:url" content="@ViewData["CanonicalUrl"]" />
+    <meta property="og:url" content="@ViewData[StringConstants.CanonicalUrl]" />
 }
 @if (ViewData["MetaDescription"] != null &&
 !string.IsNullOrWhiteSpace(ViewData["MetaDescription"].ToString()))
@@ -47,13 +48,27 @@
 {
     <meta name="keywords" content="@ViewData["MetaKeywords"]" />
 }
-@if (ViewData["CanonicalUrl"] != null &&
-!string.IsNullOrWhiteSpace(ViewData["CanonicalUrl"].ToString()))
+@if (ViewData["ExcludePage"] != null)
 {
-    <link rel="canonical" href="@ViewData["CanonicalUrl"]" />
+    if (Convert.ToBoolean(ViewData["ExcludePage"]) == true)
+    {
+    <meta name="robots" content="noindex" />
+    }
+    else
+    {
+    <meta name="robots" content="index, follow" />
+    }
 }
-@{ var googleSiteVerification = _cacheHelper.GetSnippet(SiteConfigSetting.GoogleSiteVerification); }
+@if (ViewData[StringConstants.CanonicalUrl] != null &&
+!string.IsNullOrWhiteSpace(ViewData[StringConstants.CanonicalUrl].ToString()))
+{
+    <link rel="canonical" href="@ViewData[StringConstants.CanonicalUrl]" />
+}
+@{
+    var googleSiteVerification = _cacheHelper.GetSnippet(SiteConfigSetting.GoogleSiteVerification);
+}
 @if (!string.IsNullOrWhiteSpace(googleSiteVerification))
 {
     @Html.Raw(googleSiteVerification)
+
 }
