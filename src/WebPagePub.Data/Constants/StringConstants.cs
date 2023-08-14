@@ -30,6 +30,8 @@
 
         public const string DefaultKey = "index";
 
+        public const string CanonicalUrl = "CanonicalUrl";
+
         public static readonly string[] BotUserAgents =
         {
                 "Googlebot",

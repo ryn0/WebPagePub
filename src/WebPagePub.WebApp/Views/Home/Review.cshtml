@@ -1,5 +1,6 @@
 ﻿@model WebPagePub.WebApp.Models.SitePage.SitePageDisplayModel
 @inject WebPagePub.Services.Interfaces.ICacheService _cacheHelper
+@using WebPagePub.Data.Constants;
 @using WebPagePub.Data.Enums;
 @using WebPagePub.Core.Utilities
 
@@ -9,8 +10,8 @@
     ViewData["PhotoUrlWidth"] = Model.PageContent.PhotoUrlWidth;
     ViewData["PhotoUrlHeight"] = Model.PageContent.PhotoUrlHeight;
     ViewData["MetaDescription"] = Model.PageContent.MetaDescription;
-    ViewData["MetaKeywords"] = Model.PageContent.MetaKeywords;
-    ViewData["CanonicalUrl"] = Model.PageContent.CanonicalUrl;
+    ViewData[StringConstants.CanonicalUrl] = Model.PageContent.CanonicalUrl;
+    ViewData["ExcludePage"] = Model.PageContent.ExcludePage;
 }
 
 @section StylesHeader {

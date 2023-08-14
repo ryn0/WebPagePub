@@ -97,5 +97,6 @@ namespace WebPagePub.WebApp.Models.SitePage
 
         public string PageHeader { get; set; } = default!;
         public string SectionKey { get; set; } = default!;
+        public bool ExcludePage { get; set; }
     }
 }
