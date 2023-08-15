@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text;
 using WebPagePub.Data.Constants;
@@ -362,6 +363,11 @@ namespace WebPagePub.Web.Controllers
             int total;
             if (string.IsNullOrWhiteSpace(tagKey))
             {
+                if (sitePageSection == null || sitePage == null)
+                {
+                    throw new Exception("No section or site");
+                }
+
                 SetPageDisplayWithoutTags(sitePageSection, sitePage, pageNumber, out displayModel, out pages, out total);
             }
             else
@@ -371,12 +377,7 @@ namespace WebPagePub.Web.Controllers
 
             if (pageNumber > 1)
             {
-                var pagingFormat = "{0} - Page: {1} ";
-
-                displayModel.PageContent.Title =
-                    string.Format(pagingFormat, displayModel.PageContent.Title, pageNumber);
-                displayModel.PageContent.MetaDescription =
-                    string.Format(pagingFormat, displayModel.PageContent.MetaDescription, pageNumber);
+                SetPagingText(pageNumber, displayModel);
             }
 
             var pageCount = (double)total / IntegerConstants.PageSize;
@@ -402,6 +403,24 @@ namespace WebPagePub.Web.Controllers
             }
 
             return displayModel;
+        }
+
+        private void SetPagingText(int pageNumber, SitePageDisplayModel displayModel)
+        {
+            var pagingFormat = "{0} - Page: {1}";
+
+            displayModel.PageContent.Title =
+                string.Format(pagingFormat, displayModel.PageContent.Title, pageNumber);
+
+            if (string.IsNullOrWhiteSpace(displayModel.PageContent.MetaDescription))
+            {
+                displayModel.PageContent.MetaDescription = displayModel.PageContent.Title;
+            }
+            else
+            {
+                displayModel.PageContent.MetaDescription =
+                string.Format(pagingFormat, displayModel.PageContent.MetaDescription, pageNumber);
+            }
         }
 
         private void SetPageDisplayWithoutTags(
