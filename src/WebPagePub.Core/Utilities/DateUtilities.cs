@@ -4,7 +4,7 @@ namespace WebPagePub.Core.Utilities
 {
     public class DateUtilities
     {
-        public static string FormatDate(DateTime date)
+        public static string FriendlyFormatDate(DateTime date)
         {
             var dt = date;
 
@@ -31,6 +31,11 @@ namespace WebPagePub.Core.Utilities
             }
 
             return string.Format("{0:MMMM} {1}{2}, {0:yyyy}", dt, dt.Day, suffix);
+        }
+
+        public static string UtcFormatDate(DateTime date)
+        {
+            return date.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'+'fff'Z'");
         }
     }
 }

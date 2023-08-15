@@ -55,11 +55,26 @@ namespace WebPagePub.WebApp.Models.SitePage
 
         public DateTime LastUpdatedDateTimeUtc { get; set; }
 
+        public string LastUpdatedDateTimeUtcIso
+        {
+            get
+            {
+                if (LastUpdatedDateTimeUtc > PublishedDateTimeUtc)
+                {
+                    return DateUtilities.UtcFormatDate(LastUpdatedDateTimeUtc);
+                }
+                else
+                {
+                    return DateUtilities.UtcFormatDate(PublishedDateTimeUtc);
+                }
+            }
+        }
+
         public string FriendlyPublishDateDisplay
         {
             get
             {
-                return DateUtilities.FormatDate(PublishedDateTimeUtc);
+                return DateUtilities.FriendlyFormatDate(PublishedDateTimeUtc);
             }
         }
 
@@ -69,11 +84,11 @@ namespace WebPagePub.WebApp.Models.SitePage
             {
                 if (LastUpdatedDateTimeUtc > PublishedDateTimeUtc)
                 {
-                    return DateUtilities.FormatDate(LastUpdatedDateTimeUtc);
+                    return DateUtilities.FriendlyFormatDate(LastUpdatedDateTimeUtc);
                 }
                 else
                 {
-                    return DateUtilities.FormatDate(PublishedDateTimeUtc);
+                    return DateUtilities.FriendlyFormatDate(PublishedDateTimeUtc);
                 }
             }
         }

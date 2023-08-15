@@ -2,6 +2,7 @@
 @using WebPagePub.Data.Enums;
 @using WebPagePub.Data.Constants;
 <meta property="og:type" content="website" />
+
 @if (ViewData["Title"] != null &&
 !string.IsNullOrWhiteSpace(ViewData["Title"].ToString()))
 {
@@ -32,7 +33,16 @@
 {
     <meta property="og:image:height" content="@ViewData["PhotoUrlHeight"]" />
 }
-@{var siteName = _cacheHelper.GetSnippet(SiteConfigSetting.WebsiteName); }
+@if (ViewData["ArticlePublishTime"] != null)
+{
+    <meta property="article:published_time" content="@ViewData["ArticlePublishTime"]" />
+}
+@if (ViewData["AuthorName"] != null &&
+!string.IsNullOrWhiteSpace(ViewData["AuthorName"].ToString()))
+{
+    <meta property="article:author" content="@ViewData["AuthorName"]" />
+}
+@{var siteName = _cacheHelper.GetSnippet(SiteConfigSetting.WebsiteName);}
 @if (!string.IsNullOrWhiteSpace(siteName))
 {
     <meta property="og:site_name" content="@siteName" />
