@@ -276,6 +276,16 @@ namespace WebPagePub.Web.Controllers
                 return RedirectPermanent(string.Format("~/{0}", model.SectionKey));
             }
 
+            ViewData["Title"] = model.PageContent.Title;
+            ViewData["PhotoUrl"] = model.PageContent.PhotoOriginalUrl;
+            ViewData["PhotoUrlWidth"] = model.PageContent.PhotoUrlWidth;
+            ViewData["PhotoUrlHeight"] = model.PageContent.PhotoUrlHeight;
+            ViewData["MetaDescription"] = model.PageContent.MetaDescription;
+            ViewData[StringConstants.CanonicalUrl] = model.PageContent.CanonicalUrl;
+            ViewData["ExcludePage"] = model.PageContent.ExcludePage;
+            ViewData["ArticlePublishTime"] = model.PageContent.LastUpdatedDateTimeUtcIso;
+            ViewData["AuthorName"] = model.AuthorName;
+
             switch (model.PageType)
             {
                 case PageType.AffiliateContent:
@@ -331,6 +341,7 @@ namespace WebPagePub.Web.Controllers
             model.SectionKey = siteSection.Key;
             model.IsHomePageSection = siteSection.IsHomePageSection;
             model.IsSectionHomePage = dbModel.IsSectionHomePage;
+            model.AuthorName = SetAuthorName(dbModel.Author);
 
             return model;
         }
@@ -437,7 +448,8 @@ namespace WebPagePub.Web.Controllers
                 BreadcrumbList = this.BuildBreadcrumbList(sitePageSection, sitePage),
                 PageType = sitePage.PageType,
                 Review = this.BuildReviewModel(sitePageSection, sitePage),
-                PageContent = contentModel
+                PageContent = contentModel,
+                AuthorName = this.SetAuthorName(sitePage.Author)
             };
 
             pages = this.sitePageRepository.GetLivePageBySection(
@@ -447,6 +459,18 @@ namespace WebPagePub.Web.Controllers
                                                         out total);
 
             pages = pages.Where(x => x.IsSectionHomePage == false).ToList();
+        }
+
+        private string SetAuthorName(Data.Models.Db.Author author)
+        {
+            if (author == null ||
+               (author.FirstName == null ||
+               author.LastName == null))
+            {
+                return string.Empty;
+            }
+
+            return string.Format("{0} {1}", author.FirstName, author.LastName);
         }
 
         private void SetPageDisplayWithTags(

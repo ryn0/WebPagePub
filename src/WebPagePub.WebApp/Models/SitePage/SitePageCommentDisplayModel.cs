@@ -17,7 +17,7 @@ namespace WebPagePub.WebApp.Models.SitePage
         {
             get
             {
-                return DateUtilities.FormatDate(CreateDate);
+                return DateUtilities.FriendlyFormatDate(CreateDate);
             }
         }
 

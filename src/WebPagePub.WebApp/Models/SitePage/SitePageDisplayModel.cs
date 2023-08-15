@@ -53,5 +53,6 @@ namespace WebPagePub.WebApp.Models.SitePage
         public string SectionKey { get; set; }
         public bool IsHomePageSection { get; set; }
         public bool IsSectionHomePage { get; set; }
+        public string AuthorName { get; set; }
     }
 }
