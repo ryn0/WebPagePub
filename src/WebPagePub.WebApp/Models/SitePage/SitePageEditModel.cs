@@ -32,7 +32,7 @@ namespace WebPagePub.WebApp.Models.SitePage
         [Display(Name = "Is Live")]
         public bool IsLive { get; set; }
 
-        [Display(Name = "Exclude From XML")]
+        [Display(Name = "Exclude From Indexing")]
         public bool ExcludePageFromSiteMapXml { get; set; }
 
         [Display(Name = "Live URL Path")]
