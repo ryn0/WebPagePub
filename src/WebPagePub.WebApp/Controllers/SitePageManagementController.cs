@@ -830,9 +830,7 @@ namespace WebPagePub.Web.Controllers
 
         private void SetBlogTags(SitePageEditModel model, SitePage dbModel)
         {
-            var previousTags = new ArrayList();
-            var currentTagsFormatted = new ArrayList();
-            var currentTagsFormattedArray = currentTagsFormatted.ToArray();
+            var previousTags = dbModel.SitePageTags.Select(x => x.Tag.Key).ToArray();
 
             if (model.Tags == null)
             {
@@ -845,21 +843,12 @@ namespace WebPagePub.Web.Controllers
                 return;
             }
 
-            var currentTags = model.Tags.Split(',');
+            var currentTags = model.Tags.Split(',').Select(x => x.UrlKey()).ToArray();
+            var tagsToAdd = currentTags.ToArray().Except(previousTags).ToArray();
 
-            foreach (var tag in currentTags)
-            {
-                currentTagsFormatted.Add(tag.UrlKey());
-            }
+            this.AddNewTags(model, dbModel, tagsToAdd);
 
-            foreach (var tag in dbModel.SitePageTags)
-            {
-                previousTags.Add(tag.Tag.Key);
-            }
-
-            this.AddNewTags(model, dbModel, currentTags);
-
-            var tagsToRemove = previousTags.ToArray().Except(currentTagsFormattedArray);
+            var tagsToRemove = previousTags.Except(currentTags).ToArray(); 
 
             this.RemoveDeletedTags(model, tagsToRemove);
         }
