@@ -1,17 +1,7 @@
 ﻿@model WebPagePub.WebApp.Models.SitePage.SitePageDisplayModel
 @inject WebPagePub.Services.Interfaces.ICacheService _cacheHelper
 @using WebPagePub.Data.Enums;
-@using WebPagePub.Core.Utilities
-@using WebPagePub.Data.Constants;
-@{
-    ViewData["Title"] = Model.PageContent.Title;
-    ViewData["PhotoUrl"] = Model.PageContent.PhotoOriginalUrl;
-    ViewData["PhotoUrlWidth"] = Model.PageContent.PhotoUrlWidth;
-    ViewData["PhotoUrlHeight"] = Model.PageContent.PhotoUrlHeight;
-    ViewData["MetaDescription"] = Model.PageContent.MetaDescription;
-    ViewData[StringConstants.CanonicalUrl] = Model.PageContent.CanonicalUrl;
-    ViewData["ExcludePage"] = Model.PageContent.ExcludePage;
-}
+
 @section StylesHeader {
 }
 
