@@ -16,6 +16,7 @@ namespace WebPagePub.WebApp.Models.SitePage
             Organization = new StructedDataOrganizationModel(this.cacheService);
             Review = new StructureDataReviewModel(this.cacheService);
             Website = new StructedDataWebsiteModel(this.cacheService);
+            Article = new StructureDataReviewModel(this.cacheService);
         }
 
         public SitePageContentModel PageContent { get; set; } = new SitePageContentModel();
@@ -28,7 +29,7 @@ namespace WebPagePub.WebApp.Models.SitePage
 
         public StructureDataReviewModel Review { get; set; }
 
-        public StructureDataReviewModel Article { get; set; }
+        public StructureDataReviewModel Article { get; set; } 
 
         public StructedDataWebsiteModel Website { get; set; }
 
@@ -38,9 +39,9 @@ namespace WebPagePub.WebApp.Models.SitePage
 
         public SitePagePagingModel Paging { get; set; } = new SitePagePagingModel();
 
-        public string TagKeyword { get; set; }
+        public string TagKeyword { get; set; } = string.Empty;
 
-        public string TagKey { get; set; }
+        public string TagKey { get; set; } = string.Empty;
 
         public int SitePageId { get; set; }
 
@@ -50,9 +51,9 @@ namespace WebPagePub.WebApp.Models.SitePage
 
         public bool AllowCommenting { get; set; }
 
-        public string SectionKey { get; set; }
+        public string SectionKey { get; set; } = string.Empty;
         public bool IsHomePageSection { get; set; }
         public bool IsSectionHomePage { get; set; }
-        public string AuthorName { get; set; }
+        public string AuthorName { get; set; } = string.Empty;
     }
 }
