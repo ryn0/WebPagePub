@@ -37,6 +37,8 @@ namespace WebPagePub.Web.Controllers
                 this.Redirect("~/");
             }
 
+            Response.Headers.Add("X-Robots-Tag", "noindex, nofollow");
+
             await this.LogClickAsync();
 
             return this.Redirect(url);
