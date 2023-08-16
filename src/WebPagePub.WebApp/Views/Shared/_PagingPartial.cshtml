@@ -3,7 +3,7 @@
     @{
         var pagePathPrefix = Model.SectionKey;
 
-        if (Model.TagKeyword != null)
+        if (!string.IsNullOrEmpty(Model.TagKeyword))
         {
             pagePathPrefix = "/tag/" + Model.TagKey;
         }
@@ -11,7 +11,7 @@
         <div class="clearfix">
             @if (Model.Paging.PageCount > 1 && Model.Paging.CurrentPageNumber != Model.Paging.PageCount)
             {
-                if (Model.TagKeyword != null)
+                if (!string.IsNullOrEmpty(Model.TagKeyword))
                 {
                     <a class="btn btn-secondary float-right" href="~/tag/@Model.TagKey/page/@(Model.Paging.CurrentPageNumber + 1)">Older posts about: @Model.TagKeyword &rarr;</a>
                 }
@@ -24,7 +24,7 @@
             @if (Model.Paging.PageCount > 1 && Model.Paging.PageCount == Model.Paging.CurrentPageNumber && Model.Paging.CurrentPageNumber != 2)
             {
 
-                if (Model.TagKeyword != null)
+                if (!string.IsNullOrEmpty(Model.TagKeyword))
                 {
                     <a class="btn btn-secondary float-left" href="~/tag/@Model.TagKey/page/@(Model.Paging.CurrentPageNumber - 1)">&larr; Newer posts about: @Model.TagKeyword</a>
                 }
@@ -36,7 +36,7 @@
 
             @if (Model.Paging.PageCount > 1 && Model.Paging.PageCount == Model.Paging.CurrentPageNumber && Model.Paging.CurrentPageNumber == 2)
             {
-                if (Model.TagKeyword != null)
+                if (!string.IsNullOrEmpty(Model.TagKeyword))
                 {
                     <a class="btn btn-secondary float-left" href="~/tag/@Model.TagKey">&larr; Newer Posts about: @Model.TagKeyword</a>
 
@@ -56,7 +56,7 @@
 
             @if (Model.Paging.PageCount > 1 && Model.Paging.CurrentPageNumber > 2 && Model.Paging.CurrentPageNumber != Model.Paging.PageCount)
             {
-                if (Model.TagKeyword != null)
+                if (!string.IsNullOrEmpty(Model.TagKeyword))
                 {
                     <a class="btn btn-secondary float-left" href="~/tag/@Model.TagKey/page/@(Model.Paging.CurrentPageNumber - 1)">&larr; Newer Posts about: @Model.TagKeyword</a>
                 }
@@ -68,7 +68,7 @@
 
             @if (Model.Paging.PageCount > 1 && Model.Paging.CurrentPageNumber == 2 && Model.Paging.CurrentPageNumber != Model.Paging.PageCount)
             {
-                if (Model.TagKeyword != null)
+                if (!string.IsNullOrEmpty(Model.TagKeyword))
                 {
                     <a class="btn btn-secondary float-left" href="~/tag/@Model.TagKey">&larr; Newer Posts about: @Model.TagKeyword</a>
                 }
