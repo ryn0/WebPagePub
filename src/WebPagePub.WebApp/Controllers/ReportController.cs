@@ -29,7 +29,7 @@ namespace WebPagePub.Web.Controllers
 
             if (startDate == null)
             {
-                startDate = now.AddDays(-30);
+                startDate = now.AddDays(-1);
             }
 
             if (endDate == null)
@@ -57,7 +57,7 @@ namespace WebPagePub.Web.Controllers
                     {
                         Url = item.Url,
                         TotalClicks = 1,
-                        IpsForClick = new System.Collections.Generic.List<string>()
+                        IpsForClick = new List<string>()
                         {
                             item.IpAddress
                         }
