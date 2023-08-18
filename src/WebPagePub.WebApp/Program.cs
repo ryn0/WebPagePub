@@ -8,6 +8,7 @@ using WebPagePub.Data.Repositories.Implementations;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Implementations;
 using WebPagePub.Services.Interfaces;
+using WebPagePub.WebApp.AppRules;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,7 +83,7 @@ if (!app.Environment.IsDevelopment())
 
 var options = new RewriteOptions()
     .AddRedirectToHttpsPermanent()
-    .AddRedirectToNonWwwPermanent();
+    .Add(new RedirectWwwToNonWwwRule());
 
 var redirects = sp.GetService<IRedirectPathRepository>();
 var allRedirects = redirects?.GetAll();
