@@ -44,20 +44,40 @@ namespace WebPagePub.Web.Controllers
         [Route("sitemap.xml")]
         public IActionResult Index()
         {
-            var allPages = this.sitePageRepository.GetLivePage(1, MaxPageSizeForSiteMap, out int total);
             var siteMapHelper = new SiteMapHelper();
+            string xml;
+            var cacheKey = CacheHelper.GetPageCacheKey(
+                    (nameof(SiteMapController)),
+                    (nameof(Index)),
+                    1,
+                    (nameof(Index)));
 
-            foreach (var page in allPages)
+            var cachedPage = this.memoryCache.Get(cacheKey);
+
+            if (cachedPage == null)
             {
-                if (!page.IsLive || page.ExcludePageFromSiteMapXml)
+                var allPages = this.sitePageRepository.GetLivePage(1, MaxPageSizeForSiteMap, out int total);
+
+
+                foreach (var page in allPages)
                 {
-                    continue;
+                    if (!page.IsLive || page.ExcludePageFromSiteMapXml)
+                    {
+                        continue;
+                    }
+
+                    AddPageToSiteMap(page, siteMapHelper);
                 }
 
-                AddPageToSiteMap(page, siteMapHelper);
+                xml = siteMapHelper.GenerateXml();
+                this.memoryCache.Set(cacheKey,
+                    xml,
+                    DateTime.UtcNow.AddMinutes(IntegerConstants.PageCachingMinutes));
             }
-
-            var xml = siteMapHelper.GenerateXml();
+            else
+            {
+                xml = (string)cachedPage;
+            }
 
             return this.Content(xml, "text/xml");
         }
