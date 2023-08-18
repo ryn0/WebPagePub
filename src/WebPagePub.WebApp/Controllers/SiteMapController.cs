@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using System.Security.Cryptography;
+using WebPagePub.Data.Constants;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
@@ -16,17 +19,20 @@ namespace WebPagePub.Web.Controllers
         private readonly ISitePagePhotoRepository sitePagePhotoRepository;
         private readonly ISitePageSectionRepository sitePageSectionRepository;
         private readonly ICacheService cacheService;
+        private readonly IMemoryCache memoryCache;
 
         public SiteMapController(
             ISitePageRepository sitePageRepository,
             ISitePagePhotoRepository sitePagePhotoRepository,
             ISitePageSectionRepository sitePageSectionRepository,
-            ICacheService cacheService)
+            ICacheService cacheService,
+            IMemoryCache memoryCache)
         {
             this.sitePageRepository = sitePageRepository;
             this.sitePagePhotoRepository = sitePagePhotoRepository;
             this.sitePageSectionRepository = sitePageSectionRepository;
             this.cacheService = cacheService;
+            this.memoryCache = memoryCache;
         }
 
         [Route("sitemap_index.xml")]
@@ -59,25 +65,44 @@ namespace WebPagePub.Web.Controllers
         [Route("sitemap")]
         public IActionResult SiteMap()
         {
+            var cacheKey = CacheHelper.GetPageCacheKey(
+                                (nameof(SiteMapController)),
+                                (nameof(SiteMap)),
+                                1,
+                                (nameof(SiteMap)));
+
+            var cachedPage = this.memoryCache.Get(cacheKey);
             var model = new HtmlSiteMapModel();
-            var allPages = this.sitePageRepository.GetLivePage(1, int.MaxValue, out int total);
-            var sectionIds = allPages.Select(x => x.SitePageSectionId).Distinct();
 
-            foreach (var sectionId in sectionIds)
+            if (cachedPage == null)
             {
-                var section = this.sitePageSectionRepository.Get(sectionId);
-                var allPagesInSection = allPages.Where(x => x.SitePageSectionId == sectionId).ToList();
-                var indexPage = allPagesInSection.FirstOrDefault(x => x.IsSectionHomePage == true);
+                var allPages = this.sitePageRepository.GetLivePage(1, int.MaxValue, out int total);
+                var sectionIds = allPages.Select(x => x.SitePageSectionId).Distinct();
 
-                if (indexPage == null)
+                foreach (var sectionId in sectionIds)
                 {
-                    continue;
+                    var section = this.sitePageSectionRepository.Get(sectionId);
+                    var allPagesInSection = allPages.Where(x => x.SitePageSectionId == sectionId).ToList();
+                    var indexPage = allPagesInSection.FirstOrDefault(x => x.IsSectionHomePage == true);
+
+                    if (indexPage == null)
+                    {
+                        continue;
+                    }
+
+                    AddPagesToSection(model, section, allPagesInSection, indexPage);
                 }
 
-                AddPagesToSection(model, section, allPagesInSection, indexPage);
-            }
+                model.SectionPages = model.SectionPages.OrderBy(x => x.AnchorText).ToList();
 
-            model.SectionPages = model.SectionPages.OrderBy(x => x.AnchorText).ToList();
+                this.memoryCache.Set(cacheKey, 
+                    model, 
+                    DateTime.UtcNow.AddMinutes(IntegerConstants.PageCachingMinutes));
+            }
+            else
+            {
+                model = (HtmlSiteMapModel)cachedPage;
+            }
 
             return this.View(nameof(Index), model);
         }
