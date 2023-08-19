@@ -4,7 +4,7 @@
     {
         public const int PageSize = 10;
 
-        public const int PageCachingMinutes = 60;
+        public const int PageCachingMinutes = 180;
 
         public const int MaxAgeInSeconds = 1800;
 
