@@ -28,5 +28,8 @@
 		<EnableMSDeployAppOffline>true</EnableMSDeployAppOffline>
  
 	</PropertyGroup>
-
+	<PropertyGroup>
+		<DisableScopedCssBundling>true</DisableScopedCssBundling>
+		<ScopedCssEnabled>false</ScopedCssEnabled>
+	</PropertyGroup>
 </Project>
