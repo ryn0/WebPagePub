@@ -24,6 +24,13 @@
             <select class="form-control" asp-for="SitePageSectionId" asp-items="Model.SiteSections"></select>
         </div>
     </div>
+    <div class="form-group">
+        <label asp-for="Key" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="Key" class="form-control" autocomplete="off" />
+        </div>
+    </div>
+
 
     <div class="form-group">
         <label asp-for="Title" class="col-md-2 control-label"></label>
@@ -44,10 +51,11 @@
             <input asp-for="BreadcrumbName" class="form-control" autocomplete="off" />
         </div>
     </div>
-    <div class="form-group">
-        <label asp-for="Key" class="col-md-2 control-label"></label>
+        <div class="form-group">
+        <label asp-for="MetaDescription" class="col-md-2 control-label"></label>
         <div class="col-md-10">
-            <input asp-for="Key" class="form-control" autocomplete="off" />
+            <input asp-for="MetaDescription" class="form-control" data-limit-input="160" autocomplete="off" maxlength="160" />
+            <span>@Model.MetaDescription?.Length of 150 characters used</span>
         </div>
     </div>
 
@@ -57,13 +65,7 @@
             <input asp-for="Tags" class="form-control" autocomplete="off" />
         </div>
     </div>
-    <div class="form-group">
-        <label asp-for="MetaDescription" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="MetaDescription" class="form-control" data-limit-input="160" autocomplete="off" maxlength="160" />
-            <span>@Model.MetaDescription?.Length of 150 characters used</span>
-        </div>
-    </div>
+
 
     <div class="form-group">
         <label asp-for="AuthorId" class="col-md-2 control-label"></label>
