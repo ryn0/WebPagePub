@@ -64,3 +64,10 @@ cd "C:\repos\WebPagePub"
 
 ci DeployWebApp  -properties "@{'NeutrinoApiUserId'='$NeutrinoApiUserId';'NeutrinoApiApiKey'='$NeutrinoApiApiKey';'MsDeployLocation'='$MsDeployLocation';'webAppHost'='$webAppHost';'contentPathDes'='$contentPathDes';'msDeployUserName'='$msDeployUserName';'msDeployPassword'='$msDeployPassword';'dbConnectionString'='$dbConnectionString';}"
 ```
+ 
+###  Live Sites
+* [Ryan Into Travel](https://ryan.into.travel/) - a blog about traveling around the world
+* [Snoring Mouthpiece Review](http://snoringmouthpiecereview.com/) - a review website which is foced on snoring mouthpieces and sleep related products.
+* [Mouthguard Store](https://mouthguardstore.com/) - a website which reviews various mouthguard related products 
+* [RyanWilliams.io](https://ryanwilliams.io) - software development blog
+ 
