@@ -830,20 +830,20 @@ namespace WebPagePub.Web.Controllers
 
         private void SetBlogTags(SitePageEditModel model, SitePage dbModel)
         {
-            var previousTags = dbModel.SitePageTags.Select(x => x.Tag.Key).ToArray();
+            var previousTags = dbModel.SitePageTags.Select(x => x.Tag.Name).ToArray();
 
             if (model.Tags == null)
             {
                 var previousTagsToRemove = new ArrayList();
                 foreach (var tag in dbModel.SitePageTags)
                 {
-                    previousTagsToRemove.Add(tag.Tag.Key);
+                    previousTagsToRemove.Add(tag.Tag.Name);
                 }
                 this.RemoveDeletedTags(model, previousTagsToRemove.ToArray());
                 return;
             }
 
-            var currentTags = model.Tags.Split(',').Select(x => x.UrlKey()).ToArray();
+            var currentTags = model.Tags.Split(',').Select(x => x.Trim()).ToArray();
             var tagsToAdd = currentTags.ToArray().Except(previousTags).ToArray();
 
             this.AddNewTags(model, dbModel, tagsToAdd);
@@ -932,6 +932,17 @@ namespace WebPagePub.Web.Controllers
                         SitePageId = model.SitePageId,
                         TagId = tagDb.TagId,
                     });
+                }
+                else
+                {
+                    var tagDb = this.tagRepository.Get(tagKey);
+
+                    if (tagDb.Name != tagName)
+                    {
+                        tagDb.Name = tagName;
+
+                        this.tagRepository.Update(tagDb);
+                    }
                 }
             }
         }
