@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text;
+using WebPagePub.Core;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models;
@@ -721,7 +721,7 @@ namespace WebPagePub.Web.Controllers
 
         private StructuredDataBreadcrumbModel BuildBreadcrumbList(SitePageSection sitePageSection, SitePage sitePage)
         {
-            var domain = UrlBuilder.GetCurrentDomain(this.HttpContext);
+            var domain = UrlHelper.GetCurrentDomain(this.HttpContext);
 
             var cacheKey = CacheHelper.GetpPageCacheKey(sitePageSection);
             SitePageSection homeSection;
@@ -782,7 +782,7 @@ namespace WebPagePub.Web.Controllers
                                {
                                    Name = sitePage.BreadcrumbName,
                                    PageUrl = new Uri(new Uri(domain),
-                                    UrlBuilder.BlogUrlPath(sitePageSection.Key, sitePage.Key))
+                                   UrlBuilder.BlogUrlPath(sitePageSection.Key, sitePage.Key))
                                }
                            });
             }

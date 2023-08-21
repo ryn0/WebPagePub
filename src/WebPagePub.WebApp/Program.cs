@@ -6,6 +6,8 @@ using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Repositories.Implementations;
 using WebPagePub.Data.Repositories.Interfaces;
+using WebPagePub.Managers.Implementations;
+using WebPagePub.Managers.Interfaces;
 using WebPagePub.Services.Implementations;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.WebApp.AppRules;
@@ -47,6 +49,9 @@ builder.Services.AddTransient<IAuthorRepository, AuthorRepository>();
 // db context
 builder.Services.AddTransient<IApplicationDbContext, ApplicationDbContext>();
 builder.Services.AddTransient<IDbInitializer, DbInitializer>();
+
+// managers
+builder.Services.AddTransient<ISitePageManager, SitePageManager>();
 
 // other
 builder.Services.AddTransient<ICacheService, CacheService>();

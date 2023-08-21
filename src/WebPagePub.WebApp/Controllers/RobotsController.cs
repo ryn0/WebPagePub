@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using WebPagePub.Core;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Web.Helpers;
 
@@ -44,7 +45,7 @@ namespace WebPagePub.Web.Controllers
 
             sb.AppendLine();
 
-            var siteMapUrl = new Uri(new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext)), "sitemap.xml");
+            var siteMapUrl = new Uri(new Uri(UrlHelper.GetCurrentDomain(this.HttpContext)), "sitemap.xml");
 
             sb.AppendLine($"Sitemap: {siteMapUrl}");
 

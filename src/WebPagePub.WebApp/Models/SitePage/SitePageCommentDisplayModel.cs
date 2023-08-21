@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using WebPagePub.Core.Utilities;
 using WebPagePub.Data.Enums;
 
@@ -17,7 +18,7 @@ namespace WebPagePub.WebApp.Models.SitePage
         {
             get
             {
-                return DateUtilities.FriendlyFormatDate(CreateDate);
+                return DateUtilities.FriendlyFormatDate(this.CreateDate);
             }
         }
 

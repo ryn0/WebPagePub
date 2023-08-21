@@ -1,4 +1,5 @@
-﻿using WebPagePub.Data.Enums;
+﻿using WebPagePub.Core;
+using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.WebApp.Models.SitePage;
@@ -8,10 +9,15 @@ namespace WebPagePub.Web.Helpers
     public class ModelConverter
     {
         private readonly ICacheService cacheService;
+        public string BlobPrefix { get; private set; }
+        public string CdnPrefix { get; private set; }
 
         public ModelConverter(ICacheService cacheService)
         {
             this.cacheService = cacheService;
+
+            BlobPrefix = this.cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
+            CdnPrefix = this.cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
         }
 
         public SitePageDisplayModel ConvertToBlogDisplayModel(SitePage current, SitePage previous, SitePage next)
@@ -33,19 +39,18 @@ namespace WebPagePub.Web.Helpers
 
                     PreviousName = previous?.Title,
                     PreviousUrlPath = (previous != null) ? UrlBuilder.BlogUrlPath(previous.SitePageSection.Key, previous.Key) : null,
-                    DefaultPreviousPhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(previousPhotoUrl?.PhotoThumbUrl),
+                    DefaultPreviousPhotoThumbCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(previousPhotoUrl?.PhotoThumbUrl, BlobPrefix, CdnPrefix),
 
                     NextName = next?.Title,
                     NextUrlPath = (next != null) ? UrlBuilder.BlogUrlPath(next.SitePageSection.Key, next.Key) : null,
-                    DefaultNextPhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(nextPhotoUrl?.PhotoThumbUrl),
-
+                    DefaultNextPhotoThumbCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(nextPhotoUrl?.PhotoThumbUrl, BlobPrefix, CdnPrefix),
                     Photos = this.AddPhotos(current.Photos),
 
                     DefaultPhotoThumbUrl = defaultPhotoOriginalUrl?.PhotoThumbUrl,
-                    DefaultPhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(defaultPhotoOriginalUrl?.PhotoThumbUrl),
+                    DefaultPhotoThumbCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(defaultPhotoOriginalUrl?.PhotoThumbUrl, BlobPrefix, CdnPrefix),
 
                     DefaultPhotoOriginalUrl = defaultPhotoOriginalUrl?.PhotoPreviewUrl,
-                    DefaultPhotoOriginalCdnUrl = this.ConvertBlobToCdnUrl(defaultPhotoOriginalUrl?.PhotoPreviewUrl),
+                    DefaultPhotoOriginalCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(defaultPhotoOriginalUrl?.PhotoPreviewUrl, BlobPrefix, CdnPrefix),
 
                     MetaDescription = current.MetaDescription
                 }
@@ -64,26 +69,6 @@ namespace WebPagePub.Web.Helpers
             return model;
         }
 
-        public string ConvertBlobToCdnUrl(string blobUrl)
-        {
-            if (string.IsNullOrWhiteSpace(blobUrl))
-            {
-                return null;
-            }
-
-            var blobPrefix = this.cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
-
-            var cdnPrefix = this.cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
-
-            if (string.IsNullOrWhiteSpace(cdnPrefix) ||
-                string.IsNullOrWhiteSpace(blobPrefix))
-            {
-                return null;
-            }
-
-            return blobUrl.Replace(blobPrefix, cdnPrefix);
-        }
-
         private List<SitePagePhotoModel> AddPhotos(List<SitePagePhoto> photos)
         {
             photos = photos.OrderBy(x => x.Rank).ToList();
@@ -99,14 +84,14 @@ namespace WebPagePub.Web.Helpers
                     IsDefault = photo.IsDefault,
                     Title = photo.Title,
                     PhotoOriginalUrl = photo.PhotoOriginalUrl,
-                    PhotoOriginalCdnUrl = this.ConvertBlobToCdnUrl(photo.PhotoOriginalUrl),
-                    PhotoFullScreenCdnUrl = this.ConvertBlobToCdnUrl(photo.PhotoFullScreenUrl),
+                    PhotoOriginalCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoOriginalUrl, BlobPrefix, CdnPrefix),
+                    PhotoFullScreenCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoFullScreenUrl, BlobPrefix, CdnPrefix),
 
                     PhotoThumbUrl = photo.PhotoThumbUrl,
-                    PhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(photo.PhotoThumbUrl),
+                    PhotoThumbCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoThumbUrl, BlobPrefix, CdnPrefix),
 
                     PhotoPreviewUrl = photo.PhotoPreviewUrl,
-                    PhotoPreviewCdnUrl = this.ConvertBlobToCdnUrl(photo.PhotoPreviewUrl),
+                    PhotoPreviewCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoPreviewUrl, BlobPrefix, CdnPrefix),
                 });
             }
 

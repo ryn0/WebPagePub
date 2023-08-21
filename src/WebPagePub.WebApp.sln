@@ -20,7 +20,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Info", "Info", "{C4DB0176-D
 		..\ReadMe.md = ..\ReadMe.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PageCreationAutomat", "PageCreationAutomat\PageCreationAutomat.csproj", "{0B630DBA-93C4-4B91-BC82-B32D0DE543EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.ChatCommander", "PageCreationAutomat\WebPagePub.ChatCommander.csproj", "{0B630DBA-93C4-4B91-BC82-B32D0DE543EC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.Managers", "WebPagePub.Managers\WebPagePub.Managers.csproj", "{8A1EBD57-2D24-4751-8934-A79219A4E542}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,6 +54,10 @@ Global
 		{0B630DBA-93C4-4B91-BC82-B32D0DE543EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B630DBA-93C4-4B91-BC82-B32D0DE543EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B630DBA-93C4-4B91-BC82-B32D0DE543EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A1EBD57-2D24-4751-8934-A79219A4E542}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A1EBD57-2D24-4751-8934-A79219A4E542}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A1EBD57-2D24-4751-8934-A79219A4E542}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A1EBD57-2D24-4751-8934-A79219A4E542}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
