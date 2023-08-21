@@ -95,3 +95,4 @@ rcf/
 /CI-Tools/Templates/azuredeploy.parameters.json
 /src/PageCreationAutomat
 /src/WebPagePub.Data/appsettings.json
+/src/WebPagePub.WebApp/appsettings.json
