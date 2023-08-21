@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<CodeAnalysisRuleSet>../StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
+
+	</PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WebPagePub.Data\WebPagePub.Data.csproj" />
+    <ProjectReference Include="..\WebPagePub.Services\WebPagePub.Services.csproj" />
+  </ItemGroup>
+
+
+	<ItemGroup>
+		<AdditionalFiles Include="..\stylecop.json" />
+	</ItemGroup>
+
+	<PropertyGroup>
+		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+	</PropertyGroup>
+</Project>

@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using WebPagePub.Core;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Db;
-using WebPagePub.Data.Repositories.Interfaces;
+using WebPagePub.Managers.Interfaces;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.Web.Helpers;
 using WebPagePub.Web.Models;
@@ -14,22 +15,17 @@ namespace WebPagePub.Web.Controllers
     public class SiteMapController : Controller
     {
         private const int MaxPageSizeForSiteMap = 50000;
-        private readonly ISitePageRepository sitePageRepository;
-        private readonly ISitePagePhotoRepository sitePagePhotoRepository;
-        private readonly ISitePageSectionRepository sitePageSectionRepository;
+
         private readonly ICacheService cacheService;
         private readonly IMemoryCache memoryCache;
+        private readonly ISitePageManager sitePageManager;
 
         public SiteMapController(
-            ISitePageRepository sitePageRepository,
-            ISitePagePhotoRepository sitePagePhotoRepository,
-            ISitePageSectionRepository sitePageSectionRepository,
+            ISitePageManager sitePageManager,
             ICacheService cacheService,
             IMemoryCache memoryCache)
         {
-            this.sitePageRepository = sitePageRepository;
-            this.sitePagePhotoRepository = sitePagePhotoRepository;
-            this.sitePageSectionRepository = sitePageSectionRepository;
+            this.sitePageManager = sitePageManager;
             this.cacheService = cacheService;
             this.memoryCache = memoryCache;
         }
@@ -55,7 +51,7 @@ namespace WebPagePub.Web.Controllers
 
             if (cachedPage == null)
             {
-                var allPages = this.sitePageRepository.GetLivePage(1, MaxPageSizeForSiteMap, out int total);
+                var allPages = this.sitePageManager.GetLivePage(1, MaxPageSizeForSiteMap, out int total);
 
 
                 foreach (var page in allPages)
@@ -95,12 +91,12 @@ namespace WebPagePub.Web.Controllers
 
             if (cachedPage == null)
             {
-                var allPages = this.sitePageRepository.GetLivePage(1, int.MaxValue, out int total);
+                var allPages = this.sitePageManager.GetLivePage(1, int.MaxValue, out int total);
                 var sectionIds = allPages.Select(x => x.SitePageSectionId).Distinct();
 
                 foreach (var sectionId in sectionIds)
                 {
-                    var section = this.sitePageSectionRepository.Get(sectionId);
+                    var section = this.sitePageManager.GetSiteSection(sectionId);
                     var allPagesInSection = allPages.Where(x => x.SitePageSectionId == sectionId).ToList();
                     var indexPage = allPagesInSection.FirstOrDefault(x => x.IsSectionHomePage == true);
 
@@ -132,22 +128,22 @@ namespace WebPagePub.Web.Controllers
             if (page.IsSectionHomePage)
             {
                 // TODO: prevent duplicate content and pages which can be indexed a different way ex: /blog/ryan-into-travel is the homepage of blog
-                var siteSection = sitePageSectionRepository.Get(page.SitePageSectionId);
+                var siteSection = this.sitePageManager.GetSiteSection(page.SitePageSectionId);
                 if (siteSection.IsHomePageSection)
                 {
-                    url = new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext)).ToString();
+                    url = new Uri(UrlHelper.GetCurrentDomain(this.HttpContext)).ToString();
                 }
                 else
                 {
                     url = new Uri(string.Format("{0}/{1}",
-                        UrlBuilder.GetCurrentDomain(this.HttpContext),
+                        UrlHelper.GetCurrentDomain(this.HttpContext),
                         siteSection.Key)).ToString();
                 }
             }
             else
             {
                 url = new Uri(string.Format("{0}{1}",
-                                 UrlBuilder.GetCurrentDomain(this.HttpContext),
+                                 UrlHelper.GetCurrentDomain(this.HttpContext),
                                  UrlBuilder.BlogUrlPath(page.SitePageSection.Key, page.Key))).ToString().TrimEnd('/');
             }
 
@@ -160,7 +156,7 @@ namespace WebPagePub.Web.Controllers
 
             if (page.PageType == Data.Enums.PageType.Photo)
             {
-                var photos = this.sitePagePhotoRepository.GetBlogPhotos(page.SitePageId);
+                var photos = this.sitePageManager.GetBlogPhotos(page.SitePageId);
                 var siteMapPhotoItems = ConvertToSiteMapImages(photos);
                 siteMapHelper.AddUrl(
                     url,
@@ -185,7 +181,7 @@ namespace WebPagePub.Web.Controllers
             {
                 items.Add(new SiteMapImageItem()
                 {
-                    ImageLocation = mc.ConvertBlobToCdnUrl(photo.PhotoFullScreenUrl),
+                    ImageLocation = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoFullScreenUrl, mc.BlobPrefix, mc.CdnPrefix),
                     Title = photo.Title,
                     Caption = photo.Description
                 });
@@ -227,7 +223,7 @@ namespace WebPagePub.Web.Controllers
         private void AddPagesInSection(SectionPage siteSectionPage, SitePage page)
         {
             var pagePath = UrlBuilder.BlogUrlPath(page.SitePageSection.Key, page.Key);
-            var pageUrl = new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext) + pagePath).ToString().TrimEnd('/');
+            var pageUrl = new Uri(UrlHelper.GetCurrentDomain(this.HttpContext) + pagePath).ToString().TrimEnd('/');
 
             siteSectionPage.ChildPages.Add(
                 new SectionPage()
@@ -243,17 +239,17 @@ namespace WebPagePub.Web.Controllers
 
             if (section.IsHomePageSection && indexPage.IsSectionHomePage)
             {
-                return new Uri(UrlBuilder.GetCurrentDomain(this.HttpContext)).ToString().TrimEnd('/');
+                return new Uri(UrlHelper.GetCurrentDomain(this.HttpContext)).ToString().TrimEnd('/');
             }
 
             if (indexPage.IsSectionHomePage)
             {
                 return new Uri(
-                    $"{UrlBuilder.GetCurrentDomain(this.HttpContext)}/{indexPage.SitePageSection.Key}").ToString().TrimEnd('/');
+                    $"{UrlHelper.GetCurrentDomain(this.HttpContext)}/{indexPage.SitePageSection.Key}").ToString().TrimEnd('/');
             }
 
             return new Uri(
-                $"{UrlBuilder.GetCurrentDomain(this.HttpContext)}{sectionPath}").ToString().TrimEnd('/');
+                $"{UrlHelper.GetCurrentDomain(this.HttpContext)}{sectionPath}").ToString().TrimEnd('/');
         }
     }
 }
