@@ -47,7 +47,7 @@ namespace WebPagePub.Data.Models
         [StringLength(160)]
         public string MetaDescription { get; set; }
 
-        public virtual ICollection<SitePageTag> SitePageTags { get; set; }
+        public virtual ICollection<SitePageTag> SitePageTags { get; set; } = new List<SitePageTag>();
 
         public virtual List<SitePagePhoto> Photos { get; set; } = new List<SitePagePhoto>();
 
