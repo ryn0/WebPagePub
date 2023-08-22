@@ -22,8 +22,6 @@ namespace WebPagePub.Web.Controllers
             var sb = new StringBuilder();
 
             sb.AppendLine("User-agent: *");
-            sb.AppendLine("Disallow: /tag/");
-            sb.AppendLine("Disallow: /tags/");
 
             var ignoredPages = sitePageRepository.GetIgnoredPages();
 
