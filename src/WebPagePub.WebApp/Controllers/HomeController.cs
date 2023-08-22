@@ -178,6 +178,7 @@ namespace WebPagePub.Web.Controllers
 
             var title = "Tags";
             var sitePage = new SitePageDisplayModel(cacheService);
+            ViewData["Title"] = title;
             sitePage.PageContent.Title = title;
             sitePage.PageContent.PageHeader = title;
             sitePage.PageContent.Content = sb.ToString();
