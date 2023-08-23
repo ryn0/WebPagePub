@@ -16,6 +16,7 @@ using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Managers.Interfaces;
 using WebPagePub.Managers.Models.SitePages;
 using WebPagePub.Services.Interfaces;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WebPagePub.Managers.Implementations
 {
@@ -429,6 +430,26 @@ namespace WebPagePub.Managers.Implementations
         public List<Author> GetAllAuthors()
         {
             return this.authorRepository.GetAll();
+        }
+
+        public int? PreviouslyCreatedPage(DateTime createDate, int sitePageId, int sitePageSectionId)
+        {
+            var entry = this.sitePageRepository.GetPreviouslyCreatedEntry(createDate, sitePageId, sitePageSectionId);
+            if (entry == null || entry.SitePageId == 0)
+            {
+                return null;
+            }
+            return entry.SitePageId;
+        }
+
+        public int? NextCreatedPage(DateTime createDate, int sitePageId, int sitePageSectionId)
+        {
+            var entry = this.sitePageRepository.GetNextCreatedEntry(createDate, sitePageId, sitePageSectionId);
+            if (entry == null || entry.SitePageId == 0)
+            {
+                return null;
+            }
+            return entry.SitePageId;
         }
 
         private async Task UpdateImageProperties(SitePagePhoto sitePagePhoto, SitePagePhotoModel photo)

@@ -6,9 +6,20 @@
 
 <h2>@ViewData["Title"]</h2>
 
-<a href="~/sitepages/?siteSectionId=@Model.SitePageSectionId">&lt; back</a>
-
+<a href="~/sitepages/?siteSectionId=@Model.SitePageSectionId">&lt; back</a> 
+ 
+@if (Model.PreviousSitePageId != null)
+{
+    <a href="~/sitepages/editsitepage/@Model.PreviousSitePageId">&lt; previous page</a> 
+}
+@if (Model.NextSitePageId != null)
+{
+    <a href="~/sitepages/editsitepage/@Model.NextSitePageId">next page &gt;</a>
+}
 <br />
+<span>Create Date: @Model.CreateDate</span>
+<br />
+
 <a href="@Model.PreviewUrlPath">Preview</a> <span>|</span>
  
 <a href="@Model.LiveUrlPath">Live</a>
