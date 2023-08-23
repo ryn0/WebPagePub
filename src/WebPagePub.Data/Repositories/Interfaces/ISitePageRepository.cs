@@ -38,5 +38,10 @@ namespace WebPagePub.Data.Repositories.Interfaces
         SitePage GetSectionHomePage(int sitePageSectionId);
 
         List<SitePage> GetIgnoredPages();
+
+        SitePage GetPreviouslyCreatedEntry(DateTime createDate, int sitePageId, int sitePageSectionId);
+
+        SitePage GetNextCreatedEntry(DateTime createDate, int sitePageId, int sitePageSectionId);
+
     }
 }

@@ -8,6 +8,12 @@ namespace WebPagePub.WebApp.Models.SitePage
     {
         public int SitePageId { get; set; }
 
+        public int? PreviousSitePageId { get; set; }
+
+        public int? NextSitePageId { get; set; }
+
+        public DateTime CreateDate { get; set; }
+
         [Display(Name = "Section")]
         public int SitePageSectionId { get; set; }
 

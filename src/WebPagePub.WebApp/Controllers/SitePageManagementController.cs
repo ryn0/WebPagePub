@@ -284,6 +284,11 @@ namespace WebPagePub.Web.Controllers
             var sitePageSection = this.sitePageManager.GetSiteSection(dbModel.SitePageSectionId);
             var model = this.ToUiEditModel(dbModel, sitePageSection);
 
+            model.PreviousSitePageId = this.sitePageManager.PreviouslyCreatedPage(
+                dbModel.CreateDate, dbModel.SitePageId, dbModel.SitePageSectionId);
+            model.NextSitePageId = this.sitePageManager.NextCreatedPage(
+                dbModel.CreateDate, model.SitePageId, model.SitePageSectionId);
+
             return this.View(model);
         }
 
@@ -458,6 +463,7 @@ namespace WebPagePub.Web.Controllers
         {
             var model = new SitePageEditModel
             {
+                CreateDate = sitePage.CreateDate,
                 Key = sitePage.Key,
                 BreadcrumbName = sitePage.BreadcrumbName,
                 Content = sitePage.Content,
