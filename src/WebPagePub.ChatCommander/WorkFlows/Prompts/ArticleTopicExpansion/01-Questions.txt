@@ -1,0 +1,5 @@
+﻿Give me [quantity] questions someone might ask about: "[topic]". 
+
+Give the questions as 1 string where the questions are seperated by a ',' comma. 
+
+Don't quote the string.

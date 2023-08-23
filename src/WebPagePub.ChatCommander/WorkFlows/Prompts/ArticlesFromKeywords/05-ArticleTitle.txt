@@ -1,0 +1,7 @@
+﻿For the given keyword/ phrase: "[keyword]" which you just wrote an article on, create an SEO optimized title for an article title which will go in the <title></title> section. 
+
+The title much be between 40 and 65 characters. It cannot be longer than 65 characters. 
+
+Do not quote the text. Do not give it in HTML.
+
+Do not say how long it is, just give the raw text.

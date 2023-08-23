@@ -1,0 +1,7 @@
+﻿For the given keyword/ phrase: "[keyword]" which you just wrote an article on, create an SEO optimized breadcrumb. 
+
+This text should be short and concise and convey they meaning of the page in a few words of phrases. 
+
+For example: Sports > Ice Hockey > Ice Hockey Mouthguards
+
+It should be in plain text, not HTML.
