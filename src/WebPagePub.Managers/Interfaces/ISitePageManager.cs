@@ -66,6 +66,10 @@ namespace WebPagePub.Managers.Interfaces
         
         public List<Author> GetAllAuthors();
 
-        public List<SitePage> GetLivePage(int v, int maxPageSizeForSiteMap, out int total);
+        public List<SitePage> GetLivePage(int pageNumber, int maxPageSizeForSiteMap, out int total);
+
+        public int? PreviouslyCreatedPage(DateTime createDate, int sitePageId, int sitePageSectionId);
+
+        public int? NextCreatedPage(DateTime createDate, int sitePageId, int sitePageSectionId);
     }
 }

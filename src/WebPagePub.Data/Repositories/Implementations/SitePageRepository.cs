@@ -93,6 +93,60 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
+        public SitePage GetPreviouslyCreatedEntry(DateTime createDateow, int sitePageId, int sitePageSectionId)
+        {
+            try
+            {
+                var model = this.Context.SitePage
+                                   .Where(x => x.IsSectionHomePage == false &&
+                                               x.SitePageSectionId == sitePageSectionId &&
+                                               x.SitePageId != sitePageId &&
+                                               x.CreateDate <= createDateow)
+                                   .OrderByDescending(x => x.CreateDate)
+                                   .Include(x => x.Photos)
+                                   .Include(x => x.Author)
+                                   .Include(x => x.SitePageSection)
+                                   .Include(x => x.SitePageTags)
+                                   .Include("SitePageTags.Tag")
+                                   .FirstOrDefault();
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex);
+
+                throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
+            }
+        }
+
+        public SitePage GetNextCreatedEntry(DateTime createDate, int sitePageId, int sitePageSectionId)
+        {
+            try
+            {
+                var model = this.Context.SitePage
+                                   .Where(x => x.IsSectionHomePage == false &&
+                                               x.SitePageSectionId == sitePageSectionId &&
+                                               x.SitePageId != sitePageId &&
+                                               x.CreateDate >= createDate)
+                                   .OrderBy(x => x.CreateDate)
+                                   .Include(x => x.Photos)
+                                   .Include(x => x.Author)
+                                   .Include(x => x.SitePageSection)
+                                   .Include(x => x.SitePageTags)
+                                   .Include("SitePageTags.Tag")
+                                   .FirstOrDefault();
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex);
+
+                throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
+            }
+        }
+
         public SitePage GetPreviousEntry(DateTime currentSitePagePublishDateTimeUtc, DateTime now, int sitePageSectionId)
         {
             try
