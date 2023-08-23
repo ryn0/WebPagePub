@@ -1,0 +1,5 @@
+﻿For the given question: "[question]" create an SEO friendly URL key. 
+
+A URL key for the question: "How many feet are in a mile" would be formatted as: "feet-in-mile".
+
+Only respond with the URL key, nothing else.

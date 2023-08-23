@@ -1,0 +1,5 @@
+﻿For the given question: "[question]", create an SEO optimized title for an article. 
+
+The title much be between 40 and 65 characters. It cannot be longer than 65 characters. 
+
+Do not quote the text or say how long it is, just give the raw text.
