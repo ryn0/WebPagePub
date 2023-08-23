@@ -17,10 +17,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.Core.UnitTests",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Info", "Info", "{C4DB0176-DD7D-41F1-9EE0-105061D33BA8}"
 	ProjectSection(SolutionItems) = preProject
+		..\.gitignore = ..\.gitignore
 		..\ReadMe.md = ..\ReadMe.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.ChatCommander", "PageCreationAutomat\WebPagePub.ChatCommander.csproj", "{0B630DBA-93C4-4B91-BC82-B32D0DE543EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.ChatCommander", "WebPagePub.ChatCommander\WebPagePub.ChatCommander.csproj", "{0B630DBA-93C4-4B91-BC82-B32D0DE543EC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.Managers", "WebPagePub.Managers\WebPagePub.Managers.csproj", "{8A1EBD57-2D24-4751-8934-A79219A4E542}"
 EndProject

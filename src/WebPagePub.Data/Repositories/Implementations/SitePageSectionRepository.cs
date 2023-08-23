@@ -80,6 +80,11 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(key))
+                {
+                    return null;
+                }
+
                 return this.Context.SitePageSection
                               .FirstOrDefault(x => x.Key == key);
             }

@@ -1,0 +1,6 @@
+﻿For the given keyword/ phrase: "[keyword]" which you just wrote an article on, 
+give 1 to 3 words or phrases which can be used as a tag for the article.
+
+Give these tags as a ',' comma seperated list (example: word, other word).
+
+Do not include numbers.
