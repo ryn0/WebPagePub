@@ -15,6 +15,7 @@ using WebPagePub.Web.Models;
 using WebPagePub.WebApp.Models.Author;
 using WebPagePub.WebApp.Models.SitePage;
 
+
 namespace WebPagePub.Web.Controllers
 {
     [Authorize(Roles = StringConstants.AdminRole)]
@@ -43,6 +44,45 @@ namespace WebPagePub.Web.Controllers
         public IActionResult CreateSiteSection()
         {
             return this.View();
+        }
+
+
+        [Route("sitepages/Search")]
+        [HttpGet]
+        public IActionResult Search(string term, int pageNumber = 1)
+        {
+            var quantityPerPage = 10;
+            var pages = this.sitePageManager.SearchForTerm(term, pageNumber, quantityPerPage, out int total);
+
+            var model = new SitePageSearchResultsModel()
+            {
+                SearchTerm = term,
+                CurrentPageNumber = pageNumber,
+                QuantityPerPage = quantityPerPage,
+                Total = total
+            };
+
+            var pageCount = (double)model.Total / model.QuantityPerPage;
+            model.PageCount = (int)Math.Ceiling(pageCount);
+
+            foreach (var page in pages)
+            {
+                model.Items.Add(new SitePageItemModel()
+                {
+                    CreateDate = page.CreateDate,
+                    IsIndex = page.IsSectionHomePage,
+                    IsLive = page.IsLive,
+                    IsSiteSection = page.IsSectionHomePage,
+                    Key = page.Key,
+                    LiveUrlPath = UrlBuilder.BlogUrlPath(page.SitePageSection.Key, page.Key),
+                    PreviewUrlPath = UrlBuilder.BlogPreviewUrlPath(page.SitePageId),
+                    SitePageId = page.SitePageId,
+                    SitePageSectionId = page.SitePageSectionId,
+                    Title = page.Title,
+                });
+            }
+
+            return this.View("Search", model);
         }
 
         [Route("sitepages/CreateSiteSection")]
@@ -78,7 +118,6 @@ namespace WebPagePub.Web.Controllers
             });
         }
 
-
         [Route("sitepagemanagement/DeleteSiteSection")]
         [HttpPost]
         public IActionResult DeleteSiteSection(int siteSectionId)
@@ -92,7 +131,7 @@ namespace WebPagePub.Web.Controllers
 
             this.sitePageManager.DeleteSiteSection(siteSectionId);
 
-            return this.View(nameof(SitePages));
+            return this.RedirectToAction(nameof(this.SitePages));
         }
 
         [Route("sitepages/EditSiteSection/{sitePageSectionId}")]
@@ -259,7 +298,7 @@ namespace WebPagePub.Web.Controllers
         }
 
         [Route("sitepages/deletepage/{SitePageId}")]
-        [HttpPost]
+        [HttpGet]
         public async Task<IActionResult> DeleteAsync(int sitePageId)
         {
             await this.sitePageManager.DeletePage(sitePageId);
