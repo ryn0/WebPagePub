@@ -43,5 +43,7 @@ namespace WebPagePub.Data.Repositories.Interfaces
 
         SitePage GetNextCreatedEntry(DateTime createDate, int sitePageId, int sitePageSectionId);
 
+        List<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total);
+
     }
 }

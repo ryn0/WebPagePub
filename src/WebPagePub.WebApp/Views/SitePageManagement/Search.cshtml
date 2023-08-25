@@ -1,26 +1,17 @@
-﻿@model WebPagePub.WebApp.Models.SitePage.SitePageListModel
+﻿@model WebPagePub.WebApp.Models.SitePage.SitePageSearchResultsModel
  
  
 @{
-    ViewData["Title"] = "Pages: " + Model.SitePageSectionTitle;
+    ViewData["Title"] = "Search Results: " + Model.SearchTerm;
 }
  <h2>@ViewData["Title"]</h2>
  <hr />
 
-@if (Model.IsSiteSectionPage)
-{
-    <a class="btn btn-success" href="~/sitepages/createsitesection">Create new section</a>
-}
-else
-{
-    <a href="~/sitepages">&lt; back</a>
-    <hr />
-    <a class="btn btn-success"  href="~/sitepages/createsitepage/@Model.SitePageSectionId">Create new page</a>
-}
-
-<br />
-<a href="~/sitepages/search">Page search</a>
-
+ <form action="~/sitepages/search" method="get">
+     <input name="term" />
+     <button class="btn btn-success" type="submit">Search</button>
+ </form>
+ 
 @if (Model != null && Model.Items.Count() > 0)
 {
 <table class="table">
@@ -78,14 +69,7 @@ else
                     }
 
                 }
-                
-                @*@using (Html.BeginForm("DeleteAsync", "sitepages", FormMethod.Post,
-                                        new { role = "form", onsubmit = string.Format(@"return confirm('Do you really want to delete this?');") }))
-                {
-                    <button type="submit" name="SitePageId" value="@item.SitePageId" class="btn-danger btn-sm"> &#x1F5D1;</button>
-
-
-                }*@
+           
             </td>
         </tr>
         }
@@ -108,7 +92,7 @@ else
         }
         else
         {
-            <a href="@Url.Content("~/sitepages?siteSectionId=" + Model.SitePageSectionId.ToString() + "&pageNumber=" + pageNumber.ToString())">@pageNumber.ToString()</a>
+            <a href="@Url.Content("~/sitepages/search?term=" + Model.SearchTerm + "&pageNumber=" + pageNumber.ToString())">@pageNumber.ToString()</a>
         }
     }
 

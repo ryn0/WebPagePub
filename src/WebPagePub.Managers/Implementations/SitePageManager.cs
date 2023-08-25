@@ -678,5 +678,17 @@ namespace WebPagePub.Managers.Implementations
             return entry;
         }
 
+        public List<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total)
+        {
+            if (term == null)
+            {
+                total = 0;
+                return new List<SitePage>();
+            }
+
+            term = term.Trim();
+
+            return this.sitePageRepository.SearchForTerm(term, pageNumber, quantityPerPage, out total);
+        }
     }
 }

@@ -432,5 +432,46 @@ namespace WebPagePub.Data.Repositories.Implementations
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
+ 
+        public List<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total)
+        {
+            var results = new List<SitePage>();
+            var now = DateTime.UtcNow;
+            try
+            {
+                results = this.Context.SitePage
+                            .Where(x => x.Title.Contains(term) ||
+                                x.Content.Contains(term) ||
+                                x.PageHeader.Contains(term) ||
+                                x.MetaDescription.Contains(term) ||
+                                x.BreadcrumbName.Contains(term) ||
+                                x.Key.Contains(term) ||
+                                x.ReviewItemName.Contains(term))
+                            .Include(x => x.SitePageSection)
+                                   .Include(x => x.Photos)
+                                   .Include(x => x.Author)
+                                   .OrderByDescending(page => page.CreateDate)
+                                   .Skip(quantityPerPage * (pageNumber - 1))
+                                   .Take(quantityPerPage)
+                            .ToList();
+
+                total = this.Context.SitePage
+                                .Where(x => x.Title.Contains(term) ||
+                                    x.Content.Contains(term) ||
+                                    x.PageHeader.Contains(term) ||
+                                    x.MetaDescription.Contains(term) ||
+                                    x.BreadcrumbName.Contains(term) ||
+                                    x.Key.Contains(term) ||
+                                    x.ReviewItemName.Contains(term)).Count();
+
+                return results;
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex);
+
+                throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
+            }
+        }
     }
 }
