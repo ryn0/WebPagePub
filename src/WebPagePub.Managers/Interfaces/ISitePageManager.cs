@@ -71,5 +71,7 @@ namespace WebPagePub.Managers.Interfaces
         public int? PreviouslyCreatedPage(DateTime createDate, int sitePageId, int sitePageSectionId);
 
         public int? NextCreatedPage(DateTime createDate, int sitePageId, int sitePageSectionId);
+
+        List<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total);
     }
 }
