@@ -94,6 +94,8 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                 // 03
                 var promptTextRaw03 = File.ReadAllText(Path.Combine(fileDir, "03-ArticleHtmlBody.txt"), Encoding.UTF8);
                 var promptTextFormatted03 = FormatPromptTextKeyword(promptTextRaw03, keyword);
+
+                chatGPT.MaxTokens = 2000;
                 var articleHtml = await chatGPT.SubmitMessage(promptTextFormatted03);
                 articleHtml = articleHtml.Trim();
 
@@ -102,10 +104,14 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 
                 while (!articleHtml.EndsWith("</p>") && attemptsAtHtmlBody < maxAttemptsAtHtmlBody)
                 {
+                    Console.Write(".");
+                    chatGPT.MaxTokens = 1000;
                     articleHtml = await chatGPT.SubmitMessage(promptTextFormatted03 + " Write this shorter than before.");
                     articleHtml = articleHtml.Trim();
                     attemptsAtHtmlBody++;
                 }
+
+                chatGPT.MaxTokens = 1000;
 
                 if (attemptsAtHtmlBody > maxAttemptsAtHtmlBody)
                 {
@@ -121,6 +127,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 
                 while (articleMetaDescription.Length > 160)
                 {
+                    Console.Write(".");
                     articleMetaDescription = await chatGPT.SubmitMessage($" {promptTextFormatted04} - again but shorter");
                     articleMetaDescription = TextHelpers.CleanText(articleMetaDescription);
                 }
@@ -133,12 +140,14 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 
                 while (articleTitle.Length > 65)
                 {
+                    Console.Write(".");
                     articleTitle = await chatGPT.SubmitMessage("shorter");
                     articleTitle = TextHelpers.CleanText(articleTitle);
                 }
 
                 while (articleTitle.Contains("The lowest number possible is 0."))
                 {
+                    Console.Write(".");
                     articleTitle = await chatGPT.SubmitMessage("Re-write this.");
                     articleTitle = TextHelpers.CleanText(articleTitle);
                 }
