@@ -8,9 +8,10 @@ namespace WebPagePub.ChatCommander
     public class ChatGPT
     {
         private readonly string _apiKey;
-        
+
         private readonly string textModel;
-        private readonly int maxTokens = 1000;
+        public int MaxTokens { get; set; } = 1000;
+
         const string contentType = "application/json";
         const string completionsEndPoint = "https://api.openai.com/v1/completions";
         const string imageGenerationsEndPoint = "https://api.openai.com/v1/images/generations";
@@ -20,7 +21,7 @@ namespace WebPagePub.ChatCommander
         public ChatGPT(ChatGptSettings chatGptSettings)
         {
             _apiKey = chatGptSettings.ApiKey;
-            this.maxTokens = chatGptSettings.MaxTokens;
+            this.MaxTokens = chatGptSettings.MaxTokens;
             this.textModel = chatGptSettings.TextModel;
             Client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
         }
@@ -31,7 +32,7 @@ namespace WebPagePub.ChatCommander
             {
                 prompt = prompt,
                 model = textModel,
-                max_tokens = maxTokens
+                max_tokens = MaxTokens
             };
 
             try
