@@ -28,6 +28,7 @@ else
         <tr>
             <th>Title</th>
             <th>Create Date</th>
+            <th>Is Live</th>
             <th></th>
             <th></th>
          
@@ -52,6 +53,9 @@ else
             </td>
             <td>
                 @item.CreateDate
+            </td>
+            <td>
+                <span>@item.IsLive</span>
             </td>
             <td>
                 @if (item.IsSiteSection)
