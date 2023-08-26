@@ -75,6 +75,5 @@ namespace WebPagePub.ChatCommander.Utilities
 
             return cleaned;
         }
-
     }
 }
