@@ -1,0 +1,14 @@
+﻿For the given calculator type: "[keyword]", create an HTML and JavaScript calculator.
+
+When you make it, put the CSS class "calculation-result" in the result section.
+
+Also, when you make it, put the CSS classes "btn btn-success" in the button.
+
+Only give the text which would be in the <body></body> section of the HTML page so that it is just the HTML and JavaScript
+which would go into the page.
+
+Do not give the tags of <body> or <html>. Only give the HTML which goes inside <body>.
+
+If you give a heading, do not use <h1> use only <h2> and <h3>.
+
+Your response must be properly formatted HTML. 

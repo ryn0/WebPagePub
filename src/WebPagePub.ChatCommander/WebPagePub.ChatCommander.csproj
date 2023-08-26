@@ -28,6 +28,36 @@
     <None Update="appSettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="WorkFlows\Prompts\ArticleWithCalculator\00-Setup.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticleWithCalculator\01-LoadKeywords.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticleWithCalculator\02-ArticleKey.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticleWithCalculator\04-ArticleHtmlCalculator.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticleWithCalculator\03-ArticleHtmlBody.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticleWithCalculator\05-ArticleMetaDescription.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticleWithCalculator\06-ArticleTitle.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticleWithCalculator\07-ArticleBreadcrumb.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticleWithCalculator\08-ArticleHeader.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticleWithCalculator\09-ArticleTags.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="WorkFlows\Prompts\ArticlesFromKeywords\02-ArticleKey.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
