@@ -7,14 +7,14 @@ using WebPagePub.Managers.Interfaces;
 
 namespace WebPagePub.ChatCommander.WorkFlows.Generators
 {
-    public class ArticleFromKeywordsGenerator : BaseGenerator, IPageEditor
+    public class ArticleWithCalculatorGenerator : BaseGenerator, IPageEditor
     {
         const string QuestionPlaceholder = "[keyword]";
 
-        public ArticleFromKeywordsGenerator(
+        public ArticleWithCalculatorGenerator(
             ChatGptSettings chatGptSettings,
             ISitePageManager sitePageManager,
-            ArticleFromKeywordsGeneratorModel model) : 
+            ArticleWithCalculatorGeneratorModel model) : 
             base (chatGptSettings, sitePageManager)
         {
             base.SectionKey = model.SectionKey;
@@ -38,7 +38,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                 throw new Exception("Site section missing");
             }
 
-            var fileDir = Directory.GetCurrentDirectory() + @"\WorkFlows\Prompts\ArticlesFromKeywords";
+            var fileDir = Directory.GetCurrentDirectory() + @"\WorkFlows\Prompts\ArticleWithCalculator";
 
             // 00
             var promptTextRaw00 = File.ReadAllText(Path.Combine(fileDir, "00-Setup.txt"), Encoding.UTF8);
@@ -99,10 +99,9 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                 var articleHtml = await chatGPT.SubmitMessage(promptTextFormatted03);
                 articleHtml = articleHtml.Trim();
 
-                var maxAttemptsAtHtmlBody = 3;
                 var attemptsAtHtmlBody = 1;
 
-                while (!articleHtml.EndsWith("</p>") && attemptsAtHtmlBody < maxAttemptsAtHtmlBody)
+                while (!articleHtml.EndsWith("</p>") && attemptsAtHtmlBody < maxAttempts)
                 {
                     Console.Write(".");
                     chatGPT.MaxTokens = 1000;
@@ -113,35 +112,64 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 
                 chatGPT.MaxTokens = 1000;
 
-                if (attemptsAtHtmlBody > maxAttemptsAtHtmlBody)
+                if (attemptsAtHtmlBody > maxAttempts)
                 {
                     Console.WriteLine(" - HTML not formatted correctly at end");
                     continue;
                 }
 
                 // 04
-                var promptTextRaw04 = File.ReadAllText(Path.Combine(fileDir, "04-ArticleMetaDescription.txt"), Encoding.UTF8);
+                var promptTextRaw04 = File.ReadAllText(Path.Combine(fileDir, "04-ArticleHtmlCalculator.txt"), Encoding.UTF8);
                 var promptTextFormatted04 = FormatPromptTextKeyword(promptTextRaw04, keyword);
-                var articleMetaDescription = await chatGPT.SubmitMessage(promptTextFormatted04);
+
+                chatGPT.MaxTokens = 2000;
+                var articleHtmlCalculator = await chatGPT.SubmitMessage(promptTextFormatted04);
+                articleHtmlCalculator = TextHelpers.ScriptText(articleHtmlCalculator);
+
+                var attemptsAtHtmlCalculator = 1;
+
+                while ((!articleHtmlCalculator.EndsWith(">") ||
+                      !articleHtmlCalculator.Contains("onclick"))
+                      && attemptsAtHtmlCalculator < maxAttempts)
+                {
+                    Console.Write(".");
+                    chatGPT.MaxTokens = 1000;
+                    articleHtmlCalculator = await chatGPT.SubmitMessage(promptTextFormatted04 + " the button doesn't contain 'onclick'");
+                    articleHtmlCalculator = TextHelpers.ScriptText(articleHtmlCalculator);
+                    attemptsAtHtmlCalculator++;
+                }
+
+                chatGPT.MaxTokens = 1000;
+
+                if (attemptsAtHtmlCalculator > maxAttempts)
+                {
+                    Console.WriteLine(" - HTML not formatted correctly at end");
+                    continue;
+                }
+
+                // 05
+                var promptTextRaw05 = File.ReadAllText(Path.Combine(fileDir, "05-ArticleMetaDescription.txt"), Encoding.UTF8);
+                var promptTextFormatted05 = FormatPromptTextKeyword(promptTextRaw05, keyword);
+                var articleMetaDescription = await chatGPT.SubmitMessage(promptTextFormatted05);
                 articleMetaDescription = TextHelpers.CleanText(articleMetaDescription);
 
                 while (articleMetaDescription.Length > 160)
                 {
                     Console.Write(".");
-                    articleMetaDescription = await chatGPT.SubmitMessage($" {promptTextFormatted04} - again but shorter");
+                    articleMetaDescription = await chatGPT.SubmitMessage($" {promptTextFormatted05} - again but shorter");
                     articleMetaDescription = TextHelpers.CleanText(articleMetaDescription);
                 }
 
-                // 05
-                var promptTextRaw05 = File.ReadAllText(Path.Combine(fileDir, "05-ArticleTitle.txt"), Encoding.UTF8);
-                var promptTextFormatted05 = FormatPromptTextKeyword(promptTextRaw05, keyword);
-                var articleTitle = await chatGPT.SubmitMessage(promptTextFormatted05);
+                // 06
+                var promptTextRaw06 = File.ReadAllText(Path.Combine(fileDir, "06-ArticleTitle.txt"), Encoding.UTF8);
+                var promptTextFormatted06 = FormatPromptTextKeyword(promptTextRaw06, keyword);
+                var articleTitle = await chatGPT.SubmitMessage(promptTextFormatted06);
                 articleTitle = TextHelpers.CleanTitle(articleTitle);
 
                 while (articleTitle.Length > 65)
                 {
                     Console.Write(".");
-                    articleTitle = await chatGPT.SubmitMessage("shorter");
+                    articleTitle = await chatGPT.SubmitMessage(promptTextRaw06+ " - but shorter");
                     articleTitle = TextHelpers.CleanText(articleTitle);
                 }
 
@@ -152,16 +180,16 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                     articleTitle = TextHelpers.CleanText(articleTitle);
                 }
 
-                //06
-                var promptTextRaw06 = File.ReadAllText(Path.Combine(fileDir, "06-ArticleBreadcrumb.txt"), Encoding.UTF8);
-                var promptTextFormatted06 = FormatPromptTextKeyword(promptTextRaw06, keyword);
-                var articleBreadcrumb = await chatGPT.SubmitMessage(promptTextFormatted06);
+                //07
+                var promptTextRaw07 = File.ReadAllText(Path.Combine(fileDir, "07-ArticleBreadcrumb.txt"), Encoding.UTF8);
+                var promptTextFormatted07 = FormatPromptTextKeyword(promptTextRaw07, keyword);
+                var articleBreadcrumb = await chatGPT.SubmitMessage(promptTextFormatted07);
                 articleBreadcrumb = TextHelpers.ParseBreadcrumb(articleBreadcrumb);
 
-                //07
-                var promptTextRaw07 = File.ReadAllText(Path.Combine(fileDir, "07-ArticleHeader.txt"), Encoding.UTF8);
-                var promptTextFormatted07 = FormatPromptTextKeyword(promptTextRaw07, keyword);
-                var articleHeader = await chatGPT.SubmitMessage(promptTextFormatted07);
+                //08
+                var promptTextRaw08 = File.ReadAllText(Path.Combine(fileDir, "08-ArticleHeader.txt"), Encoding.UTF8);
+                var promptTextFormatted08 = FormatPromptTextKeyword(promptTextRaw08, keyword);
+                var articleHeader = await chatGPT.SubmitMessage(promptTextFormatted08);
                 articleHeader = TextHelpers.CleanH1(articleHeader);
 
                 var newPage = sitePageManager.CreatePage(new SitePage()
@@ -169,7 +197,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                     SitePageSectionId = siteSection.SitePageSectionId,
                     AllowsComments = true,
                     BreadcrumbName = articleBreadcrumb,
-                    Content = articleHtml,
+                    Content = articleHtmlCalculator + Environment.NewLine + articleHtml,
                     ExcludePageFromSiteMapXml = false,
                     IsLive = true,
                     AuthorId = authorId,
@@ -187,10 +215,10 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                 }
                 else
                 {
-                    //08
-                    var promptTextRaw08 = File.ReadAllText(Path.Combine(fileDir, "08-ArticleTags.txt"), Encoding.UTF8);
-                    var promptTextFormatted08 = FormatPromptTextKeyword(promptTextRaw08, keyword);
-                    var articleTags = await chatGPT.SubmitMessage(promptTextFormatted08);
+                    //09
+                    var promptTextRaw09 = File.ReadAllText(Path.Combine(fileDir, "09-ArticleTags.txt"), Encoding.UTF8);
+                    var promptTextFormatted09 = FormatPromptTextKeyword(promptTextRaw09, keyword);
+                    var articleTags = await chatGPT.SubmitMessage(promptTextFormatted09);
 
                     var sitePageEditModel = new Managers.Models.SitePages.SitePageEditModel()
                     {
