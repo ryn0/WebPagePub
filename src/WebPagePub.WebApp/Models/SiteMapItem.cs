@@ -1,4 +1,4 @@
-﻿using WebPagePub.Web.Helpers;
+﻿using WebPagePub.WebApp.Enums;
 
 namespace WebPagePub.WebApp.Models
 {

@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using WebPagePub.WebApp.Enums;
 using WebPagePub.WebApp.Models;
 
 namespace WebPagePub.Web.Helpers

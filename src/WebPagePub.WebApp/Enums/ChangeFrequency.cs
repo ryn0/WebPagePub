@@ -1,4 +1,4 @@
-﻿namespace WebPagePub.Web.Helpers
+﻿namespace WebPagePub.WebApp.Enums
 {
     public enum ChangeFrequency
     {
