@@ -1,10 +1,21 @@
-﻿using WebPagePub.ChatCommander.ChatModels;
-using WebPagePub.Core.Utilities;
+﻿using WebPagePub.Core.Utilities;
 
 namespace WebPagePub.ChatCommander.Utilities
 {
     public class TextHelpers
     {
+        public static string ScriptText(string text)
+        {
+            text = text.Trim();
+
+            return text.Replace("&lt;/script>", "</script>");
+        }
+
+        public static string[] KeyLinesInFile(string text)
+        {
+            return text.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+        }
+
         public static string CleanTitle(string articleTitle)
         {
             articleTitle = CleanText(articleTitle);

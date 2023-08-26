@@ -55,8 +55,16 @@ serviceProvider = new ServiceCollection()
    .BuildServiceProvider();
 
 Console.WriteLine("Select which workflow to run from below:");
-Console.WriteLine((int)Workflows.ArticleTopicExpansionGenerator + " - " + Workflows.ArticleTopicExpansionGenerator);
-Console.WriteLine((int)Workflows.ArticleFromKeywordsGenerator + " - " + Workflows.ArticleFromKeywordsGenerator);
+
+foreach (Workflows workflow in Enum.GetValues(typeof(Workflows)))
+{
+    if (workflow == Workflows.Unknown)
+    {
+        continue;
+    }
+    Console.WriteLine($"{(int)workflow} - {workflow}");
+}
+
 Console.Write("Type number and press enter: ");
 
 var chatGptSettings = config.GetRequiredSection("ChatGpt").Get<ChatGptSettings>();
@@ -86,6 +94,16 @@ switch (workflowSelectionEnum)
             chatGptSettings,
             sitePageManager,
             articleKeywordsSettings);
+
+        break;
+    case Workflows.ArticleWithCalculatorGenerator:
+        var articleCalculatorsSettings =
+            config.GetRequiredSection("ArticleWithCalculatorGenerator").Get<ArticleWithCalculatorGeneratorModel>();
+
+        pageEditor = new ArticleWithCalculatorGenerator(
+            chatGptSettings,
+            sitePageManager,
+            articleCalculatorsSettings);
 
         break;
     default:
