@@ -187,7 +187,8 @@ namespace WebPagePub.Web.Controllers
                         Title = section.Title,
                         SitePageSectionId = section.SitePageSectionId,
                         CreateDate = section.CreateDate,
-                        IsIndex = section.IsHomePageSection
+                        IsIndex = section.IsHomePageSection,
+                        IsLive = true
                     });
                 }
 
