@@ -8,6 +8,7 @@ using WebPagePub.Managers.Interfaces;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.Web.Helpers;
 using WebPagePub.Web.Models;
+using WebPagePub.WebApp.Enums;
 using WebPagePub.WebApp.Models;
 
 namespace WebPagePub.Web.Controllers
