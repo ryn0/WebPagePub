@@ -297,6 +297,8 @@ namespace WebPagePub.Web.Controllers
                     return this.View("SectionList", model);
                 case PageType.Review:
                     return this.View("Review", model);
+                case PageType.ContentWithSideBar:
+                    return this.View("ContentWithSideBar", model);
                 case PageType.Content:
                 default:
                     return this.View("Content", model);
