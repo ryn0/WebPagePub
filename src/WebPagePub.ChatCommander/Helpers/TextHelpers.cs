@@ -4,16 +4,23 @@ namespace WebPagePub.ChatCommander.Utilities
 {
     public class TextHelpers
     {
-        public static string ScriptText(string text)
+        public static string ScriptAndFormFormatting(string text)
         {
             text = text.Trim();
 
-            return text.Replace("&lt;/script>", "</script>");
+            var newText = text.Replace("&lt;/script>", "</script>");
+
+            newText = AddClassesToButton(newText);
+
+            return newText;
         }
 
-        public static string[] KeyLinesInFile(string text)
+        public static string[] GetUniqueLines(string text)
         {
-            return text.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+            var linesInFile = text.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+            var uniqueItems = linesInFile.Distinct();
+
+            return uniqueItems.ToArray();
         }
 
         public static string CleanTitle(string articleTitle)
@@ -22,8 +29,15 @@ namespace WebPagePub.ChatCommander.Utilities
             articleTitle = articleTitle.Replace("<title>", string.Empty);
             articleTitle = articleTitle.Replace("</title>", string.Empty);
             articleTitle = articleTitle.Replace("&amp;", "&");
+            articleTitle = articleTitle.Replace("”", string.Empty);
 
             return articleTitle;
+        }
+
+        public static string AddClassesToButton(string text) {
+            text = text.Trim();
+            var newText = text.Replace("<button", @"<button class=""btn btn-success"" ");
+            return newText;
         }
 
         public static string ParseBreadcrumb(string input)
