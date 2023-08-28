@@ -47,7 +47,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
             // 01
             Console.Write($"Loading keywords...");
             var keywords = File.ReadAllText(Path.Combine(fileDir, "01-LoadKeywords.txt"), Encoding.UTF8);
-            var keywordList = TextHelpers.KeyLinesInFile(keywords);
+            var keywordList = TextHelpers.GetUniqueLines(keywords);
             Console.WriteLine($"{keywordList.Count()} found.");
 
             // 02

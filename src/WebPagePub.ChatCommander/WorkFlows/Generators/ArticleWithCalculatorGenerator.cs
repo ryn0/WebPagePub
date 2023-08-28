@@ -47,7 +47,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
             // 01
             Console.Write($"Loading keywords...");
             var keywords = File.ReadAllText(Path.Combine(fileDir, "01-LoadKeywords.txt"), Encoding.UTF8);
-            var keywordList = TextHelpers.KeyLinesInFile(keywords);
+            var keywordList = TextHelpers.GetUniqueLines(keywords);
             Console.WriteLine($"{keywordList.Count()} found.");
 
             // 02
@@ -124,7 +124,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 
                 chatGPT.MaxTokens = 2000;
                 var articleHtmlCalculator = await chatGPT.SubmitMessage(promptTextFormatted04);
-                articleHtmlCalculator = TextHelpers.ScriptText(articleHtmlCalculator);
+                articleHtmlCalculator = TextHelpers.ScriptAndFormFormatting(articleHtmlCalculator);
 
                 var attemptsAtHtmlCalculator = 1;
 
@@ -135,7 +135,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                     Console.Write(".");
                     chatGPT.MaxTokens = 1000;
                     articleHtmlCalculator = await chatGPT.SubmitMessage(promptTextFormatted04 + " the button doesn't contain 'onclick'");
-                    articleHtmlCalculator = TextHelpers.ScriptText(articleHtmlCalculator);
+                    articleHtmlCalculator = TextHelpers.ScriptAndFormFormatting(articleHtmlCalculator);
                     attemptsAtHtmlCalculator++;
                 }
 
@@ -166,7 +166,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                 var articleTitle = await chatGPT.SubmitMessage(promptTextFormatted06);
                 articleTitle = TextHelpers.CleanTitle(articleTitle);
 
-                while (articleTitle.Length > 65)
+                while (articleTitle.Length > 75)
                 {
                     Console.Write(".");
                     articleTitle = await chatGPT.SubmitMessage(promptTextRaw06+ " - but shorter");
