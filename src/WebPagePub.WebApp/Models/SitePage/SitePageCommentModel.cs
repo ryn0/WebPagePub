@@ -28,6 +28,7 @@ namespace WebPagePub.WebApp.Models.SitePage
         [Required]
         public string Comment { get; set; } = default!;
 
+        [Display(Name = "Comment Status")]
         public CommentStatus CommentStatus { get; set; }
 
         public Guid RequestId { get; set; }
