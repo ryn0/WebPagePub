@@ -5,6 +5,7 @@
         Unknown= 0,
         ArticleTopicExpansionGenerator = 1,
         ArticleFromKeywordsGenerator = 2,
-        ArticleWithCalculatorGenerator = 3
+        ArticleWithCalculatorGenerator = 3,
+        ArticleFromUrlGenerator = 4,
     }
 }

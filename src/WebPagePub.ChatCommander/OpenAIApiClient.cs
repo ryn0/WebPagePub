@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Text;
-using WebPagePub.ChatCommander.ChatModels;
-using WebPagePub.ChatCommander.SettingsModels;
+using WebPagePub.ChatCommander.Models.ChatModels;
+using WebPagePub.ChatCommander.Models.SettingsModels;
 
 namespace WebPagePub.ChatCommander
 {

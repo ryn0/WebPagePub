@@ -1,0 +1,19 @@
+﻿For the given text, re-write it and create an SEO friendly article as HTML. 
+
+Make the article contain at least 1,000 words of text.
+
+When you write it, make sure there are several sections and multiple paragraphs so that it's easy to read online.
+
+Do not include any dates in the article. Be aware that some of the text is from a web page and might be a menu item or a disclaimer about affiliate commissions,
+do not include any of that text in the article you create.
+
+Only give the text which would be in the <body></body> section of the article. 
+
+Do not include the <h1></h1> tag. Only use <h2> and <p> tags. Do not HTML encode the tags.
+
+Your response must be properly formatted HTML. Do not send a response unless it is properly formatted HTML.
+
+Below is the text:
+
+
+[text]

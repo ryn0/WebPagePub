@@ -1,4 +1,4 @@
-﻿using WebPagePub.ChatCommander.SettingsModels;
+﻿using WebPagePub.ChatCommander.Models.SettingsModels;
 using WebPagePub.Managers.Interfaces;
 
 namespace WebPagePub.ChatCommander.WorkFlows.Generators
