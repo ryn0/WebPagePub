@@ -6,7 +6,7 @@
 
   </PropertyGroup>
   <ItemGroup>
-  <PackageReference Include="Aspose.Imaging" Version="23.7.0" />
+  <PackageReference Include="Aspose.Imaging" Version="23.8.0" />
   <PackageReference Include="AWSSDK.Core" Version="3.7.201.6" />
   <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.200.26" />
   <PackageReference Include="log4net" Version="2.0.15" />
