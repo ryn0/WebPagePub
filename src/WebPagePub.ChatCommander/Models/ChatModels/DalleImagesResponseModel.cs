@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace WebPagePub.ChatCommander.ChatModels
+namespace WebPagePub.ChatCommander.Models.ChatModels
 {
     // serves as our input model
     [JsonObject("input")]

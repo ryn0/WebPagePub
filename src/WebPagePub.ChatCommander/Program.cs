@@ -1,8 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using HtmlAgilityPack;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text.RegularExpressions;
+using System.Xml;
+using System.Xml.Linq;
 using WebPagePub.ChatCommander.Enums;
 using WebPagePub.ChatCommander.Interfaces;
+using WebPagePub.ChatCommander.Models.SettingsModels;
 using WebPagePub.ChatCommander.SettingsModels;
 using WebPagePub.ChatCommander.WorkFlows.Generators;
 using WebPagePub.Data.DbContextInfo;
@@ -104,6 +110,16 @@ switch (workflowSelectionEnum)
             chatGptSettings,
             sitePageManager,
             articleCalculatorsSettings);
+
+        break;
+    case Workflows.ArticleFromUrlGenerator:
+        var articleUrlSettings =
+            config.GetRequiredSection("ArticleFromUrlGenerator").Get<ArticleFromUrlGeneratorModel>();
+
+        pageEditor = new ArticleFromUrlGenerator(
+            chatGptSettings,
+            sitePageManager,
+            articleUrlSettings);
 
         break;
     default:
