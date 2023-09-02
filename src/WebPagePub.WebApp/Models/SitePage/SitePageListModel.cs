@@ -6,7 +6,7 @@
 
         public int SitePageSectionId { get; set; }
 
-        public string SitePageSectionTitle { get; set; }
+        public string SitePageSectionTitle { get; set; } = string.Empty;
 
         public int PageCount { get; set; }
 

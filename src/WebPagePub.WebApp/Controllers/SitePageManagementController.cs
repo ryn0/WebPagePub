@@ -78,6 +78,7 @@ namespace WebPagePub.Web.Controllers
                     SitePageId = page.SitePageId,
                     SitePageSectionId = page.SitePageSectionId,
                     Title = page.Title,
+                    PublishDateTimeUtc = page.PublishDateTimeUtc
                 });
             }
 
@@ -458,7 +459,8 @@ namespace WebPagePub.Web.Controllers
                     Key = page.Key,
                     LiveUrlPath = UrlBuilder.BlogUrlPath(page.SitePageSection.Key, page.Key),
                     PreviewUrlPath = UrlBuilder.BlogPreviewUrlPath(page.SitePageId),
-                    IsIndex = page.IsSectionHomePage
+                    IsIndex = page.IsSectionHomePage,
+                    PublishDateTimeUtc = page.PublishDateTimeUtc
                 });
             }
 

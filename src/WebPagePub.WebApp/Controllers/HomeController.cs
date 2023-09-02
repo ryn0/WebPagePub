@@ -294,7 +294,7 @@ namespace WebPagePub.Web.Controllers
                 case PageType.Informational:
                     return this.View("Informational", model);
                 case PageType.PageList:
-                    return this.View("SectionList", model);
+                    return this.View("PageList", model);
                 case PageType.Review:
                     return this.View("Review", model);
                 case PageType.ContentWithSideBar:

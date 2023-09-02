@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace WebPagePub.WebApp.Models.SitePage
+﻿namespace WebPagePub.WebApp.Models.SitePage
 {
     public class SitePageItemModel
     {
@@ -10,6 +7,8 @@ namespace WebPagePub.WebApp.Models.SitePage
         public bool IsIndex { get; set; }
 
         public DateTime CreateDate { get; set; }
+
+        public DateTime PublishDateTimeUtc { get; set; }
 
         public string Title { get; set; } = default!;
 
