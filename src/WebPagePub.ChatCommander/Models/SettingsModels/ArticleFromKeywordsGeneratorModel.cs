@@ -1,6 +1,6 @@
-﻿namespace WebPagePub.ChatCommander.SettingsModels
+﻿namespace WebPagePub.ChatCommander.Models.SettingsModels
 {
-    public class ArticleWithCalculatorGeneratorModel
+    public class ArticleFromKeywordsGeneratorModel
     {
         public int MinutesOffsetForArticleMin { get; set; }
         public int MinutesOffsetForArticleMax { get; set; }
