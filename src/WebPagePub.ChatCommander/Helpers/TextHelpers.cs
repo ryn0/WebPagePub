@@ -1,4 +1,7 @@
-﻿using WebPagePub.Core.Utilities;
+﻿using System.Text.RegularExpressions;
+using System.Web;
+using System.Xml;
+using WebPagePub.Core.Utilities;
 
 namespace WebPagePub.ChatCommander.Utilities
 {
@@ -13,6 +16,31 @@ namespace WebPagePub.ChatCommander.Utilities
             newText = AddClassesToButton(newText);
 
             return newText;
+        }
+
+        public static string HtmlDecode(string text)
+        {
+            var myWriter = new StringWriter();
+
+            HttpUtility.HtmlDecode(text, myWriter);
+
+            var decodeHtml = myWriter.ToString();
+
+            return decodeHtml;
+        }
+
+        public static string RemoveNonHtmlTextAtStart(string text)
+        {
+            var indexOfFirstHtmlChar = text.IndexOf("<");
+
+            if (indexOfFirstHtmlChar == -1)
+            {
+                return text;
+            }
+
+            var extractedText = text.Substring(indexOfFirstHtmlChar, (text.Length - indexOfFirstHtmlChar));
+
+            return extractedText;
         }
 
         public static string[] GetUniqueLines(string text)
@@ -68,8 +96,14 @@ namespace WebPagePub.ChatCommander.Utilities
             return newText;
         }
 
+        public static string TruncateLongString(string str, int maxLength)
+        {
+            return str?[0..Math.Min(str.Length, maxLength)];
+        }
+
         public static string CleanText(string text)
         {
+            text = text.Trim();
             var cleanedText = text.Trim().Replace("\"", string.Empty);
 
             if (cleanedText.EndsWith("\""))
@@ -80,6 +114,17 @@ namespace WebPagePub.ChatCommander.Utilities
             return cleanedText;
         }
 
+        public static string CleanMetaDescription(string text)
+        {
+            var cleanedText = CleanText(text);
+
+            cleanedText = cleanedText.Replace("Meta Description:", string.Empty);
+            cleanedText = cleanedText.Replace("Meta description:", string.Empty);
+            cleanedText = cleanedText.Replace("meta description:", string.Empty);
+
+            return cleanedText.Trim();
+        }
+
         public static string CleanH1(string input)
         {
             input = CleanText(input);
@@ -88,6 +133,23 @@ namespace WebPagePub.ChatCommander.Utilities
             cleaned = cleaned.Replace("</h1>", string.Empty);
 
             return cleaned;
+        }
+
+        public static string StripHTML(string htmlString)
+        {
+
+            string pattern = @"<(.|\n)*?>";
+
+            return Regex.Replace(htmlString, pattern, string.Empty);
+        }
+
+        public static string ReduceSpaces(string extractedText)
+        {
+            extractedText = extractedText.Replace(Environment.NewLine, " ");
+            extractedText = extractedText.Replace("\n", " ");
+            extractedText = extractedText.Replace("  ", " ");
+
+            return extractedText;
         }
     }
 }

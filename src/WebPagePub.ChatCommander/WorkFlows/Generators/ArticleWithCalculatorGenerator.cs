@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using WebPagePub.ChatCommander.Interfaces;
-using WebPagePub.ChatCommander.SettingsModels;
+using WebPagePub.ChatCommander.Models.SettingsModels;
 using WebPagePub.ChatCommander.Utilities;
 using WebPagePub.Data.Models;
 using WebPagePub.Managers.Interfaces;

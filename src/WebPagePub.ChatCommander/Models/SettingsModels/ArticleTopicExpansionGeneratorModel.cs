@@ -1,4 +1,4 @@
-﻿namespace WebPagePub.ChatCommander.SettingsModels
+﻿namespace WebPagePub.ChatCommander.Models.SettingsModels
 {
     public class ArticleTopicExpansionGeneratorModel
     {

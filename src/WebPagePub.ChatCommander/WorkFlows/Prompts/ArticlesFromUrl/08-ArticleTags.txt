@@ -1,0 +1,10 @@
+﻿For the given text,
+give 1 to 3 words or phrases which can be used as a tag for the article.
+
+Give these tags as a ',' comma seperated list (example: word, other word).
+
+Do not include numbers.
+
+Below is the text:
+
+[text]
