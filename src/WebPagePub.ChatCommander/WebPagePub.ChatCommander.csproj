@@ -9,6 +9,8 @@
 
   <ItemGroup>
  
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.52" />
+ 
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
  
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -26,6 +28,33 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="appSettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticlesFromUrl\00-Setup.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticlesFromUrl\01-LoadUrls.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticlesFromUrl\04-ArticleKey.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticlesFromUrl\02-ArticleHtmlBody.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticlesFromUrl\05-ArticleMetaDescription.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticlesFromUrl\03-ArticleTitle.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticlesFromUrl\06-ArticleBreadcrumb.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticlesFromUrl\07-ArticleHeader.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticlesFromUrl\08-ArticleTags.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="WorkFlows\Prompts\ArticleWithCalculator\00-Setup.txt">
