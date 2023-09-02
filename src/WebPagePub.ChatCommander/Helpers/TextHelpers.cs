@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
 using WebPagePub.Core.Utilities;
@@ -58,6 +59,8 @@ namespace WebPagePub.ChatCommander.Utilities
             articleTitle = articleTitle.Replace("</title>", string.Empty);
             articleTitle = articleTitle.Replace("&amp;", "&");
             articleTitle = articleTitle.Replace("”", string.Empty);
+            articleTitle = articleTitle.Replace("<h1>", string.Empty);
+            articleTitle = articleTitle.Replace("</h1>", string.Empty);
 
             return articleTitle;
         }
@@ -147,7 +150,11 @@ namespace WebPagePub.ChatCommander.Utilities
         {
             extractedText = extractedText.Replace(Environment.NewLine, " ");
             extractedText = extractedText.Replace("\n", " ");
-            extractedText = extractedText.Replace("  ", " ");
+            extractedText = extractedText.Replace("\t", " ");
+
+            RegexOptions options = RegexOptions.None;
+            Regex regex = new Regex("[ ]{2,}", options);
+            extractedText = regex.Replace(extractedText, " ");
 
             return extractedText;
         }

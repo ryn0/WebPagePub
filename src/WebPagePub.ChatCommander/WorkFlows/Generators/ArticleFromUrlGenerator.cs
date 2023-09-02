@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 using System.Net.Http.Headers;
 using System.Text;
 using WebPagePub.ChatCommander.Interfaces;
@@ -182,6 +181,12 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                 var promptTextFormatted06 = FormatPromptTextInputText(promptTextRaw06, articleHtml);
                 var articleBreadcrumb = await chatGPT.SubmitMessage(promptTextFormatted06);
                 articleBreadcrumb = TextHelpers.ParseBreadcrumb(articleBreadcrumb);
+
+                if (string.IsNullOrWhiteSpace(articleBreadcrumb))
+                {
+                    Console.WriteLine("no breadcrumb.");
+                    continue;
+                }
 
                 //07
                 var promptTextRaw07 = File.ReadAllText(Path.Combine(fileDir, "07-ArticleHeader.txt"), Encoding.UTF8);
