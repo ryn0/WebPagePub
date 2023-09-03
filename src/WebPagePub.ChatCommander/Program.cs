@@ -69,7 +69,18 @@ foreach (Workflows workflow in Enum.GetValues(typeof(Workflows)))
 Console.Write("Type number and press enter: ");
 
 var chatGptSettings = config.GetRequiredSection("ChatGpt").Get<ChatGptSettings>();
+if (chatGptSettings == null)
+{
+    throw new NullReferenceException(nameof(chatGptSettings));
+
+}
 var sitePageManager = serviceProvider.GetService<ISitePageManager>();
+
+if (sitePageManager == null)
+{
+    throw new NullReferenceException(nameof(sitePageManager));
+}
+
 var workflowSelection = Console.ReadLine();
 var workflowSelectionEnum = (Workflows)Convert.ToInt32(workflowSelection.Trim());
 

@@ -104,7 +104,7 @@ namespace WebPagePub.Web.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public IActionResult Login(LoginViewModel model, string returnUrl = null)
+        public IActionResult Login(LoginViewModel model, string? returnUrl = null)
         {
             this.ViewData["ReturnUrl"] = returnUrl;
 
