@@ -272,7 +272,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
             }
 
             var siteMapUrlsRaw = await GetResponse(new Uri(this.SiteMapUrl));
-            var siteMapUrlsParsed = Deserialize<Urlset>(siteMapUrlsRaw);
+            var siteMapUrlsParsed = Deserialize<urlset>(siteMapUrlsRaw);
 
             foreach (var siteMapUrl in siteMapUrlsParsed.url)
             {
