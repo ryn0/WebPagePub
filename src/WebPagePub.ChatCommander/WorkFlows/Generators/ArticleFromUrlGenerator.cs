@@ -383,16 +383,17 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 
         public static T Deserialize<T>(string xml)
         {
-            if (String.IsNullOrEmpty(xml)) throw new NotSupportedException("Empty string!!");
+            if (string.IsNullOrEmpty(xml))
+            {
+                throw new NotSupportedException("Empty string!!");
+            }
 
             try
             {
                 var xmlserializer = new XmlSerializer(typeof(T));
                 var stringReader = new StringReader(xml);
-                using (var reader = XmlReader.Create(stringReader))
-                {
-                    return (T)xmlserializer.Deserialize(reader);
-                }
+                using var reader = XmlReader.Create(stringReader);
+                return (T)xmlserializer.Deserialize(reader);
             }
             catch (Exception e)
             {

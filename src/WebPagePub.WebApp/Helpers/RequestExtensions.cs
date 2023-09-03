@@ -22,6 +22,11 @@ namespace WebPagePub.Web.Helpers
 
         public static string UserAgent(this HttpRequest request)
         {
+            if (request == null ||
+                request.Headers == null)
+            {
+                return string.Empty;
+            }
             return request.Headers[StringConstants.UserAgent];
         }
     }

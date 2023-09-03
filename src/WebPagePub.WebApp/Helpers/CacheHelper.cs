@@ -5,11 +5,15 @@ namespace WebPagePub.Web.Helpers
     public class CacheHelper
     {
         public static string GetPageCacheKey(
-                                string sectionKey = null,
-                                string pageKey = null,
+                                string? sectionKey = null,
+                                string? pageKey = null,
                                 int pageNumber = 1,
-                                string tagKey = null)
+                                string? tagKey = null)
         {
+            sectionKey ??= string.Empty;
+            pageKey ??= string.Empty;
+            tagKey ??= string.Empty;
+
             var cacheKey = $"{tagKey}/{sectionKey}/{pageKey}/{pageNumber}".ToLower();
 
             return cacheKey;
