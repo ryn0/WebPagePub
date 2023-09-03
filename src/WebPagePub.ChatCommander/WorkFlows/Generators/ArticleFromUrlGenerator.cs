@@ -348,7 +348,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                 doc.LoadHtml(htmlContent);
 
                 string rawText = doc.DocumentNode.SelectSingleNode(ContentExtractionXPath).InnerText;
-                var finalText = TextHelpers.StripHTML(rawText);
+                var finalText = TextHelpers.StripHtml(rawText);
 
                 return finalText;
             }
