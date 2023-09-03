@@ -82,6 +82,12 @@ if (sitePageManager == null)
 }
 
 var workflowSelection = Console.ReadLine();
+
+if (string.IsNullOrWhiteSpace(workflowSelection))
+{
+    throw new Exception("Invalid selection");
+}
+
 var workflowSelectionEnum = (Workflows)Convert.ToInt32(workflowSelection.Trim());
 
 IPageEditor pageEditor;
