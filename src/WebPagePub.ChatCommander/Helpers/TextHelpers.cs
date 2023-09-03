@@ -59,6 +59,8 @@ namespace WebPagePub.ChatCommander.Utilities
             articleTitle = articleTitle.Replace("”", string.Empty);
             articleTitle = articleTitle.Replace("<h1>", string.Empty);
             articleTitle = articleTitle.Replace("</h1>", string.Empty);
+            articleTitle = articleTitle.Replace("<h2>", string.Empty);
+            articleTitle = articleTitle.Replace("</h2>", string.Empty);
             articleTitle = articleTitle.Replace("Title:", string.Empty);
             articleTitle = articleTitle.Replace("title:", string.Empty);
             
@@ -104,12 +106,11 @@ namespace WebPagePub.ChatCommander.Utilities
             articleKey = CleanText(articleKey);
 
             var newText = articleKey.Trim().UrlKey();
-            newText = newText.Replace("the-url-key-for-the-given-question-would-be", string.Empty);
 
             return newText;
         }
 
-        public static string TruncateLongString(string str, int maxLength)
+        public static string? TruncateLongString(string str, int maxLength)
         {
             return str?[0..Math.Min(str.Length, maxLength)];
         }
@@ -148,9 +149,8 @@ namespace WebPagePub.ChatCommander.Utilities
             return cleaned;
         }
 
-        public static string StripHTML(string htmlString)
+        public static string StripHtml(string htmlString)
         {
-
             string pattern = @"<(.|\n)*?>";
 
             return Regex.Replace(htmlString, pattern, string.Empty);
@@ -163,7 +163,7 @@ namespace WebPagePub.ChatCommander.Utilities
             extractedText = extractedText.Replace("\t", " ");
 
             RegexOptions options = RegexOptions.None;
-            Regex regex = new Regex("[ ]{2,}", options);
+            Regex regex = new("[ ]{2,}", options);
             extractedText = regex.Replace(extractedText, " ");
 
             return extractedText;
