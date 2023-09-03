@@ -408,12 +408,12 @@ namespace WebPagePub.Managers.Implementations
 
             if (model.Tags == null)
             {
-                var previousTagsToRemove = new ArrayList();
+                var previousTagsToRemove = new List<string>();
                 foreach (var tag in dbModel.SitePageTags)
                 {
                     previousTagsToRemove.Add(tag.Tag.Name);
                 }
-                this.RemoveDeletedTags(model, (IEnumerable<string>)previousTagsToRemove.ToArray());
+                this.RemoveDeletedTags(model, previousTagsToRemove.ToArray());
                 return;
             }
 
