@@ -17,7 +17,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
         const string InputTextPlaceholder = "[text]";
         const string PageTitlePlaceHolder = "[title]";
         const string DefaultHeader = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36";
-        const int SiteMapSkipCount = 25; // todo: set at 0
+        const int SiteMapSkipCount = 0;
         private string ContentExtractionXPath { get; set; }
         private string SiteMapUrl { get; set; }
         private string SiteMapUrlContentIncludeWords { get; set; }
