@@ -577,7 +577,8 @@ namespace WebPagePub.Managers.Implementations
             {
                 var tagKey = tagName.UrlKey();
 
-                if (string.IsNullOrWhiteSpace(tagKey))
+                if (string.IsNullOrWhiteSpace(tagKey) ||
+                    tagKey.Length >= 75)
                 {
                     continue;
                 }
