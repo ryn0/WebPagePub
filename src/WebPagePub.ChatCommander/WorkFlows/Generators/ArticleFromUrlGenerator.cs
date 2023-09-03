@@ -1,7 +1,9 @@
 ﻿using HtmlAgilityPack;
-using System.Net.Http.Headers;
 using System.Text;
+using System.Xml.Serialization;
+using System.Xml;
 using WebPagePub.ChatCommander.Interfaces;
+using WebPagePub.ChatCommander.Models.InputModels;
 using WebPagePub.ChatCommander.Models.SettingsModels;
 using WebPagePub.ChatCommander.SettingsModels;
 using WebPagePub.ChatCommander.Utilities;
@@ -14,6 +16,11 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
     {
         const string InputTextPlaceholder = "[text]";
         const string PageTitlePlaceHolder = "[title]";
+        const string DefaultHeader = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36";
+        const int SiteMapSkipCount = 25; // todo: set at 0
+        private string ContentExtractionXPath { get; set; }
+        private string SiteMapUrl { get; set; }
+        private string SiteMapUrlContentIncludeWords { get; set; }
 
         public ArticleFromUrlGenerator(
             ChatGptSettings chatGptSettings,
@@ -21,6 +28,9 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
             ArticleFromUrlGeneratorModel model) : 
             base (chatGptSettings, sitePageManager)
         {
+            this.SiteMapUrl = model.SiteMapUrl;
+            this.SiteMapUrlContentIncludeWords = model.SiteMapUrlContentIncludeWords;
+            this.ContentExtractionXPath = model.ContentExtractionXPath;
             base.SectionKey = model.SectionKey;
             base.MinutesOffsetForArticleMin = model.MinutesOffsetForArticleMin;
             base.MinutesOffsetForArticleMax = model.MinutesOffsetForArticleMax;
@@ -42,6 +52,8 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                 throw new Exception("Site section missing");
             }
 
+            var siteMapUrls = await GetSiteMapUrlsAsync();
+
             var fileDir = Directory.GetCurrentDirectory() + @"\WorkFlows\Prompts\ArticlesFromUrl";
 
             // 00
@@ -50,12 +62,12 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 
             // 01
             Console.Write($"Loading URLs...");
-            var keywords = File.ReadAllText(Path.Combine(fileDir, "01-LoadUrls.txt"), Encoding.UTF8);
-            var urlList = TextHelpers.GetUniqueLines(keywords);
-            Console.WriteLine($"{urlList.Count()} found.");
+            var urls = File.ReadAllText(Path.Combine(fileDir, "01-LoadUrls.txt"), Encoding.UTF8);
+            var urlList = TextHelpers.GetUniqueLines(urls);
+            var allUrls = siteMapUrls.ToArray().Union(urlList);
+            Console.WriteLine($"{allUrls.Count()} found.");
 
-
-            foreach (var url in urlList)
+            foreach (var url in allUrls)
             {
                 if (string.IsNullOrWhiteSpace(url) || !Uri.TryCreate(url, UriKind.Absolute, result: out Uri uri))
                 {
@@ -237,7 +249,70 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 
             WriteCompletionMessage();
         }
- 
+
+        private async Task<List<string>> GetSiteMapUrlsAsync()
+        {
+            var listOfUrls = new List<string>();
+            if (string.IsNullOrWhiteSpace(this.SiteMapUrl))
+            {
+                return listOfUrls;
+            }
+
+            Console.Write("Fetching sitemap URLs...");
+
+            string[]? allowWords;
+
+            if (string.IsNullOrWhiteSpace(this.SiteMapUrlContentIncludeWords))
+            {
+                allowWords = null;
+            }
+            else
+            {
+                allowWords = Array.ConvertAll(SiteMapUrlContentIncludeWords.Split(','), p => p.Trim());
+            }
+
+            var siteMapUrlsRaw = await GetResponse(new Uri(this.SiteMapUrl));
+            var siteMapUrlsParsed = Deserialize<urlset>(siteMapUrlsRaw);
+
+            foreach (var siteMapUrl in siteMapUrlsParsed.url)
+            {
+                Console.Write(".");
+
+                if (siteMapUrl == null || 
+                    string.IsNullOrWhiteSpace(siteMapUrl.loc))
+                {
+                    continue;
+                }
+
+                var url = siteMapUrl.loc;
+
+                if (allowWords != null)
+                {
+                    var response = await ExtractTextFromUrlAsync(new Uri(url));
+                    var responseFormatted = TextHelpers.ReduceSpaces(response);
+
+                    foreach (var word in allowWords)
+                    {
+                        if (!listOfUrls.Contains(url) &&
+                            responseFormatted.Contains(word))
+                        {
+                            listOfUrls.Add(siteMapUrl.loc);
+                            continue;
+                        }
+                    }
+                }
+                else
+                {
+                    listOfUrls.Add(url);
+                }
+            }
+
+            Console.Write($"{listOfUrls.Count()} URLs found.");
+            Console.WriteLine();
+
+            return listOfUrls.Skip(SiteMapSkipCount).ToList();
+        }
+
         private string FormatPromptTextInputText(string promptTextRaw, string keyword)
         {
             keyword = keyword.Trim();
@@ -262,9 +337,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 
                 using (HttpClient client = new())
                 {
-                    var productValue = new ProductInfoHeaderValue("ScraperBot", "1.0");
-
-                    client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36");
+                    client.DefaultRequestHeaders.UserAgent.ParseAdd(DefaultHeader);
 
                     using HttpResponseMessage response = await client.GetAsync(uri);
                     using HttpContent content = response.Content;
@@ -274,14 +347,56 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                 HtmlDocument doc = new();
                 doc.LoadHtml(htmlContent);
 
-                string rawText = doc.DocumentNode.SelectSingleNode("//body").InnerText;
-                var finalText = TextHelpers.StripHTML(rawText);
+                string rawText = doc.DocumentNode.SelectSingleNode(ContentExtractionXPath).InnerText;
+                var finalText = TextHelpers.StripHtml(rawText);
 
                 return finalText;
             }
             catch
             {
                 return string.Empty;
+            }
+        }
+
+        private async Task<string> GetResponse(Uri uri)
+        {
+            try
+            {
+                string rawContent;
+
+                using (HttpClient client = new())
+                {
+                    client.DefaultRequestHeaders.UserAgent.ParseAdd(DefaultHeader);
+
+                    using HttpResponseMessage response = await client.GetAsync(uri);
+                    using HttpContent content = response.Content;
+                    rawContent = await content.ReadAsStringAsync();
+                }
+
+                return rawContent;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        public static T Deserialize<T>(string xml)
+        {
+            if (String.IsNullOrEmpty(xml)) throw new NotSupportedException("Empty string!!");
+
+            try
+            {
+                var xmlserializer = new XmlSerializer(typeof(T));
+                var stringReader = new StringReader(xml);
+                using (var reader = XmlReader.Create(stringReader))
+                {
+                    return (T)xmlserializer.Deserialize(reader);
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
             }
         }
     }

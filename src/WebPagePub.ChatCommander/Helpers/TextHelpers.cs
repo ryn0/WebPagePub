@@ -1,7 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Web;
-using System.Xml;
 using WebPagePub.Core.Utilities;
 
 namespace WebPagePub.ChatCommander.Utilities
@@ -61,8 +59,22 @@ namespace WebPagePub.ChatCommander.Utilities
             articleTitle = articleTitle.Replace("”", string.Empty);
             articleTitle = articleTitle.Replace("<h1>", string.Empty);
             articleTitle = articleTitle.Replace("</h1>", string.Empty);
+            articleTitle = articleTitle.Replace("<h2>", string.Empty);
+            articleTitle = articleTitle.Replace("</h2>", string.Empty);
+            articleTitle = articleTitle.Replace("Title:", string.Empty);
+            articleTitle = articleTitle.Replace("title:", string.Empty);
+            
+            if (articleTitle.StartsWith("'"))
+            {
+                articleTitle = articleTitle.Remove(0, 1);
+            }
 
-            return articleTitle;
+            if (articleTitle.EndsWith("'"))
+            {
+                articleTitle = articleTitle.Remove(articleTitle.Length - 1, 1);
+            }
+
+            return articleTitle.Trim();
         }
 
         public static string AddClassesToButton(string text) {
@@ -94,12 +106,11 @@ namespace WebPagePub.ChatCommander.Utilities
             articleKey = CleanText(articleKey);
 
             var newText = articleKey.Trim().UrlKey();
-            newText = newText.Replace("the-url-key-for-the-given-question-would-be", string.Empty);
 
             return newText;
         }
 
-        public static string TruncateLongString(string str, int maxLength)
+        public static string? TruncateLongString(string str, int maxLength)
         {
             return str?[0..Math.Min(str.Length, maxLength)];
         }
@@ -138,9 +149,8 @@ namespace WebPagePub.ChatCommander.Utilities
             return cleaned;
         }
 
-        public static string StripHTML(string htmlString)
+        public static string StripHtml(string htmlString)
         {
-
             string pattern = @"<(.|\n)*?>";
 
             return Regex.Replace(htmlString, pattern, string.Empty);
@@ -153,7 +163,7 @@ namespace WebPagePub.ChatCommander.Utilities
             extractedText = extractedText.Replace("\t", " ");
 
             RegexOptions options = RegexOptions.None;
-            Regex regex = new Regex("[ ]{2,}", options);
+            Regex regex = new("[ ]{2,}", options);
             extractedText = regex.Replace(extractedText, " ");
 
             return extractedText;
