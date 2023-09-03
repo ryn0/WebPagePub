@@ -148,21 +148,9 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                     continue;
                 }
 
-                if (sitePageManager.DoesPageExist(siteSection.SitePageSectionId, articleKey))
+                if (sitePageManager.DoesPageExistSimilar(siteSection.SitePageSectionId, articleKey))
                 {
-                    Console.WriteLine($"'{articleKey}' exists");
-                    continue;
-                }
-
-                if (sitePageManager.DoesPageExist(siteSection.SitePageSectionId, string.Format("{0}s", articleKey)))
-                {
-                    Console.WriteLine($"'{articleKey}+s' exists");
-                    continue;
-                }
-                if (articleKey.EndsWith("s") &&
-                    sitePageManager.DoesPageExist(siteSection.SitePageSectionId, articleKey.Remove(articleKey.Length - 1, 1)))
-                {
-                    Console.WriteLine($"'{articleKey}-s' exists");
+                    Console.WriteLine($"'{articleKey}' (or similar) exists");
                     continue;
                 }
 
