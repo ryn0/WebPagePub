@@ -1,7 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Web;
-using System.Xml;
 using WebPagePub.Core.Utilities;
 
 namespace WebPagePub.ChatCommander.Utilities
@@ -61,8 +59,20 @@ namespace WebPagePub.ChatCommander.Utilities
             articleTitle = articleTitle.Replace("”", string.Empty);
             articleTitle = articleTitle.Replace("<h1>", string.Empty);
             articleTitle = articleTitle.Replace("</h1>", string.Empty);
+            articleTitle = articleTitle.Replace("Title:", string.Empty);
+            articleTitle = articleTitle.Replace("title:", string.Empty);
+            
+            if (articleTitle.StartsWith("'"))
+            {
+                articleTitle = articleTitle.Remove(0, 1);
+            }
 
-            return articleTitle;
+            if (articleTitle.EndsWith("'"))
+            {
+                articleTitle = articleTitle.Remove(articleTitle.Length - 1, 1);
+            }
+
+            return articleTitle.Trim();
         }
 
         public static string AddClassesToButton(string text) {
