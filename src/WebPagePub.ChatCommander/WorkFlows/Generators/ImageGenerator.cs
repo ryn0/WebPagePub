@@ -17,19 +17,19 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
         //});
 
         public ImageGenerator(
-            ChatGptSettings chatGptSettings,
+            OpenAiApiSettings chatGptSettings,
             ISitePageManager sitePageManager) :
             base(chatGptSettings, sitePageManager)
         {
-            base.chatGptSettings = chatGptSettings;
+            base.OpenAiApiSettings = chatGptSettings;
             base.sitePageManager = sitePageManager;
         }
      
         public async Task<DalleImagesResponseModel> GenerateImage(ImageInputRequest input)
         {
-            chatGPT = new ChatGPT(chatGptSettings);
+            openAiApiClient = new OpenAiApiClient(OpenAiApiSettings);
 
-            return await chatGPT.GenerateImage(input);
+            return await openAiApiClient.GenerateImage(input);
         }
     }
 }

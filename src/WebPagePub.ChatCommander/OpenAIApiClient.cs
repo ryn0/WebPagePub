@@ -5,7 +5,7 @@ using WebPagePub.ChatCommander.Models.SettingsModels;
 
 namespace WebPagePub.ChatCommander
 {
-    public class ChatGPT
+    public class OpenAiApiClient
     {
         private readonly string _apiKey;
 
@@ -16,13 +16,13 @@ namespace WebPagePub.ChatCommander
         const string completionsEndPoint = "https://api.openai.com/v1/completions";
         const string imageGenerationsEndPoint = "https://api.openai.com/v1/images/generations";
 
-        private static readonly HttpClient Client = new HttpClient();
+        private static readonly HttpClient Client = new();
 
-        public ChatGPT(ChatGptSettings chatGptSettings)
+        public OpenAiApiClient(OpenAiApiSettings settings)
         {
-            _apiKey = chatGptSettings.ApiKey;
-            this.MaxTokens = chatGptSettings.MaxTokens;
-            this.textModel = chatGptSettings.TextModel;
+            _apiKey = settings.ApiKey;
+            this.MaxTokens = settings.MaxTokens;
+            this.textModel = settings.TextModel;
             Client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
         }
 
