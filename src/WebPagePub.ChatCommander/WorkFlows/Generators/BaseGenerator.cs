@@ -5,7 +5,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 {
     public abstract class BaseGenerator
     {
-        public string SectionKey { get; set; }
+        public string SectionKey { get; set; } = string.Empty;
         protected const int maxAttempts = 3;
         protected int MinutesOffsetForArticleMin { get; set; } = 90;
         protected int MinutesOffsetForArticleMax { get; set; } = 10080/*1 week*/;
@@ -42,7 +42,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 
             var randomTest = new Random();
             TimeSpan timeSpan = endDate - startDate;
-            TimeSpan newSpan = new TimeSpan(0, randomTest.Next(0, (int)timeSpan.TotalMinutes), 0);
+            TimeSpan newSpan = new(0, randomTest.Next(0, (int)timeSpan.TotalMinutes), 0);
 
             return startDate + newSpan;
         }
@@ -64,14 +64,14 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 
         protected int? GetAuthor()
         {
-            var firstAuthor = sitePageManager.GetAllAuthors();
+            var allAuthors = sitePageManager.GetAllAuthors();
 
-            if (firstAuthor == null || firstAuthor.Count == 0)
+            if (allAuthors == null || allAuthors.Count == 0)
             {
                 return null;
             }
 
-            return firstAuthor.First().AuthorId;
+            return allAuthors.First().AuthorId;
         }
     }
 }
