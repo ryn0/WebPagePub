@@ -48,7 +48,7 @@ namespace WebPagePub.Services.Implementations
 
             return new Uri(lowerQualityImageUrl);
         }
- 
+
         public Stream ToAStream(Image image, ImageFormat formaw)
         {
             try

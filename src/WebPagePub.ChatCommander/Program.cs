@@ -1,11 +1,6 @@
-﻿using HtmlAgilityPack;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Text.RegularExpressions;
-using System.Xml;
-using System.Xml.Linq;
 using WebPagePub.ChatCommander.Enums;
 using WebPagePub.ChatCommander.Interfaces;
 using WebPagePub.ChatCommander.Models.SettingsModels;

@@ -10,10 +10,10 @@ namespace WebPagePub.Web.Models
         [Display(Name = "Key")]
         [Required]
         [StringLength(75)]
-        public string LinkKey { get; set; }
+        public string LinkKey { get; set; } = string.Empty;
 
         [Display(Name = "URL Destination")]
         [Required]
-        public string UrlDestination { get; set; }
+        public string UrlDestination { get; set; } = string.Empty;
     }
 }
