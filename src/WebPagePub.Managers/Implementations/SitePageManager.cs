@@ -413,7 +413,7 @@ namespace WebPagePub.Managers.Implementations
                 {
                     previousTagsToRemove.Add(tag.Tag.Name);
                 }
-                this.RemoveDeletedTags(model, previousTagsToRemove.ToArray());
+                this.RemoveDeletedTags(model, (IEnumerable<string>)previousTagsToRemove.ToArray());
                 return;
             }
 
@@ -487,7 +487,7 @@ namespace WebPagePub.Managers.Implementations
             }
         }
 
-        private void RemoveDeletedTags(SitePageEditModel model, IEnumerable<object?> tagsToRemove)
+        private void RemoveDeletedTags(SitePageEditModel model, IEnumerable<string> tagsToRemove)
         {
             if (tagsToRemove == null)
             {

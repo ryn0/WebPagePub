@@ -60,7 +60,7 @@ namespace WebPagePub.Services.Implementations
                     return false;
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }

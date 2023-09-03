@@ -432,7 +432,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
- 
+
         public List<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total)
         {
             var results = new List<SitePage>();

@@ -1,20 +1,18 @@
 ﻿namespace WebPagePub.ChatCommander.Models.InputModels
 {
-
     // NOTE: Generated code may require at least .NET Framework 4.5 or .NET Core/Standard 2.0.
     /// <remarks/>
     [System.SerializableAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "http://www.sitemaps.org/schemas/sitemap/0.9")]
+    [System.Xml.Serialization.XmlTypeAttribute(TypeName = "urlset", AnonymousType = true, Namespace = "http://www.sitemaps.org/schemas/sitemap/0.9")]
     [System.Xml.Serialization.XmlRootAttribute(Namespace = "http://www.sitemaps.org/schemas/sitemap/0.9", IsNullable = false)]
-    public partial class urlset
+    public partial class Urlset
     {
-
-        private urlsetUrl[] urlField;
+        private UrlsetUrl[]? urlField;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("url")]
-        public urlsetUrl[] url
+        public UrlsetUrl[] url
         {
             get
             {
@@ -30,15 +28,14 @@
     /// <remarks/>
     [System.SerializableAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "http://www.sitemaps.org/schemas/sitemap/0.9")]
-    public partial class urlsetUrl
+    [System.Xml.Serialization.XmlTypeAttribute(TypeName = "urlsetUrl", AnonymousType = true, Namespace = "http://www.sitemaps.org/schemas/sitemap/0.9")]
+    public partial class UrlsetUrl
     {
-
-        private string locField;
+        private string? locField;
 
         private System.DateTime lastmodField;
 
-        private image imageField;
+        private Image? imageField;
 
         /// <remarks/>
         public string loc
@@ -67,8 +64,8 @@
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Namespace = "http://www.google.com/schemas/sitemap-image/1.1")]
-        public image image
+        [System.Xml.Serialization.XmlElementAttribute( ElementName = "image", Namespace = "http://www.google.com/schemas/sitemap-image/1.1")]
+        public Image Image
         {
             get
             {
@@ -84,9 +81,9 @@
     /// <remarks/>
     [System.SerializableAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "http://www.google.com/schemas/sitemap-image/1.1")]
+    [System.Xml.Serialization.XmlTypeAttribute(TypeName = "image", AnonymousType = true, Namespace = "http://www.google.com/schemas/sitemap-image/1.1")]
     [System.Xml.Serialization.XmlRootAttribute(Namespace = "http://www.google.com/schemas/sitemap-image/1.1", IsNullable = false)]
-    public partial class image
+    public partial class Image
     {
 
         private string locField;

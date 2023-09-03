@@ -4,6 +4,6 @@
     {
         public int CountOfCommentsToModerate { get; set; }
 
-        public string DebugText { get; set; }
+        public string DebugText { get; set; } = string.Empty;
     }
 }

@@ -25,7 +25,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.ChatCommander", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.Managers", "WebPagePub.Managers\WebPagePub.Managers.csproj", "{8A1EBD57-2D24-4751-8934-A79219A4E542}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebPagePub.ChatCommander.UnitTests", "WebPagePub.ChatCommander.UnitTests\WebPagePub.ChatCommander.UnitTests.csproj", "{B5B2A74A-AAC5-4A7C-9FB5-AACED563DFC2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.ChatCommander.UnitTests", "WebPagePub.ChatCommander.UnitTests\WebPagePub.ChatCommander.UnitTests.csproj", "{B5B2A74A-AAC5-4A7C-9FB5-AACED563DFC2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeAnalysis", "CodeAnalysis", "{C57AF652-42D6-4AED-A03C-A7CF06007F9A}"
+	ProjectSection(SolutionItems) = preProject
+		StyleCop.Analyzers.ruleset = StyleCop.Analyzers.ruleset
+		stylecop.json = stylecop.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
