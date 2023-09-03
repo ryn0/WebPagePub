@@ -6,6 +6,14 @@ namespace WebPagePub.Core.Utilities
 {
     public class ImageUtilities
     {
+        public static Bitmap Rotate90Degrees(Image image)
+        {
+            image.RotateFlip(RotateFlipType.Rotate90FlipNone);
+            var rotatedBmp = new Bitmap(image);
+
+            return rotatedBmp;
+        }
+
         public Bitmap ScaleImage(Image image, int maxWidth, int maxHeight)
         {
             var ratioX = (double)maxWidth / image.Width;
@@ -26,14 +34,6 @@ namespace WebPagePub.Core.Utilities
             }
 
             return newImage;
-        }
-
-        public static Bitmap Rotate90Degrees(Image image)
-        {
-            image.RotateFlip(RotateFlipType.Rotate90FlipNone);
-            var rotatedBmp = new Bitmap(image);
-
-            return rotatedBmp;
         }
     }
 }
