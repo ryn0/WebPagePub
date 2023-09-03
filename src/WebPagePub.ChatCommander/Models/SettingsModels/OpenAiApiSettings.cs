@@ -1,10 +1,10 @@
 ﻿namespace WebPagePub.ChatCommander.Models.SettingsModels
 {
-    public class ChatGptSettings
+    public class OpenAiApiSettings
     {
         public required string ApiKey { get; set; }
 
-        public int MaxTokens { get; set; }
+        public int MaxTokens { get; set; } = 1000;
 
         public required string TextModel { get; set; }
     }

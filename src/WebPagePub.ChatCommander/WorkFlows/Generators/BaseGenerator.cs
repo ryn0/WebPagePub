@@ -11,17 +11,17 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
         protected int MinutesOffsetForArticleMax { get; set; } = 10080/*1 week*/;
         protected DateTime startDateTime;
         protected int completed = 0;
-        protected ChatGptSettings chatGptSettings;
+        protected OpenAiApiSettings OpenAiApiSettings;
         protected ISitePageManager sitePageManager;
-        protected ChatGPT chatGPT;
+        protected OpenAiApiClient openAiApiClient;
 
         public BaseGenerator(
-            ChatGptSettings chatGptSettings,
+            OpenAiApiSettings openAiApiSettings,
             ISitePageManager sitePageManager)
         {
-            this.chatGptSettings = chatGptSettings;
+            this.OpenAiApiSettings = openAiApiSettings;
             this.sitePageManager = sitePageManager;
-            chatGPT = new ChatGPT(chatGptSettings);
+            openAiApiClient = new OpenAiApiClient(openAiApiSettings);
         }
 
         protected DateTime OffSetTime(DateTime now)

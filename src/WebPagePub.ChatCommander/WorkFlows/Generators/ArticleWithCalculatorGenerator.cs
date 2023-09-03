@@ -12,7 +12,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
         const string QuestionPlaceholder = "[keyword]";
 
         public ArticleWithCalculatorGenerator(
-            ChatGptSettings chatGptSettings,
+            OpenAiApiSettings chatGptSettings,
             ISitePageManager sitePageManager,
             ArticleWithCalculatorGeneratorModel model) : 
             base (chatGptSettings, sitePageManager)
@@ -20,7 +20,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
             base.SectionKey = model.SectionKey;
             base.MinutesOffsetForArticleMin = model.MinutesOffsetForArticleMin;
             base.MinutesOffsetForArticleMax = model.MinutesOffsetForArticleMax;
-            base.chatGptSettings = chatGptSettings;
+            base.OpenAiApiSettings = chatGptSettings;
             base.sitePageManager = sitePageManager;
         }
 
@@ -42,7 +42,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 
             // 00
             var promptTextRaw00 = File.ReadAllText(Path.Combine(fileDir, "00-Setup.txt"), Encoding.UTF8);
-            await chatGPT.SubmitMessage(promptTextRaw00);
+            await openAiApiClient.SubmitMessage(promptTextRaw00);
 
             // 01
             Console.Write($"Loading keywords...");
@@ -61,7 +61,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                 }
 
                 var promptTextFormatted02 = FormatPromptTextKeyword(promptTextRaw02, keyword);
-                var articleKey = await chatGPT.SubmitMessage(promptTextFormatted02);
+                var articleKey = await openAiApiClient.SubmitMessage(promptTextFormatted02);
 
                 articleKey = TextHelpers.CleanArticleKey(articleKey);
 
@@ -83,8 +83,8 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                 var promptTextRaw03 = File.ReadAllText(Path.Combine(fileDir, "03-ArticleHtmlBody.txt"), Encoding.UTF8);
                 var promptTextFormatted03 = FormatPromptTextKeyword(promptTextRaw03, keyword);
 
-                chatGPT.MaxTokens = 2000;
-                var articleHtml = await chatGPT.SubmitMessage(promptTextFormatted03);
+                openAiApiClient.MaxTokens = 2000;
+                var articleHtml = await openAiApiClient.SubmitMessage(promptTextFormatted03);
                 articleHtml = articleHtml.Trim();
 
                 var attemptsAtHtmlBody = 1;
@@ -92,13 +92,13 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                 while (!articleHtml.EndsWith("</p>") && attemptsAtHtmlBody < maxAttempts)
                 {
                     Console.Write(".");
-                    chatGPT.MaxTokens = 1000;
-                    articleHtml = await chatGPT.SubmitMessage(promptTextFormatted03 + " Write this shorter than before.");
+                    openAiApiClient.MaxTokens = 1000;
+                    articleHtml = await openAiApiClient.SubmitMessage(promptTextFormatted03 + " Write this shorter than before.");
                     articleHtml = articleHtml.Trim();
                     attemptsAtHtmlBody++;
                 }
 
-                chatGPT.MaxTokens = 1000;
+                openAiApiClient.MaxTokens = 1000;
 
                 if (attemptsAtHtmlBody > maxAttempts)
                 {
@@ -110,8 +110,8 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                 var promptTextRaw04 = File.ReadAllText(Path.Combine(fileDir, "04-ArticleHtmlCalculator.txt"), Encoding.UTF8);
                 var promptTextFormatted04 = FormatPromptTextKeyword(promptTextRaw04, keyword);
 
-                chatGPT.MaxTokens = 2000;
-                var articleHtmlCalculator = await chatGPT.SubmitMessage(promptTextFormatted04);
+                openAiApiClient.MaxTokens = 2000;
+                var articleHtmlCalculator = await openAiApiClient.SubmitMessage(promptTextFormatted04);
                 articleHtmlCalculator = TextHelpers.ScriptAndFormFormatting(articleHtmlCalculator);
 
                 var attemptsAtHtmlCalculator = 1;
@@ -121,13 +121,13 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                       && attemptsAtHtmlCalculator < maxAttempts)
                 {
                     Console.Write(".");
-                    chatGPT.MaxTokens = 1000;
-                    articleHtmlCalculator = await chatGPT.SubmitMessage(promptTextFormatted04 + " the button doesn't contain 'onclick'");
+                    openAiApiClient.MaxTokens = 1000;
+                    articleHtmlCalculator = await openAiApiClient.SubmitMessage(promptTextFormatted04 + " the button doesn't contain 'onclick'");
                     articleHtmlCalculator = TextHelpers.ScriptAndFormFormatting(articleHtmlCalculator);
                     attemptsAtHtmlCalculator++;
                 }
 
-                chatGPT.MaxTokens = 1000;
+                openAiApiClient.MaxTokens = 1000;
 
                 if (attemptsAtHtmlCalculator > maxAttempts)
                 {
@@ -138,46 +138,46 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                 // 05
                 var promptTextRaw05 = File.ReadAllText(Path.Combine(fileDir, "05-ArticleMetaDescription.txt"), Encoding.UTF8);
                 var promptTextFormatted05 = FormatPromptTextKeyword(promptTextRaw05, keyword);
-                var articleMetaDescription = await chatGPT.SubmitMessage(promptTextFormatted05);
+                var articleMetaDescription = await openAiApiClient.SubmitMessage(promptTextFormatted05);
                 articleMetaDescription = TextHelpers.CleanText(articleMetaDescription);
 
                 while (articleMetaDescription.Length > 160)
                 {
                     Console.Write(".");
-                    articleMetaDescription = await chatGPT.SubmitMessage($" {promptTextFormatted05} - again but shorter");
+                    articleMetaDescription = await openAiApiClient.SubmitMessage($" {promptTextFormatted05} - again but shorter");
                     articleMetaDescription = TextHelpers.CleanText(articleMetaDescription);
                 }
 
                 // 06
                 var promptTextRaw06 = File.ReadAllText(Path.Combine(fileDir, "06-ArticleTitle.txt"), Encoding.UTF8);
                 var promptTextFormatted06 = FormatPromptTextKeyword(promptTextRaw06, keyword);
-                var articleTitle = await chatGPT.SubmitMessage(promptTextFormatted06);
+                var articleTitle = await openAiApiClient.SubmitMessage(promptTextFormatted06);
                 articleTitle = TextHelpers.CleanTitle(articleTitle);
 
                 while (articleTitle.Length > 75)
                 {
                     Console.Write(".");
-                    articleTitle = await chatGPT.SubmitMessage(promptTextRaw06+ " - but shorter");
+                    articleTitle = await openAiApiClient.SubmitMessage(promptTextRaw06+ " - but shorter");
                     articleTitle = TextHelpers.CleanText(articleTitle);
                 }
 
                 while (articleTitle.Contains("The lowest number possible is 0."))
                 {
                     Console.Write(".");
-                    articleTitle = await chatGPT.SubmitMessage("Re-write this.");
+                    articleTitle = await openAiApiClient.SubmitMessage("Re-write this.");
                     articleTitle = TextHelpers.CleanText(articleTitle);
                 }
 
                 //07
                 var promptTextRaw07 = File.ReadAllText(Path.Combine(fileDir, "07-ArticleBreadcrumb.txt"), Encoding.UTF8);
                 var promptTextFormatted07 = FormatPromptTextKeyword(promptTextRaw07, keyword);
-                var articleBreadcrumb = await chatGPT.SubmitMessage(promptTextFormatted07);
+                var articleBreadcrumb = await openAiApiClient.SubmitMessage(promptTextFormatted07);
                 articleBreadcrumb = TextHelpers.ParseBreadcrumb(articleBreadcrumb);
 
                 //08
                 var promptTextRaw08 = File.ReadAllText(Path.Combine(fileDir, "08-ArticleHeader.txt"), Encoding.UTF8);
                 var promptTextFormatted08 = FormatPromptTextKeyword(promptTextRaw08, keyword);
-                var articleHeader = await chatGPT.SubmitMessage(promptTextFormatted08);
+                var articleHeader = await openAiApiClient.SubmitMessage(promptTextFormatted08);
                 articleHeader = TextHelpers.CleanH1(articleHeader);
 
                 var newPage = sitePageManager.CreatePage(new SitePage()
@@ -206,7 +206,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                     //09
                     var promptTextRaw09 = File.ReadAllText(Path.Combine(fileDir, "09-ArticleTags.txt"), Encoding.UTF8);
                     var promptTextFormatted09 = FormatPromptTextKeyword(promptTextRaw09, keyword);
-                    var articleTags = await chatGPT.SubmitMessage(promptTextFormatted09);
+                    var articleTags = await openAiApiClient.SubmitMessage(promptTextFormatted09);
 
                     var sitePageEditModel = new Managers.Models.SitePages.SitePageEditModel()
                     {
