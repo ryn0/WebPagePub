@@ -1,18 +1,20 @@
 ﻿namespace WebPagePub.ChatCommander.Models.InputModels
 {
+
     // NOTE: Generated code may require at least .NET Framework 4.5 or .NET Core/Standard 2.0.
     /// <remarks/>
     [System.SerializableAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(TypeName = "urlset", AnonymousType = true, Namespace = "http://www.sitemaps.org/schemas/sitemap/0.9")]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "http://www.sitemaps.org/schemas/sitemap/0.9")]
     [System.Xml.Serialization.XmlRootAttribute(Namespace = "http://www.sitemaps.org/schemas/sitemap/0.9", IsNullable = false)]
-    public partial class Urlset
+    public partial class urlset
     {
-        private UrlsetUrl[]? urlField;
+
+        private urlsetUrl[] urlField;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("url")]
-        public UrlsetUrl[] url
+        public urlsetUrl[] url
         {
             get
             {
@@ -28,14 +30,15 @@
     /// <remarks/>
     [System.SerializableAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(TypeName = "urlsetUrl", AnonymousType = true, Namespace = "http://www.sitemaps.org/schemas/sitemap/0.9")]
-    public partial class UrlsetUrl
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "http://www.sitemaps.org/schemas/sitemap/0.9")]
+    public partial class urlsetUrl
     {
-        private string? locField;
+
+        private string locField;
 
         private System.DateTime lastmodField;
 
-        private Image? imageField;
+        private decimal priorityField;
 
         /// <remarks/>
         public string loc
@@ -64,40 +67,15 @@
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute( ElementName = "image", Namespace = "http://www.google.com/schemas/sitemap-image/1.1")]
-        public Image Image
+        public decimal priority
         {
             get
             {
-                return this.imageField;
+                return this.priorityField;
             }
             set
             {
-                this.imageField = value;
-            }
-        }
-    }
-
-    /// <remarks/>
-    [System.SerializableAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(TypeName = "image", AnonymousType = true, Namespace = "http://www.google.com/schemas/sitemap-image/1.1")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace = "http://www.google.com/schemas/sitemap-image/1.1", IsNullable = false)]
-    public partial class Image
-    {
-
-        private string locField;
-
-        /// <remarks/>
-        public string loc
-        {
-            get
-            {
-                return this.locField;
-            }
-            set
-            {
-                this.locField = value;
+                this.priorityField = value;
             }
         }
     }
