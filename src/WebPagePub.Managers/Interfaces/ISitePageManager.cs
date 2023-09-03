@@ -22,6 +22,8 @@ namespace WebPagePub.Managers.Interfaces
 
         public bool DoesPageExist(int siteSectionId, string pageKey);
 
+        public bool DoesPageExistSimilar(int siteSectionId, string pageKey);
+
         public SitePage CreatePage(int siteSectionId, string pageTitle, string createdByUserId);
 
         public List<SitePage> GetSitePages(int pageNumber, int siteSectionId, int quantityPerPage, out int total);
