@@ -30,7 +30,7 @@ namespace WebPagePub.Web.Controllers
 
         [Route("sitefilesmanagement/uploadasync")]
         [HttpPost]
-        public async Task<ActionResult> UploadAsync(IEnumerable<IFormFile> files, string folderPath = null)
+        public async Task<ActionResult> UploadAsync(IEnumerable<IFormFile> files, string? folderPath = null)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace WebPagePub.Web.Controllers
 
         [Route("sitefilesmanagement/CreateFolderAsync")]
         [HttpPost]
-        public async Task<ActionResult> CreateFolderAsync(string folderName, string currentDirectory = null)
+        public async Task<ActionResult> CreateFolderAsync(string folderName, string? currentDirectory = null)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace WebPagePub.Web.Controllers
 
         [Route("sitefilesmanagement")]
         [HttpGet]
-        public ActionResult Index(string folderPath = null)
+        public ActionResult Index(string? folderPath = null)
         {
             var directory = this.siteFilesRepository.ListFiles(folderPath);
 
