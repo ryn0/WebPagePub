@@ -68,7 +68,7 @@ foreach (Workflows workflow in Enum.GetValues(typeof(Workflows)))
 
 Console.Write("Type number and press enter: ");
 
-var chatGptSettings = config.GetRequiredSection("ChatGpt").Get<ChatGptSettings>();
+var chatGptSettings = config.GetRequiredSection("OpenAiApiSettings").Get<OpenAiApiSettings>();
 if (chatGptSettings == null)
 {
     throw new NullReferenceException(nameof(chatGptSettings));
