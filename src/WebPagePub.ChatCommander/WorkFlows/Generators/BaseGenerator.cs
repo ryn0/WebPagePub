@@ -23,30 +23,6 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
             this.sitePageManager = sitePageManager;
             openAiApiClient = new OpenAiApiClient(openAiApiSettings);
         }
-
-        protected DateTime OffSetTime(DateTime now)
-        {
-            DateTime startDate;
-            DateTime endDate;
-
-            if (MinutesOffsetForArticleMin >= 0 && MinutesOffsetForArticleMax >= 0)
-            {
-                startDate = now.AddMinutes(MinutesOffsetForArticleMin);
-                endDate = now.AddMinutes(MinutesOffsetForArticleMax);
-            }
-            else
-            {
-                startDate = now.AddMinutes(MinutesOffsetForArticleMax);
-                endDate = now.AddMinutes(MinutesOffsetForArticleMin);
-            }
-
-            var randomTest = new Random();
-            TimeSpan timeSpan = endDate - startDate;
-            TimeSpan newSpan = new(0, randomTest.Next(0, (int)timeSpan.TotalMinutes), 0);
-
-            return startDate + newSpan;
-        }
-
         protected void WriteStartMessage(string typeName)
         {
             Console.WriteLine($"Starting {typeName}: {startDateTime}");

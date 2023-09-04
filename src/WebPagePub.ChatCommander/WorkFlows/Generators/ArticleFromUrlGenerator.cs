@@ -9,6 +9,7 @@ using WebPagePub.ChatCommander.SettingsModels;
 using WebPagePub.ChatCommander.Utilities;
 using WebPagePub.Data.Models;
 using WebPagePub.Managers.Interfaces;
+using WebPagePub.ChatCommander.Helpers;
 
 namespace WebPagePub.ChatCommander.WorkFlows.Generators
 {
@@ -207,7 +208,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                     MetaDescription = articleMetaDescription,
                     PageHeader = articleHeader,
                     PageType = Data.Enums.PageType.Content,
-                    PublishDateTimeUtc = OffSetTime(startDateTime),
+                    PublishDateTimeUtc = DateTimeHelpers.OffSetTime(startDateTime, MinutesOffsetForArticleMin, MinutesOffsetForArticleMax),
                     Title = articleTitle,
                 });
 
