@@ -96,9 +96,13 @@ namespace WebPagePub.ChatCommander.Utilities
                 {
                     lastBreadcrumb = parts[parts.Length - 1];
                 }
-            }
 
-            return CleanText(lastBreadcrumb);
+                return CleanText(lastBreadcrumb);
+            }
+            else
+            {
+                return CleanText(input);
+            }
         }
 
         public static string CleanArticleKey(string articleKey)
