@@ -1,0 +1,14 @@
+﻿namespace WebPagePub.Data.Enums
+{
+    public enum PageType
+    {
+        Unknown = 0,
+        Content = 1,
+        Review = 2,
+        PageList = 3,
+        Photo = 4,
+        Informational = 5,
+        AffiliateContent = 6,
+        ContentWithSideBar = 7
+    }
+}
