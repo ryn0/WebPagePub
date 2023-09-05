@@ -22,5 +22,6 @@
         AffiliateMessage = 17,
         SideBarHtml = 18,
         DefaultPageType = 19,
+        SubscribeToNewsletterMessage = 20
     }
 }
