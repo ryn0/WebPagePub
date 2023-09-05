@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Security.AccessControl;
 using System.Threading.Tasks;
 using WebPagePub.Core.Utilities;
 using WebPagePub.Data.Constants;
@@ -369,6 +370,14 @@ namespace WebPagePub.Managers.Implementations
         public SitePage CreatePage(int siteSectionId, string pageTitle, string createdByUserId)
         {
             var key = pageTitle.UrlKey();
+            var pageTypeSetting = this.contentSnippetRepository.Get(SiteConfigSetting.DefaultPageType);
+            var pageType = PageType.Content;
+
+            if (pageTypeSetting != null &&
+                !string.IsNullOrEmpty(pageTypeSetting.Content))
+            {
+                Enum.TryParse(pageTypeSetting.Content, true, out pageType);
+            }
 
             return this.sitePageRepository.Create(
                 new SitePage()
@@ -381,7 +390,7 @@ namespace WebPagePub.Managers.Implementations
                     SitePageSectionId = siteSectionId,
                     CreatedByUserId = createdByUserId,
                     AllowsComments = true,
-                    PageType = PageType.Content
+                    PageType = pageType
                 });
         }
 
