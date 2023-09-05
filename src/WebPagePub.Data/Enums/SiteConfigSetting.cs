@@ -20,28 +20,7 @@
         MenuHtml = 15,
         InstagramUrl = 16,
         AffiliateMessage = 17,
-        SideBarHtml = 18
-    }
-
-    public enum PageType
-    {
-        Unknown = 0,
-        Content = 1,
-        Review = 2,
-        PageList = 3,
-        Photo = 4,
-        Informational = 5,
-        AffiliateContent = 6,
-        ContentWithSideBar = 7
-    }
-
-    public enum CommentStatus : byte
-    {
-        Unknown = 0,
-        AwaitingModeration = 1,
-        Rejected = 2,
-        Approved = 3,
-        Removed = 4,
-        Spam = 5
+        SideBarHtml = 18,
+        DefaultPageType = 19,
     }
 }
