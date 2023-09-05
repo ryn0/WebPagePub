@@ -1,5 +1,14 @@
-﻿
-<i>Subscribe To Our Newsletter!</i>
+﻿@inject WebPagePub.Services.Interfaces.ICacheService _cacheHelper
+@using WebPagePub.Data.Enums;
+@{
+    var newsletterMessage = _cacheHelper.GetSnippet(SiteConfigSetting.SubscribeToNewsletterMessage);
+
+    if (string.IsNullOrWhiteSpace(newsletterMessage))
+    {
+        newsletterMessage = "Subscribe To Our Newsletter!";
+    }
+}
+    <i>@newsletterMessage</i>
 
     <form asp-controller="EmailSubscription" asp-action="Subscribe" method="post" class="form-inline">
         
@@ -7,4 +16,5 @@
 
         <button type="submit" class="btn btn-success">Subscribe</button>
     </form>
+ 
  
