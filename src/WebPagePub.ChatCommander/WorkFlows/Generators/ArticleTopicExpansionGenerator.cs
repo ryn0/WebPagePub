@@ -173,7 +173,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                     MetaDescription = articleMetaDescription,
                     PageHeader = articleHeader,
                     PageType = Data.Enums.PageType.Content,
-                    PublishDateTimeUtc = DateTimeHelpers.OffSetTime(startDateTime, MinutesOffsetForArticleMin, MinutesOffsetForArticleMax),
+                    PublishDateTimeUtc = DateTimeHelpers.GetRandomDateInRange(startDateTime, MinutesOffsetForArticleMin, MinutesOffsetForArticleMax),
                     Title = articleTitle,
                 });
 

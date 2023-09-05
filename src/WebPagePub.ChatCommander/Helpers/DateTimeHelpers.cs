@@ -2,10 +2,10 @@
 {
     public class DateTimeHelpers
     {
-        public static DateTime OffSetTime(DateTime now, int minutesOffsetForArticleMin, int minutesOffsetForArticleMax)
+        public static DateTime GetRandomDateInRange(DateTime now, int minutesFromNowMin, int minutesFromNowMax)
         {
-            DateTime startDate = now.AddMinutes(minutesOffsetForArticleMin);
-            DateTime endDate = now.AddMinutes(minutesOffsetForArticleMax);
+            DateTime startDate = now.AddMinutes(minutesFromNowMin);
+            DateTime endDate = now.AddMinutes(minutesFromNowMax);
 
             var randomTest = new Random();
             TimeSpan timeSpan = endDate - startDate;
