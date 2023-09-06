@@ -4,9 +4,9 @@ namespace WebPagePub.Core.Utilities
 {
     public class DateUtilities
     {
-        public static string FriendlyFormatDate(DateTime date)
+        public static string FriendlyFormatDate(DateTime utcDate)
         {
-            var dt = date;
+            var dt = utcDate;
 
             string suffix;
 
