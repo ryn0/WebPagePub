@@ -6,11 +6,9 @@ namespace WebPagePub.Core.Utilities
     {
         public static string FriendlyFormatDate(DateTime utcDate)
         {
-            var dt = utcDate;
-
             string suffix;
 
-            switch (dt.Day)
+            switch (utcDate.Day)
             {
                 case 1:
                 case 21:
@@ -30,7 +28,7 @@ namespace WebPagePub.Core.Utilities
                     break;
             }
 
-            return string.Format("{0:MMMM} {1}{2}, {0:yyyy}", dt, dt.Day, suffix);
+            return string.Format("{0:MMMM} {1}{2}, {0:yyyy}", utcDate, utcDate.Day, suffix);
         }
 
         public static string UtcFormatDate(DateTime date)
