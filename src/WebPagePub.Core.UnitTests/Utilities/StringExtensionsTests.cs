@@ -19,6 +19,7 @@ namespace WebPagePub.Core.UnitTests.Utilities
         [Theory]
         [InlineData("something.jpg", "jpg")]
         [InlineData("something else.JPG", "jpg")]
+        [InlineData("something else.JPEG", "jpeg")]
         public void GetFileExtensionLower(string input, string expected)
         {
             var result = input.GetFileExtensionLower();

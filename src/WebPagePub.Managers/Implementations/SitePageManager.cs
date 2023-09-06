@@ -1,24 +1,19 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Security.AccessControl;
 using System.Threading.Tasks;
 using WebPagePub.Core.Utilities;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.Enums;
-using WebPagePub.Data.Migrations;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Managers.Interfaces;
 using WebPagePub.Managers.Models.SitePages;
 using WebPagePub.Services.Interfaces;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WebPagePub.Managers.Implementations
 {
@@ -105,7 +100,6 @@ namespace WebPagePub.Managers.Implementations
 
             return page != null && page.SitePageId > 0;
         }
-
 
         public SitePageSection GetSiteSection(string key)
         {
