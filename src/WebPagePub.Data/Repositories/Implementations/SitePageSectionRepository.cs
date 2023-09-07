@@ -42,8 +42,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var entry = this.Context.SitePageSection
-                              .FirstOrDefault(x => x.SitePageSectionId == sitePageSectionId);
+                var entry = this.Context.SitePageSection.Find(sitePageSectionId);
 
                 this.Context.SitePageSection.Remove(entry);
                 this.Context.SaveChanges();
@@ -67,8 +66,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.SitePageSection
-                              .FirstOrDefault(x => x.SitePageSectionId == sitePageSectionId);
+                return this.Context.SitePageSection.Find(sitePageSectionId);
             }
             catch (Exception ex)
             {
@@ -94,7 +92,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<SitePageSection> GetAll()
+        public IList<SitePageSection> GetAll()
         {
             try
             {

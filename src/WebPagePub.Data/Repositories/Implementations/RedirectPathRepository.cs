@@ -41,8 +41,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var entry = this.Context.RedirectPath
-                                   .FirstOrDefault(x => x.RedirectPathId == redirectPathId);
+                var entry = this.Context.RedirectPath.Find(redirectPathId);
 
                 this.Context.RedirectPath.Remove(entry);
                 this.Context.SaveChanges();
@@ -66,7 +65,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.RedirectPath.FirstOrDefault(x => x.RedirectPathId == redirectPathId);
+                return this.Context.RedirectPath.Find(redirectPathId);
             }
             catch (Exception ex)
             {
@@ -86,7 +85,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<RedirectPath> GetAll()
+        public IList<RedirectPath> GetAll()
         {
             try
             {

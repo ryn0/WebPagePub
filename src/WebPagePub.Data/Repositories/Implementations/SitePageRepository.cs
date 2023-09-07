@@ -39,7 +39,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<SitePage> GetPage(int pageNumber, int sitePageSectionId, int quantityPerPage, out int total)
+        public IList<SitePage> GetPage(int pageNumber, int sitePageSectionId, int quantityPerPage, out int total)
         {
             try
             {
@@ -63,7 +63,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<SitePage> GetLivePage(int pageNumber, int quantityPerPage, out int total)
+        public IList<SitePage> GetLivePage(int pageNumber, int quantityPerPage, out int total)
         {
             var now = DateTime.UtcNow;
 
@@ -201,7 +201,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<SitePage> GetLivePageByTag(string tagKey, int pageNumber, int quantityPerPage, out int total)
+        public IList<SitePage> GetLivePageByTag(string tagKey, int pageNumber, int quantityPerPage, out int total)
         {
             var now = DateTime.UtcNow;
 
@@ -314,8 +314,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var entry = this.Context.SitePage
-                              .FirstOrDefault(x => x.SitePageId == sitePageId);
+                var entry = this.Context.SitePage.Find(sitePageId);
 
                 this.Context.SitePage.Remove(entry);
                 this.Context.SaveChanges();
@@ -348,7 +347,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<SitePage> GetLivePagesForSection(int sitePageSectionId)
+        public IList<SitePage> GetLivePagesForSection(int sitePageSectionId)
         {
             try
             {
@@ -368,7 +367,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<SitePage> GetLivePageBySection(int sectionId, int pageNumber, int quantityPerPage, out int total)
+        public IList<SitePage> GetLivePageBySection(int sectionId, int pageNumber, int quantityPerPage, out int total)
         {
             var now = DateTime.UtcNow;
             try
@@ -417,7 +416,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<SitePage> GetIgnoredPages()
+        public IList<SitePage> GetIgnoredPages()
         {
             try
             {
@@ -433,7 +432,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total)
+        public IList<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total)
         {
             var results = new List<SitePage>();
             var now = DateTime.UtcNow;

@@ -47,7 +47,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.ContentSnippet.FirstOrDefault(x => x.ContentSnippetId == contentSnippetId);
+                return this.Context.ContentSnippet.Find(contentSnippetId);
             }
             catch (Exception ex)
             {
@@ -88,7 +88,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var entry = this.Context.ContentSnippet.FirstOrDefault(x => x.ContentSnippetId == contentSnippetId);
+                var entry = this.Context.ContentSnippet.Find(contentSnippetId);
 
                 this.Context.ContentSnippet.Remove(entry);
                 this.Context.SaveChanges();
@@ -103,7 +103,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<ContentSnippet> GetAll()
+        public IList<ContentSnippet> GetAll()
         {
             try
             {

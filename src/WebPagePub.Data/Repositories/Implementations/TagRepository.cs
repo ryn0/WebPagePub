@@ -46,7 +46,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.Tag.FirstOrDefault(x => x.TagId == tagId);
+                return this.Context.Tag.Find(tagId);
             }
             catch (Exception ex)
             {
@@ -87,7 +87,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var entry = this.Context.Tag.FirstOrDefault(x => x.TagId == tagId);
+                var entry = this.Context.Tag.Find(tagId);
 
                 this.Context.Tag.Remove(entry);
                 this.Context.SaveChanges();
@@ -102,7 +102,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<Tag> GetAll()
+        public IList<Tag> GetAll()
         {
             try
             {

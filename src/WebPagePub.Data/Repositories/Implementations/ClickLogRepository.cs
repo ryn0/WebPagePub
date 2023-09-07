@@ -38,7 +38,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<ClickLog> GetClicksInRange(DateTime startDate, DateTime endDate)
+        public IList<ClickLog> GetClicksInRange(DateTime startDate, DateTime endDate)
         {
             try
             {

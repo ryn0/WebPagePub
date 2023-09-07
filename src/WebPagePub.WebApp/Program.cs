@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Auth;
+using Microsoft.WindowsAzure.Storage.Blob;
 using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models;
@@ -67,7 +71,18 @@ var sp = builder.Services.BuildServiceProvider();
 
 var cacheService = sp.GetService<ICacheService>();
 var azureStorageConnection = cacheService.GetSnippet(SiteConfigSetting.AzureStorageConnectionString);
-builder.Services.AddSingleton<ISiteFilesRepository>(provider => new SiteFilesRepository(azureStorageConnection));
+
+CloudBlobClient cloudBlobClient = null;
+
+if (!string.IsNullOrEmpty(azureStorageConnection))
+{
+    var azureConnection = CloudStorageAccount.Parse(azureStorageConnection);
+    cloudBlobClient = azureConnection.CreateCloudBlobClient();
+}
+
+builder.Services.AddSingleton<IBlobService>(provider => 
+    new BlobService(cloudBlobClient))
+   .AddSingleton<ISiteFilesRepository, SiteFilesRepository>();
 
 var blockedIPRepository = sp.GetService<IBlockedIPRepository>();
 

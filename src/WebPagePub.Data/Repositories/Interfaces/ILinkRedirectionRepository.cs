@@ -17,7 +17,7 @@ namespace WebPagePub.Data.Repositories.Interfaces
 
         LinkRedirection Get(string key);
 
-        List<LinkRedirection> GetAll();
+        IList<LinkRedirection> GetAll();
 
         bool Delete(int linkRedirectionId);
     }

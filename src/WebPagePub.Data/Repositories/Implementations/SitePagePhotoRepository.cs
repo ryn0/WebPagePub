@@ -68,8 +68,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var entry = this.Context.SitePagePhoto
-                                   .FirstOrDefault(x => x.SitePagePhotoId == sitePagePhotoId);
+                var entry = this.Context.SitePagePhoto.Find(sitePagePhotoId);
 
                 this.Context.SitePagePhoto.Remove(entry);
                 this.Context.SaveChanges();
@@ -88,8 +87,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.SitePagePhoto
-                              .FirstOrDefault(x => x.SitePagePhotoId == sitePagePhotoId);
+                return this.Context.SitePagePhoto.Find(sitePagePhotoId);
             }
             catch (Exception ex)
             {
@@ -98,7 +96,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<SitePagePhoto> GetBlogPhotos(int sitePageId)
+        public IList<SitePagePhoto> GetBlogPhotos(int sitePageId)
         {
             try
             {

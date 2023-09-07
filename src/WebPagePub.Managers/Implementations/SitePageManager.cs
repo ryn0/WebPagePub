@@ -140,7 +140,7 @@ namespace WebPagePub.Managers.Implementations
             return this.siteSectionRepository.Get(sitePageSectionId);
         }
 
-        public List<SitePage> GetSitePages(int pageNumber, int siteSectionId, int quantityPerPage, out int total)
+        public IList<SitePage> GetSitePages(int pageNumber, int siteSectionId, int quantityPerPage, out int total)
         {
             return this.sitePageRepository.GetPage(pageNumber, siteSectionId, quantityPerPage, out total);
         }
@@ -253,7 +253,7 @@ namespace WebPagePub.Managers.Implementations
 
         public async Task UploadPhotos(
             int sitePageId, 
-            List<Tuple<string, MemoryStream>> fileNameAndImageMemoryStream)
+            IList<Tuple<string, MemoryStream>> fileNameAndImageMemoryStream)
         {
             var allBlogPhotos = this.sitePagePhotoRepository.GetBlogPhotos(sitePageId);
             var highestRank = allBlogPhotos.Count();
@@ -356,7 +356,7 @@ namespace WebPagePub.Managers.Implementations
             return this.sitePageRepository.Update(dbModel);
         }
 
-        public List<SitePagePhoto> GetBlogPhotos(int sitePageId)
+        public IList<SitePagePhoto> GetBlogPhotos(int sitePageId)
         {
             return this.sitePagePhotoRepository.GetBlogPhotos(sitePageId);
         }
@@ -390,7 +390,7 @@ namespace WebPagePub.Managers.Implementations
 
         public async Task UpdatePhotoProperties(
             int sitePageId,
-            List<SitePagePhotoModel> newSitePagePhotos)
+            IList<SitePagePhotoModel> newSitePagePhotos)
         {
             var allImages = this.GetBlogPhotos(sitePageId);
 
@@ -401,7 +401,7 @@ namespace WebPagePub.Managers.Implementations
             }
         }
 
-        public List<SitePage> GetLivePage(int pageNumber, int quantityPerpage, out int total)
+        public IList<SitePage> GetLivePage(int pageNumber, int quantityPerpage, out int total)
         {
             return this.sitePageRepository.GetLivePage(pageNumber, quantityPerpage, out total);
         }
@@ -431,7 +431,7 @@ namespace WebPagePub.Managers.Implementations
             this.RemoveDeletedTags(model, tagsToRemove);
         }
 
-        public List<Author> GetAllAuthors()
+        public IList<Author> GetAllAuthors()
         {
             return this.authorRepository.GetAll();
         }
@@ -536,7 +536,7 @@ namespace WebPagePub.Managers.Implementations
 
         private async Task UploadSizesOfPhotos(
             int sitePageId,
-            List<SitePagePhoto> allBlogPhotos,
+            IList<SitePagePhoto> allBlogPhotos,
             int currentRank,
             string folderPath,
             MemoryStream memoryStream,
@@ -683,7 +683,7 @@ namespace WebPagePub.Managers.Implementations
             return entry;
         }
 
-        public List<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total)
+        public IList<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total)
         {
             if (term == null)
             {

@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 using WebPagePub.ChatCommander.Enums;
 using WebPagePub.ChatCommander.Interfaces;
 using WebPagePub.ChatCommander.Models.SettingsModels;
@@ -29,8 +31,14 @@ var serviceProvider = new ServiceCollection()
     .BuildServiceProvider();
 
 var snippetsRepo = serviceProvider.GetService<IContentSnippetRepository>();
-var azureStorageConnection = GetAZureConnectionSTring(snippetsRepo);
+var azureStorageConnection = GetAzureConnectionString(snippetsRepo);
+CloudBlobClient cloudBlobClient = null;
 
+if (!string.IsNullOrEmpty(azureStorageConnection))
+{
+    var azureConnection = CloudStorageAccount.Parse(azureStorageConnection);
+    cloudBlobClient = azureConnection.CreateCloudBlobClient();
+}
 serviceProvider = new ServiceCollection()
    .AddDbContext<ApplicationDbContext>(options =>
    options.UseSqlServer(
@@ -52,7 +60,9 @@ serviceProvider = new ServiceCollection()
    .AddTransient<IAuthorRepository, AuthorRepository>()
    .AddTransient<ISitePageManager, SitePageManager>()
    .AddTransient<IImageUploaderService, ImageUploaderService>()
-   .AddSingleton<ISiteFilesRepository>(provider => new SiteFilesRepository(azureStorageConnection))
+   .AddSingleton<IBlobService>(provider => 
+        new BlobService(cloudBlobClient))
+   .AddSingleton<ISiteFilesRepository, SiteFilesRepository>()
    .BuildServiceProvider();
 
 Console.WriteLine("Select which workflow to run from below:");
@@ -142,7 +152,7 @@ await pageEditor.CreatePagesAsync();
 
 Console.ReadLine();
 
-string GetAZureConnectionSTring(IContentSnippetRepository? snippetsRepo)
+string GetAzureConnectionString(IContentSnippetRepository? snippetsRepo)
 {
     if (snippetsRepo == null)
     {

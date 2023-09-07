@@ -42,8 +42,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.SitePageComment
-                              .FirstOrDefault(x => x.SitePageCommentId == sitePageCommentId);
+                return this.Context.SitePageComment.Find(sitePageCommentId);
             }
             catch (Exception ex)
             {
@@ -66,7 +65,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<SitePageComment> GetCommentsForPage(int sitePageId)
+        public IList<SitePageComment> GetCommentsForPage(int sitePageId)
         {
             try
             {
@@ -81,7 +80,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<SitePageComment> GetCommentsForPage(int sitePageId, CommentStatus commentStatus)
+        public IList<SitePageComment> GetCommentsForPage(int sitePageId, CommentStatus commentStatus)
         {
             try
             {
@@ -132,7 +131,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             this.Context.Dispose();
         }
 
-        public List<SitePageComment> GetPage(int pageNumber, int quantityPerPage, out int total)
+        public IList<SitePageComment> GetPage(int pageNumber, int quantityPerPage, out int total)
         {
             try
             {

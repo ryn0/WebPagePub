@@ -459,7 +459,7 @@ namespace WebPagePub.Web.Controllers
                                                         sitePageSection.SitePageSectionId,
                                                         pageNumber,
                                                         IntegerConstants.PageSize,
-                                                        out total);
+                                                        out total).ToList();
 
             pages = pages.Where(x => x.IsSectionHomePage == false).ToList();
         }
@@ -494,7 +494,7 @@ namespace WebPagePub.Web.Controllers
                                                         tagKey,
                                                         pageNumber,
                                                         IntegerConstants.PageSize,
-                                                        out total);
+                                                        out total).ToList();
         }
 
         private SitePageDisplayModel CreateDisplayModel(SitePageSection sitePageSection, SitePage sitePage)
