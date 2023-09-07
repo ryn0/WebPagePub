@@ -29,7 +29,7 @@ properties {
    # Project paths
    $databaseProjectSourcePath   = "..\src\WebPagePub.Data"
    $webProjectSourcePath        = "..\src\WebPagePub.WebApp"
-   $testProjectSourcePath       = "..\WebPagePub.Core.UnitTests"
+   $testProjectSourcePath       = "..\WebPagePub.WebApp.sln"
    $compileSourcePath           = "..\src\WebPagePub.WebApp\bin\output"
 
    $WebAppSettings              = "..\src\WebPagePub.WebApp\appsettings.json"
