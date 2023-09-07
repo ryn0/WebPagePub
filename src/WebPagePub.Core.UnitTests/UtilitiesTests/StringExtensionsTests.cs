@@ -1,7 +1,7 @@
 ﻿using WebPagePub.Core.Utilities;
 using Xunit;
 
-namespace WebPagePub.Core.UnitTests.Utilities
+namespace WebPagePub.Core.UnitTests.UtilitiesTests
 {
     public class StringExtensionsTests
     {
