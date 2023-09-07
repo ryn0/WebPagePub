@@ -23,9 +23,8 @@ namespace WebPagePub.Services.Implementations
 
         public async Task<Uri> UploadResizedVersionOfPhoto(string folderPath, MemoryStream stream, Uri originalPhotoUrl, int maxWidthPx, int maxHeightPx, string suffix)
         {
-            var imageHelper = new ImageUtilities();
             var extension = originalPhotoUrl.ToString().GetFileExtension();
-            var resizedImage = imageHelper.ScaleImage(Image.FromStream(stream), maxWidthPx, maxHeightPx);
+            var resizedImage = ImageUtilities.ScaleImage(Image.FromStream(stream), maxWidthPx, maxHeightPx);
             var lowerQualityImageUrl = originalPhotoUrl.ToString()
                                                        .Replace(string.Format(".{0}", extension), string.Format("{0}.{1}", suffix, extension));
             var streamRotated = this.ToAStream(resizedImage, this.SetImageFormat(lowerQualityImageUrl));

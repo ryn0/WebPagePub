@@ -14,8 +14,18 @@ namespace WebPagePub.Core.Utilities
             return rotatedBmp;
         }
 
-        public Bitmap ScaleImage(Image image, int maxWidth, int maxHeight)
+        public static Bitmap ScaleImage(Image image, int maxWidth, int maxHeight)
         {
+            if (image == null)
+            {
+                throw new ArgumentNullException(nameof(image));
+            }
+
+            if (image.Width <= maxWidth && image.Height <= maxHeight)
+            {
+                return new Bitmap(image);  // If the image is already smaller than or equal to the max dimensions, return it as is.
+            }
+
             var ratioX = (double)maxWidth / image.Width;
             var ratioY = (double)maxHeight / image.Height;
             var ratio = Math.Min(ratioX, ratioY);
