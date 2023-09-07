@@ -17,7 +17,7 @@ namespace WebPagePub.Data.Repositories.Interfaces
 
         bool Delete(int sitePagePhotoId);
 
-        List<SitePagePhoto> GetBlogPhotos(int sitePageId);
+        IList<SitePagePhoto> GetBlogPhotos(int sitePageId);
 
         void SetDefaultPhoto(int sitePagePhotoId);
     }

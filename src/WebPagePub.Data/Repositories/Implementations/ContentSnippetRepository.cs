@@ -103,7 +103,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<ContentSnippet> GetAll()
+        public IList<ContentSnippet> GetAll()
         {
             try
             {

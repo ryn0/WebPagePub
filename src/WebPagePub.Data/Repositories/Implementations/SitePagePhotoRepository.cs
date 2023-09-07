@@ -98,7 +98,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<SitePagePhoto> GetBlogPhotos(int sitePageId)
+        public IList<SitePagePhoto> GetBlogPhotos(int sitePageId)
         {
             try
             {

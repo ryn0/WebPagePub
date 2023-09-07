@@ -67,7 +67,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<Author> GetAll()
+        public IList<Author> GetAll()
         {
             try
             {

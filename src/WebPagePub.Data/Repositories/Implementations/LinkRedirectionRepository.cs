@@ -102,7 +102,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<LinkRedirection> GetAll()
+        public IList<LinkRedirection> GetAll()
         {
             try
             {

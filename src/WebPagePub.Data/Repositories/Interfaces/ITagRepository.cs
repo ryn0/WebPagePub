@@ -19,6 +19,6 @@ namespace WebPagePub.Data.Repositories.Interfaces
 
         bool Delete(int tagId);
 
-        List<Tag> GetAll();
+        IList<Tag> GetAll();
     }
 }

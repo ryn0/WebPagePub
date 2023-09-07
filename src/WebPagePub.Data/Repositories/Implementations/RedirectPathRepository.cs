@@ -86,7 +86,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<RedirectPath> GetAll()
+        public IList<RedirectPath> GetAll()
         {
             try
             {

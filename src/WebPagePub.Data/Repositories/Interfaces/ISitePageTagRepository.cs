@@ -15,12 +15,12 @@ namespace WebPagePub.Data.Repositories.Interfaces
 
         SitePageTag Get(int tagId, int sitePageId);
 
-        List<SitePageTag> GetTagsForBlog(int sitePageId);
+        IList<SitePageTag> GetTagsForBlog(int sitePageId);
 
         bool Delete(int tagId, int sitePageId);
 
-        List<SitePageTag> GetAll();
+        IList<SitePageTag> GetAll();
 
-        List<SitePageTag> GetTagsForLivePages();
+        IList<SitePageTag> GetTagsForLivePages();
     }
 }

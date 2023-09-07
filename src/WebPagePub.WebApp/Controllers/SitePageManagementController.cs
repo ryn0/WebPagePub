@@ -386,8 +386,8 @@ namespace WebPagePub.Web.Controllers
             };
         }
 
-        private List<Managers.Models.SitePages.SitePagePhotoModel> GetSitePagePhotoDetails(
-                List<SitePagePhoto> sitePagePhotos, 
+        private IList<Managers.Models.SitePages.SitePagePhotoModel> GetSitePagePhotoDetails(
+                IList<SitePagePhoto> sitePagePhotos, 
                 IFormCollection form)
         {
             var mc = new ModelConverter(this.cacheService);
@@ -444,7 +444,7 @@ namespace WebPagePub.Web.Controllers
             }
         }
 
-        private SitePageListModel ConvertToListModel(List<SitePage> pages)
+        private SitePageListModel ConvertToListModel(IList<SitePage> pages)
         {
             var model = new SitePageListModel();
 
@@ -526,7 +526,7 @@ namespace WebPagePub.Web.Controllers
                 AllowsComments = sitePage.AllowsComments,
                 IsSectionHomePage = sitePage.IsSectionHomePage,
                 AuthorId = sitePage.AuthorId,
-                Authors = AddAuthors(),
+                Authors = AddAuthors().ToList(),
                 SitePageSectionId = sitePageSection.SitePageSectionId,
                 SiteSections = AddSiteSections()
             };
@@ -586,7 +586,7 @@ namespace WebPagePub.Web.Controllers
             return model;
         }
 
-        private List<SelectListItem> AddAuthors()
+        private IList<SelectListItem> AddAuthors()
         {
             var authorList = new List<SelectListItem>();
             var allAuthors = sitePageManager.GetAllAuthors().OrderBy(x => x.FirstName);

@@ -23,7 +23,7 @@ namespace WebPagePub.Core.UnitTests.Repositories
         [Fact]
         public void Create_ShouldAddAuthorAndReturnIt()
         {
-            var author = new Author { /* initialization */ };
+            var author = new Author { /* initialization */ FirstName = "Joe" };
 
             // Mock the method used to add an Author to your context. Adjust accordingly.
             this.contextMock.Setup(c => c.Author.Add(It.IsAny<Author>()));

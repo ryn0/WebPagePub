@@ -17,7 +17,7 @@ namespace WebPagePub.Data.Repositories.Interfaces
 
         EmailSubscription Get(string email);
 
-        List<EmailSubscription> GetAll();
+        IList<EmailSubscription> GetAll();
 
         bool Delete(int emailSubscriptionId);
     }

@@ -15,6 +15,6 @@ namespace WebPagePub.Data.Repositories.Interfaces
 
         Author Get(int authorId);
 
-        List<Author> GetAll();
+        IList<Author> GetAll();
     }
 }
