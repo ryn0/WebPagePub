@@ -102,7 +102,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<EmailSubscription> GetAll()
+        public IList<EmailSubscription> GetAll()
         {
             try
             {

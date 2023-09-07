@@ -17,9 +17,10 @@ namespace WebPagePub.Data.Repositories.Interfaces
 
         SitePageSection GetHomeSection();
 
-        List<SitePageSection> GetAll();
+        IList<SitePageSection> GetAll();
 
         SitePageSection Get(string key);
+
         bool Delete(int sitePageSectionId);
     }
 }

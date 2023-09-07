@@ -94,7 +94,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<SitePageSection> GetAll()
+        public IList<SitePageSection> GetAll()
         {
             try
             {

@@ -89,7 +89,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<SitePageTag> GetTagsForBlog(int sitePageId)
+        public IList<SitePageTag> GetTagsForBlog(int sitePageId)
         {
             try
             {
@@ -101,7 +101,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<SitePageTag> GetAll()
+        public IList<SitePageTag> GetAll()
         {
             try
             {
@@ -114,7 +114,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public List<SitePageTag> GetTagsForLivePages()
+        public IList<SitePageTag> GetTagsForLivePages()
         {
             try
             {
