@@ -9,5 +9,7 @@
         public string FolderPathFromRoot { get; set; } = default!;
 
         public string FilePath { get; set; } = default!;
+
+        public string CdnLink { get; set; } = default!;
     }
 }
