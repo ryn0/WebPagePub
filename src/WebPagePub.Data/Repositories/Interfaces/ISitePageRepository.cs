@@ -23,27 +23,26 @@ namespace WebPagePub.Data.Repositories.Interfaces
 
         SitePage GetNextEntry(DateTime currentSitePagePublishDateTimeUtc, DateTime now, int sitePageSectionId);
 
-        List<SitePage> GetPage(int pageNumber, int sitePageSectionId, int quantityPerPage, out int total);
+        IList<SitePage> GetPage(int pageNumber, int sitePageSectionId, int quantityPerPage, out int total);
 
-        List<SitePage> GetLivePage(int pageNumber, int quantityPerPage, out int total);
+        IList<SitePage> GetLivePage(int pageNumber, int quantityPerPage, out int total);
 
-        List<SitePage> GetLivePageByTag(string tagKey, int pageNumber, int quantityPerPage, out int total);
+        IList<SitePage> GetLivePageByTag(string tagKey, int pageNumber, int quantityPerPage, out int total);
 
         SitePage Get(int sitePageSectionId, string key);
 
-        List<SitePage> GetLivePagesForSection(int sitePageSectionId);
+        IList<SitePage> GetLivePagesForSection(int sitePageSectionId);
 
-        List<SitePage> GetLivePageBySection(int sitePageSectionId, int pageNumber, int quantityPerPage, out int total);
+        IList<SitePage> GetLivePageBySection(int sitePageSectionId, int pageNumber, int quantityPerPage, out int total);
 
         SitePage GetSectionHomePage(int sitePageSectionId);
 
-        List<SitePage> GetIgnoredPages();
+        IList<SitePage> GetIgnoredPages();
 
         SitePage GetPreviouslyCreatedEntry(DateTime createDate, int sitePageId, int sitePageSectionId);
 
         SitePage GetNextCreatedEntry(DateTime createDate, int sitePageId, int sitePageSectionId);
 
-        List<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total);
-
+        IList<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total);
     }
 }

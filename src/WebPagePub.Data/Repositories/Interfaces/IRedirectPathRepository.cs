@@ -9,7 +9,7 @@ namespace WebPagePub.Data.Repositories.Interfaces
     {
         IApplicationDbContext Context { get; }
 
-        List<RedirectPath> GetAll();
+        IList<RedirectPath> GetAll();
 
         RedirectPath Get(int redirectPathId);
 
