@@ -67,7 +67,17 @@
                                 }
                                 else
                                 {
-                                    <a href="@file.FilePath">@file.FilePath</a>
+                                        if (!string.IsNullOrEmpty(file.CdnLink))
+                                        {
+                                            
+                                            <a href="@file.CdnLink">CDN</a>
+                                            <span> &nbsp; - &nbsp;</span>
+                                            <a href="@file.FilePath">@file.FilePath</a>
+                                        }
+                                        else 
+                                        {
+                                            <a href="@file.FilePath">@file.FilePath</a>
+                                        }
                                 }
                             </td>
                             <td>

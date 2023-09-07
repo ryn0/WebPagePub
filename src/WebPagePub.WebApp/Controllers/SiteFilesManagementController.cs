@@ -2,7 +2,10 @@
 using log4net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebPagePub.Core;
+using WebPagePub.Data.Enums;
 using WebPagePub.Data.Repositories.Interfaces;
+using WebPagePub.Services.Interfaces;
 using WebPagePub.Web.Models;
 
 namespace WebPagePub.Web.Controllers
@@ -13,10 +16,14 @@ namespace WebPagePub.Web.Controllers
         private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         private readonly ISiteFilesRepository siteFilesRepository;
+        private readonly ICacheService cacheService;
 
-        public SiteFilesManagementController(ISiteFilesRepository siteFilesRepository)
+        public SiteFilesManagementController(
+            ISiteFilesRepository siteFilesRepository,
+            ICacheService cacheService)
         {
             this.siteFilesRepository = siteFilesRepository;
+            this.cacheService = cacheService;
         }
 
         [Route("sitefilesmanagement/upload")]
@@ -83,13 +90,20 @@ namespace WebPagePub.Web.Controllers
 
             foreach (var file in directory.FileItems)
             {
-                model.FileItems.Add(new SiteFileItem
+                var item = new SiteFileItem
                 {
                     FilePath = file.FilePath,
                     FolderName = file.FolderName,
                     FolderPathFromRoot = file.FolderPathFromRoot,
                     IsFolder = file.IsFolder
-                });
+                };
+
+                if (!file.IsFolder)
+                {
+                    item.CdnLink = this.ConvertBlobToCdnUrl(file.FilePath);
+                }
+
+                model.FileItems.Add(item);
             }
 
             var folders = model.FileItems.Where(x => x.IsFolder == true).OrderBy(x => x.FolderName).ToList();
@@ -117,6 +131,14 @@ namespace WebPagePub.Web.Controllers
             }
 
             return this.View(model);
+        }
+
+        private string ConvertBlobToCdnUrl(string filePath)
+        {
+            var blobPrefix = this.cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
+            var cdnPrefix = this.cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
+
+            return UrlBuilder.ConvertBlobToCdnUrl(filePath, blobPrefix, cdnPrefix);
         }
 
         [Route("sitefilesmanagement/DeleteFileAsync")]
