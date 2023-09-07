@@ -1,8 +1,9 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using WebPagePub.Core.Utilities;
 using Xunit;
 
-namespace WebPagePub.Core.UnitTests.Utilities
+namespace WebPagePub.Core.UnitTests.UtilitiesTests
 {
     public class ImageUtilitiesTests
     {
@@ -21,6 +22,66 @@ namespace WebPagePub.Core.UnitTests.Utilities
 
             // Assert
             Assert.True(this.BitmapAreEqual(expectedRotatedImage, resultImage));
+        }
+
+        [Fact]
+        public void ScaleImage_WithImageSmallerThanMaxDimensions_ShouldReturnOriginalSize()
+        {
+            // Arrange
+            var originalImage = new Bitmap(50, 50);  // Example image size
+            var maxWidth = 100;
+            var maxHeight = 100;
+
+            // Act
+            var scaledImage = ImageUtilities.ScaleImage(originalImage, maxWidth, maxHeight);
+
+            // Assert
+            Assert.Equal(originalImage.Width, scaledImage.Width);
+            Assert.Equal(originalImage.Height, scaledImage.Height);
+        }
+
+        [Fact]
+        public void ScaleImage_WithWidthAsLimitingFactor_ShouldScaleProportionally()
+        {
+            // Arrange
+            var originalImage = new Bitmap(100, 50);  // Width is larger proportionally
+            var maxWidth = 50;
+            var maxHeight = 100;
+
+            // Act
+            var scaledImage = ImageUtilities.ScaleImage(originalImage, maxWidth, maxHeight);
+
+            // Assert
+            Assert.Equal(50, scaledImage.Width);
+            Assert.Equal(25, scaledImage.Height);  // Height should be scaled down by the same ratio
+        }
+
+        [Fact]
+        public void ScaleImage_WithHeightAsLimitingFactor_ShouldScaleProportionally()
+        {
+            // Arrange
+            var originalImage = new Bitmap(50, 100);  // Height is larger proportionally
+            var maxWidth = 100;
+            var maxHeight = 50;
+
+            // Act
+            var scaledImage = ImageUtilities.ScaleImage(originalImage, maxWidth, maxHeight);
+
+            // Assert
+            Assert.Equal(25, scaledImage.Width);  // Width should be scaled down by the same ratio
+            Assert.Equal(50, scaledImage.Height);
+        }
+
+        [Fact]
+        public void ScaleImage_WithNullImage_ShouldThrowArgumentNullException()
+        {
+            // Arrange
+            Image nullImage = null;
+            var maxWidth = 100;
+            var maxHeight = 100;
+
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => ImageUtilities.ScaleImage(nullImage, maxWidth, maxHeight));
         }
 
         private bool BitmapAreEqual(Bitmap bmp1, Bitmap bmp2)
