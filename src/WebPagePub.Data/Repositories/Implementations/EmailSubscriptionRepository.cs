@@ -46,7 +46,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.EmailSubscription.FirstOrDefault(x => x.EmailSubscriptionId == emailSubscriptionId);
+                return this.Context.EmailSubscription.Find(emailSubscriptionId);
             }
             catch (Exception ex)
             {
@@ -87,7 +87,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var entry = this.Context.EmailSubscription.FirstOrDefault(x => x.EmailSubscriptionId == emailSubscriptionId);
+                var entry = this.Context.EmailSubscription.Find(emailSubscriptionId);
 
                 this.Context.EmailSubscription.Remove(entry);
                 this.Context.SaveChanges();

@@ -46,7 +46,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.LinkRedirection.FirstOrDefault(x => x.LinkRedirectionId == linkRedirectionId);
+                return this.Context.LinkRedirection.Find(linkRedirectionId);
             }
             catch (Exception ex)
             {
@@ -87,9 +87,13 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var entry = this.Context.LinkRedirection.FirstOrDefault(x => x.LinkRedirectionId == linkRedirectionId);
+                var entity = this.Context.LinkRedirection.Find(linkRedirectionId);
+                if (entity == null)
+                {
+                    return false;
+                }
 
-                this.Context.LinkRedirection.Remove(entry);
+                this.Context.LinkRedirection.Remove(entity);
                 this.Context.SaveChanges();
 
                 return true;
