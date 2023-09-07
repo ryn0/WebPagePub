@@ -7,11 +7,11 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-	  <CodeAnalysisRuleSet>../StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
+	  <CodeAnalysisRuleSet>../../StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
 	<ItemGroup>
-		<AdditionalFiles Include="..\stylecop.json" />
+		<AdditionalFiles Include="..\..\stylecop.json" />
 	</ItemGroup>
 
 
@@ -28,8 +28,9 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\WebPagePub.ChatCommander\WebPagePub.ChatCommander.csproj" />
-  </ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\WebPagePub.ChatCommander\WebPagePub.ChatCommander.csproj" />
+	</ItemGroup>
 
 </Project>
