@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <CodeAnalysisRuleSet>../StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>../../StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
 
     <IsPackable>false</IsPackable>
 
@@ -23,12 +23,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\WebPagePub.Core\WebPagePub.Core.csproj" />
+    <AdditionalFiles Include="..\..\stylecop.json" />
   </ItemGroup>
   <ItemGroup>
-    <AdditionalFiles Include="..\stylecop.json" />
+    <ProjectReference Include="..\..\WebPagePub.Core\WebPagePub.Core.csproj" />
   </ItemGroup>
 
 	<PropertyGroup>
