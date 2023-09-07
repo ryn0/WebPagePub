@@ -20,6 +20,6 @@ namespace WebPagePub.Data.Repositories.Interfaces
 
         bool Delete(int tagId);
 
-        List<ContentSnippet> GetAll();
+        IList<ContentSnippet> GetAll();
     }
 }

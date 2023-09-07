@@ -25,7 +25,7 @@ namespace WebPagePub.Managers.Interfaces
 
         public SitePage CreatePage(int siteSectionId, string pageTitle, string createdByUserId);
 
-        public List<SitePage> GetSitePages(int pageNumber, int siteSectionId, int quantityPerPage, out int total);
+        public IList<SitePage> GetSitePages(int pageNumber, int siteSectionId, int quantityPerPage, out int total);
 
         public void DeleteSiteSection(int siteSectionId);
 
@@ -49,7 +49,7 @@ namespace WebPagePub.Managers.Interfaces
         /// <param name="sitePageId"></param>
         /// <param name="fileNameAndImageMemoryStream">Filename, photo memory stream</param>
         /// <returns></returns>
-        public Task UploadPhotos(int sitePageId, List<Tuple<string, MemoryStream>> fileNameAndImageMemoryStream);
+        public Task UploadPhotos(int sitePageId, IList<Tuple<string, MemoryStream>> fileNameAndImageMemoryStream);
 
         public Task DeletePage(int sitePageId);
 
@@ -59,20 +59,20 @@ namespace WebPagePub.Managers.Interfaces
 
         public bool UpdateSitePage(SitePage dbModel);
 
-        public List<SitePagePhoto> GetBlogPhotos(int sitePageId);
+        public IList<SitePagePhoto> GetBlogPhotos(int sitePageId);
 
-        public Task UpdatePhotoProperties(int sitePageId, List<SitePagePhotoModel> newSitePagePhotos);
+        public Task UpdatePhotoProperties(int sitePageId, IList<SitePagePhotoModel> newSitePagePhotos);
 
         void UpdateBlogTags(SitePageEditModel model, SitePage dbModel);
         
-        public List<Author> GetAllAuthors();
+        public IList<Author> GetAllAuthors();
 
-        public List<SitePage> GetLivePage(int pageNumber, int maxPageSizeForSiteMap, out int total);
+        public IList<SitePage> GetLivePage(int pageNumber, int maxPageSizeForSiteMap, out int total);
 
         public int? PreviouslyCreatedPage(DateTime createDate, int sitePageId, int sitePageSectionId);
 
         public int? NextCreatedPage(DateTime createDate, int sitePageId, int sitePageSectionId);
 
-        List<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total);
+        IList<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total);
     }
 }

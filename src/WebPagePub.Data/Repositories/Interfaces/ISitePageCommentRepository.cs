@@ -18,13 +18,14 @@ namespace WebPagePub.Data.Repositories.Interfaces
 
         SitePageComment Get(int sitePageCommentId);
 
-        List<SitePageComment> GetCommentsForPage(int sitePageId);
+        IList<SitePageComment> GetCommentsForPage(int sitePageId);
 
-        List<SitePageComment> GetCommentsForPage(int sitePageId, CommentStatus commentStatus);
+        IList<SitePageComment> GetCommentsForPage(int sitePageId, CommentStatus commentStatus);
 
-        List<SitePageComment> GetPage(int pageNumber, int quantityPerPage, out int total);
+        IList<SitePageComment> GetPage(int pageNumber, int quantityPerPage, out int total);
 
         int GetCommentCountForStatus(CommentStatus commentStatus);
+
         bool DeleteStaus(CommentStatus commentStatus);
     }
 }

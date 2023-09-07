@@ -12,6 +12,6 @@ namespace WebPagePub.Data.Repositories.Interfaces
 
         Task<ClickLog> CreateAsync(ClickLog model);
 
-        List<ClickLog> GetClicksInRange(DateTime startDate, DateTime endDate);
+        IList<ClickLog> GetClicksInRange(DateTime startDate, DateTime endDate);
     }
 }

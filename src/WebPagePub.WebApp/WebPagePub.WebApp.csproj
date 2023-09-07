@@ -10,11 +10,6 @@
 	<ItemGroup>
 		<AdditionalFiles Include="..\stylecop.json" />
 	</ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Controllers\SitePageManagementController - Copy.cs" />
-  </ItemGroup>
-
   <ItemGroup>
     <Content Remove="appsettings.template.json" />
   </ItemGroup>

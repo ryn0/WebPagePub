@@ -16,29 +16,11 @@ namespace WebPagePub.Data.Repositories.Implementations
 {
     public class SiteFilesRepository : BaseBlobFiles, ISiteFilesRepository
     {
-        private readonly string connectionString;
-        private readonly CloudStorageAccount storageAccount;
+        private readonly IBlobService blobService;
 
-        public SiteFilesRepository(string connectionString)
+        public SiteFilesRepository(IBlobService blobService)
         {
-            this.connectionString = connectionString;
-
-            if (string.IsNullOrWhiteSpace(this.connectionString))
-            {
-                return;
-            }
-
-            this.storageAccount = CloudStorageAccount.Parse(this.connectionString);
-
-            var blobClient = this.storageAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference(StringConstants.ContainerName);
-
-            // todo: run async elsewhere
-            Task.Run(async () =>
-            {
-                await this.CreateIfNotExists(container);
-                await this.SetCorsAsync(blobClient);
-            });
+            this.blobService = blobService;
         }
 
         public SiteFileDirectory ListFiles(string prefix = null)
@@ -46,8 +28,18 @@ namespace WebPagePub.Data.Repositories.Implementations
             try
             {
                 var directory = new SiteFileDirectory();
-                var blobClient = this.storageAccount.CreateCloudBlobClient();
-                var container = blobClient.GetContainerReference(StringConstants.ContainerName);
+
+                if (this.blobService == null)
+                {
+                    return directory;
+                }
+
+                var container = this.blobService.GetContainerReference(StringConstants.ContainerName);
+
+                if (container == null)
+                {
+                    return directory;
+                }
 
                 if (prefix != null && prefix.StartsWith("/"))
                 {
@@ -111,8 +103,7 @@ namespace WebPagePub.Data.Repositories.Implementations
 
             try
             {
-                var blobClient = this.storageAccount.CreateCloudBlobClient();
-                var container = blobClient.GetContainerReference(StringConstants.ContainerName);
+                var container = this.blobService.GetContainerReference(StringConstants.ContainerName);
 
                 if (IsFolderPath(blobPath))
                 {
@@ -204,8 +195,13 @@ namespace WebPagePub.Data.Repositories.Implementations
                     }
                 }
 
-                var blobClient = this.storageAccount.CreateCloudBlobClient();
-                var container = blobClient.GetContainerReference(StringConstants.ContainerName);
+                var container = this.blobService.GetContainerReference(StringConstants.ContainerName);
+
+                if (container == null)
+                {
+                    throw new Exception(nameof(container));
+                }
+
                 var blockBlob = container.GetBlockBlobReference(filePath);
 
                 stream.Seek(0, SeekOrigin.Begin);
@@ -237,8 +233,7 @@ namespace WebPagePub.Data.Repositories.Implementations
 
                 tw.WriteLine(folderPath);
 
-                var blobClient = this.storageAccount.CreateCloudBlobClient();
-                var container = blobClient.GetContainerReference(StringConstants.ContainerName);
+                var container = this.blobService.GetContainerReference(StringConstants.ContainerName);
                 var path = string.Format("{0}/{1}", folderPath, StringConstants.FolderFileName);
 
                 if (!string.IsNullOrWhiteSpace(directory))
@@ -272,8 +267,7 @@ namespace WebPagePub.Data.Repositories.Implementations
 
         public async Task ChangeFileName(string currentFileName, string newFileName)
         {
-            var blobClient = this.storageAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference(StringConstants.ContainerName);
+            var container = this.blobService.GetContainerReference(StringConstants.ContainerName);
             await container.CreateIfNotExistsAsync();
             CloudBlockBlob blobCopy = container.GetBlockBlobReference(newFileName);
             if (!await blobCopy.ExistsAsync())
@@ -295,8 +289,7 @@ namespace WebPagePub.Data.Repositories.Implementations
 
         private List<IListBlobItem> GetDirContents(string prefix = null)
         {
-            var blobClient = this.storageAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference(StringConstants.ContainerName);
+            var container = this.blobService.GetContainerReference(StringConstants.ContainerName);
 
             if (prefix != null && prefix.StartsWith("/"))
             {
@@ -306,14 +299,6 @@ namespace WebPagePub.Data.Repositories.Implementations
             var allInDir = container.ListBlobsSegmentedAsync(prefix, true, BlobListingDetails.None, int.MaxValue, null, null, null).Result.Results;
 
             return allInDir.ToList();
-        }
-
-        private async Task CreateIfNotExists(CloudBlobContainer container)
-        {
-            if (await container.CreateIfNotExistsAsync())
-            {
-                await this.SetPublicContainerPermissionsAsync(container);
-            }
         }
 
         private void AddDirectory(SiteFileDirectory directory, IListBlobItem item)

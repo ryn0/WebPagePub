@@ -157,8 +157,8 @@ namespace WebPagePub.Web.Controllers
 
             if (page.PageType == Data.Enums.PageType.Photo)
             {
-                var photos = this.sitePageManager.GetBlogPhotos(page.SitePageId);
-                var siteMapPhotoItems = ConvertToSiteMapImages(photos);
+                var photos = this.sitePageManager.GetBlogPhotos(page.SitePageId).ToList();
+                var siteMapPhotoItems = ConvertToSiteMapImages(photos).ToList();
                 siteMapHelper.AddUrl(
                     url,
                     lastUpdated,
