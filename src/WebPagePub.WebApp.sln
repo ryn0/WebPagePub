@@ -33,6 +33,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeAnalysis", "CodeAnalysi
 		stylecop.json = stylecop.json
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebPagePub.Data.UnitTests", "WebPagePub.Data.UnitTests\WebPagePub.Data.UnitTests.csproj", "{41C507CA-4525-43BA-B5E3-C76D78119669}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CI", "CI", "{33FBAC70-729B-4CFE-A13E-A21BF0A01E02}"
+	ProjectSection(SolutionItems) = preProject
+		..\CI-Tools\CI-Main.ps1 = ..\CI-Tools\CI-Main.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +78,10 @@ Global
 		{B5B2A74A-AAC5-4A7C-9FB5-AACED563DFC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5B2A74A-AAC5-4A7C-9FB5-AACED563DFC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5B2A74A-AAC5-4A7C-9FB5-AACED563DFC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41C507CA-4525-43BA-B5E3-C76D78119669}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41C507CA-4525-43BA-B5E3-C76D78119669}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41C507CA-4525-43BA-B5E3-C76D78119669}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41C507CA-4525-43BA-B5E3-C76D78119669}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,6 +89,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{7FE8A986-9D7D-42EE-8416-EC52633F7CCD} = {3A6F6450-EA5D-434A-8791-00AF51CC6477}
 		{B5B2A74A-AAC5-4A7C-9FB5-AACED563DFC2} = {3A6F6450-EA5D-434A-8791-00AF51CC6477}
+		{41C507CA-4525-43BA-B5E3-C76D78119669} = {3A6F6450-EA5D-434A-8791-00AF51CC6477}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1831A267-47C6-4B4D-9A60-6EF706BFA7CA}
