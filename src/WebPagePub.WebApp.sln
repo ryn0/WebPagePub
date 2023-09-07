@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.Services", "WebP
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3A6F6450-EA5D-434A-8791-00AF51CC6477}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.Core.UnitTests", "WebPagePub.Core.UnitTests\WebPagePub.Core.UnitTests.csproj", "{7FE8A986-9D7D-42EE-8416-EC52633F7CCD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.Core.UnitTests", "Tests\WebPagePub.Core.UnitTests\WebPagePub.Core.UnitTests.csproj", "{7FE8A986-9D7D-42EE-8416-EC52633F7CCD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Info", "Info", "{C4DB0176-DD7D-41F1-9EE0-105061D33BA8}"
 	ProjectSection(SolutionItems) = preProject
@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.ChatCommander", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.Managers", "WebPagePub.Managers\WebPagePub.Managers.csproj", "{8A1EBD57-2D24-4751-8934-A79219A4E542}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.ChatCommander.UnitTests", "WebPagePub.ChatCommander.UnitTests\WebPagePub.ChatCommander.UnitTests.csproj", "{B5B2A74A-AAC5-4A7C-9FB5-AACED563DFC2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.ChatCommander.UnitTests", "Tests\WebPagePub.ChatCommander.UnitTests\WebPagePub.ChatCommander.UnitTests.csproj", "{B5B2A74A-AAC5-4A7C-9FB5-AACED563DFC2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeAnalysis", "CodeAnalysis", "{C57AF652-42D6-4AED-A03C-A7CF06007F9A}"
 	ProjectSection(SolutionItems) = preProject
@@ -33,7 +33,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeAnalysis", "CodeAnalysi
 		stylecop.json = stylecop.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebPagePub.Data.UnitTests", "WebPagePub.Data.UnitTests\WebPagePub.Data.UnitTests.csproj", "{41C507CA-4525-43BA-B5E3-C76D78119669}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebPagePub.Data.UnitTests", "Tests\WebPagePub.Data.UnitTests\WebPagePub.Data.UnitTests.csproj", "{41C507CA-4525-43BA-B5E3-C76D78119669}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CI", "CI", "{33FBAC70-729B-4CFE-A13E-A21BF0A01E02}"
 	ProjectSection(SolutionItems) = preProject

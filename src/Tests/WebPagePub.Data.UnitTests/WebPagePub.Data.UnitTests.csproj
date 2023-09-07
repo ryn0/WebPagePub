@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
-		<CodeAnalysisRuleSet>../StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
+		<CodeAnalysisRuleSet>../../StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
 
 		<IsPackable>false</IsPackable>
 
@@ -24,13 +24,11 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
-
 	<ItemGroup>
-	
-		<ProjectReference Include="..\WebPagePub.Data\WebPagePub.Data.csproj" />
+		<AdditionalFiles Include="..\..\stylecop.json" />
 	</ItemGroup>
 	<ItemGroup>
-		<AdditionalFiles Include="..\stylecop.json" />
+	  <ProjectReference Include="..\..\WebPagePub.Data\WebPagePub.Data.csproj" />
 	</ItemGroup>
 
 	<PropertyGroup>
