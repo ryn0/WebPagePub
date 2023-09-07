@@ -42,8 +42,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.SitePageComment
-                              .FirstOrDefault(x => x.SitePageCommentId == sitePageCommentId);
+                return this.Context.SitePageComment.Find(sitePageCommentId);
             }
             catch (Exception ex)
             {

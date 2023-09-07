@@ -7,7 +7,7 @@ using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Implementations;
 using Xunit;
 
-namespace WebPagePub.Core.UnitTests.Repositories
+namespace WebPagePub.Data.UnitTests.RepositoriesTests
 {
     public class AuthorRepositoryTests
     {
@@ -59,7 +59,11 @@ namespace WebPagePub.Core.UnitTests.Repositories
         [Fact]
         public void GetAll_ShouldReturnAllAuthors()
         {
-            var authors = new List<Author> { /* list of authors */ };
+            var authors = new List<Author>
+            {
+                new Author() { FirstName = "Joe" },
+                new Author() { FirstName = "John" }
+            };
             var queryableAuthors = authors.AsQueryable();
 
             // Setup the DbSet to return the IQueryable

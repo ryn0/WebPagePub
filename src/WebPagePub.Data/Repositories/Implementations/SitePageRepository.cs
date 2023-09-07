@@ -314,8 +314,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var entry = this.Context.SitePage
-                              .FirstOrDefault(x => x.SitePageId == sitePageId);
+                var entry = this.Context.SitePage.Find(sitePageId);
 
                 this.Context.SitePage.Remove(entry);
                 this.Context.SaveChanges();
