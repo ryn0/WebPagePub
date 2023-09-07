@@ -25,6 +25,7 @@ namespace WebPagePub.Data.Repositories.Interfaces
         IList<SitePageComment> GetPage(int pageNumber, int quantityPerPage, out int total);
 
         int GetCommentCountForStatus(CommentStatus commentStatus);
+
         bool DeleteStaus(CommentStatus commentStatus);
     }
 }

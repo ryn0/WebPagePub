@@ -28,7 +28,18 @@ namespace WebPagePub.Data.Repositories.Implementations
             try
             {
                 var directory = new SiteFileDirectory();
+
+                if (this.blobService == null)
+                {
+                    return directory;
+                }
+
                 var container = this.blobService.GetContainerReference(StringConstants.ContainerName);
+
+                if (container == null)
+                {
+                    return directory;
+                }
 
                 if (prefix != null && prefix.StartsWith("/"))
                 {
@@ -185,6 +196,12 @@ namespace WebPagePub.Data.Repositories.Implementations
                 }
 
                 var container = this.blobService.GetContainerReference(StringConstants.ContainerName);
+
+                if (container == null)
+                {
+                    throw new Exception(nameof(container));
+                }
+
                 var blockBlob = container.GetBlockBlobReference(filePath);
 
                 stream.Seek(0, SeekOrigin.Begin);

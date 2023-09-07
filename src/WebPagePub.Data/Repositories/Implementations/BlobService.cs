@@ -31,6 +31,11 @@ namespace WebPagePub.Data.Repositories.Implementations
 
         public CloudBlobContainer GetContainerReference(string containerName)
         {
+            if (this.BlobClient == null)
+            {
+                return null;
+            }
+
             return this.BlobClient.GetContainerReference(containerName);
         }
 
