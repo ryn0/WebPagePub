@@ -13,7 +13,7 @@ namespace WebPagePub.Web.Controllers
     [Authorize(Roles = WebPagePub.Data.Constants.StringConstants.AdminRole)]
     public class SiteFilesManagementController : Controller
     {
-        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod()?.DeclaringType ?? typeof(SiteFilesManagementController));
 
         private readonly ISiteFilesRepository siteFilesRepository;
         private readonly ICacheService cacheService;
