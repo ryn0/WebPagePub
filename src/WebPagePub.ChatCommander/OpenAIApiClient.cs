@@ -57,7 +57,6 @@ namespace WebPagePub.ChatCommander
             }
         }
 
-
         public async Task<DalleImagesResponseModel> GenerateImage(ImageInputRequest prompt)
         {
             var resp = new DalleImagesResponseModel();
@@ -73,7 +72,12 @@ namespace WebPagePub.ChatCommander
                 if (Message.IsSuccessStatusCode)
                 {
                     var content = await Message.Content.ReadAsStringAsync();
-                    resp = JsonConvert.DeserializeObject<DalleImagesResponseModel>(content);
+                    var deserializedResponse = JsonConvert.DeserializeObject<DalleImagesResponseModel>(content);
+
+                    if (deserializedResponse != null)
+                    {
+                        resp = deserializedResponse;
+                    }
                 }
             }
             catch (Exception ex)
@@ -83,5 +87,6 @@ namespace WebPagePub.ChatCommander
 
             return resp;
         }
+
     }
 }

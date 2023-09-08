@@ -370,7 +370,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
             }
         }
 
-        public static T Deserialize<T>(string xml)
+        public static T Deserialize<T>(string xml) where T : class
         {
             if (string.IsNullOrEmpty(xml))
             {
@@ -380,14 +380,22 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
             try
             {
                 var xmlserializer = new XmlSerializer(typeof(T));
-                var stringReader = new StringReader(xml);
+                using var stringReader = new StringReader(xml);
                 using var reader = XmlReader.Create(stringReader);
-                return (T)xmlserializer.Deserialize(reader);
+                var result = xmlserializer.Deserialize(reader) as T;
+
+                if (result == null)
+                {
+                    throw new InvalidOperationException("Deserialization resulted in a null object.");
+                }
+
+                return result;
             }
             catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
         }
+
     }
 }

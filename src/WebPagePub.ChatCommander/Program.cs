@@ -156,15 +156,10 @@ string GetAzureConnectionString(IContentSnippetRepository? snippetsRepo)
 {
     if (snippetsRepo == null)
     {
-        return null;
+        return string.Empty;
     }
 
     var connectionString = snippetsRepo.Get(SiteConfigSetting.AzureStorageConnectionString);
 
-    if (connectionString == null)
-    {
-        return null;
-    }
-
-    return connectionString.Content;
+    return connectionString?.Content ?? string.Empty;
 }
