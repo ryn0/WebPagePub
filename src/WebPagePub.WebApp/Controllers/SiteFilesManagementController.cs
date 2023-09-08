@@ -28,7 +28,7 @@ namespace WebPagePub.Web.Controllers
 
         [Route("sitefilesmanagement/upload")]
         [HttpGet]
-        public ActionResult Upload(string folderPath = null)
+        public ActionResult Upload(string? folderPath = null)
         {
             this.ViewBag.UploadFolderPath = folderPath;
 
