@@ -52,7 +52,14 @@ namespace WebPagePub.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> FavIcon()
         {
-            return await this.ReturnContentAsync(this.Request.Path.Value);
+            var pathValue = this.Request.Path.Value;
+
+            if (string.IsNullOrEmpty(pathValue))
+            {
+                return BadRequest("Path value is missing.");
+            }
+
+            return await this.ReturnContentAsync(pathValue);
         }
 
         public string BuildPath(string fileName)

@@ -1,6 +1,5 @@
 ﻿namespace WebPagePub.Data.Enums
 {
-
     public enum CommentStatus : byte
     {
         Unknown = 0,
