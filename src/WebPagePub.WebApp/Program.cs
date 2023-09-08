@@ -81,7 +81,7 @@ if (snippet == null)
 
 var azureStorageConnection = snippet;
 
-CloudBlobClient cloudBlobClient = null;
+CloudBlobClient? cloudBlobClient = null;
 
 if (!string.IsNullOrEmpty(azureStorageConnection))
 {
