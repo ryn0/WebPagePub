@@ -86,7 +86,7 @@ namespace WebPagePub.Web.Controllers
         {
             var cacheKey = CacheHelper.GetLinkCacheKey(key);
 
-            if (this.memoryCache.TryGetValue(cacheKey, out string destination) && !string.IsNullOrEmpty(destination))
+            if (this.memoryCache.TryGetValue(cacheKey, out string? destination) && !string.IsNullOrEmpty(destination))
             {
                 return destination;
             }
