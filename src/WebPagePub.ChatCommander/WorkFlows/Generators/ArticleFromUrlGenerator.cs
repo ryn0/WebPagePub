@@ -261,19 +261,19 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
             }
 
             var siteMapUrlsRaw = await GetResponse(new Uri(this.SiteMapUrl));
-            var siteMapUrlsParsed = Deserialize<urlset>(siteMapUrlsRaw);
+            var siteMapUrlsParsed = Deserialize<UrlSet>(siteMapUrlsRaw);
 
-            foreach (var siteMapUrl in siteMapUrlsParsed.url)
+            foreach (var siteMapUrl in siteMapUrlsParsed.Url)
             {
                 Console.Write(".");
 
                 if (siteMapUrl == null || 
-                    string.IsNullOrWhiteSpace(siteMapUrl.loc))
+                    string.IsNullOrWhiteSpace(siteMapUrl.Loc))
                 {
                     continue;
                 }
 
-                var url = siteMapUrl.loc;
+                var url = siteMapUrl.Loc;
 
                 if (allowWords != null)
                 {
@@ -285,7 +285,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                         if (!listOfUrls.Contains(url) &&
                             responseFormatted.Contains(word))
                         {
-                            listOfUrls.Add(siteMapUrl.loc);
+                            listOfUrls.Add(siteMapUrl.Loc);
                             continue;
                         }
                     }

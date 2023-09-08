@@ -12,7 +12,7 @@ namespace WebPagePub.WebApp.Models
 
         public double Priority { get; set; }
 
-        public List<SiteMapImageItem> Images { get; set; }
+        public List<SiteMapImageItem> Images { get; set; } = new List<SiteMapImageItem>();
 
         public bool HasImage()
         {

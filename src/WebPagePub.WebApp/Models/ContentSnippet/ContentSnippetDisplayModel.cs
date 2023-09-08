@@ -6,6 +6,6 @@ namespace WebPagePub.WebApp.Models.ContentSnippet
     {
         public SiteConfigSetting SnippetType { get; set; }
 
-        public string Content { get; set; }
+        public string Content { get; set; } = string.Empty;
     }
 }
