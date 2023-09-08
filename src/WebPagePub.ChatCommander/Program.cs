@@ -105,18 +105,18 @@ IPageEditor pageEditor;
 switch (workflowSelectionEnum)
 {
     case Workflows.ArticleTopicExpansionGenerator:
-        var articleTopicSettings =
-            config.GetRequiredSection("ArticleTopicExpansionGenerator").Get<ArticleTopicExpansionGeneratorModel>();
-
+        var articleTopicSettings = config.GetRequiredSection("ArticleTopicExpansionGenerator").Get<ArticleTopicExpansionGeneratorModel>()
+            ?? throw new InvalidOperationException("ArticleTopicExpansionGenerator settings are missing or not correctly configured.");
         pageEditor = new ArticleTopicExpansionGenerator(
             chatGptSettings,
             sitePageManager,
             articleTopicSettings);
-        
+
         break;
     case Workflows.ArticleFromKeywordsGenerator:
         var articleKeywordsSettings =
-            config.GetRequiredSection("ArticleFromKeywordsGenerator").Get<ArticleFromKeywordsGeneratorModel>();
+            config.GetRequiredSection("ArticleFromKeywordsGenerator").Get<ArticleFromKeywordsGeneratorModel>()
+                        ?? throw new InvalidOperationException("ArticleFromKeywordsGenerator settings are missing or not correctly configured.");
 
         pageEditor = new ArticleFromKeywordsGenerator(
             chatGptSettings,
@@ -126,7 +126,8 @@ switch (workflowSelectionEnum)
         break;
     case Workflows.ArticleWithCalculatorGenerator:
         var articleCalculatorsSettings =
-            config.GetRequiredSection("ArticleWithCalculatorGenerator").Get<ArticleWithCalculatorGeneratorModel>();
+            config.GetRequiredSection("ArticleWithCalculatorGenerator").Get<ArticleWithCalculatorGeneratorModel>()
+                        ?? throw new InvalidOperationException("ArticleWithCalculatorGenerator settings are missing or not correctly configured.");
 
         pageEditor = new ArticleWithCalculatorGenerator(
             chatGptSettings,
@@ -136,7 +137,8 @@ switch (workflowSelectionEnum)
         break;
     case Workflows.ArticleFromUrlGenerator:
         var articleUrlSettings =
-            config.GetRequiredSection("ArticleFromUrlGenerator").Get<ArticleFromUrlGeneratorModel>();
+            config.GetRequiredSection("ArticleFromUrlGenerator").Get<ArticleFromUrlGeneratorModel>()
+             ?? throw new InvalidOperationException("ArticleFromUrlGenerator settings are missing or not correctly configured.");
 
         pageEditor = new ArticleFromUrlGenerator(
             chatGptSettings,

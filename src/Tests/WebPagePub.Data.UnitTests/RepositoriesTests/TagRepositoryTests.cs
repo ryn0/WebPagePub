@@ -81,7 +81,6 @@ namespace WebPagePub.Data.UnitTests.RepositoriesTests
             Assert.Equal(tag, result);
         }
 
-
         [Fact]
         public void Update_ValidTag_ReturnsTrue()
         {

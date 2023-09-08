@@ -11,7 +11,13 @@
 
         public static Uri GetAbsoluteUri()
         {
-            var request = httpContextAccessor.HttpContext.Request;
+            var context = httpContextAccessor.HttpContext;
+            if (context == null)
+            {
+                throw new InvalidOperationException("HttpContext is not available.");
+            }
+
+            var request = context.Request;
             UriBuilder uriBuilder = new()
             {
                 Scheme = request.Scheme,
@@ -19,6 +25,7 @@
                 Path = request.Path.ToString(),
                 Query = request.QueryString.ToString()
             };
+
             return uriBuilder.Uri;
         }
     }

@@ -615,11 +615,16 @@ namespace WebPagePub.Web.Controllers
         }
 
         private static void AddBlogPhotoToModel(
-            SitePageEditModel model, 
-            SitePagePhoto? photo, 
-            string blobPrefix, 
+            SitePageEditModel model,
+            SitePagePhoto? photo,
+            string blobPrefix,
             string cdnPrefix)
         {
+            if (photo == null)
+            {
+                return;
+            }
+
             model.BlogPhotos.Add(new SitePagePhotoModel
             {
                 SitePagePhotoId = photo.SitePagePhotoId,

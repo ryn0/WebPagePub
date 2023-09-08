@@ -49,7 +49,7 @@ namespace WebPagePub.Web.Controllers
 
         [Route("account/createaccount")]
         [HttpPost]
-        public IActionResult CreateAccount(RegistrationModel model)
+        public async Task<IActionResult> CreateAccount(RegistrationModel model)
         {
             if (!this.ModelState.IsValid)
             {
@@ -58,16 +58,16 @@ namespace WebPagePub.Web.Controllers
 
             if (!this.context.Roles.Any(r => r.Name == StringConstants.AdminRole))
             {
-                Task.Run(() => this.roleManager.CreateAsync(new IdentityRole(StringConstants.AdminRole))).Wait();
+                await this.roleManager.CreateAsync(new IdentityRole(StringConstants.AdminRole));
             }
 
-            var userResult = Task.Run(() => this.userManager.CreateAsync(
+            var userResult = await this.userManager.CreateAsync(
                 new ApplicationUser
                 {
                     UserName = model.Email,
                     Email = model.Email,
                     EmailConfirmed = true
-                }, model.Password)).Result;
+                }, model.Password);
 
             if (!userResult.Succeeded)
             {
@@ -75,8 +75,14 @@ namespace WebPagePub.Web.Controllers
                 return this.View(model);
             }
 
-            var addUserResult = Task.Run(() => this.userManager.AddToRoleAsync(
-                Task.Run(() => this.userManager.FindByNameAsync(model.Email)).Result, StringConstants.AdminRole)).Result;
+            var newUser = await this.userManager.FindByNameAsync(model.Email);
+            if (newUser == null)
+            {
+                this.ModelState.AddModelError(string.Empty, "User not found after creation.");
+                return this.View(model);
+            }
+
+            var addUserResult = await this.userManager.AddToRoleAsync(newUser, StringConstants.AdminRole);
 
             if (this.IsValidPassword(new LoginViewModel()
             {
@@ -162,12 +168,17 @@ namespace WebPagePub.Web.Controllers
             }
 
             var currentUser = await this.userManager.GetUserAsync(this.HttpContext.User);
+            if (currentUser == null)
+            {
+                this.ModelState.AddModelError(string.Empty, "Unable to retrieve current user.");
+                return this.View(model);
+            }
+
             var result = await this.userManager.ChangePasswordAsync(currentUser, model.CurrentPassword, model.NewPassword);
 
             if (!result.Succeeded)
             {
                 this.ModelState.AddModelError(string.Empty, string.Join(",", result.Errors.Select(x => x.Description)));
-
                 return this.View(model);
             }
 
@@ -180,36 +191,34 @@ namespace WebPagePub.Web.Controllers
 
             if (admin == null)
             {
-                admin = new IdentityRole(role.ToString());
+                admin = new IdentityRole(role);
                 await this.roleManager.CreateAsync(admin);
             }
 
-            if (!await this.userManager.IsInRoleAsync(user, admin.Name))
+            var roleName = admin.Name ?? role;
+
+            if (!await this.userManager.IsInRoleAsync(user, roleName))
             {
-                await this.userManager.AddToRoleAsync(user, admin.Name);
+                await this.userManager.AddToRoleAsync(user, roleName);
             }
         }
 
-        private bool EmailIsConfirmed(string email, out ApplicationUser applicationUser)
+        private bool EmailIsConfirmed(string email, out ApplicationUser? applicationUser)
         {
-            var user = Task.Run(() => this.userManager.FindByNameAsync(email)).Result;
+            var localUser = Task.Run(() => this.userManager.FindByNameAsync(email)).Result;
 
-            applicationUser = user;
-            applicationUser.EmailConfirmed = true;
-
-            this.userManager.UpdateAsync(applicationUser);
-
-            if (user == null)
+            if (localUser == null)
             {
+                applicationUser = null;
                 return false;
             }
 
-            if (Task.Run(() => this.userManager.IsEmailConfirmedAsync(user)).Result)
-            {
-                return true;
-            }
+            localUser.EmailConfirmed = true;
+            Task.Run(() => this.userManager.UpdateAsync(localUser)).Wait();
 
-            return false;
+            applicationUser = localUser;
+
+            return Task.Run(() => this.userManager.IsEmailConfirmedAsync(localUser)).Result;
         }
 
         private bool IsValidPassword(LoginViewModel model)

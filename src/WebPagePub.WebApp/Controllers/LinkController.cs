@@ -32,9 +32,10 @@ namespace WebPagePub.Web.Controllers
         {
             var url = this.GetLinkForKey(key);
 
-            if (url == null)
+            if (string.IsNullOrEmpty(url))
             {
-                this.Redirect("~/");
+                Response.Headers.Add("X-Robots-Tag", "noindex, nofollow");
+                return this.Redirect("~/");
             }
 
             Response.Headers.Add("X-Robots-Tag", "noindex, nofollow");
@@ -46,16 +47,24 @@ namespace WebPagePub.Web.Controllers
 
         private async Task LogClickAsync()
         {
-            var userAgent = this.httpContextAccessor.HttpContext.Request?.Headers[StringConstants.UserAgent].ToString();
+            var context = this.httpContextAccessor?.HttpContext;
+            if (context == null) return;
 
-            var headers = this.GetHeadersString(this.httpContextAccessor.HttpContext.Request);
+            var request = context.Request;
+            if (request == null) return;
 
-            if (!StringConstants.BotUserAgents.Any(userAgent.Contains))
+            var userAgent = request.Headers[StringConstants.UserAgent].ToString();
+            var headers = this.GetHeadersString(request);
+
+            if (userAgent != null && !StringConstants.BotUserAgents.Any(bot => userAgent.Contains(bot)))
             {
+                var ipAddress = context.Connection?.RemoteIpAddress?.ToString();
+                var url = request.GetDisplayUrl();
+
                 await this.clickLogRepository.CreateAsync(new ClickLog()
                 {
-                    IpAddress = this.httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString(),
-                    Url = this.httpContextAccessor.HttpContext?.Request?.GetDisplayUrl(),
+                    IpAddress = ipAddress,
+                    Url = url,
                     Headers = headers
                 });
             }

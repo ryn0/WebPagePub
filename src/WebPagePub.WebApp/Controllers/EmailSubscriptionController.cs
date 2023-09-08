@@ -30,7 +30,17 @@ namespace WebPagePub.Web.Controllers
                 throw new Exception("invalid email submission");
             }
 
-            var ipAddress = this.accessor.HttpContext.Connection.RemoteIpAddress.ToString();
+            var context = this.accessor.HttpContext;
+            if (context == null)
+            {
+                throw new InvalidOperationException("HttpContext is not available.");
+            }
+
+            var ipAddress = context.Connection.RemoteIpAddress?.ToString();
+            if (string.IsNullOrEmpty(ipAddress))
+            {
+                throw new InvalidOperationException("IP address is not available.");
+            }
 
             if (spamFilterService.IsBlocked(ipAddress))
             {

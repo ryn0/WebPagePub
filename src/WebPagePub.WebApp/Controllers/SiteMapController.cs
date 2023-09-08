@@ -197,6 +197,11 @@ namespace WebPagePub.Web.Controllers
             List<SitePage> allPagesInSection,
             SitePage? indexPage)
         {
+            if (indexPage == null)
+            {
+                return;
+            }
+
             var sectionUrl = this.GetSectionUrl(section, indexPage);
 
             var siteSectionPage =

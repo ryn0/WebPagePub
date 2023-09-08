@@ -206,7 +206,17 @@ namespace WebPagePub.Web.Controllers
                 return this.View("CommentError");
             }
 
-            var ipAddress = this.accessor.HttpContext.Connection.RemoteIpAddress.ToString();
+            var context = this.accessor.HttpContext;
+            if (context == null)
+            {
+                throw new InvalidOperationException("HttpContext is not available.");
+            }
+
+            var ipAddress = context.Connection.RemoteIpAddress?.ToString();
+            if (string.IsNullOrEmpty(ipAddress))
+            {
+                throw new InvalidOperationException("IP address is not available.");
+            }
 
             if (this.spamFilterService.IsBlocked(ipAddress))
             {
@@ -525,12 +535,12 @@ namespace WebPagePub.Web.Controllers
                     sitePageRepository.GetNextEntry(sitePage.PublishDateTimeUtc, now, sitePage.SitePageSectionId));
                 displayModel.PreviousAndNext = new PreviousAndNextModel()
                 {
-                    DefaultNextPhotoThumbCdnUrl = next?.DefaultPhotoThumbCdnUrl,
-                    DefaultPreviousPhotoThumbCdnUrl = previous?.DefaultPhotoThumbCdnUrl,
-                    NextName = next?.BreadcrumbName,
-                    NextUrlPath = next?.UrlPath,
-                    PreviousUrlPath = previous?.UrlPath,
-                    PreviousName = previous?.BreadcrumbName
+                    DefaultNextPhotoThumbCdnUrl = next?.DefaultPhotoThumbCdnUrl ?? string.Empty,
+                    DefaultPreviousPhotoThumbCdnUrl = previous?.DefaultPhotoThumbCdnUrl ?? string.Empty,
+                    NextName = next?.BreadcrumbName ?? string.Empty,
+                    NextUrlPath = next?.UrlPath ?? string.Empty,
+                    PreviousUrlPath = previous?.UrlPath ?? string.Empty,
+                    PreviousName = previous?.BreadcrumbName ?? string.Empty
                 };
             }
 
@@ -575,7 +585,8 @@ namespace WebPagePub.Web.Controllers
             var blobPrefix = this.cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
             var cdnPrefix = this.cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
             Uri canonicalUrl = SetCanonicalUrl();
-            var defaultPhotoUrl = sitePage?.Photos.FirstOrDefault(x => x.IsDefault == true);
+
+            var defaultPhotoUrl = sitePage.Photos.FirstOrDefault(x => x.IsDefault == true);
 
             var displayModel = CreateDisplayModel(
                 sitePageSection,
@@ -612,13 +623,16 @@ namespace WebPagePub.Web.Controllers
         }
 
         private SitePageContentModel CreateDisplayModel(
-            SitePageSection sitePageSection, 
-            SitePage sitePage, 
-            string blobPrefix, 
-            string cdnPrefix, 
-            Uri canonicalUrl, 
+            SitePageSection sitePageSection,
+            SitePage sitePage,
+            string blobPrefix,
+            string cdnPrefix,
+            Uri canonicalUrl,
             SitePagePhoto? defaultPhotoUrl)
         {
+            string? originalUrl = defaultPhotoUrl?.PhotoFullScreenUrl;
+            string? thumbUrl = defaultPhotoUrl?.PhotoThumbUrl;
+
             return new SitePageContentModel()
             {
                 BreadcrumbName = sitePage.BreadcrumbName,
@@ -629,14 +643,14 @@ namespace WebPagePub.Web.Controllers
                 LastUpdatedDateTimeUtc = sitePage.UpdateDate ?? sitePage.CreateDate,
                 PublishedDateTimeUtc = sitePage.PublishDateTimeUtc,
                 CanonicalUrl = canonicalUrl.ToString(),
-                PhotoOriginalUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, defaultPhotoUrl?.PhotoFullScreenUrl),
-                PhotoUrlHeight = defaultPhotoUrl != null ? defaultPhotoUrl.PhotoFullScreenUrlHeight : 0,
-                PhotoUrlWidth = defaultPhotoUrl != null ? defaultPhotoUrl.PhotoFullScreenUrlWidth : 0,
+                PhotoOriginalUrl = originalUrl != null ? this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, originalUrl) : string.Empty,
+                PhotoUrlHeight = defaultPhotoUrl?.PhotoFullScreenUrlHeight ?? 0,
+                PhotoUrlWidth = defaultPhotoUrl?.PhotoFullScreenUrlWidth ?? 0,
                 MetaKeywords = sitePage.MetaKeywords,
                 UrlPath = UrlBuilder.BlogUrlPath(sitePageSection.Key, sitePage.Key),
                 Key = sitePage.Key,
                 SectionKey = sitePageSection.Key,
-                DefaultPhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, defaultPhotoUrl?.PhotoThumbUrl),
+                DefaultPhotoThumbCdnUrl = thumbUrl != null ? this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, thumbUrl) : string.Empty,
                 ExcludePage = sitePage.ExcludePageFromSiteMapXml
             };
         }

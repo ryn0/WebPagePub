@@ -57,6 +57,5 @@ namespace WebPagePub.Data.UnitTests.RepositoriesTests
 
             Assert.Equal(comment, result);
         }
-
     }
 }
