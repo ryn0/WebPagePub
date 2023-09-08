@@ -21,7 +21,6 @@ namespace WebPagePub.Data.UnitTests.RepositoriesTests
 
             this.contextMock.Setup(c => c.SitePageSection.Add(It.IsAny<SitePageSection>()));
             this.contextMock.Setup(c => c.SaveChanges()).Returns(1); // Assuming save changes will be successful
-
         }
 
         [Fact]
@@ -81,6 +80,5 @@ namespace WebPagePub.Data.UnitTests.RepositoriesTests
             Assert.NotNull(result);
             Assert.Equal("testKey", result.Key);
         }
-
     }
 }
