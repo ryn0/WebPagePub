@@ -4,7 +4,7 @@
     {
         public bool IsSiteSectionPage { get; set; }
 
-        public string SearchTerm { get; set; }
+        public string SearchTerm { get; set; } = string.Empty;
 
         public int PageCount { get; set; }
 
