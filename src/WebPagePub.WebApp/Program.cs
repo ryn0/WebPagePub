@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Enums;
@@ -74,15 +75,17 @@ builder.Services.AddTransient<IBlobService>(provider =>
     var cacheService = provider.GetRequiredService<ICacheService>();
     var azureStorageConnection = cacheService.GetSnippet(SiteConfigSetting.AzureStorageConnectionString);
 
-    if (string.IsNullOrEmpty(azureStorageConnection))
+    if (!string.IsNullOrEmpty(azureStorageConnection))
     {
-        throw new InvalidOperationException($"The snippet for {nameof(SiteConfigSetting.AzureStorageConnectionString)} is not available.");
+        var azureConnection = CloudStorageAccount.Parse(azureStorageConnection);
+        var cloudBlobClient = azureConnection.CreateCloudBlobClient();
+
+        return new BlobService(cloudBlobClient);
     }
-
-    var azureConnection = CloudStorageAccount.Parse(azureStorageConnection);
-    var cloudBlobClient = azureConnection.CreateCloudBlobClient();
-
-    return new BlobService(cloudBlobClient);
+    else
+    {
+       return new BlobService(null);
+    }
 });
 
 builder.Services.AddTransient<ISpamFilterService>(provider =>
