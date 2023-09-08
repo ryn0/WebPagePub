@@ -56,11 +56,11 @@ else
 
 
 @{
-    int pageCount = Model.PageCount;
+    int pageCount = Model?.PageCount ?? 0;
 
     for (int pageNumber = 1; pageNumber <= pageCount; pageNumber++)
     {
-        if (Model.CurrentPageNumber == pageNumber)
+        if (Model?.CurrentPageNumber == pageNumber)
         {
             @pageNumber
         }

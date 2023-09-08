@@ -370,10 +370,12 @@ namespace WebPagePub.Web.Controllers
 
         private bool IsSectionPagePathDuplicateContent(SitePageDisplayModel model)
         {
+            string pathValue = Request.Path.Value ?? string.Empty;
+
             return model.IsSectionHomePage &&
-                   !Request.Path.Value.Contains(string.Format("/{0}/page", model.SectionKey)) &&
-                   !Request.Path.Value.EndsWith(string.Format("/{0}", model.SectionKey)) &&
-                   Request.Path != "/";
+                   !pathValue.Contains(string.Format("/{0}/page", model.SectionKey)) &&
+                   !pathValue.EndsWith(string.Format("/{0}", model.SectionKey)) &&
+                   pathValue != "/";
         }
 
         private SitePageDisplayModel CreateDisplayListModel(
