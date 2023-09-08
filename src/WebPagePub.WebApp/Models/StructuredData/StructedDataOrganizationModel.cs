@@ -21,19 +21,19 @@ namespace WebPagePub.WebApp.Models.StructuredData
         public string @Type { get; set; } = "Organization";
 
         [JsonProperty("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [JsonProperty("description")]
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         [JsonProperty("url")]
-        public string Url { get; set; }
+        public string Url { get; set; } = string.Empty;
 
         [JsonProperty("logo")]
-        public string Logo { get; set; }
+        public string Logo { get; set; } = string.Empty;
 
         [JsonProperty("sameAs")]
-        public string[] SameAs { get; set; }
+        public string[] SameAs { get; set; } = Array.Empty<string>();
 
         private void SetProperties()
         {
