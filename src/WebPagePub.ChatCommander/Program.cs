@@ -32,7 +32,7 @@ var serviceProvider = new ServiceCollection()
 
 var snippetsRepo = serviceProvider.GetService<IContentSnippetRepository>();
 var azureStorageConnection = GetAzureConnectionString(snippetsRepo);
-CloudBlobClient cloudBlobClient = null;
+CloudBlobClient? cloudBlobClient = null;
 
 if (!string.IsNullOrEmpty(azureStorageConnection))
 {
