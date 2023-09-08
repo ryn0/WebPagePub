@@ -104,6 +104,7 @@ namespace WebPagePub.Data.UnitTests.RepositoriesTests
             {
                 new SitePageTag { TagId = 1, SitePageId = 2 },
                 new SitePageTag { TagId = 3, SitePageId = 4 },
+
                 // ... other tags as needed
             }.AsQueryable();
 
@@ -130,6 +131,7 @@ namespace WebPagePub.Data.UnitTests.RepositoriesTests
             {
                 new SitePageTag { TagId = 1, SitePageId = 2, SitePage = new SitePage { IsLive = true } },
                 new SitePageTag { TagId = 3, SitePageId = 4, SitePage = new SitePage { IsLive = false } },
+
                 // ... other tags as needed
             }.AsQueryable();
 

@@ -77,13 +77,18 @@ namespace WebPagePub.Web.Controllers
         {
             var cacheKey = CacheHelper.GetLinkCacheKey(key);
 
-            if (this.memoryCache.TryGetValue(cacheKey, out string destination))
+            if (this.memoryCache.TryGetValue(cacheKey, out string destination) && !string.IsNullOrEmpty(destination))
             {
                 return destination;
             }
             else
             {
                 var link = this.linkRedirectionRepository.Get(key);
+
+                if (link == null || string.IsNullOrEmpty(link.UrlDestination))
+                {
+                    return string.Empty; // or any other default value you'd want to return
+                }
 
                 this.memoryCache.Set(cacheKey, link.UrlDestination);
 
