@@ -106,7 +106,6 @@ namespace WebPagePub.Core.UnitTests.UtilitiesTests
             // Red, Green
             // Blue, Yellow
             // White, Black
-
             image.SetPixel(0, 0, Color.Red);
             image.SetPixel(1, 0, Color.Green);
             image.SetPixel(0, 1, Color.Blue);
@@ -120,7 +119,6 @@ namespace WebPagePub.Core.UnitTests.UtilitiesTests
             // After rotating the above 2x3 image by 90 degrees clockwise, we should get a 3x2 image:
             // White, Blue, Red
             // Black, Yellow, Green
-
             image.SetPixel(0, 0, Color.White);
             image.SetPixel(1, 0, Color.Blue);
             image.SetPixel(2, 0, Color.Red);
