@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Text;
 using WebPagePub.ChatCommander.Models.ChatModels;
 using WebPagePub.ChatCommander.Models.SettingsModels;
@@ -46,10 +47,16 @@ namespace WebPagePub.ChatCommander
                 // Read the response as a string
                 var resContext = await responseContent.Content.ReadAsStringAsync();
 
-                // Deserialize the response into a dynamic object
-                var data = JsonConvert.DeserializeObject<dynamic>(resContext);
+                // Deserialize the response into a JObject
+                var data = JsonConvert.DeserializeObject<JObject>(resContext);
 
-                return data.choices[0].text;
+                // Check if data is not null, and if "choices" and the "text" property within the first choice exist
+                if (data?["choices"] is JArray choices && choices.Count > 0 && choices[0]["text"] is JToken textToken)
+                {
+                    return textToken.Value<string>() ?? throw new Exception("Text value is null.");
+                }
+
+                throw new Exception("Unexpected response structure.");
             }
             catch (Exception ex)
             {

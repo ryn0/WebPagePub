@@ -1,4 +1,4 @@
 ﻿@{
     ViewData["Title"] = "Home";
 }
- <p>Home @User.Identity.Name</p>
+<p>Home @User?.Identity?.Name ?? "Not signed in"</p>
