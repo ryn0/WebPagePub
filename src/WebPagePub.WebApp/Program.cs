@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
+using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models;
+using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Implementations;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Managers.Implementations;
@@ -65,40 +67,34 @@ builder.Services.AddTransient<IEmailSender>(x => new AmazonMailService(
 
 builder.Services.AddTransient<IImageUploaderService, ImageUploaderService>();
 
-var sp = builder.Services.BuildServiceProvider();
+builder.Services.AddTransient<ISiteFilesRepository, SiteFilesRepository>();
 
-var cacheService = sp.GetService<ICacheService>();
-if (cacheService == null)
+builder.Services.AddTransient<IBlobService>(provider =>
 {
-    throw new InvalidOperationException("Cache service is not initialized.");
-}
+    var cacheService = provider.GetRequiredService<ICacheService>();
+    var azureStorageConnection = cacheService.GetSnippet(SiteConfigSetting.AzureStorageConnectionString);
 
-var snippet = cacheService.GetSnippet(SiteConfigSetting.AzureStorageConnectionString);
-if (snippet == null)
-{
-    throw new InvalidOperationException($"The snippet for {nameof(SiteConfigSetting.AzureStorageConnectionString)} is not available.");
-}
+    if (string.IsNullOrEmpty(azureStorageConnection))
+    {
+        throw new InvalidOperationException($"The snippet for {nameof(SiteConfigSetting.AzureStorageConnectionString)} is not available.");
+    }
 
-var azureStorageConnection = snippet;
-
-CloudBlobClient? cloudBlobClient = null;
-
-if (!string.IsNullOrEmpty(azureStorageConnection))
-{
     var azureConnection = CloudStorageAccount.Parse(azureStorageConnection);
-    cloudBlobClient = azureConnection.CreateCloudBlobClient();
-}
+    var cloudBlobClient = azureConnection.CreateCloudBlobClient();
 
-builder.Services.AddSingleton<IBlobService>(provider => 
-    new BlobService(cloudBlobClient))
-   .AddSingleton<ISiteFilesRepository, SiteFilesRepository>();
+    return new BlobService(cloudBlobClient);
+});
 
-var blockedIPRepository = sp.GetService<IBlockedIPRepository>();
+builder.Services.AddTransient<ISpamFilterService>(provider =>
+{
+    var config = provider.GetRequiredService<IConfiguration>();
+    var blockedIPRepo = provider.GetRequiredService<IBlockedIPRepository>();
 
-builder.Services.AddTransient<ISpamFilterService>(x => new SpamFilterService(
-              blockedIPRepository,
-              builder.Configuration.GetSection("NeutrinoApi:UserId").Value,
-              builder.Configuration.GetSection("NeutrinoApi:ApiKey").Value));
+    return new SpamFilterService(
+        blockedIPRepo,
+        config.GetSection("NeutrinoApi:UserId").Value,
+        config.GetSection("NeutrinoApi:ApiKey").Value);
+});
 
 var app = builder.Build();
 
@@ -110,27 +106,36 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-var options = new RewriteOptions()
-    .AddRedirectToHttpsPermanent()
-    .Add(new RedirectWwwToNonWwwRule());
-
-var redirects = sp.GetService<IRedirectPathRepository>();
-var allRedirects = redirects?.GetAll();
-
 app.Use(async (context, next) =>
 {
-    if (allRedirects != null)
+    var memoryCache = context.RequestServices.GetService<IMemoryCache>();
+
+    if (memoryCache != null)
     {
-        var path = context.Request.Path.Value;
-
-        if (path != null)
+        if (!memoryCache.TryGetValue(StringConstants.RedirectsCacheKey, out IList<RedirectPath>? redirects))
         {
-            var redirect = allRedirects.FirstOrDefault(x => x.Path.EndsWith(path));
+            var redirectsRepo = context.RequestServices.GetService<IRedirectPathRepository>();
+            redirects = redirectsRepo?.GetAll();
 
-            if (redirect != null)
+            if (redirects != null)
             {
-                context.Response.Redirect(redirect.PathDestination, true);
-                context.Request.Path = redirect.PathDestination;
+                memoryCache.Set(StringConstants.RedirectsCacheKey, redirects, TimeSpan.FromHours(IntegerConstants.PageCachingMinutes));
+            }
+        }
+
+        if (redirects != null)
+        {
+            var path = context.Request.Path.Value;
+
+            if (!string.IsNullOrEmpty(path))
+            {
+                var redirect = redirects.FirstOrDefault(x => x.Path.EndsWith(path));
+
+                if (redirect != null)
+                {
+                    context.Response.Redirect(redirect.PathDestination, true);
+                    context.Request.Path = redirect.PathDestination;
+                }
             }
         }
     }
@@ -138,6 +143,10 @@ app.Use(async (context, next) =>
     await next();
 });
 
+var options = new RewriteOptions()
+    .AddRedirectToHttpsPermanent()
+    .Add(new RedirectWwwToNonWwwRule());
+ 
 app.UseRewriter(options);
 
 app.UseStaticFiles();
