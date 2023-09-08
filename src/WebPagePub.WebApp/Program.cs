@@ -68,7 +68,18 @@ builder.Services.AddTransient<IImageUploaderService, ImageUploaderService>();
 var sp = builder.Services.BuildServiceProvider();
 
 var cacheService = sp.GetService<ICacheService>();
-var azureStorageConnection = cacheService.GetSnippet(SiteConfigSetting.AzureStorageConnectionString);
+if (cacheService == null)
+{
+    throw new InvalidOperationException("Cache service is not initialized.");
+}
+
+var snippet = cacheService.GetSnippet(SiteConfigSetting.AzureStorageConnectionString);
+if (snippet == null)
+{
+    throw new InvalidOperationException($"The snippet for {nameof(SiteConfigSetting.AzureStorageConnectionString)} is not available.");
+}
+
+var azureStorageConnection = snippet;
 
 CloudBlobClient cloudBlobClient = null;
 
