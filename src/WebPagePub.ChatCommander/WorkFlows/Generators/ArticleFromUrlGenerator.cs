@@ -70,7 +70,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 
             foreach (var url in allUrls)
             {
-                if (string.IsNullOrWhiteSpace(url) || !Uri.TryCreate(url, UriKind.Absolute, result: out Uri uri))
+                if (string.IsNullOrWhiteSpace(url) || !Uri.TryCreate(url!, UriKind.Absolute, out Uri? uri) || uri == null)
                 {
                     continue;
                 }

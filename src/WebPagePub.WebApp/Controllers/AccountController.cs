@@ -203,13 +203,13 @@ namespace WebPagePub.Web.Controllers
             }
         }
 
-        private bool EmailIsConfirmed(string email, out ApplicationUser? applicationUser)
+        private bool EmailIsConfirmed(string email, out ApplicationUser applicationUser)
         {
             var localUser = Task.Run(() => this.userManager.FindByNameAsync(email)).Result;
 
             if (localUser == null)
             {
-                applicationUser = null;
+                applicationUser = new ApplicationUser(); // Default instance
                 return false;
             }
 
