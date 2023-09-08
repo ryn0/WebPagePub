@@ -2,7 +2,7 @@
 {
     public static class ContextHelper
     {
-        private static IHttpContextAccessor httpContextAccessor;
+        private static IHttpContextAccessor httpContextAccessor = new HttpContextAccessor();
 
         public static void Configure(IHttpContextAccessor httpContextAccessor)
         {
