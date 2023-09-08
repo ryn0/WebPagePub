@@ -82,17 +82,17 @@ else
     <i>No pages</i>
 }
 @{
-    int pageCount = Model.PageCount;
+    int pageCount = Model?.PageCount ?? 1;
 
     for (int pageNumber = 1; pageNumber <= pageCount; pageNumber++)
     {
-        if (Model.CurrentPageNumber == pageNumber)
+        if (Model?.CurrentPageNumber == pageNumber)
         {
             @pageNumber
         }
         else
         {
-            <a href="@Url.Content("~/sitepages/search?term=" + Model.SearchTerm + "&pageNumber=" + pageNumber.ToString())">@pageNumber.ToString()</a>
+            <a href="@Url.Content("~/sitepages/search?term=" + Model?.SearchTerm + "&pageNumber=" + pageNumber.ToString())">@pageNumber.ToString()</a>
         }
     }
 
