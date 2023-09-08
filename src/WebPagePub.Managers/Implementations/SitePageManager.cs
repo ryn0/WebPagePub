@@ -59,51 +59,16 @@ namespace WebPagePub.Managers.Implementations
             }
         }
 
-        public SitePage ConvertToDbModel(
-            SitePageEditModel model,
-            string userId)
-        {
-            var dbModel = this.sitePageRepository.Get(model.SitePageId);
-
-            if (string.IsNullOrWhiteSpace(dbModel.CreatedByUserId))
-            {
-                dbModel.CreatedByUserId = userId;
-            }
-
-            dbModel.SitePageSectionId = model.SitePageSectionId;
-            dbModel.UpdatedByUserId = userId;
-            dbModel.Key = model.Key.UrlKey();
-            dbModel.BreadcrumbName = model.BreadcrumbName.Trim();
-            dbModel.PublishDateTimeUtc = model.PublishDateTimeUtc;
-            dbModel.Content = model.Content;
-            dbModel.Title = model.Title.Trim();
-            dbModel.PageHeader = model.PageHeader;
-            dbModel.IsLive = model.IsLive;
-            dbModel.ExcludePageFromSiteMapXml = model.ExcludePageFromSiteMapXml;
-            dbModel.MetaDescription = (model.MetaDescription != null) ? model.MetaDescription.Trim() : string.Empty;
-            dbModel.PageType = model.PageType;
-            dbModel.ReviewBestValue = model.ReviewBestValue;
-            dbModel.ReviewItemName = model.ReviewItemName;
-            dbModel.ReviewRatingValue = model.ReviewRatingValue;
-            dbModel.ReviewWorstValue = model.ReviewWorstValue;
-            dbModel.MetaKeywords = (model.MetaKeywords != null) ? model.MetaKeywords.Trim() : string.Empty;
-            dbModel.AllowsComments = model.AllowsComments;
-            dbModel.IsSectionHomePage = model.IsSectionHomePage;
-            dbModel.AuthorId = model.AuthorId;
-
-            return dbModel;
-        }
-
         public bool DoesPageExist(int siteSectionId, string pageKey)
         {
-            var page = this.sitePageRepository.Get(siteSectionId, pageKey);
+            var page = sitePageRepository.Get(siteSectionId, pageKey);
 
             return page != null && page.SitePageId > 0;
         }
 
         public SitePageSection GetSiteSection(string key)
         {
-            return this.siteSectionRepository.Get(key);
+            return siteSectionRepository.Get(key);
         }
 
         public SitePageSection CreateSiteSection(
@@ -111,14 +76,14 @@ namespace WebPagePub.Managers.Implementations
             string sitePageSectionKey,
             string createdByUserId)
         {
-            var siteSection = this.siteSectionRepository.Create(new SitePageSection()
+            var siteSection = siteSectionRepository.Create(new SitePageSection()
             {
                 Title = sitePageName.Trim(),
                 Key = sitePageSectionKey.Trim().UrlKey(),
                 BreadcrumbName = sitePageName.Trim()
             });
 
-            this.sitePageRepository.Create(new SitePage()
+            sitePageRepository.Create(new SitePage()
             {
                 Title = siteSection.Title,
                 Key = StringConstants.DefaultKey,
@@ -137,29 +102,29 @@ namespace WebPagePub.Managers.Implementations
 
         public SitePageSection GetSiteSection(int sitePageSectionId)
         {
-            return this.siteSectionRepository.Get(sitePageSectionId);
+            return siteSectionRepository.Get(sitePageSectionId);
         }
 
         public IList<SitePage> GetSitePages(int pageNumber, int siteSectionId, int quantityPerPage, out int total)
         {
-            return this.sitePageRepository.GetPage(pageNumber, siteSectionId, quantityPerPage, out total);
+            return sitePageRepository.GetPage(pageNumber, siteSectionId, quantityPerPage, out total);
         }
 
         public void DeleteSiteSection(int siteSectionId)
         {
-            this.siteSectionRepository.Delete(siteSectionId);
+            siteSectionRepository.Delete(siteSectionId);
         }
 
         public bool UpdateSiteSection(SitePageSection siteSection)
         {
-            return this.siteSectionRepository.Update(siteSection);
+            return siteSectionRepository.Update(siteSection);
         }
 
         public async Task<SitePagePhoto> SetPhotoAsDefaultAsync(int sitePagePhotoId)
         {
             try
             {
-                var entry = this.sitePagePhotoRepository.Get(sitePagePhotoId);
+                var entry = sitePagePhotoRepository.Get(sitePagePhotoId);
 
                 Bitmap img;
 
@@ -171,12 +136,12 @@ namespace WebPagePub.Managers.Implementations
 
                 entry.PhotoFullScreenUrlHeight = img.Height;
                 entry.PhotoFullScreenUrlWidth = img.Width;
-                this.sitePagePhotoRepository.Update(entry);
+                sitePagePhotoRepository.Update(entry);
 
-                this.sitePagePhotoRepository.SetDefaultPhoto(sitePagePhotoId);
+                sitePagePhotoRepository.SetDefaultPhoto(sitePagePhotoId);
 
-                var sitePage = this.sitePageRepository.Get(entry.SitePageId);
-                var sitePageSection = this.siteSectionRepository.Get(sitePage.SitePageSectionId);
+                var sitePage = sitePageRepository.Get(entry.SitePageId);
+                var sitePageSection = siteSectionRepository.Get(sitePage.SitePageSectionId);
                 img.Dispose();
 
                 return entry;
@@ -189,19 +154,19 @@ namespace WebPagePub.Managers.Implementations
 
         public IEnumerable<SitePageSection> GetAllSiteSection()
         {
-            return this.siteSectionRepository.GetAll();
+            return siteSectionRepository.GetAll();
         }
 
         public SitePage CreatePage(SitePage sitePage)
         {
-            return this.sitePageRepository.Create(sitePage);
+            return sitePageRepository.Create(sitePage);
         }
 
         public async Task<int> DeletePhotoAsync(int sitePagePhotoId)
         {
-            var sitePageId = this.sitePagePhotoRepository.Get(sitePagePhotoId).SitePageId;
+            var sitePageId = sitePagePhotoRepository.Get(sitePagePhotoId).SitePageId;
 
-            await this.DeleteBlogPhoto(sitePagePhotoId);
+            await DeleteBlogPhoto(sitePagePhotoId);
 
             ReOrderPhotos(sitePagePhotoId, sitePageId);
 
@@ -210,7 +175,7 @@ namespace WebPagePub.Managers.Implementations
 
         public SitePagePhoto RankPhotoUp(int sitePagePhotoId)
         {
-            var entry = this.sitePagePhotoRepository.Get(sitePagePhotoId);
+            var entry = sitePagePhotoRepository.Get(sitePagePhotoId);
 
             if (entry.Rank == 1)
             {
@@ -252,17 +217,17 @@ namespace WebPagePub.Managers.Implementations
         }
 
         public async Task UploadPhotos(
-            int sitePageId, 
+            int sitePageId,
             IList<Tuple<string, MemoryStream>> fileNameAndImageMemoryStream)
         {
-            var allBlogPhotos = this.sitePagePhotoRepository.GetBlogPhotos(sitePageId);
+            var allBlogPhotos = sitePagePhotoRepository.GetBlogPhotos(sitePageId);
             var highestRank = allBlogPhotos.Count();
             int currentRank = highestRank;
             var isFirstPhotoToSitePage = allBlogPhotos.Count() == 0;
 
             try
             {
-                var folderPath = this.GetBlogPhotoFolder(sitePageId);
+                var folderPath = GetBlogPhotoFolder(sitePageId);
 
                 foreach (var image in fileNameAndImageMemoryStream)
                 {
@@ -286,20 +251,20 @@ namespace WebPagePub.Managers.Implementations
 
         public async Task DeletePage(int sitePageId)
         {
-            var sitePage = this.sitePageRepository.Get(sitePageId);
+            var sitePage = sitePageRepository.Get(sitePageId);
 
             foreach (var photo in sitePage.Photos)
             {
-                await this.DeleteBlogPhoto(photo.SitePageId);
+                await DeleteBlogPhoto(photo.SitePageId);
             }
 
-            var task = Task.Run(() => this.sitePageRepository.Delete(sitePageId));
+            var task = Task.Run(() => sitePageRepository.Delete(sitePageId));
             var myOutput = await task;
         }
 
         public async Task<int> Rotate90DegreesAsync(int sitePagePhotoId)
         {
-            var entry = this.sitePagePhotoRepository.Get(sitePagePhotoId);
+            var entry = sitePagePhotoRepository.Get(sitePagePhotoId);
 
             // todo: store original and rotate it, resize it, to low quality loss
 
@@ -318,7 +283,7 @@ namespace WebPagePub.Managers.Implementations
                 entry.PhotoThumbUrl = photoThumbUrl.ToString();
                 entry.PhotoFullScreenUrl = photoFullScreenUrl.ToString();
 
-                this.sitePagePhotoRepository.Update(entry);
+                sitePagePhotoRepository.Update(entry);
             }
 
             return entry.SitePageId;
@@ -327,14 +292,14 @@ namespace WebPagePub.Managers.Implementations
 
         private async Task<Uri> RotateImage90Degrees(int sitePageId, string photoUrl)
         {
-            var folderPath = this.GetBlogPhotoFolder(sitePageId);
-            var stream = await this.imageUploaderService.ToStreamAsync(new Uri(photoUrl));
+            var folderPath = GetBlogPhotoFolder(sitePageId);
+            var stream = await imageUploaderService.ToStreamAsync(new Uri(photoUrl));
             var rotatedBitmap = ImageUtilities.Rotate90Degrees(Image.FromStream(stream));
-            var streamRotated = this.imageUploaderService.ToAStream(
+            var streamRotated = imageUploaderService.ToAStream(
                 rotatedBitmap,
-                this.imageUploaderService.SetImageFormat(photoUrl));
+                imageUploaderService.SetImageFormat(photoUrl));
 
-            var url = await this.siteFilesRepository.UploadAsync(
+            var url = await siteFilesRepository.UploadAsync(
                                         streamRotated,
                                         photoUrl.GetFileNameFromUrl(),
                                         folderPath);
@@ -348,23 +313,23 @@ namespace WebPagePub.Managers.Implementations
 
         public SitePage GetSitePage(int sitePageId)
         {
-            return this.sitePageRepository.Get(sitePageId);
+            return sitePageRepository.Get(sitePageId);
         }
 
         public bool UpdateSitePage(SitePage dbModel)
         {
-            return this.sitePageRepository.Update(dbModel);
+            return sitePageRepository.Update(dbModel);
         }
 
         public IList<SitePagePhoto> GetBlogPhotos(int sitePageId)
         {
-            return this.sitePagePhotoRepository.GetBlogPhotos(sitePageId);
+            return sitePagePhotoRepository.GetBlogPhotos(sitePageId);
         }
 
         public SitePage CreatePage(int siteSectionId, string pageTitle, string createdByUserId)
         {
             var key = pageTitle.UrlKey();
-            var pageTypeSetting = this.contentSnippetRepository.Get(SiteConfigSetting.DefaultPageType);
+            var pageTypeSetting = contentSnippetRepository.Get(SiteConfigSetting.DefaultPageType);
             var pageType = PageType.Content;
 
             if (pageTypeSetting != null &&
@@ -373,7 +338,7 @@ namespace WebPagePub.Managers.Implementations
                 Enum.TryParse(pageTypeSetting.Content, true, out pageType);
             }
 
-            return this.sitePageRepository.Create(
+            return sitePageRepository.Create(
                 new SitePage()
                 {
                     Title = pageTitle,
@@ -392,7 +357,7 @@ namespace WebPagePub.Managers.Implementations
             int sitePageId,
             IList<SitePagePhotoModel> newSitePagePhotos)
         {
-            var allImages = this.GetBlogPhotos(sitePageId);
+            var allImages = GetBlogPhotos(sitePageId);
 
             foreach (var newSitePagePhoto in newSitePagePhotos)
             {
@@ -403,7 +368,7 @@ namespace WebPagePub.Managers.Implementations
 
         public IList<SitePage> GetLivePage(int pageNumber, int quantityPerpage, out int total)
         {
-            return this.sitePageRepository.GetLivePage(pageNumber, quantityPerpage, out total);
+            return sitePageRepository.GetLivePage(pageNumber, quantityPerpage, out total);
         }
 
         public void UpdateBlogTags(SitePageEditModel model, SitePage dbModel)
@@ -417,28 +382,28 @@ namespace WebPagePub.Managers.Implementations
                 {
                     previousTagsToRemove.Add(tag.Tag.Name);
                 }
-                this.RemoveDeletedTags(model, previousTagsToRemove.ToArray());
+                RemoveDeletedTags(model, previousTagsToRemove.ToArray());
                 return;
             }
 
             var currentTags = model.Tags.Split(',').Select(x => x.Trim()).ToArray();
             var tagsToAdd = currentTags.ToArray().Except(previousTags).ToArray();
 
-            this.AddNewTags(model, dbModel, tagsToAdd);
+            AddNewTags(model, dbModel, tagsToAdd);
 
             var tagsToRemove = previousTags.Except(currentTags).ToArray();
 
-            this.RemoveDeletedTags(model, tagsToRemove);
+            RemoveDeletedTags(model, tagsToRemove);
         }
 
         public IList<Author> GetAllAuthors()
         {
-            return this.authorRepository.GetAll();
+            return authorRepository.GetAll();
         }
 
         public int? PreviouslyCreatedPage(DateTime createDate, int sitePageId, int sitePageSectionId)
         {
-            var entry = this.sitePageRepository.GetPreviouslyCreatedEntry(createDate, sitePageId, sitePageSectionId);
+            var entry = sitePageRepository.GetPreviouslyCreatedEntry(createDate, sitePageId, sitePageSectionId);
             if (entry == null || entry.SitePageId == 0)
             {
                 return null;
@@ -448,7 +413,7 @@ namespace WebPagePub.Managers.Implementations
 
         public int? NextCreatedPage(DateTime createDate, int sitePageId, int sitePageSectionId)
         {
-            var entry = this.sitePageRepository.GetNextCreatedEntry(createDate, sitePageId, sitePageSectionId);
+            var entry = sitePageRepository.GetNextCreatedEntry(createDate, sitePageId, sitePageSectionId);
             if (entry == null || entry.SitePageId == 0)
             {
                 return null;
@@ -466,7 +431,7 @@ namespace WebPagePub.Managers.Implementations
 
             if (Path.HasExtension(newFileName) &&
                 Path.HasExtension(currentFileName) &&
-                (newFileName != currentFileName))
+                newFileName != currentFileName)
             {
                 hasChanged = true;
 
@@ -487,7 +452,7 @@ namespace WebPagePub.Managers.Implementations
 
             if (hasChanged)
             {
-                this.sitePagePhotoRepository.Update(sitePagePhoto);
+                sitePagePhotoRepository.Update(sitePagePhoto);
             }
         }
 
@@ -507,15 +472,15 @@ namespace WebPagePub.Managers.Implementations
 
                 var tagKey = tag.ToString().UrlKey();
 
-                var tagDb = this.tagRepository.Get(tagKey);
+                var tagDb = tagRepository.Get(tagKey);
 
-                this.sitePageTagRepository.Delete(tagDb.TagId, model.SitePageId);
+                sitePageTagRepository.Delete(tagDb.TagId, model.SitePageId);
             }
         }
 
         private void ReOrderPhotos(int sitePagePhotoId, int sitePageId)
         {
-            var allBlogPhotos = this.sitePagePhotoRepository.GetBlogPhotos(sitePageId)
+            var allBlogPhotos = sitePagePhotoRepository.GetBlogPhotos(sitePageId)
                                                         .Where(x => x.SitePageId != sitePagePhotoId)
                                                         .OrderBy(x => x.Rank);
             int newRank = 1;
@@ -523,7 +488,7 @@ namespace WebPagePub.Managers.Implementations
             foreach (var photo in allBlogPhotos)
             {
                 photo.Rank = newRank;
-                this.sitePagePhotoRepository.Update(photo);
+                sitePagePhotoRepository.Update(photo);
 
                 newRank++;
             }
@@ -545,16 +510,16 @@ namespace WebPagePub.Managers.Implementations
         {
             var fileExtension = fileName.GetFileExtension();
             var newFileName = string.Format("{0}.{1}", Path.GetFileNameWithoutExtension(fileName).UrlKey(), fileExtension);
-            var originalPhotoUrl = await this.siteFilesRepository.UploadAsync(memoryStream, newFileName, folderPath);
-            var thumbnailPhotoUrl = await this.imageUploaderService.UploadResizedVersionOfPhoto(folderPath, memoryStream, originalPhotoUrl, 300, 200, StringConstants.SuffixThumb);
-            var fullScreenPhotoUrl = await this.imageUploaderService.UploadResizedVersionOfPhoto(folderPath, memoryStream, originalPhotoUrl, 1600, 1200, StringConstants.SuffixFullscreen);
-            var previewPhotoUrl = await this.imageUploaderService.UploadResizedVersionOfPhoto(folderPath, memoryStream, originalPhotoUrl, 800, 600, StringConstants.SuffixPrevew);
+            var originalPhotoUrl = await siteFilesRepository.UploadAsync(memoryStream, newFileName, folderPath);
+            var thumbnailPhotoUrl = await imageUploaderService.UploadResizedVersionOfPhoto(folderPath, memoryStream, originalPhotoUrl, 300, 200, StringConstants.SuffixThumb);
+            var fullScreenPhotoUrl = await imageUploaderService.UploadResizedVersionOfPhoto(folderPath, memoryStream, originalPhotoUrl, 1600, 1200, StringConstants.SuffixFullscreen);
+            var previewPhotoUrl = await imageUploaderService.UploadResizedVersionOfPhoto(folderPath, memoryStream, originalPhotoUrl, 800, 600, StringConstants.SuffixPrevew);
             var existingPhoto = allBlogPhotos.FirstOrDefault(x => x.PhotoOriginalUrl == originalPhotoUrl.ToString());
             memoryStream.Dispose();
 
             if (existingPhoto == null)
             {
-                this.sitePagePhotoRepository.Create(new SitePagePhoto()
+                sitePagePhotoRepository.Create(new SitePagePhoto()
                 {
                     SitePageId = sitePageId,
                     PhotoOriginalUrl = originalPhotoUrl.ToString(),
@@ -571,7 +536,7 @@ namespace WebPagePub.Managers.Implementations
                 existingPhoto.PhotoThumbUrl = thumbnailPhotoUrl.ToString();
                 existingPhoto.PhotoFullScreenUrl = fullScreenPhotoUrl.ToString();
                 existingPhoto.PhotoPreviewUrl = previewPhotoUrl.ToString();
-                this.sitePagePhotoRepository.Update(existingPhoto);
+                sitePagePhotoRepository.Update(existingPhoto);
             }
         }
 
@@ -589,20 +554,20 @@ namespace WebPagePub.Managers.Implementations
 
                 if (dbModel.SitePageTags.FirstOrDefault(x => x.Tag.Key == tagKey) == null)
                 {
-                    var tagDb = this.tagRepository.Get(tagKey);
+                    var tagDb = tagRepository.Get(tagKey);
 
                     if (tagDb == null || tagDb.TagId == 0)
                     {
-                        this.tagRepository.Create(new Tag
+                        tagRepository.Create(new Tag
                         {
                             Name = tagName.Trim(),
                             Key = tagKey
                         });
 
-                        tagDb = this.tagRepository.Get(tagKey);
+                        tagDb = tagRepository.Get(tagKey);
                     }
 
-                    this.sitePageTagRepository.Create(new SitePageTag()
+                    sitePageTagRepository.Create(new SitePageTag()
                     {
                         SitePageId = model.SitePageId,
                         TagId = tagDb.TagId,
@@ -610,13 +575,13 @@ namespace WebPagePub.Managers.Implementations
                 }
                 else
                 {
-                    var tagDb = this.tagRepository.Get(tagKey);
+                    var tagDb = tagRepository.Get(tagKey);
 
                     if (tagDb.Name != tagName)
                     {
                         tagDb.Name = tagName;
 
-                        this.tagRepository.Update(tagDb);
+                        tagRepository.Update(tagDb);
                     }
                 }
             }
@@ -671,14 +636,14 @@ namespace WebPagePub.Managers.Implementations
 
         private async Task<SitePagePhoto> DeleteBlogPhoto(int sitePagePhotoId)
         {
-            var entry = this.sitePagePhotoRepository.Get(sitePagePhotoId);
+            var entry = sitePagePhotoRepository.Get(sitePagePhotoId);
 
-            await this.siteFilesRepository.DeleteFileAsync(entry.PhotoOriginalUrl);
-            await this.siteFilesRepository.DeleteFileAsync(entry.PhotoThumbUrl);
-            await this.siteFilesRepository.DeleteFileAsync(entry.PhotoFullScreenUrl);
-            await this.siteFilesRepository.DeleteFileAsync(entry.PhotoPreviewUrl);
+            await siteFilesRepository.DeleteFileAsync(entry.PhotoOriginalUrl);
+            await siteFilesRepository.DeleteFileAsync(entry.PhotoThumbUrl);
+            await siteFilesRepository.DeleteFileAsync(entry.PhotoFullScreenUrl);
+            await siteFilesRepository.DeleteFileAsync(entry.PhotoPreviewUrl);
 
-            this.sitePagePhotoRepository.Delete(sitePagePhotoId);
+            sitePagePhotoRepository.Delete(sitePagePhotoId);
 
             return entry;
         }
@@ -693,7 +658,7 @@ namespace WebPagePub.Managers.Implementations
 
             term = term.Trim();
 
-            return this.sitePageRepository.SearchForTerm(term, pageNumber, quantityPerPage, out total);
+            return sitePageRepository.SearchForTerm(term, pageNumber, quantityPerPage, out total);
         }
 
         public bool DoesPageExistSimilar(int siteSectionId, string pageKey)

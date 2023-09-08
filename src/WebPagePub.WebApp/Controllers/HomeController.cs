@@ -450,7 +450,7 @@ namespace WebPagePub.Web.Controllers
             {
                 BreadcrumbList = this.BuildBreadcrumbList(sitePageSection, sitePage),
                 PageType = sitePage.PageType,
-                Review = this.BuildReviewModel(sitePageSection, sitePage),
+                Review = this.BuildReviewModel(sitePage),
                 PageContent = contentModel,
                 AuthorName = this.SetAuthorName(sitePage.Author)
             };
@@ -506,7 +506,7 @@ namespace WebPagePub.Web.Controllers
             {
                 BreadcrumbList = this.BuildBreadcrumbList(sitePageSection, sitePage),
                 PageType = sitePage.PageType,
-                Review = this.BuildReviewModel(sitePageSection, sitePage),
+                Review = this.BuildReviewModel(sitePage),
                 PageContent = contentModel,
                 Comments = comments,
                 AllowCommenting = sitePage.AllowsComments,
@@ -671,17 +671,17 @@ namespace WebPagePub.Web.Controllers
                 string.IsNullOrWhiteSpace(cdnPrefix) ||
                 string.IsNullOrWhiteSpace(blobUrl))
             {
-                return null;
+                return string.Empty; // Return an empty string instead of null
             }
 
             return blobUrl.Replace(blobPrefix, cdnPrefix);
         }
 
-        private StructureDataReviewModel BuildReviewModel(SitePageSection sitePageSection, SitePage sitePage)
+        private StructureDataReviewModel BuildReviewModel(SitePage sitePage)
         {
             if (sitePage.PageType != PageType.Review)
             {
-                return null;
+                return new StructureDataReviewModel(this.cacheService); // Return a default instance instead of null
             }
 
             var ratingPercentage =
