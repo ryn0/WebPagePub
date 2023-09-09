@@ -39,7 +39,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
             base.sitePageManager = sitePageManager;
         }
 
-        public async Task CreatePagesAsync()
+        public async Task Execute()
         {
             startDateTime = DateTime.UtcNow;
             WriteStartMessage(GetType().Name);
