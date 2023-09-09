@@ -2,6 +2,6 @@
 {
     public interface IPageEditor
     {
-        Task CreatePagesAsync();
+        Task Execute();
     }
 }
