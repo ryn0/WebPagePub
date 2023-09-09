@@ -61,6 +61,12 @@
     <None Update="WorkFlows\Prompts\ArticlesFromUrl\08-ArticleTags.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="WorkFlows\Prompts\ArticleTagGenerator\00-Setup.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticleTagGenerator\01-ArticleTags.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="WorkFlows\Prompts\ArticleWithCalculator\00-Setup.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

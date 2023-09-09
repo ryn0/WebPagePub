@@ -146,11 +146,22 @@ switch (workflowSelectionEnum)
             articleUrlSettings);
 
         break;
+    case Workflows.ArticleTagGenerator:
+        var articleTagGeneratorSettings =
+            config.GetRequiredSection("ArticleTagGenerator").Get<ArticleTagGeneratorModel>()
+             ?? throw new InvalidOperationException("ArticleTagGenerator settings are missing or not correctly configured.");
+
+        pageEditor = new ArticleTagGenerator(
+            chatGptSettings,
+            sitePageManager,
+            articleTagGeneratorSettings);
+
+        break;
     default:
         throw new Exception("Not a valid selection");
 }
 
-await pageEditor.CreatePagesAsync();
+await pageEditor.Execute();
 
 Console.ReadLine();
 
