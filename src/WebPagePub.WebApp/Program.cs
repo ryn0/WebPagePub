@@ -126,7 +126,10 @@ if (redirects != null)
         if (redirect.Path.StartsWith("/"))
         {
             var fromPath = redirect.Path.Remove(0, 1);
-            options.AddRedirect(fromPath, redirect.PathDestination, (int)HttpStatusCode.MovedPermanently);
+            options.AddRedirect(
+                string.Format("{0}$", fromPath),
+                redirect.PathDestination,
+                (int)HttpStatusCode.MovedPermanently);
         }
     }
 }
