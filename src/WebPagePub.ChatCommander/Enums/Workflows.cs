@@ -7,6 +7,7 @@
         ArticleFromKeywordsGenerator = 2,
         ArticleWithCalculatorGenerator = 3,
         ArticleFromUrlGenerator = 4,
-        ArticleTagGenerator = 5
+        ArticleTagGenerator = 5,
+        ArticleInternalLinkGenerator = 6
     }
 }

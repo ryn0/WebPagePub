@@ -24,6 +24,13 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
             openAiApiClient = new OpenAiApiClient(openAiApiSettings);
             startDateTime = DateTime.UtcNow;
         }
+
+        public BaseGenerator(ISitePageManager sitePageManager)
+        {
+            this.sitePageManager = sitePageManager;
+            startDateTime = DateTime.UtcNow;
+        }
+
         protected void WriteStartMessage(string typeName)
         {
             Console.WriteLine($"Starting {typeName}: {startDateTime}");

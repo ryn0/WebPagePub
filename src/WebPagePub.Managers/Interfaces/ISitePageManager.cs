@@ -23,6 +23,8 @@ namespace WebPagePub.Managers.Interfaces
 
         public bool DoesPageExistSimilar(int siteSectionId, string pageKey);
 
+        SitePage GetPageForUrl(Uri sourcePage);
+
         public SitePage CreatePage(int siteSectionId, string pageTitle, string createdByUserId);
 
         public IList<SitePage> GetSitePages(int pageNumber, int siteSectionId, int quantityPerPage, out int total);
