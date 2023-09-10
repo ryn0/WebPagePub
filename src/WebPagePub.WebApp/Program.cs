@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using System.Net;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Enums;
@@ -109,47 +110,27 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.Use(async (context, next) =>
-{
-    var memoryCache = context.RequestServices.GetService<IMemoryCache>();
-
-    if (memoryCache != null)
-    {
-        if (!memoryCache.TryGetValue(StringConstants.RedirectsCacheKey, out IList<RedirectPath>? redirects))
-        {
-            var redirectsRepo = context.RequestServices.GetService<IRedirectPathRepository>();
-            redirects = redirectsRepo?.GetAll();
-
-            if (redirects != null)
-            {
-                memoryCache.Set(StringConstants.RedirectsCacheKey, redirects, TimeSpan.FromHours(IntegerConstants.PageCachingMinutes));
-            }
-        }
-
-        if (redirects != null)
-        {
-            var path = context.Request.Path.Value;
-
-            if (!string.IsNullOrEmpty(path))
-            {
-                var redirect = redirects.FirstOrDefault(x => x.Path.EndsWith(path));
-
-                if (redirect != null)
-                {
-                    context.Response.Redirect(redirect.PathDestination, true);
-                    context.Request.Path = redirect.PathDestination;
-                }
-            }
-        }
-    }
-
-    await next();
-});
+using var scope = app.Services.CreateScope();
+var scopedServiceProvider = scope.ServiceProvider;
+var redirectRepo = scopedServiceProvider.GetService<IRedirectPathRepository>();
+var redirects = redirectRepo?.GetAll();
 
 var options = new RewriteOptions()
     .AddRedirectToHttpsPermanent()
     .Add(new RedirectWwwToNonWwwRule());
- 
+
+if (redirects != null)
+{
+    foreach (var redirect in redirects)
+    {
+        if (redirect.Path.StartsWith("/"))
+        {
+            var fromPath = redirect.Path.Remove(0, 1);
+            options.AddRedirect(fromPath, redirect.PathDestination, (int)HttpStatusCode.MovedPermanently);
+        }
+    }
+}
+
 app.UseRewriter(options);
 
 app.UseStaticFiles();
