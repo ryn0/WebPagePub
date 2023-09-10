@@ -13,6 +13,8 @@
 	</ItemGroup>
 	<ItemGroup>
  
+    <PackageReference Include="CsvHelper" Version="30.0.1" />
+ 
     <PackageReference Include="HtmlAgilityPack" Version="1.11.52" />
  
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
@@ -32,6 +34,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="appSettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticleInternalLinks\example.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="WorkFlows\Prompts\ArticlesFromUrl\00-Setup.txt">
