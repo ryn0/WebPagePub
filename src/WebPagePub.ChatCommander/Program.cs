@@ -157,6 +157,12 @@ switch (workflowSelectionEnum)
             articleTagGeneratorSettings);
 
         break;
+    case Workflows.ArticleInternalLinkGenerator:
+       
+        pageEditor = new ArticleInternalLinkGenerator( 
+            sitePageManager);
+
+        break;
     default:
         throw new Exception("Not a valid selection");
 }
