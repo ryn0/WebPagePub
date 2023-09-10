@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using WebPagePub.Core.Utilities;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.Enums;
+using WebPagePub.Data.Migrations;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
@@ -690,6 +691,43 @@ namespace WebPagePub.Managers.Implementations
             }
 
             return false;
+        }
+
+        public SitePage GetPageForUrl(Uri sourcePage)
+        {
+            if (ShouldSkipUrl(sourcePage))
+            {
+                return default;
+            }
+
+            SitePageSection siteSection;
+            SitePage sitePage;
+            string[] segments = sourcePage.Segments;
+
+            if (segments.Length == 2)
+            {
+                siteSection = siteSectionRepository.Get(segments[1].TrimEnd('/'));
+                sitePage = this.sitePageRepository.GetSectionHomePage(siteSection.SitePageSectionId);
+            }
+            else if (segments.Length == 3)
+            {
+                // Removing any trailing slashes from the segments
+                var siteSectionKey = segments[1].TrimEnd('/');
+                var pathKey = segments[2].TrimEnd('/');
+                siteSection = siteSectionRepository.Get(siteSectionKey);
+                sitePage = this.sitePageRepository.Get(siteSection.SitePageSectionId, pathKey);
+            }
+            else
+            {
+                throw new InvalidOperationException("Url has incorrect many segments");
+            }
+
+            return sitePage;
+        }
+
+        private static bool ShouldSkipUrl(Uri url)
+        {
+            return url.ToString().Contains("/tag/") || url.ToString().Contains("/page/");
         }
     }
 }

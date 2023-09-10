@@ -77,10 +77,30 @@ namespace WebPagePub.ChatCommander.Utilities
             return articleTitle.Trim();
         }
 
+        public static string FindWithExactCasing(string input, string searchText)
+        {
+            Match match = Regex.Match(input, searchText, RegexOptions.IgnoreCase);
+            if (match.Success)
+            {
+                return match.Value;
+            }
+            return null;
+        }
+
         public static string AddClassesToButton(string text) {
             text = text.Trim();
             var newText = text.Replace("<button", @"<button class=""btn btn-success"" ");
             return newText;
+        }
+
+        public static string FindAndReplace(string input, string findText, string replaceText)
+        {
+            return input.Replace(findText, replaceText);
+        }
+
+        public static string CaseInsensitiveReplace(string input, string findText, string replaceText)
+        {
+            return Regex.Replace(input, findText, replaceText, RegexOptions.IgnoreCase);
         }
 
         public static string ParseBreadcrumb(string input)
