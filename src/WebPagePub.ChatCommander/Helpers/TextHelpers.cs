@@ -98,11 +98,9 @@ namespace WebPagePub.ChatCommander.Utilities
             return input.Replace(findText, replaceText);
         }
 
-        public static string CaseInsensitiveReplace(string input, string findText, string replaceTextTemplate)
+        public static string CaseInsensitiveReplace(string input, string findText, string replaceText)
         {
-            return Regex.Replace(input, findText,
-                m => string.Format(replaceTextTemplate, m.Value),
-                RegexOptions.IgnoreCase);
+            return Regex.Replace(input, Regex.Escape(findText), replaceText, RegexOptions.IgnoreCase);
         }
 
         public static string ParseBreadcrumb(string input)
