@@ -79,12 +79,12 @@ namespace WebPagePub.ChatCommander.Utilities
 
         public static string FindWithExactCasing(string input, string searchText)
         {
-            Match match = Regex.Match(input, searchText, RegexOptions.IgnoreCase);
+            Match match = Regex.Match(input, Regex.Escape(searchText), RegexOptions.IgnoreCase);
             if (match.Success)
             {
                 return match.Value;
             }
-            return null;
+            return string.Empty;
         }
 
         public static string AddClassesToButton(string text) {
@@ -98,9 +98,11 @@ namespace WebPagePub.ChatCommander.Utilities
             return input.Replace(findText, replaceText);
         }
 
-        public static string CaseInsensitiveReplace(string input, string findText, string replaceText)
+        public static string CaseInsensitiveReplace(string input, string findText, string replaceTextTemplate)
         {
-            return Regex.Replace(input, findText, replaceText, RegexOptions.IgnoreCase);
+            return Regex.Replace(input, findText,
+                m => string.Format(replaceTextTemplate, m.Value),
+                RegexOptions.IgnoreCase);
         }
 
         public static string ParseBreadcrumb(string input)
