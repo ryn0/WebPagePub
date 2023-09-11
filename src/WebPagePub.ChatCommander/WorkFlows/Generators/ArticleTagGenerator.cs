@@ -23,6 +23,11 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
         }
         public async Task Execute()
         {
+            if (openAiApiClient == null)
+            {
+                throw new Exception($"{nameof(openAiApiClient)} is null");
+            }
+
             WriteStartMessage(nameof(ArticleTagGenerator));
             var siteSection = sitePageManager.GetSiteSection(SectionKey);
             var pages = sitePageManager.GetSitePages(1, siteSection.SitePageSectionId, int.MaxValue, out _);

@@ -11,9 +11,9 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
         protected int MinutesOffsetForArticleMax { get; set; } = 10080/*1 week*/;
         protected DateTime startDateTime;
         protected int completed = 0;
-        protected OpenAiApiSettings OpenAiApiSettings;
+        protected OpenAiApiSettings? OpenAiApiSettings;
         protected ISitePageManager sitePageManager;
-        protected OpenAiApiClient openAiApiClient;
+        protected OpenAiApiClient? openAiApiClient; 
 
         public BaseGenerator(
             OpenAiApiSettings openAiApiSettings,
