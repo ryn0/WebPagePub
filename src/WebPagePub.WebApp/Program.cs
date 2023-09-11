@@ -123,14 +123,17 @@ if (redirects != null)
 {
     foreach (var redirect in redirects)
     {
-        if (redirect.Path.StartsWith("/"))
+        var fromPath = redirect.Path;
+
+        if (fromPath.StartsWith("/"))
         {
-            var fromPath = redirect.Path.Remove(0, 1);
-            options.AddRedirect(
-                string.Format("{0}$", fromPath),
-                redirect.PathDestination,
-                (int)HttpStatusCode.MovedPermanently);
+            fromPath = redirect.Path.Remove(0, 1);
         }
+
+        options.AddRedirect(
+            string.Format("^{0}$", fromPath),
+            redirect.PathDestination,
+            (int)HttpStatusCode.MovedPermanently);
     }
 }
 
