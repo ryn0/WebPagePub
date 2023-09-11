@@ -27,6 +27,11 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 
         public async Task Execute()
         {
+            if (openAiApiClient == null)
+            {
+                throw new NullReferenceException($"{openAiApiClient}");
+            }
+
             startDateTime = DateTime.UtcNow;
             WriteStartMessage(GetType().Name);
 

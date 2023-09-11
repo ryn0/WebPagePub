@@ -93,7 +93,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                     var sourcePageContextWithLink = TextHelpers.CaseInsensitiveReplace(
                         record.KeywordContext,
                         keywordExtactCase,
-                        $"<a href=\"{targetPageUrl}\">" + "{0}</a>");
+                        $"<a href=\"{targetPageUrl}\">{keywordExtactCase}</a>");
 
                     var sourcePageContent = sourcePage.Content;
                     var linkedPageContent = TextHelpers.FindAndReplace(sourcePageContent, sourcePageContext, sourcePageContextWithLink);

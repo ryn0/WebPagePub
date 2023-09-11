@@ -22,21 +22,24 @@ namespace WebPagePub.ChatCommander.UnitTests.HelpersTests
         }
 
         [Theory]
-        [InlineData("Some of the most popular types are the mandibular advancement device (MAD) and the tongue-stabilizing device (TSD).",
-            "mandibular advancement device \\(MAD\\)",
-            "<a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">{0}</a>",
-            "Some of the most popular types are the <a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">mandibular advancement device (MAD)</a> and the tongue-stabilizing device (TSD).")]
-        [InlineData("Some of the most popular types are the mandibular advancement device (mad) and the tongue-stabilizing device (TSD).",
-            "mandibular advancement device \\(MAD\\)",
-            "<a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">{0}</a>",
-            "Some of the most popular types are the <a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">mandibular advancement device (mad)</a> and the tongue-stabilizing device (TSD).")]
-        [InlineData("Mandibular advancement device (MAD) is one of the types.",
-            "mandibular advancement device \\(MAD\\)",
-            "<a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">{0}</a>",
-            "<a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">Mandibular advancement device (MAD)</a> is one of the types.")]
-        public void Test_CaseInsensitiveReplace(string input, string findText, string replaceTextTemplate, string expected)
+        [InlineData(
+        "Some of the most popular types are the mandibular advancement device (MAD) and the tongue-stabilizing device (TSD).",
+        "mandibular advancement device (MAD)",
+        "<a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">mandibular advancement device (MAD)</a>",
+        "Some of the most popular types are the <a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">mandibular advancement device (MAD)</a> and the tongue-stabilizing device (TSD).")]
+        [InlineData(
+        "The mandibular advancement device (MAD) is helpful. Many prefer the mandibular advancement device (MAD) for its simplicity.",
+        "mandibular advancement device (MAD)",
+        "<a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">mandibular advancement device (MAD)</a>",
+        "The <a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">mandibular advancement device (MAD)</a> is helpful. Many prefer the <a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">mandibular advancement device (MAD)</a> for its simplicity.")]
+        [InlineData(
+        "John loves playing basketball. It's his favorite sport.",
+        "basketball",
+        "<a href=\"https://sports.com/basketball\">basketball</a>",
+        "John loves playing <a href=\"https://sports.com/basketball\">basketball</a>. It's his favorite sport.")]
+        public void Test_CaseInsensitiveReplace(string input, string findText, string replaceText, string expected)
         {
-            var result = TextHelpers.CaseInsensitiveReplace(input, findText, replaceTextTemplate);
+            var result = TextHelpers.CaseInsensitiveReplace(input, findText, replaceText);
             Assert.Equal(expected, result);
         }
 
