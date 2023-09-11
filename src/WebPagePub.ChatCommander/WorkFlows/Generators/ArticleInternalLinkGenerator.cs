@@ -92,7 +92,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                     var keywordExtactCase = TextHelpers.FindWithExactCasing(sourcePageContext, sourcePageKeyword);
                     var sourcePageContextWithLink = TextHelpers.CaseInsensitiveReplace(
                         record.KeywordContext,
-                        sourcePageKeyword,
+                        keywordExtactCase,
                         $"<a href=\"{targetPageUrl}\">{keywordExtactCase}</a>");
 
                     var sourcePageContent = sourcePage.Content;

@@ -22,6 +22,39 @@ namespace WebPagePub.ChatCommander.UnitTests.HelpersTests
         }
 
         [Theory]
+        [InlineData("Some of the most popular types are the mandibular advancement device (MAD) and the tongue-stabilizing device (TSD).",
+            "mandibular advancement device \\(MAD\\)",
+            "<a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">{0}</a>",
+            "Some of the most popular types are the <a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">mandibular advancement device (MAD)</a> and the tongue-stabilizing device (TSD).")]
+        [InlineData("Some of the most popular types are the mandibular advancement device (mad) and the tongue-stabilizing device (TSD).",
+            "mandibular advancement device \\(MAD\\)",
+            "<a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">{0}</a>",
+            "Some of the most popular types are the <a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">mandibular advancement device (mad)</a> and the tongue-stabilizing device (TSD).")]
+        [InlineData("Mandibular advancement device (MAD) is one of the types.",
+            "mandibular advancement device \\(MAD\\)",
+            "<a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">{0}</a>",
+            "<a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">Mandibular advancement device (MAD)</a> is one of the types.")]
+        public void Test_CaseInsensitiveReplace(string input, string findText, string replaceTextTemplate, string expected)
+        {
+            var result = TextHelpers.CaseInsensitiveReplace(input, findText, replaceTextTemplate);
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData("Some of the most popular types are the mandibular advancement device (MAD) and the tongue-stabilizing device (TSD).", "mandibular advancement device (mad)", "mandibular advancement device (MAD)")]
+        [InlineData("The QUICK brown fox.", "quick", "QUICK")]
+        [InlineData("Jumped over the LAZY dog.", "lazy", "LAZY")]
+        [InlineData("Jumped over the LAZY dog.", "Lazy", "LAZY")]
+        public void Test_FindWithExactCasing_ReturnsCorrectCasing(string input, string searchText, string expected)
+        {
+            // Act
+            string result = TextHelpers.FindWithExactCasing(input, searchText);
+
+            // Assert
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
         [InlineData("Meta Description: This is a meta description.", "This is a meta description.")]
         [InlineData("Meta description: This is a meta description.", "This is a meta description.")]
         [InlineData("meta description: This is a meta description.", "This is a meta description.")]
