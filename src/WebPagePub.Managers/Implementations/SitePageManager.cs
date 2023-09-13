@@ -704,7 +704,11 @@ namespace WebPagePub.Managers.Implementations
             SitePage sitePage;
             string[] segments = sourcePage.Segments;
 
-            if (segments.Length == 2)
+            if (segments.Length == 1)
+            {
+                sitePage = this.sitePageRepository.GetSectionHomePage(siteSectionRepository.GetHomeSection().SitePageSectionId);
+            }
+            else if (segments.Length == 2)
             {
                 siteSection = siteSectionRepository.Get(segments[1].TrimEnd('/'));
                 sitePage = this.sitePageRepository.GetSectionHomePage(siteSection.SitePageSectionId);
