@@ -7,7 +7,7 @@ namespace WebPagePub.ChatCommander.Converters
 {
     public class NullableInt32Converter : DefaultTypeConverter
     {
-        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+        public override object? ConvertFromString(string? text, IReaderRow row, MemberMapData memberMapData)  // Made 'text' nullable
         {
             if (string.IsNullOrWhiteSpace(text))
             {
@@ -19,7 +19,7 @@ namespace WebPagePub.ChatCommander.Converters
                 return result;
             }
 
-            object baseResult = base.ConvertFromString(text, row, memberMapData);
+            object? baseResult = base.ConvertFromString(text, row, memberMapData);
             return baseResult ?? 0;  // If baseResult is null, return 0
         }
     }
