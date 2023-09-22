@@ -101,8 +101,14 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 
                     if (!TextHelpers.IsTextSurroundedByPTag(sourcePageContext, sourcePageContent))
                     {
-                        Console.WriteLine(" - text not in paragraph");
-                        continue;
+                        Console.Write(" - text not in paragraph");
+
+                        if (!TextHelpers.IsTextSurroundedByLiTag(sourcePageContext, sourcePageContent))
+                        {
+                            Console.Write(" - text not in list item");
+                            Console.WriteLine();
+                            continue;
+                        }
                     }
 
                     var linkedPageContent = TextHelpers.FindAndReplace(sourcePageContent, sourcePageContext, sourcePageContextWithLink);
