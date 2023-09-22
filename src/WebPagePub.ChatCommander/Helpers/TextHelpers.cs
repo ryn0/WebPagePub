@@ -195,8 +195,13 @@ namespace WebPagePub.ChatCommander.Utilities
 
         public static bool IsTextSurroundedByPTag(string input, string text)
         {
-            // Create a regex pattern to search for input within paragraph tags
             string pattern = $@"<p>[^<]*{Regex.Escape(input)}[^<]*</p>";
+            return Regex.IsMatch(text, pattern, RegexOptions.IgnoreCase);
+        }
+
+        public static bool IsTextSurroundedByLiTag(string input, string text)
+        {
+            string pattern = $@"<li>[^<]*{Regex.Escape(input)}[^<]*</li>";
             return Regex.IsMatch(text, pattern, RegexOptions.IgnoreCase);
         }
     }
