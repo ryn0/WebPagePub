@@ -12,6 +12,8 @@ namespace WebPagePub.Data.Models.Db
         [StringLength(75)]
         public string IpAddress { get; set; }
 
+        public string UserAgent { get; set; }
+
         public string Headers { get; set; }
 
         public string Url { get; set; }

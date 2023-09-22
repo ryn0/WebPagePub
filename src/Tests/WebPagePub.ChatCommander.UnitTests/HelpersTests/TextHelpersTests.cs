@@ -120,5 +120,16 @@ namespace WebPagePub.ChatCommander.UnitTests.HelpersTests
             // Assert
             Assert.Equal(expected, result);
         }
+
+        [Theory]
+        [InlineData("Hello world!", "<p>Hello world!</p>", true)]
+        [InlineData("Hello", "<p>Hello world!</p>", true)]
+        [InlineData("Hello world!", "<h1>Hello world!</h1>", false)]
+        [InlineData("Hello world!", "<p>Hi there!</p><p>Hello world!</p>", true)]
+        [InlineData("Missing text", "<p>Hello world!</p>", false)]
+        public void TestIsTextSurroundedByPTag(string input, string text, bool expected)
+        {
+            Assert.Equal(expected, TextHelpers.IsTextSurroundedByPTag(input, text));
+        }
     }
 }
