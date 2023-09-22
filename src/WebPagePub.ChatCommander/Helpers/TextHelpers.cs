@@ -195,12 +195,22 @@ namespace WebPagePub.ChatCommander.Utilities
 
         public static bool IsTextSurroundedByPTag(string input, string text)
         {
+            if (input == null || text == null)
+            {
+                return false;
+            }
+
             string pattern = $@"<p>[^<]*{Regex.Escape(input)}[^<]*</p>";
             return Regex.IsMatch(text, pattern, RegexOptions.IgnoreCase);
         }
 
         public static bool IsTextSurroundedByLiTag(string input, string text)
         {
+            if (input == null || text == null)
+            {
+                return false;
+            }
+
             string pattern = $@"<li>[^<]*{Regex.Escape(input)}[^<]*</li>";
             return Regex.IsMatch(text, pattern, RegexOptions.IgnoreCase);
         }
