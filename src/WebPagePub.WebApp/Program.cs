@@ -1,15 +1,11 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
 using System.Net;
-using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models;
-using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Implementations;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Managers.Implementations;
@@ -67,11 +63,11 @@ builder.Services.AddTransient<IEmailSender>(x => new AmazonMailService(
     builder.Configuration.GetSection("AmazonEmailCredentials:SecretKey").Value,
     builder.Configuration.GetSection("AmazonEmailCredentials:EmailFrom").Value));
 
-builder.Services.AddTransient<IImageUploaderService, ImageUploaderService>();
+builder.Services.AddSingleton<IImageUploaderService, ImageUploaderService>();
 
-builder.Services.AddTransient<ISiteFilesRepository, SiteFilesRepository>();
+builder.Services.AddSingleton<ISiteFilesRepository, SiteFilesRepository>();
 
-builder.Services.AddTransient<IBlobService>(provider =>
+builder.Services.AddSingleton<IBlobService>(provider =>
 {
     var cacheService = provider.GetRequiredService<ICacheService>();
     var azureStorageConnection = cacheService.GetSnippet(SiteConfigSetting.AzureStorageConnectionString);

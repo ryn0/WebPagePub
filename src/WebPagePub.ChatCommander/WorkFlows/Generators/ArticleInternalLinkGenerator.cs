@@ -57,7 +57,8 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 
                     var sourcePageUrl = record.SourcePage;
 
-                    if (!await WebPageChecker.IsWebPageOnlineAsync(sourcePageUrl))
+                    if (sourcePageUrl == null ||
+                        !await WebPageChecker.IsWebPageOnlineAsync(sourcePageUrl))
                     {
                         Console.WriteLine(" - bad source page.");
                         continue;
@@ -73,7 +74,8 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 
                     var targetPageUrl = record.TargetPage;
 
-                    if (!await WebPageChecker.IsWebPageOnlineAsync(targetPageUrl))
+                    if (targetPageUrl == null ||
+                        !await WebPageChecker.IsWebPageOnlineAsync(targetPageUrl))
                     {
                         Console.WriteLine(" - bad target page.");
                         continue;
@@ -96,6 +98,13 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                         $"<a href=\"{targetPageUrl}\">{keywordExtactCase}</a>");
 
                     var sourcePageContent = sourcePage.Content;
+
+                    if (!TextHelpers.IsTextSurroundedByPTag(sourcePageContext, sourcePageContent))
+                    {
+                        Console.WriteLine(" - text not in paragraph");
+                        continue;
+                    }
+
                     var linkedPageContent = TextHelpers.FindAndReplace(sourcePageContent, sourcePageContext, sourcePageContextWithLink);
 
                     if (linkedPageContent == sourcePageContent)

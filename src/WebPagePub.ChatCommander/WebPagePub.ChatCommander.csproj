@@ -36,7 +36,25 @@
     <None Update="appSettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="WorkFlows\Prompts\ArticleInternalLinks\example.csv">
+    <None Update="WorkFlows\Prompts\ArticleInternalLinks\mouthguardstore_07-sep-2023_link-opportunitie_2023-09-09_20-33-02.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticleInternalLinks\mouthguardstore_11-sep-2023_link-opportunitie_2023-09-11_11-16-43.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticleInternalLinks\mouthguardstore_14-sep-2023_link-opportunitie_2023-09-14_10-18-48.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticleInternalLinks\ryanwilliams_10-sep-2023_link-opportunities_2023-09-11_10-41-44.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticleInternalLinks\snoringmouthpiecereview_09-sep-2023_link-oppo_2023-09-11_10-17-04.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticleInternalLinks\snoringmouthpiecereview_13-sep-2023_link-oppo_2023-09-13_16-47-14.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticleInternalLinks\snoringmouthpiecereview_22-sep-2023_link-oppo_2023-09-22_13-35-09.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="WorkFlows\Prompts\ArticlesFromUrl\00-Setup.txt">
@@ -156,6 +174,10 @@
     <None Update="WorkFlows\Prompts\ArticleTopicExpansion\05-ArticleHtmlBody.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="WorkFlows\Prompts\ArticleInternalLinks\" />
   </ItemGroup>
 
 </Project>

@@ -27,6 +27,11 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
      
         public async Task<DalleImagesResponseModel> GenerateImage(ImageInputRequest input)
         {
+            if (OpenAiApiSettings == null)
+            {
+                throw new NullReferenceException($"{OpenAiApiSettings}");
+            }
+
             openAiApiClient = new OpenAiApiClient(OpenAiApiSettings);
 
             return await openAiApiClient.GenerateImage(input);

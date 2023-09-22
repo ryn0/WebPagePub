@@ -106,6 +106,9 @@ namespace WebPagePub.Data.DbContextInfo
                 .HasIndex(p => p.AuthorId)
                 .IsUnique();
 
+            builder.Entity<ClickLog>()
+                .HasIndex(p => p.CreateDate);
+
             base.OnModelCreating(builder);
         }
 

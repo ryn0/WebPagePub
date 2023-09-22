@@ -37,7 +37,7 @@ namespace WebPagePub.ChatCommander.Utilities
                 return text;
             }
 
-            var extractedText = text.Substring(indexOfFirstHtmlChar, (text.Length - indexOfFirstHtmlChar));
+            var extractedText = text[indexOfFirstHtmlChar..];
 
             return extractedText;
         }
@@ -109,12 +109,12 @@ namespace WebPagePub.ChatCommander.Utilities
 
             var lastBreadcrumb = string.Empty;
 
-            if (input.Contains(">"))
+            if (input.Contains('>'))
             {
                 var parts = input.Split('>');
                 if (parts.Length > 0)
                 {
-                    lastBreadcrumb = parts[parts.Length - 1];
+                    lastBreadcrumb = parts[^1];
                 }
 
                 return CleanText(lastBreadcrumb);
@@ -191,6 +191,13 @@ namespace WebPagePub.ChatCommander.Utilities
             extractedText = regex.Replace(extractedText, " ");
 
             return extractedText;
+        }
+
+        public static bool IsTextSurroundedByPTag(string input, string text)
+        {
+            // Create a regex pattern to search for input within paragraph tags
+            string pattern = $@"<p>[^<]*{Regex.Escape(input)}[^<]*</p>";
+            return Regex.IsMatch(text, pattern, RegexOptions.IgnoreCase);
         }
     }
 }

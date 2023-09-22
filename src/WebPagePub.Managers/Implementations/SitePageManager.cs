@@ -201,7 +201,7 @@ namespace WebPagePub.Managers.Implementations
             var entry = sitePagePhotoRepository.Get(sitePagePhotoId);
             var allBlogPhotos = sitePagePhotoRepository.GetBlogPhotos(entry.SitePageId);
 
-            if (entry.Rank == allBlogPhotos.Count())
+            if (entry.Rank == allBlogPhotos.Count)
             {
                 return entry;
             }
@@ -222,9 +222,9 @@ namespace WebPagePub.Managers.Implementations
             IList<Tuple<string, MemoryStream>> fileNameAndImageMemoryStream)
         {
             var allBlogPhotos = sitePagePhotoRepository.GetBlogPhotos(sitePageId);
-            var highestRank = allBlogPhotos.Count();
+            var highestRank = allBlogPhotos.Count;
             int currentRank = highestRank;
-            var isFirstPhotoToSitePage = allBlogPhotos.Count() == 0;
+            var isFirstPhotoToSitePage = allBlogPhotos.Count == 0;
 
             try
             {
@@ -495,7 +495,7 @@ namespace WebPagePub.Managers.Implementations
             }
         }
 
-        private string GetBlogPhotoFolder(int sitePageId)
+        private static string GetBlogPhotoFolder(int sitePageId)
         {
             return $"/{StringConstants.SitePhotoBlobPhotoName}/{sitePageId}/";
         }

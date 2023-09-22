@@ -9,7 +9,7 @@ namespace WebPagePub.ChatCommander.Models.InputModels
         public int PR { get; set; }
 
         [Name("Source page")]
-        public Uri SourcePage { get; set; }
+        public Uri? SourcePage { get; set; }
 
         [Name("Source is canonical")]
         public bool SourceIsCanonical { get; set; }
@@ -20,10 +20,10 @@ namespace WebPagePub.ChatCommander.Models.InputModels
         [Name("Source total traffic")]
         public int SourceTotalTraffic { get; set; }
 
-        public string Keyword { get; set; }
+        public string Keyword { get; set; } = string.Empty;
 
         [Name("Keyword context")]
-        public string KeywordContext { get; set; }
+        public string KeywordContext { get; set; } = string.Empty;
 
         [Name("Keyword search volume")]
         public int KeywordSearchVolume { get; set; }
@@ -32,7 +32,7 @@ namespace WebPagePub.ChatCommander.Models.InputModels
         public int KeywordDifficulty { get; set; }
 
         [Name("Target page")]
-        public Uri TargetPage { get; set; }
+        public Uri? TargetPage { get; set; }
 
         [Name("Target position")]
         public int TargetPosition { get; set; }
