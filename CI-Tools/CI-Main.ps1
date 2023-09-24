@@ -22,7 +22,7 @@ properties {
 
    # Build
    $BuildConfiguration          = "release"
-   $DotNetRunTime               = "win7-x64"
+   $DotNetRunTime               = "win-x64"
    $DotNetFramework             = "net7.0"
    $msDeploy                    = "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe"    
    
@@ -196,47 +196,19 @@ task -name SyncWebFiles {
 
     exec {
 
-        $webconfigPath = $contentPathDes + "web.config"
         $deployIisAppPath = $webAppHost
         $resolvedAppOfflineFilePath = Resolve-Path -Path ("$CIRoot\$AppOfflineFilePath")
-        
-        Write-Host "-------------"
-        Write-Host "Taking site offline..."
-        
-        & $msDeploy `
-        -verb:sync `
-        -source:contentPath=$resolvedAppOfflineFilePath `
-        -dest:contentPath=$deployIisAppPath/app_offline.htm,computername=$MsDeployLocation/MsDeploy.axd?site=$deployIisAppPath,username=$msDeployUserName,password=$msDeployPassword,authtype=basic,IncludeAcls="False" `
-        -allowUntrusted
-
-        $url = "http://$webAppHost"
-        $response = try { Invoke-WebRequest -Uri $url } catch { $_.Exception.Response } # catch 503
-
-        if ($response.StatusCode -eq 503)
-        {
-            Write-Host "503 received, site is offline."
-        }
-		else 
-		{
-			Write-Error "Status code was: " + $response.StatusCode
-		}
-
-        $secondsToWait = 5
-        Write-Host "Pausing for $secondsToWait seconds..." -NoNewline
-        Start-Sleep -Seconds $secondsToWait
-        Write-Host "done." -NoNewline
-        Write-Host ""
-
         $compileSourcePath = Resolve-Path -Path ("$CIRoot\$compileSourcePath")
-   
+
         Write-Host "-------------"
         Write-Host "Syncing files '$deployIisAppPath'..."
-   
+
         & $msDeploy `
             -verb:sync `
-            -source:contentPath=$compileSourcePath `
+            -source:IisApp=$compileSourcePath `
             -allowUntrusted:true `
-            -dest:contentPath=$contentPathDes,computername=$MsDeployLocation/MsDeploy.axd?site=$deployIisAppPath,username=$msDeployUserName,password=$msDeployPassword,authtype=basic
+            -dest:iisapp=$deployIisAppPath,computerName=$MsDeployLocation/MsDeploy.axd?site=$deployIisAppPath,authType='basic',username=$msDeployUserName,password=$msDeployPassword `
+            -enableRule:AppOffline
 
         Write-Host "done."
     }
@@ -261,7 +233,7 @@ task -name DeployWebApp -depends SetConfigs, RestorePackages, BuildProject, RunU
         $url = "http://$webAppHost"
         Write-Host "Deployment completed, requesting page '$url'..." -NoNewline 
         
-        $response = Invoke-WebRequest -Uri $url
+        $response = try { Invoke-WebRequest -Uri $url } catch { $_.Exception.Response } # catch 
 
         if ($response.StatusCode -eq 200)
         {
@@ -270,9 +242,25 @@ task -name DeployWebApp -depends SetConfigs, RestorePackages, BuildProject, RunU
                 
             Write-Host "COMPLETE!"
         }
-        else 
+        else
         {
-            Write-Error "Status code was: " + $response.StatusCode
+            Write-Host "status code is: "([int]$response.StatusCode)"..." -NoNewline
+            Write-Host "waiting 10 seconds and retrying..." -NoNewline
+
+            Start-Sleep -Seconds 10
+            $response = try { Invoke-WebRequest -Uri $url } catch { $_.Exception.Response } # catch 
+
+            if ($response.StatusCode -eq 200)
+            {
+                Write-Host "done." -NoNewline
+                Write-Host
+                
+                Write-Host "COMPLETE!"
+            }
+            else 
+            {
+                Write-Error "Status code was: " + $response.StatusCode
+            }
         }
     }
 }
