@@ -34,6 +34,7 @@ properties {
 
    $WebAppSettings              = "..\src\WebPagePub.WebApp\appsettings.json"
    $DatabaseAppSettings         = "..\src\WebPagePub.Data\appsettings.json"
+    $AppOfflineFilePath         = "..\src\WebPagePub.WebApp\HelperPages\app_offline-template.htm"
 
    # Credentials
    $MsDeployLocation            = ""
@@ -197,25 +198,46 @@ task -name SyncWebFiles {
 
         $webconfigPath = $contentPathDes + "web.config"
         $deployIisAppPath = $webAppHost
+        $resolvedAppOfflineFilePath = Resolve-Path -Path ("$CIRoot\$AppOfflineFilePath")
         
-        Write-Host "Deleting config..."
+        Write-Host "-------------"
+        Write-Host "Taking site offline..."
         
         & $msDeploy `
-            -verb:delete `
-            -allowUntrusted:true `
-            -dest:contentPath=$webconfigPath,computername=$MsDeployLocation/MsDeploy.axd?site=$deployIisAppPath,username=$msDeployUserName,password=$msDeployPassword,authtype=basic
-        Write-Host "done."
+        -verb:sync `
+        -source:contentPath=$resolvedAppOfflineFilePath `
+        -dest:contentPath=$deployIisAppPath/app_offline.htm,computername=$MsDeployLocation/MsDeploy.axd?site=$deployIisAppPath,username=$msDeployUserName,password=$msDeployPassword,authtype=basic,IncludeAcls="False" `
+        -allowUntrusted
+
+        $url = "http://$webAppHost"
+        $response = try { Invoke-WebRequest -Uri $url } catch { $_.Exception.Response } # catch 503
+
+        if ($response.StatusCode -eq 503)
+        {
+            Write-Host "503 received, site is offline."
+        }
+		else 
+		{
+			Write-Error "Status code was: " + $response.StatusCode
+		}
+
+        $secondsToWait = 5
+        Write-Host "Pausing for $secondsToWait seconds..." -NoNewline
+        Start-Sleep -Seconds $secondsToWait
+        Write-Host "done." -NoNewline
+        Write-Host ""
 
         $compileSourcePath = Resolve-Path -Path ("$CIRoot\$compileSourcePath")
-
+   
         Write-Host "-------------"
-        Write-Host "Deploying..."
-
+        Write-Host "Syncing files '$deployIisAppPath'..."
+   
         & $msDeploy `
             -verb:sync `
             -source:contentPath=$compileSourcePath `
             -allowUntrusted:true `
             -dest:contentPath=$contentPathDes,computername=$MsDeployLocation/MsDeploy.axd?site=$deployIisAppPath,username=$msDeployUserName,password=$msDeployPassword,authtype=basic
+
         Write-Host "done."
     }
 }

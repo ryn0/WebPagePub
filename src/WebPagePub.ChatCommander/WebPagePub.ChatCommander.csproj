@@ -15,7 +15,7 @@
  
     <PackageReference Include="CsvHelper" Version="30.0.1" />
  
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.52" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.53" />
  
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
  
@@ -43,6 +43,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="WorkFlows\Prompts\ArticleInternalLinks\mouthguardstore_14-sep-2023_link-opportunitie_2023-09-14_10-18-48.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticleInternalLinks\mouthguardstore_22-sep-2023_link-opportunitie_2023-09-22_16-34-51.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="WorkFlows\Prompts\ArticleInternalLinks\ryanwilliams_10-sep-2023_link-opportunities_2023-09-11_10-41-44.csv">

@@ -27,18 +27,17 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 
         public async Task Execute()
         {
+            if (openAiApiClient == null)
+            {
+                throw new NullReferenceException($"{openAiApiClient}");
+            }
+
             startDateTime = DateTime.UtcNow;
             WriteStartMessage(GetType().Name);
 
             int? authorId = GetAuthor();
 
-            var siteSection = sitePageManager.GetSiteSection(SectionKey);
-
-            if (siteSection == null)
-            {
-                throw new Exception("Site section missing");
-            }
-
+            var siteSection = sitePageManager.GetSiteSection(SectionKey) ?? throw new Exception("Site section missing");
             var fileDir = Directory.GetCurrentDirectory() + @"\WorkFlows\Prompts\ArticleWithCalculator";
 
             // 00
@@ -49,7 +48,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
             Console.Write($"Loading keywords...");
             var keywords = File.ReadAllText(Path.Combine(fileDir, "01-LoadKeywords.txt"), Encoding.UTF8);
             var keywordList = TextHelpers.GetUniqueLines(keywords);
-            Console.WriteLine($"{keywordList.Count()} found.");
+            Console.WriteLine($"{keywordList.Length} found.");
 
             // 02
             var promptTextRaw02 = File.ReadAllText(Path.Combine(fileDir, "02-ArticleKey.txt"), Encoding.UTF8);
@@ -225,7 +224,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
             WriteCompletionMessage();
         }
  
-        private string FormatPromptTextKeyword(string promptTextRaw, string keyword)
+        private static string FormatPromptTextKeyword(string promptTextRaw, string keyword)
         {
             keyword = keyword.Trim();
             promptTextRaw = promptTextRaw.Replace(QuestionPlaceholder, keyword);

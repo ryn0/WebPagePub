@@ -33,11 +33,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeAnalysis", "CodeAnalysi
 		stylecop.json = stylecop.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebPagePub.Data.UnitTests", "Tests\WebPagePub.Data.UnitTests\WebPagePub.Data.UnitTests.csproj", "{41C507CA-4525-43BA-B5E3-C76D78119669}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.Data.UnitTests", "Tests\WebPagePub.Data.UnitTests\WebPagePub.Data.UnitTests.csproj", "{41C507CA-4525-43BA-B5E3-C76D78119669}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CI", "CI", "{33FBAC70-729B-4CFE-A13E-A21BF0A01E02}"
 	ProjectSection(SolutionItems) = preProject
 		..\CI-Tools\CI-Main.ps1 = ..\CI-Tools\CI-Main.ps1
+		..\CI.bat = ..\CI.bat
 	EndProjectSection
 EndProject
 Global
