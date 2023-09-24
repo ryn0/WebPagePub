@@ -244,10 +244,11 @@ task -name DeployWebApp -depends SetConfigs, RestorePackages, BuildProject, RunU
         }
         else
         {
+            $secondsToWait = 15
             Write-Host "status code is: "([int]$response.StatusCode)"..." -NoNewline
-            Write-Host "waiting 10 seconds and retrying..." -NoNewline
+            Write-Host "waiting $secondsToWait seconds and retrying..." -NoNewline
 
-            Start-Sleep -Seconds 10
+            Start-Sleep -Seconds $secondsToWait
             $response = try { Invoke-WebRequest -Uri $url } catch { $_.Exception.Response } # catch 
 
             if ($response.StatusCode -eq 200)
@@ -259,7 +260,7 @@ task -name DeployWebApp -depends SetConfigs, RestorePackages, BuildProject, RunU
             }
             else 
             {
-                Write-Error "Status code was: " + $response.StatusCode
+                Write-Error "Status code was: " + ([int]$response.StatusCode)
             }
         }
     }
