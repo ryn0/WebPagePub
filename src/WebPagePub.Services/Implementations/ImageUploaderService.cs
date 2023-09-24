@@ -91,18 +91,13 @@ namespace WebPagePub.Services.Implementations
         {
             var extension = photoUrl.GetFileExtensionLower();
 
-            switch (extension)
+            return extension switch
             {
-                case "jpg":
-                case "jpeg":
-                    return ImageFormat.Jpeg;
-                case "png":
-                    return ImageFormat.Png;
-                case "gif":
-                    return ImageFormat.Gif;
-                default:
-                    return ImageFormat.Jpeg;
-            }
+                "jpg" or "jpeg" => ImageFormat.Jpeg,
+                "png" => ImageFormat.Png,
+                "gif" => ImageFormat.Gif,
+                _ => ImageFormat.Jpeg,
+            };
         }
     }
 }

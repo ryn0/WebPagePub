@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using WebPagePub.Core.Utilities;
 using Xunit;
 
@@ -102,29 +103,43 @@ namespace WebPagePub.Core.UnitTests.UtilitiesTests
 
         private void SetPixelsForOriginalImage(Bitmap image)
         {
-            // Let's imagine the original 2x3 image has colors as follows:
-            // Red, Green
-            // Blue, Yellow
-            // White, Black
-            image.SetPixel(0, 0, Color.Red);
-            image.SetPixel(1, 0, Color.Green);
-            image.SetPixel(0, 1, Color.Blue);
-            image.SetPixel(1, 1, Color.Yellow);
-            image.SetPixel(0, 2, Color.White);
-            image.SetPixel(1, 2, Color.Black);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // Let's imagine the original 2x3 image has colors as follows:
+                // Red, Green
+                // Blue, Yellow
+                // White, Black
+                image.SetPixel(0, 0, Color.Red);
+                image.SetPixel(1, 0, Color.Green);
+                image.SetPixel(0, 1, Color.Blue);
+                image.SetPixel(1, 1, Color.Yellow);
+                image.SetPixel(0, 2, Color.White);
+                image.SetPixel(1, 2, Color.Black);
+            }
+            else
+            {
+                throw new Exception("Not implemented for non-Windows platforms");
+            }
         }
 
         private void SetPixelsForExpectedRotatedImage(Bitmap image)
         {
-            // After rotating the above 2x3 image by 90 degrees clockwise, we should get a 3x2 image:
-            // White, Blue, Red
-            // Black, Yellow, Green
-            image.SetPixel(0, 0, Color.White);
-            image.SetPixel(1, 0, Color.Blue);
-            image.SetPixel(2, 0, Color.Red);
-            image.SetPixel(0, 1, Color.Black);
-            image.SetPixel(1, 1, Color.Yellow);
-            image.SetPixel(2, 1, Color.Green);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // After rotating the above 2x3 image by 90 degrees clockwise, we should get a 3x2 image:
+                // White, Blue, Red
+                // Black, Yellow, Green
+                image.SetPixel(0, 0, Color.White);
+                image.SetPixel(1, 0, Color.Blue);
+                image.SetPixel(2, 0, Color.Red);
+                image.SetPixel(0, 1, Color.Black);
+                image.SetPixel(1, 1, Color.Yellow);
+                image.SetPixel(2, 1, Color.Green);
+            }
+            else
+            {
+                throw new Exception("Not implemented for non-Windows platforms");
+            }
         }
     }
 }

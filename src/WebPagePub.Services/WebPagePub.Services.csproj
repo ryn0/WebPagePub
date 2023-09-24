@@ -7,10 +7,10 @@
   </PropertyGroup>
   <ItemGroup>
   <PackageReference Include="Aspose.Imaging" Version="23.8.0" />
-  <PackageReference Include="AWSSDK.Core" Version="3.7.202.1" />
-  <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.200.32" />
+  <PackageReference Include="AWSSDK.Core" Version="3.7.202.13" />
+  <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.200.44" />
   <PackageReference Include="log4net" Version="2.0.15" />
-  <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.2.0" />
+  <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.3.0" />
   <PackageReference Include="NeutrinoAPI" Version="3.6.0" />
   <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
     <PrivateAssets>all</PrivateAssets>
