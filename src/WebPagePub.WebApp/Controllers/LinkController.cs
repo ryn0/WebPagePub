@@ -65,7 +65,8 @@ namespace WebPagePub.Web.Controllers
                 {
                     IpAddress = ipAddress,
                     Url = url,
-                    Headers = headers
+                    Headers = headers,
+                    UserAgent = userAgent
                 });
             }
         }
