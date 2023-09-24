@@ -96,6 +96,11 @@ builder.Services.AddTransient<ISpamFilterService>(provider =>
         config.GetSection("NeutrinoApi:ApiKey").Value);
 });
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 262_144_000;
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
