@@ -265,6 +265,11 @@ namespace WebPagePub.Web.Controllers
                     model = this.CreateDisplayListModel(tagKey: tagKey, pageNumber: pageNumber);
                 }
 
+                if (model != null && IsHomePagePathDuplicateContent(sectionKey, model))
+                {
+                    return RedirectPermanent("~/");
+                }
+
                 this.memoryCache.Set(cacheKey, model, DateTime.UtcNow.AddMinutes(IntegerConstants.PageCachingMinutes));
             }
             else
