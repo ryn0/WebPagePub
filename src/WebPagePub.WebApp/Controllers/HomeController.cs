@@ -747,7 +747,7 @@ namespace WebPagePub.Web.Controllers
         {
             var domain = UrlHelper.GetCurrentDomain(this.HttpContext);
 
-            var cacheKey = CacheHelper.GetpPageCacheKey(sitePageSection);
+            var cacheKey = CacheHelper.GetPageCacheKey(sitePageSection);
             SitePageSection homeSection;
             var cachedValue = this.memoryCache.Get(cacheKey);
 
