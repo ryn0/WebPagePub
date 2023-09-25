@@ -19,7 +19,7 @@ namespace WebPagePub.Web.Helpers
             return cacheKey;
         }
 
-        public static string GetpPageCacheKey(SitePageSection sitePageSection)
+        public static string GetPageCacheKey(SitePageSection sitePageSection)
         {
             var cacheKey = $"sitepagesection-{sitePageSection.Key}".ToLower();
 
