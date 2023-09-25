@@ -231,40 +231,26 @@ task -name DeployWebApp -depends SetConfigs, RestorePackages, BuildProject, RunU
     exec {
 
         $url = "http://$webAppHost"
-        Write-Host "Deployment completed, requesting page '$url'..." -NoNewline 
-        
-        $response = try { Invoke-WebRequest -Uri $url } catch { $_.Exception.Response } # catch 
+        Write-Host "Deployment completed, requesting page '$url'..."    
 
-        if ($response.StatusCode -eq 200)
-        {
-            Write-Host "done." -NoNewline
-            Write-Host
-                
-            Write-Host "COMPLETE!"
-        }
-        else
-        {
-            $secondsToWait = 15
-            Write-Host "status code is: "([int]$response.StatusCode)"..." -NoNewline
-            Write-Host "waiting $secondsToWait seconds and retrying..." -NoNewline
-
-            Start-Sleep -Seconds $secondsToWait
-            $response = try { Invoke-WebRequest -Uri $url } catch { $_.Exception.Response } # catch 
-
+        Retry-Command -ScriptBlock {
+            $response = Invoke-WebRequest -Uri $url
+ 
             if ($response.StatusCode -eq 200)
             {
                 Write-Host "done." -NoNewline
                 Write-Host
-                
+                    
                 Write-Host "COMPLETE!"
             }
-            else 
+            else
             {
-                Write-Error "Status code was: " + ([int]$response.StatusCode)
+				Write-Host "ERROR: "([int]$response.StatusCode)
             }
-        }
+        } -Maximum 10
     }
 }
+
 
 
 ##############
