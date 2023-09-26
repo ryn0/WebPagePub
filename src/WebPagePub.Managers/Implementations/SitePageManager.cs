@@ -233,6 +233,11 @@ namespace WebPagePub.Managers.Implementations
                 {
                     currentRank++;
 
+                    if (currentRank > 1)
+                    {
+                        isFirstPhotoToSitePage = false;
+                    }
+
                     await UploadSizesOfPhotos(
                         sitePageId,
                         allBlogPhotos,
