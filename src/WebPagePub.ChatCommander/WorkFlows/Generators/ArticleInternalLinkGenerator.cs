@@ -56,7 +56,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                     Console.Write(record.Keyword);
 
                     var sourcePageUrl = record.SourcePage;
-
+ 
                     if (sourcePageUrl == null ||
                         !await WebPageChecker.IsWebPageOnlineAsync(sourcePageUrl))
                     {
@@ -92,26 +92,9 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                     var sourcePageContext = record.KeywordContext;
                     var sourcePageKeyword = record.Keyword;
                     var keywordExtactCase = TextHelpers.FindWithExactCasing(sourcePageContext, sourcePageKeyword);
-                    var sourcePageContextWithLink = TextHelpers.CaseInsensitiveReplace(
-                        record.KeywordContext,
-                        keywordExtactCase,
-                        $"<a href=\"{targetPageUrl}\">{keywordExtactCase}</a>");
-
+                    var linkToPlace = $"<a href=\"{targetPageUrl}\">{keywordExtactCase}</a>";
                     var sourcePageContent = sourcePage.Content;
-
-                    if (!TextHelpers.IsTextSurroundedByPTag(sourcePageContext, sourcePageContent))
-                    {
-                        Console.Write(" - text not in paragraph");
-
-                        if (!TextHelpers.IsTextSurroundedByLiTag(sourcePageContext, sourcePageContent))
-                        {
-                            Console.Write(" - text not in list item");
-                            Console.WriteLine();
-                            continue;
-                        }
-                    }
-
-                    var linkedPageContent = TextHelpers.FindAndReplace(sourcePageContent, sourcePageContext, sourcePageContextWithLink);
+                    var linkedPageContent = TextHelpers.InsertLinkInHtml(sourcePageContent, sourcePageContext, sourcePageKeyword, linkToPlace);
 
                     if (linkedPageContent == sourcePageContent)
                     {
