@@ -69,7 +69,8 @@ builder.Services.AddSingleton<ISiteFilesRepository, SiteFilesRepository>();
 
 builder.Services.AddSingleton<IBlobService>(provider =>
 {
-    var cacheService = provider.GetRequiredService<ICacheService>();
+    using var scope = provider.CreateScope();
+    var cacheService = scope.ServiceProvider.GetRequiredService<ICacheService>();
     var azureStorageConnection = cacheService.GetSnippet(SiteConfigSetting.AzureStorageConnectionString);
 
     if (!string.IsNullOrEmpty(azureStorageConnection))
@@ -81,7 +82,7 @@ builder.Services.AddSingleton<IBlobService>(provider =>
     }
     else
     {
-       return new BlobService(null);
+        return new BlobService(null);
     }
 });
 

@@ -441,6 +441,8 @@ namespace WebPagePub.Web.Controllers
             {
                 var cacheKey = CacheHelper.GetPageCacheKey(dbModel.SitePageSection.Key, model.Key);
                 this.memoryCache.Remove(cacheKey);
+                cacheKey = CacheHelper.GetPageCacheKey(dbModel.SitePageSection.Key, model.Key);
+                this.memoryCache.Remove(cacheKey);
             }
         }
 
