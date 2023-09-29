@@ -63,7 +63,7 @@ namespace WebPagePub.ChatCommander.Utilities
             articleTitle = articleTitle.Replace("</h2>", string.Empty);
             articleTitle = articleTitle.Replace("Title:", string.Empty);
             articleTitle = articleTitle.Replace("title:", string.Empty);
-            
+
             if (articleTitle.StartsWith("'"))
             {
                 articleTitle = articleTitle.Remove(0, 1);
@@ -87,7 +87,8 @@ namespace WebPagePub.ChatCommander.Utilities
             return string.Empty;
         }
 
-        public static string AddClassesToButton(string text) {
+        public static string AddClassesToButton(string text)
+        {
             text = text.Trim();
             var newText = text.Replace("<button", @"<button class=""btn btn-success"" ");
             return newText;
@@ -213,6 +214,39 @@ namespace WebPagePub.ChatCommander.Utilities
 
             string pattern = $@"<li>[^<]*{Regex.Escape(input)}[^<]*</li>";
             return Regex.IsMatch(text, pattern, RegexOptions.IgnoreCase);
+        }
+
+        public static string InsertLinkInHtml(string htmlContent, string context, string termToLink, string linkTemplate)
+        {
+            // If the term is not in the context or the context is not in the htmlContent, return the original content.
+            if (!context.Contains(termToLink, StringComparison.OrdinalIgnoreCase) ||
+                !htmlContent.Contains(context, StringComparison.Ordinal))
+            {
+                return htmlContent;
+            }
+
+            // We'll use the context to locate the exact position of the term within the htmlContent
+            int contextStart = htmlContent.IndexOf(context, StringComparison.Ordinal);
+            int termStartWithinContext = context.IndexOf(termToLink, StringComparison.OrdinalIgnoreCase);
+
+            // Determine the start index of the term within the htmlContent
+            int termStartInHtml = contextStart + termStartWithinContext;
+
+            // Extract the term with its original casing from the htmlContent
+            string actualTerm = htmlContent.Substring(termStartInHtml, termToLink.Length);
+
+            // Extract the href value from the linkTemplate
+            Match linkMatch = Regex.Match(linkTemplate, @"<a href=""([^""]*)""[^>]*>([^<]*)</a>", RegexOptions.IgnoreCase);
+            if (!linkMatch.Success)
+                return htmlContent;
+
+            string hrefValue = linkMatch.Groups[1].Value;
+
+            // Construct the final link using the actualTerm
+            string finalLink = $@"<a href=""{hrefValue}"">{actualTerm}</a>";
+
+            // Replace the actualTerm with the final link within the htmlContent
+            return htmlContent.Substring(0, termStartInHtml) + finalLink + htmlContent.Substring(termStartInHtml + actualTerm.Length);
         }
     }
 }

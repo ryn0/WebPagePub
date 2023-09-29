@@ -142,5 +142,44 @@ namespace WebPagePub.ChatCommander.UnitTests.HelpersTests
         {
             Assert.Equal(expected, TextHelpers.IsTextSurroundedByLiTag(input, text));
         }
+
+        [Theory(Skip ="this isn't finished being worked on")]
+        // new link to be placed in text, add link
+        [InlineData(
+            "\r\n<h3>Alternative Treatments and Techniques</h3>\r\n\r\n<h4>Oral Appliances</h4>\r\n\r\n<p>For example, mandibular advancement devices (MADs) are oral appliances that keep the throat open and can be a good substitute for CPAP.</p>\r\n\r\n<h4>Positional Therapy</h4>\r\n\r\n<p>Certain sleeping positions can minimize the occurrence of apnea events. Positional therapy involves altering sleeping positions, such as avoiding back sleep, to maintain an open airway.</p>\r\n\r\n<h4>Acupuncture</h4>\r\n\r\n<p>While more research is needed, some studies suggest that acupuncture could help alleviate sleep apnea symptoms by influencing the muscles and nerves involved in breathing.</p>\r\n",
+            "\"Alternative Treatments and Techniques Oral Appliances For example, mandibular advancement devices (MADs) are oral appliances that keep the throat open and can be a good substitute for CPAP.",
+            "mandibular advancement devices (mads)",
+            @"<a href=""https://snoringmouthpiecereview.com/articles/mandibular-advancement-device"">mandibular advancement devices (mads)</a>",
+            "\r\n<h3>Alternative Treatments and Techniques</h3>\r\n\r\n<h4>Oral Appliances</h4>\r\n\r\n<p>For example, <a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">mandibular advancement devices (MADs)</a> are oral appliances that keep the throat open and can be a good substitute for CPAP.</p>\r\n\r\n<h4>Positional Therapy</h4>\r\n\r\n<p>Certain sleeping positions can minimize the occurrence of apnea events. Positional therapy involves altering sleeping positions, such as avoiding back sleep, to maintain an open airway.</p>\r\n\r\n<h4>Acupuncture</h4>\r\n\r\n<p>While more research is needed, some studies suggest that acupuncture could help alleviate sleep apnea symptoms by influencing the muscles and nerves involved in breathing.</p>\r\n")]
+        // existing link already in text, do not add double link
+        [InlineData(
+            "\r\n<h3>Alternative Treatments and Techniques</h3>\r\n\r\n<h4>Oral Appliances</h4>\r\n\r\n<p>For example, <a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">mandibular advancement devices (MADs)</a> are oral appliances that keep the throat open and can be a good substitute for CPAP.</p>\r\n\r\n<h4>Positional Therapy</h4>\r\n\r\n<p>Certain sleeping positions can minimize the occurrence of apnea events. Positional therapy involves altering sleeping positions, such as avoiding back sleep, to maintain an open airway.</p>\r\n\r\n<h4>Acupuncture</h4>\r\n\r\n<p>While more research is needed, some studies suggest that acupuncture could help alleviate sleep apnea symptoms by influencing the muscles and nerves involved in breathing.</p>\r\n",
+            "\"Alternative Treatments and Techniques Oral Appliances For example, mandibular advancement devices (MADs) are oral appliances that keep the throat open and can be a good substitute for CPAP.",
+            "mandibular advancement devices (mads)",
+            @"<a href=""https://snoringmouthpiecereview.com/articles/mandibular-advancement-device"">mandibular advancement devices (mads)</a>",
+            "\r\n<h3>Alternative Treatments and Techniques</h3>\r\n\r\n<h4>Oral Appliances</h4>\r\n\r\n<p>For example, <a href=\"https://snoringmouthpiecereview.com/articles/mandibular-advancement-device\">mandibular advancement devices (MADs)</a> are oral appliances that keep the throat open and can be a good substitute for CPAP.</p>\r\n\r\n<h4>Positional Therapy</h4>\r\n\r\n<p>Certain sleeping positions can minimize the occurrence of apnea events. Positional therapy involves altering sleeping positions, such as avoiding back sleep, to maintain an open airway.</p>\r\n\r\n<h4>Acupuncture</h4>\r\n\r\n<p>While more research is needed, some studies suggest that acupuncture could help alleviate sleep apnea symptoms by influencing the muscles and nerves involved in breathing.</p>\r\n")]
+        // link into text which is in header, do not add link  
+        [InlineData(
+            "\r\n<h3>Alternative Treatments and Techniques</h3>\r\n\r\n<h4>Oral Appliances</h4>\r\n\r\n<p>For example, mandibular advancement devices (MADs) are oral appliances that keep the throat open and can be a good substitute for CPAP.</p>\r\n\r\n<h4>Positional Therapy</h4>\r\n\r\n<p>Certain sleeping positions can minimize the occurrence of apnea events. Positional therapy involves altering sleeping positions, such as avoiding back sleep, to maintain an open airway.</p>\r\n\r\n<h4>Acupuncture</h4>\r\n\r\n<p>While more research is needed, some studies suggest that acupuncture could help alleviate sleep apnea symptoms by influencing the muscles and nerves involved in breathing.</p>\r\n",
+            "\"Alternative Treatments and Techniques Oral Appliances For example, mandibular advancement devices (MADs) are oral appliances that keep the throat open and can be a good substitute for CPAP.",
+            "treatments and techniques",
+            @"<a href=""https://snoringmouthpiecereview.com/articles/treatments-and-techniques"">treatments and techniques</a>",
+            "\r\n<h3>Alternative Treatments and Techniques</h3>\r\n\r\n<h4>Oral Appliances</h4>\r\n\r\n<p>For example, mandibular advancement devices (MADs) are oral appliances that keep the throat open and can be a good substitute for CPAP.</p>\r\n\r\n<h4>Positional Therapy</h4>\r\n\r\n<p>Certain sleeping positions can minimize the occurrence of apnea events. Positional therapy involves altering sleeping positions, such as avoiding back sleep, to maintain an open airway.</p>\r\n\r\n<h4>Acupuncture</h4>\r\n\r\n<p>While more research is needed, some studies suggest that acupuncture could help alleviate sleep apnea symptoms by influencing the muscles and nerves involved in breathing.</p>\r\n")]
+        // text is maintained beacause context is not there
+        [InlineData(
+            "\r\n<h3>Alternative Treatments</h3>\r\n\r\n<h4>Devices</h4>\r\n\r\n<p>For example, XYZ devices are helpful.</p>\r\n",
+            "Some other context that does not include XYZ devices term.",
+            "XYZ devices",
+            @"<a href=""https://example.com"">XYZ devices</a>",
+            "\r\n<h3>Alternative Treatments</h3>\r\n\r\n<h4>Devices</h4>\r\n\r\n<p>For example, XYZ devices are helpful.</p>\r\n")]
+        public void InsertLinkInHtmlPutsInLink(string originalHtml, string context, string term, string link, string expected)
+        {
+            Assert.Equal(expected, 
+                TextHelpers.InsertLinkInHtml(
+                originalHtml,
+                context,
+                term,
+                link));
+        }
     }
 }

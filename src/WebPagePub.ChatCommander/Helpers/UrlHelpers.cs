@@ -2,9 +2,10 @@
 {
     public class WebPageChecker
     {
+        private static readonly HttpClient client = new();
+
         public static async Task<bool> IsWebPageOnlineAsync(Uri uri)
         {
-            using HttpClient client = new();
             try
             {
                 HttpResponseMessage response = await client.GetAsync(uri);
