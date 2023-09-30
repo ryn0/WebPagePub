@@ -297,9 +297,28 @@ namespace WebPagePub.Web.Controllers
             ViewData["PhotoUrlWidth"] = model.PageContent.PhotoUrlWidth;
             ViewData["PhotoUrlHeight"] = model.PageContent.PhotoUrlHeight;
             ViewData["MetaDescription"] = model.PageContent.MetaDescription;
-            ViewData[StringConstants.CanonicalUrl] = model.PageContent.CanonicalUrl;
+            ViewData[WebApp.Constants.StringConstants.CanonicalUrl] = model.PageContent.CanonicalUrl;
             ViewData["ExcludePage"] = model.PageContent.ExcludePage;
-            ViewData["ArticlePublishTime"] = model.PageContent.LastUpdatedDateTimeUtcIso;
+
+            if (model.PageContent.LastUpdatedDateTimeUtc == DateTime.MinValue ||
+                (model.PageType == PageType.PageList && model.Items.Count > 0))
+            {
+                ViewData[WebApp.Constants.StringConstants.ArticlePublishTime] = model.Items.OrderByDescending(x => x.PublishedDateTimeUtc)
+                                                            .First()
+                                                            .LastUpdatedDateTimeUtcIso;
+            }
+            else
+            {
+                ViewData[WebApp.Constants.StringConstants.ArticlePublishTime] = model.PageContent.LastUpdatedDateTimeUtcIso;
+            }
+
+            if (ViewData[WebApp.Constants.StringConstants.CanonicalUrl] == null)
+            {
+                var currentDomain = UrlHelper.GetCurrentDomain(this.HttpContext);
+                ViewData[WebApp.Constants.StringConstants.CanonicalUrl] = 
+                    string.Format("{0}{1}", currentDomain, HttpContext.Request.Path);
+            }
+
             ViewData["AuthorName"] = model.AuthorName;
 
             switch (model.PageType)
