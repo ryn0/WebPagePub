@@ -8,10 +8,10 @@
 {
     <meta property="og:title" content="@ViewData["Title"]" />
 }
-@if (ViewData[StringConstants.CanonicalUrl] != null &&
-!string.IsNullOrWhiteSpace(Convert.ToString(ViewData[StringConstants.CanonicalUrl])))
+@if (ViewData[WebApp.Constants.StringConstants.CanonicalUrl] != null &&
+!string.IsNullOrWhiteSpace(Convert.ToString(ViewData[WebApp.Constants.StringConstants.CanonicalUrl])))
 {
-    <meta property="og:url" content="@ViewData[StringConstants.CanonicalUrl]" />
+    <meta property="og:url" content="@ViewData[WebApp.Constants.StringConstants.CanonicalUrl]" />
 }
 @if (ViewData["MetaDescription"] != null &&
 !string.IsNullOrWhiteSpace(Convert.ToString(ViewData["MetaDescription"])))
@@ -35,9 +35,9 @@ Convert.ToString(ViewData["PhotoUrlWidth"]) != "0")
 {
     <meta property="og:image:height" content="@ViewData["PhotoUrlHeight"]" />
 }
-@if (ViewData["ArticlePublishTime"] != null)
+@if (ViewData[WebApp.Constants.StringConstants.ArticlePublishTime] != null)
 {
-    <meta property="article:published_time" content="@ViewData["ArticlePublishTime"]" />
+    <meta property="article:published_time" content="@ViewData[WebApp.Constants.StringConstants.ArticlePublishTime]" />
 }
 @if (ViewData["AuthorName"] != null &&
 !string.IsNullOrWhiteSpace(Convert.ToString(ViewData["AuthorName"])))
@@ -71,10 +71,10 @@ Convert.ToString(ViewData["PhotoUrlWidth"]) != "0")
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     }
 }
-@if (ViewData[StringConstants.CanonicalUrl] != null &&
-!string.IsNullOrWhiteSpace(Convert.ToString(ViewData[StringConstants.CanonicalUrl])))
+@if (ViewData[WebApp.Constants.StringConstants.CanonicalUrl] != null &&
+!string.IsNullOrWhiteSpace(Convert.ToString(ViewData[WebApp.Constants.StringConstants.CanonicalUrl])))
 {
-    <link rel="canonical" href="@ViewData[StringConstants.CanonicalUrl]" />
+    <link rel="canonical" href="@ViewData[WebApp.Constants.StringConstants.CanonicalUrl]" />
 }
 @{
     var googleSiteVerification = _cacheHelper.GetSnippet(SiteConfigSetting.GoogleSiteVerification);

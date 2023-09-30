@@ -30,8 +30,6 @@
 
         public const string DefaultKey = "index";
 
-        public const string CanonicalUrl = "CanonicalUrl";
-
         public const string RedirectsCacheKey = "RedirectsCacheKey";
 
         public static readonly string[] BotUserAgents =
