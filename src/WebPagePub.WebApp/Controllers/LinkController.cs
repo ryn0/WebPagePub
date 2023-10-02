@@ -68,7 +68,7 @@ namespace WebPagePub.Web.Controllers
                     Url = url,
                     Headers = headers,
                     UserAgent = userAgent,
-                    RefererUrl =  referrer
+                    RefererUrl =  referrer ?? string.Empty
                 });
             }
         }

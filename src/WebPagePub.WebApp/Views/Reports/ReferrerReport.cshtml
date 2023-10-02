@@ -80,7 +80,7 @@
         {
             <tr>
                 <td>
-                @if (item.UrlRerrer == null)
+                @if (string.IsNullOrWhiteSpace(item.UrlRerrer))
                 {
                     <i>Unknown</i>
                 }
