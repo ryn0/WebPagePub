@@ -17,5 +17,7 @@ namespace WebPagePub.Data.Models.Db
         public string Headers { get; set; }
 
         public string Url { get; set; }
+
+        public string RefererUrl { get; set; }
     }
 }
