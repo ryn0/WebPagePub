@@ -60,13 +60,15 @@ namespace WebPagePub.Web.Controllers
             {
                 var ipAddress = context.Connection?.RemoteIpAddress?.ToString();
                 var url = request.GetDisplayUrl();
+                var referrer = HttpContext.Request.Headers["Referer"].ToString();
 
                 await this.clickLogRepository.CreateAsync(new ClickLog()
                 {
                     IpAddress = ipAddress,
                     Url = url,
                     Headers = headers,
-                    UserAgent = userAgent
+                    UserAgent = userAgent,
+                    RefererUrl =  referrer
                 });
             }
         }
