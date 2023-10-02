@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace WebPagePub.Web.Models
+﻿namespace WebPagePub.WebApp.Models.Reports
 {
     public class ClickReportModel
     {
@@ -9,7 +6,7 @@ namespace WebPagePub.Web.Models
 
         public int UniqueIps { get; set; }
 
-        public List<UrlClickReportModel> UrlClicks { get; set; } = new List<UrlClickReportModel>();
+        public List<ClickReportItemModel> UrlClicks { get; set; } = new List<ClickReportItemModel>();
 
         public DateTime StartDate { get; set; }
 

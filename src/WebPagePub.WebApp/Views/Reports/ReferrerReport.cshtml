@@ -1,7 +1,7 @@
-﻿@model WebPagePub.WebApp.Models.Reports.ClickReportModel
+﻿@model WebPagePub.WebApp.Models.Reports.ReferrerReportModel
  
 @{
-    ViewData["Title"] = "Click Report";
+    ViewData["Title"] = "Referrer Report";
 }
  <h2>@ViewData["Title"]</h2>
  <hr />
@@ -75,14 +75,25 @@
         </tr>
     </thead>
     <tbody>
+
         @foreach (var item in Model.UrlClicks)
         {
             <tr>
-                <td>@item.Url</td>
-                <td>@item.TotalClicks</td>
-                <td>@item.UniqueIps</td>
+                <td>
+                @if (item.UrlRerrer == null)
+                {
+                    <i>Unknown</i>
+                }
+                else
+                {
+                    @item.UrlRerrer
+                }
+                 </td>
+                <td> @item.TotalClicks</td>
+                <td> @item.UniqueIps</td>
             </tr>
-        }        
+        }
+        
     </tbody>
 </table>
 

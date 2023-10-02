@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Web.Models;
+using WebPagePub.WebApp.Models.Reports;
 
 namespace WebPagePub.Web.Controllers
 {
@@ -20,6 +21,61 @@ namespace WebPagePub.Web.Controllers
         public IActionResult Index()
         {
             return this.View();
+        }
+
+        [Route("reports/referrer")]
+        public IActionResult ReferrerReport(DateTime? startDate, DateTime? endDate)
+        {
+            var now = DateTime.UtcNow;
+
+            if (startDate == null)
+            {
+                startDate = now.AddDays(-1);
+            }
+
+            if (endDate == null)
+            {
+                endDate = now;
+            }
+
+            var model = new ReferrerReportModel
+            {
+                StartDate = Convert.ToDateTime(startDate),
+                EndDate = new DateTime(endDate.Value.Year, endDate.Value.Month, endDate.Value.Day, 23, 59, 59)
+            };
+            var clicksInRange = this.clickLogRepository.GetClicksInRange(model.StartDate, model.EndDate);
+
+            model.TotalClicks = clicksInRange.Count();
+            model.UniqueIps = clicksInRange.DistinctBy(x => x.IpAddress).Count();
+
+            foreach (var item in clicksInRange)
+            {
+                var urlClickItem = model.UrlClicks.FirstOrDefault(x => x.UrlRerrer == item.RefererUrl);
+
+                if (urlClickItem == null)
+                {
+                    model.UrlClicks.Add(new ReferrerReportItemModel()
+                    {
+                        UrlRerrer = item.RefererUrl,
+                        TotalClicks = 1,
+                        IpsForClick = new List<string>()
+                        {
+                            item.IpAddress
+                        }
+                    });
+                }
+                else
+                {
+                    urlClickItem.TotalClicks = urlClickItem.TotalClicks + 1;
+                    urlClickItem.IpsForClick.Add(item.IpAddress);
+                }
+            }
+
+            model.UrlClicks = model.UrlClicks.OrderByDescending(x => x.TotalClicks)
+                                             .ThenByDescending(x => x.UniqueIps)
+                                             .ToList();
+
+            return this.View(model);
         }
 
         [Route("reports/clicks")]
@@ -53,7 +109,7 @@ namespace WebPagePub.Web.Controllers
 
                 if (urlClickItem == null)
                 {
-                    model.UrlClicks.Add(new UrlClickReportModel()
+                    model.UrlClicks.Add(new ClickReportItemModel()
                     {
                         Url = item.Url,
                         TotalClicks = 1,

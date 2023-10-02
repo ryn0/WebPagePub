@@ -1,6 +1,6 @@
-﻿namespace WebPagePub.Web.Models
+﻿namespace WebPagePub.WebApp.Models.Reports
 {
-    public class UrlClickReportModel
+    public class ClickReportItemModel
     {
         public string Url { get; set; } = default!;
 
@@ -12,7 +12,7 @@
         {
             get
             {
-                return this.IpsForClick.Distinct().Count();
+                return IpsForClick.Distinct().Count();
             }
         }
     }
