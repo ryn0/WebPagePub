@@ -27,7 +27,7 @@ namespace WebPagePub.Web.Controllers
         private readonly ITagRepository tagRepository;
         private readonly IMemoryCache memoryCache;
         private readonly ICacheService cacheService;
-        private IHttpContextAccessor accessor;
+        private readonly IHttpContextAccessor accessor;
 
         public HomeController(
             IHttpContextAccessor accessor,
