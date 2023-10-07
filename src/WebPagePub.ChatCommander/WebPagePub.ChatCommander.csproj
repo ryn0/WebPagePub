@@ -15,7 +15,7 @@
  
     <PackageReference Include="CsvHelper" Version="30.0.1" />
  
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.53" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.54" />
  
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
  
@@ -48,6 +48,9 @@
     <None Update="WorkFlows\Prompts\ArticleInternalLinks\mouthguardstore_22-sep-2023_link-opportunitie_2023-09-22_16-34-51.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="WorkFlows\Prompts\ArticleInternalLinks\mouthguardstore_22-sep-2023_link-opportunitie_2023-09-25_16-02-39.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="WorkFlows\Prompts\ArticleInternalLinks\ryanwilliams_10-sep-2023_link-opportunities_2023-09-11_10-41-44.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -58,6 +61,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="WorkFlows\Prompts\ArticleInternalLinks\snoringmouthpiecereview_22-sep-2023_link-oppo_2023-09-22_13-35-09.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkFlows\Prompts\ArticleInternalLinks\snoringmouthpiecereview_25-sep-2023_link-oppo_2023-09-25_09-49-17.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="WorkFlows\Prompts\ArticlesFromUrl\00-Setup.txt">
