@@ -835,6 +835,7 @@ namespace WebPagePub.Web.Controllers
 
         private IActionResult Show404Page()
         {
+            this.ViewData["Title"] = "Page Not Found";
             this.Response.StatusCode = 404;
 
             return this.View("Page404");
