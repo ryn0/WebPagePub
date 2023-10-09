@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 using WebPagePub.Data.Repositories.Interfaces;
-using WebPagePub.Web.Models;
 using WebPagePub.WebApp.Models.Reports;
 
 namespace WebPagePub.Web.Controllers
