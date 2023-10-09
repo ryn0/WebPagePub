@@ -19,11 +19,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 
+builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
+
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 builder.Services.AddTransient<ICacheService, CacheService>();
-
-builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
@@ -119,7 +119,8 @@ var redirects = redirectRepo?.GetAll();
 
 var options = new RewriteOptions()
     .AddRedirectToHttpsPermanent()
-    .Add(new RedirectWwwToNonWwwRule());
+    .Add(new RedirectWwwToNonWwwRule())
+    .Add(new RedirectLowerCaseRule());
 
 if (redirects != null)
 {
