@@ -31,14 +31,12 @@ namespace WebPagePub.Web.Controllers
         public async Task<ActionResult> Go(string key)
         {
             var url = this.GetLinkForKey(key);
+            Response.Headers.Add("X-Robots-Tag", "noindex, nofollow");
 
             if (string.IsNullOrEmpty(url))
             {
-                Response.Headers.Add("X-Robots-Tag", "noindex, nofollow");
                 return this.Redirect("~/");
             }
-
-            Response.Headers.Add("X-Robots-Tag", "noindex, nofollow");
 
             await this.LogClickAsync();
 
