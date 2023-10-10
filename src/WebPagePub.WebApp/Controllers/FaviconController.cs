@@ -86,7 +86,7 @@ namespace WebPagePub.Web.Controllers
                 switch (fileName.GetFileExtensionLower())
                 {
                     case "png":
-                        this.Response.Headers.Add("Cache-Control", string.Format("public, max-age={0}", IntegerConstants.OneWeekInSeconds));
+                        this.Response.Headers.Add("Cache-Control", string.Format("public, max-age={0}", IntegerConstants.OneYearInSeconds));
                         return this.File(ms, "image/png");
                     case "json":
                         return this.File(ms, "application/json");

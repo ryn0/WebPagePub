@@ -130,7 +130,7 @@ namespace WebPagePub.Data.BaseClasses
                     break;
             }
 
-            blockBlob.Properties.CacheControl = string.Format("public, max-age={0}", IntegerConstants.OneWeekInSeconds);
+            blockBlob.Properties.CacheControl = string.Format("public, max-age={0}", IntegerConstants.OneYearInSeconds);
 
             try
             {
