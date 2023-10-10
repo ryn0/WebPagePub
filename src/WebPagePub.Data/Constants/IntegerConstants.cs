@@ -9,5 +9,7 @@
         public const int MaxAgeInSeconds = 1800;
 
         public const int OneWeekInSeconds = 604800;
+
+        public const int OneYearInSeconds = 31536000;
     }
 }
