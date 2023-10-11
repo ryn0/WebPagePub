@@ -33,7 +33,7 @@
         {
         <tr>
             <td>
-                <a href="~/go/@item.LinkKey">@item.LinkKey</a>
+                <a target="_blank" href="~/go/@item.LinkKey">@item.LinkKey</a>
             </td>
           
             <td>
@@ -46,8 +46,6 @@
                                         new { role = "form", onsubmit = string.Format(@"return confirm('Do you really want to delete this?');") }))
                 {
                     <button type="submit" name="LinkRedirectionId" value="@item.LinkRedirectionId" class="btn-danger btn-sm"> &#x1F5D1;</button>
-
-
                 }
             </td>
         </tr>

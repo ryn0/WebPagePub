@@ -7,6 +7,7 @@
 !string.IsNullOrWhiteSpace(Convert.ToString(ViewData["Title"])))
 {
     <meta property="og:title" content="@ViewData["Title"]" />
+    <meta name="twitter:title" content="@ViewData["Title"]" />
 }
 @if (ViewData[WebApp.Constants.StringConstants.CanonicalUrl] != null &&
 !string.IsNullOrWhiteSpace(Convert.ToString(ViewData[WebApp.Constants.StringConstants.CanonicalUrl])))
@@ -22,6 +23,7 @@
 !string.IsNullOrWhiteSpace(Convert.ToString(ViewData["PhotoUrl"])))
 {
     <meta property="og:image" content="@ViewData["PhotoUrl"]" />
+    <meta name="twitter:image" content="@ViewData["PhotoUrl"]" />
 }
 @if (ViewData["PhotoUrlWidth"] != null &&
 !string.IsNullOrWhiteSpace(Convert.ToString(ViewData["PhotoUrlWidth"])) &&
@@ -54,6 +56,7 @@ Convert.ToString(ViewData["PhotoUrlWidth"]) != "0")
 !string.IsNullOrWhiteSpace(Convert.ToString(ViewData["MetaDescription"])))
 {
     <meta name="description" content="@ViewData["MetaDescription"]" />
+    <meta name="twitter:description" content="@ViewData["MetaDescription"]" />
 }
 @if (ViewData["MetaKeywords"] != null &&
 !string.IsNullOrWhiteSpace(Convert.ToString(ViewData["MetaKeywords"])))
@@ -82,5 +85,19 @@ Convert.ToString(ViewData["PhotoUrlWidth"]) != "0")
 @if (!string.IsNullOrWhiteSpace(googleSiteVerification))
 {
     @Html.Raw(googleSiteVerification)
+}
+    <meta name="twitter:card" content="summary" /> 
+@if (!string.IsNullOrEmpty(_cacheHelper.GetSnippet(SiteConfigSetting.TwitterUrl)))
+{
+    var url = _cacheHelper.GetSnippet(SiteConfigSetting.TwitterUrl);
 
+    if (!string.IsNullOrWhiteSpace(url))
+    {
+    
+    Uri uriResult;
+    if (Uri.TryCreate(url, UriKind.Absolute, out uriResult))
+    {
+    <meta name="twitter:site" content="@uriResult.Segments.Last()" />
+    }    
+    }
 }
