@@ -93,11 +93,10 @@ Convert.ToString(ViewData["PhotoUrlWidth"]) != "0")
 
     if (!string.IsNullOrWhiteSpace(url))
     {
-    
-    Uri uriResult;
-    if (Uri.TryCreate(url, UriKind.Absolute, out uriResult))
-    {
+        Uri? uriResult;
+        if (Uri.TryCreate(url, UriKind.Absolute, out uriResult) && uriResult != null && uriResult.Segments.Any())
+        {
     <meta name="twitter:site" content="@uriResult.Segments.Last()" />
-    }    
+        }
     }
 }
