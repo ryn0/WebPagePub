@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.WindowsAzure.Storage;
 using System.Net;
 using WebPagePub.Data.DbContextInfo;
@@ -12,6 +14,7 @@ using WebPagePub.Managers.Implementations;
 using WebPagePub.Managers.Interfaces;
 using WebPagePub.Services.Implementations;
 using WebPagePub.Services.Interfaces;
+using WebPagePub.Web.Helpers;
 using WebPagePub.WebApp.AppRules;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -137,6 +140,20 @@ if (redirects != null)
             string.Format("^{0}$", fromPath),
             redirect.PathDestination,
             (int)HttpStatusCode.MovedPermanently);
+    }
+}
+
+var memoryCache = scopedServiceProvider.GetService<IMemoryCache>();
+var linkRepo = scopedServiceProvider.GetService<ILinkRedirectionRepository>();
+var links = linkRepo?.GetAll();
+
+if (links != null && links.Any() && memoryCache != null)
+{
+    foreach (var link in links)
+    {
+        var cacheKey = CacheHelper.GetLinkCacheKey(link.LinkKey);
+
+        memoryCache.Set(cacheKey, link.UrlDestination);
     }
 }
 
