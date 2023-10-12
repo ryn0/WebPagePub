@@ -78,11 +78,14 @@ namespace WebPagePub.Web.Controllers
                 return this.View(model);
             }
 
-            this.linkRedirectionRepository.Create(new LinkRedirection()
+            var result = this.linkRedirectionRepository.Create(new LinkRedirection()
             {
                 LinkKey = model.LinkKey.UrlKey(),
                 UrlDestination = model.UrlDestination
             });
+
+            var cacheKey = CacheHelper.GetLinkCacheKey(result.LinkKey);
+            this.memoryCache.Set(cacheKey, result.UrlDestination);
 
             return this.RedirectToAction(nameof(Index));
         }
