@@ -147,14 +147,16 @@ namespace WebPagePub.Web.Controllers
                 endDate = now;
             }
 
-            var clicksInRange = this.clickLogRepository.GetClicksInRange(Convert.ToDateTime(startDate), new DateTime(endDate.Value.Year, endDate.Value.Month, endDate.Value.Day, 23, 59, 59));
+            var clicksInRange = this.clickLogRepository.GetClicksInRange(
+                Convert.ToDateTime(startDate), 
+                new DateTime(endDate.Value.Year, endDate.Value.Month, endDate.Value.Day, 23, 59, 59));
 
             var sb = new StringBuilder();
 
-            sb.AppendLine("IP Address,User Agent,Headers,URL,Referer URL,Create Date");
+            sb.AppendLine("IP Address,Referer URL,Create Date");
             foreach (var click in clicksInRange)
             {
-                sb.AppendLine($"{click.IpAddress},{click.UserAgent},{click.Headers},{click.Url},{click.RefererUrl},{click.CreateDate}");
+                sb.AppendLine($"{click.IpAddress},{click.Url},{click.RefererUrl},{click.CreateDate}");
             }
 
             return File(Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", "ClickReport.csv");

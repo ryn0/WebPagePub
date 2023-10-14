@@ -50,7 +50,7 @@ namespace WebPagePub.WebApp.Models.SitePage
         public PreviousAndNextModel PreviousAndNext { get; set; } = new PreviousAndNextModel();
 
         public bool AllowCommenting { get; set; }
-
+        public bool IsLive { get; set; }
         public string SectionKey { get; set; } = string.Empty;
         public bool IsHomePageSection { get; set; }
         public bool IsSectionHomePage { get; set; }
