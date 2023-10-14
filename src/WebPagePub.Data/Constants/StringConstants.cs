@@ -44,7 +44,8 @@
                 "Exabot",
                 "facebot",
                 "ia_archiver",
-                "AhrefsSiteAudit",
+                "Mozilla/5.0 (compatible; AhrefsSiteAudit/6.1; +http://ahrefs.com/robot/site-audit)",
+                "ZoominfoBot (zoominfobot at zoominfo dot com)"
         };
     }
 }
