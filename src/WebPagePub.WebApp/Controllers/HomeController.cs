@@ -277,7 +277,7 @@ namespace WebPagePub.Web.Controllers
                 model = (SitePageDisplayModel?)cachedPage;
             }
 
-            if (model == default || (!isPreview && !model.IsLive))
+            if (model == default || (!isPreview && !model.IsLive && string.IsNullOrWhiteSpace(tagKey)))
             {
                 return Show404Page();
             }
