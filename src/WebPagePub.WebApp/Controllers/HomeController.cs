@@ -277,7 +277,7 @@ namespace WebPagePub.Web.Controllers
                 model = (SitePageDisplayModel?)cachedPage;
             }
 
-            if (model == default)
+            if (model == default || !model.IsLive)
             {
                 return Show404Page();
             }
@@ -488,7 +488,8 @@ namespace WebPagePub.Web.Controllers
                 PageType = sitePage.PageType,
                 Review = this.BuildReviewModel(sitePage),
                 PageContent = contentModel,
-                AuthorName = this.SetAuthorName(sitePage.Author)
+                AuthorName = this.SetAuthorName(sitePage.Author),
+                IsLive = sitePage.IsLive,
             };
 
             pages = this.sitePageRepository.GetLivePageBySection(
@@ -546,6 +547,7 @@ namespace WebPagePub.Web.Controllers
                 PageContent = contentModel,
                 Comments = comments,
                 AllowCommenting = sitePage.AllowsComments,
+                IsLive = sitePage.IsLive,
             };
 
             displayModel.PostComment.SitePageId = sitePage.SitePageId;
