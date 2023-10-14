@@ -43,7 +43,8 @@
                 "Sogou",
                 "Exabot",
                 "facebot",
-                "ia_archiver"
+                "ia_archiver",
+                "AhrefsSiteAudit",
         };
     }
 }

@@ -19,5 +19,7 @@ namespace WebPagePub.Data.Models.Db
         public string Url { get; set; }
 
         public string RefererUrl { get; set; }
+
+        public bool IsBot { get; set; }
     }
 }

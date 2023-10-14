@@ -54,11 +54,12 @@ namespace WebPagePub.Web.Controllers
             var userAgent = request.Headers[StringConstants.UserAgent].ToString();
             var headers = this.GetHeadersString(request);
 
-            if (userAgent != null && !StringConstants.BotUserAgents.Any(bot => userAgent.Contains(bot)))
+            if (userAgent != null)
             {
                 var ipAddress = context.Connection?.RemoteIpAddress?.ToString();
                 var url = request.GetDisplayUrl();
-                var referrer = HttpContext.Request.Headers["Referer"].ToString();
+                var referrer = context.Request.Headers["Referer"].ToString();
+                var isBot = StringConstants.BotUserAgents.Any(bot => userAgent.Contains(bot));
 
                 await this.clickLogRepository.CreateAsync(new ClickLog()
                 {
@@ -66,7 +67,8 @@ namespace WebPagePub.Web.Controllers
                     Url = url,
                     Headers = headers,
                     UserAgent = userAgent,
-                    RefererUrl =  referrer ?? string.Empty
+                    RefererUrl =  referrer ?? string.Empty,
+                    IsBot = isBot
                 });
             }
         }
