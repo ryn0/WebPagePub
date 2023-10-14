@@ -10,7 +10,6 @@
     <table class="table">
         <thead>
             <tr>
-
                 <th>Start Date UTC</th>
                 <th>End Date UTC</th>
                 <th></th>
@@ -47,10 +46,11 @@
             <td> @Model.EndDate.ToString("u") </td>
         </tr>
     </tbody>
-
 </table>
- 
-
+@*  
+<a href="@Url.Action("DownloadCsvReport", "Reports", 
+new { startDate = Model.StartDate, endDate = Model.EndDate })" target="_blank" class="btn btn-primary">Download CSV Report</a>
+ *@
 <table class="table">
     <thead>
         <tr>

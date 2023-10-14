@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.WebApp.Models.Reports;
 
@@ -129,6 +130,34 @@ namespace WebPagePub.Web.Controllers
                                              .ToList();
 
             return this.View(model);
+        }
+
+        [Route("reports/downloadCsv")]
+        public IActionResult DownloadCsvReport(DateTime? startDate, DateTime? endDate)
+        {
+            var now = DateTime.UtcNow;
+
+            if (startDate == null)
+            {
+                startDate = now.AddDays(-1);
+            }
+
+            if (endDate == null)
+            {
+                endDate = now;
+            }
+
+            var clicksInRange = this.clickLogRepository.GetClicksInRange(Convert.ToDateTime(startDate), new DateTime(endDate.Value.Year, endDate.Value.Month, endDate.Value.Day, 23, 59, 59));
+
+            var sb = new StringBuilder();
+
+            sb.AppendLine("IP Address,User Agent,Headers,URL,Referer URL,Create Date");
+            foreach (var click in clicksInRange)
+            {
+                sb.AppendLine($"{click.IpAddress},{click.UserAgent},{click.Headers},{click.Url},{click.RefererUrl},{click.CreateDate}");
+            }
+
+            return File(Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", "ClickReport.csv");
         }
     }
 }
