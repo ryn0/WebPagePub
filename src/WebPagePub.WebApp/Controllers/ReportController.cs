@@ -101,6 +101,7 @@ namespace WebPagePub.Web.Controllers
 
             model.TotalClicks = clicksInRange.Count();
             model.UniqueIps = clicksInRange.DistinctBy(x => x.IpAddress).Count();
+            model.TotalBotIps = clicksInRange.DistinctBy(x => x.IpAddress).Where(x => x.IsBot).Count();
 
             foreach (var item in clicksInRange)
             {
