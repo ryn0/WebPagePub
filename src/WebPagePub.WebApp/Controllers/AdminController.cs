@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Repositories.Interfaces;
-using WebPagePub.Web.Helpers;
 using WebPagePub.Web.Models;
 
 namespace WebPagePub.Web.Controllers
@@ -23,7 +22,7 @@ namespace WebPagePub.Web.Controllers
             var totalRequiringModeration = this.sitePageCommentRepository
                                                .GetCommentCountForStatus(CommentStatus.AwaitingModeration);
 
-            var location = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}{Request.QueryString}");
+            var location = new Uri($"{this.Request.Scheme}://{this.Request.Host}{this.Request.Path}{this.Request.QueryString}");
             var url = location.AbsoluteUri;
 
             var model = new AdminManagementModel()

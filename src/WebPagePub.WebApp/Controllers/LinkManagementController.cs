@@ -87,7 +87,7 @@ namespace WebPagePub.Web.Controllers
             var cacheKey = CacheHelper.GetLinkCacheKey(result.LinkKey);
             this.memoryCache.Set(cacheKey, result.UrlDestination);
 
-            return this.RedirectToAction(nameof(Index));
+            return this.RedirectToAction(nameof(this.Index));
         }
 
         [Route("linkmanagement/create")]
@@ -116,7 +116,7 @@ namespace WebPagePub.Web.Controllers
             var cacheKey = CacheHelper.GetLinkCacheKey(linkDbModel.LinkKey);
             this.memoryCache.Remove(cacheKey);
 
-            return this.RedirectToAction(nameof(Index));
+            return this.RedirectToAction(nameof(this.Index));
         }
 
         [Route("linkmanagement/edit")]
@@ -141,7 +141,7 @@ namespace WebPagePub.Web.Controllers
         {
             this.linkRedirectionRepository.Delete(linkRedirectionId);
 
-            return this.RedirectToAction(nameof(Index));
+            return this.RedirectToAction(nameof(this.Index));
         }
     }
 }

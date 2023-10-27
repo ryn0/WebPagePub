@@ -108,7 +108,7 @@ namespace WebPagePub.Web.Controllers
         {
             var siteSection = this.sitePageManager.GetSiteSection(sitePageSectionId);
 
-            return this.View(nameof(EditSiteSection), new SiteSectionEditModel()
+            return this.View(nameof(this.EditSiteSection), new SiteSectionEditModel()
             {
                 SiteSectionId = siteSection.SitePageSectionId,
                 Title = siteSection.Title,
@@ -138,7 +138,7 @@ namespace WebPagePub.Web.Controllers
         [HttpPost]
         public IActionResult EditSiteSection(SiteSectionEditModel model)
         {
-            if (!ModelState.IsValid)
+            if (!this.ModelState.IsValid)
             {
                 throw new Exception();
             }
@@ -161,7 +161,7 @@ namespace WebPagePub.Web.Controllers
         {
             var entry = await this.sitePageManager.SetPhotoAsDefaultAsync(sitePagePhotoId);
 
-            return this.RedirectToAction(nameof(EditSitePage), new { SitePageId = entry.SitePageId });
+            return this.RedirectToAction(nameof(this.EditSitePage), new { SitePageId = entry.SitePageId });
         }
 
         [Route("sitepages")]
@@ -196,7 +196,7 @@ namespace WebPagePub.Web.Controllers
             }
             else
             {
-                model = SetSitePageListModel(siteSectionId, pageNumber, model);
+                model = this.SetSitePageListModel(siteSectionId, pageNumber, model);
             }
 
             return this.View("index", model);
@@ -264,7 +264,7 @@ namespace WebPagePub.Web.Controllers
         {
             var entry = this.sitePageManager.RankPhotoUp(sitePagePhotoId);
 
-            return RedirectToAction(nameof(EditSitePage), new { sitePageId = entry.SitePageId });
+            return this.RedirectToAction(nameof(this.EditSitePage), new { sitePageId = entry.SitePageId });
         }
 
         [Route("sitepages/RankPhotoDown/{sitePagePhotoId}")]
@@ -273,7 +273,7 @@ namespace WebPagePub.Web.Controllers
         {
             var entry = this.sitePageManager.RankPhotoDown(sitePagePhotoId);
  
-            return RedirectToAction(nameof(EditSitePage), new { sitePageId = entry.SitePageId });
+            return this.RedirectToAction(nameof(this.EditSitePage), new { sitePageId = entry.SitePageId });
         }
 
         [Route("sitepages/uploadphotos/{SitePageId}")]
@@ -292,7 +292,7 @@ namespace WebPagePub.Web.Controllers
         [HttpPost]
         public async Task<ActionResult> UploadPhotosAsync(IEnumerable<IFormFile> files, int sitePageId)
         {
-            var photosAsMemoryStreams = await ConvertFormFilesToMemoryStreamsAsync(files);
+            var photosAsMemoryStreams = await this.ConvertFormFilesToMemoryStreamsAsync(files);
             await this.sitePageManager.UploadPhotos(sitePageId, photosAsMemoryStreams);
 
             return this.RedirectToAction(nameof(this.EditSitePage), new { SitePageId = sitePageId });
@@ -303,7 +303,7 @@ namespace WebPagePub.Web.Controllers
         public async Task<IActionResult> DeleteAsync(int sitePageId)
         {
             await this.sitePageManager.DeletePage(sitePageId);
-        
+
             return this.RedirectToAction(nameof(this.SitePages));
         }
 
@@ -340,9 +340,9 @@ namespace WebPagePub.Web.Controllers
 
             if (this.sitePageManager.UpdateSitePage(dbModel))
             {
-                var sitePagePhotoDetails = GetSitePagePhotoDetails(this.sitePageManager.GetBlogPhotos(model.SitePageId), Request.Form);
+                var sitePagePhotoDetails = this.GetSitePagePhotoDetails(this.sitePageManager.GetBlogPhotos(model.SitePageId), this.Request.Form);
                 await this.sitePageManager.UpdatePhotoProperties(model.SitePageId, sitePagePhotoDetails);
-                var sitePageEditManagerModel = ConvertToSitePageEditManagerModel(model);
+                var sitePageEditManagerModel = this.ConvertToSitePageEditManagerModel(model);
                 this.sitePageManager.UpdateBlogTags(sitePageEditManagerModel, dbModel);
 
                 this.ClearCache(model, dbModel);
@@ -528,9 +528,9 @@ namespace WebPagePub.Web.Controllers
                 AllowsComments = sitePage.AllowsComments,
                 IsSectionHomePage = sitePage.IsSectionHomePage,
                 AuthorId = sitePage.AuthorId,
-                Authors = AddAuthors().ToList(),
+                Authors = this.AddAuthors().ToList(),
                 SitePageSectionId = sitePageSection.SitePageSectionId,
-                SiteSections = AddSiteSections()
+                SiteSections = this.AddSiteSections()
             };
 
             var mc = new ModelConverter(this.cacheService);
@@ -591,7 +591,7 @@ namespace WebPagePub.Web.Controllers
         private IList<SelectListItem> AddAuthors()
         {
             var authorList = new List<SelectListItem>();
-            var allAuthors = sitePageManager.GetAllAuthors().OrderBy(x => x.FirstName);
+            var allAuthors = this.sitePageManager.GetAllAuthors().OrderBy(x => x.FirstName);
 
             authorList.Add(new SelectListItem()
             {

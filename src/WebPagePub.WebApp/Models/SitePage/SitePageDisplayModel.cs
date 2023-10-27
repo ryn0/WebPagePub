@@ -13,10 +13,10 @@ namespace WebPagePub.WebApp.Models.SitePage
         {
             this.cacheService = cacheService;
 
-            Organization = new StructedDataOrganizationModel(this.cacheService);
-            Review = new StructureDataReviewModel(this.cacheService);
-            Website = new StructedDataWebsiteModel(this.cacheService);
-            Article = new StructureDataReviewModel(this.cacheService);
+            this.Organization = new StructedDataOrganizationModel(this.cacheService);
+            this.Review = new StructureDataReviewModel(this.cacheService);
+            this.Website = new StructedDataWebsiteModel(this.cacheService);
+            this.Article = new StructureDataReviewModel(this.cacheService);
         }
 
         public SitePageContentModel PageContent { get; set; } = new SitePageContentModel();

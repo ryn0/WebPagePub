@@ -34,7 +34,7 @@ namespace WebPagePub.Web.Controllers
         [Route("sitemap_index.xml")]
         public IActionResult SiteMapIndex()
         {
-            return RedirectPermanent("~/sitemap.xml");
+            return this.RedirectPermanent("~/sitemap.xml");
         }
 
         [Route("sitemap.xml")]
@@ -43,10 +43,10 @@ namespace WebPagePub.Web.Controllers
             var siteMapHelper = new SiteMapHelper();
             string xml;
             var cacheKey = CacheHelper.GetPageCacheKey(
-                    (nameof(SiteMapController)),
-                    (nameof(Index)),
+                    nameof(SiteMapController),
+                    nameof(this.Index),
                     1,
-                    (nameof(Index)));
+                    nameof(this.Index));
 
             var cachedPage = this.memoryCache.Get(cacheKey);
 
@@ -62,7 +62,7 @@ namespace WebPagePub.Web.Controllers
                         continue;
                     }
 
-                    AddPageToSiteMap(page, siteMapHelper);
+                    this.AddPageToSiteMap(page, siteMapHelper);
                 }
 
                 xml = siteMapHelper.GenerateXml();
@@ -82,10 +82,10 @@ namespace WebPagePub.Web.Controllers
         public IActionResult SiteMap()
         {
             var cacheKey = CacheHelper.GetPageCacheKey(
-                                (nameof(SiteMapController)),
-                                (nameof(SiteMap)),
+                                nameof(SiteMapController),
+                                nameof(this.SiteMap),
                                 1,
-                                (nameof(SiteMap)));
+                                nameof(this.SiteMap));
 
             var cachedPage = this.memoryCache.Get(cacheKey);
             var model = new HtmlSiteMapModel();
@@ -106,7 +106,7 @@ namespace WebPagePub.Web.Controllers
                         continue;
                     }
 
-                    AddPagesToSection(model, section, allPagesInSection, indexPage);
+                    this.AddPagesToSection(model, section, allPagesInSection, indexPage);
                 }
 
                 model.SectionPages = model.SectionPages.OrderBy(x => x.AnchorText).ToList();
@@ -120,7 +120,7 @@ namespace WebPagePub.Web.Controllers
                 model = (HtmlSiteMapModel)cachedPage;
             }
 
-            return this.View(nameof(Index), model);
+            return this.View(nameof(this.Index), model);
         }
 
         private void AddPageToSiteMap(SitePage page, SiteMapHelper siteMapHelper)
@@ -158,7 +158,7 @@ namespace WebPagePub.Web.Controllers
             if (page.PageType == Data.Enums.PageType.Photo)
             {
                 var photos = this.sitePageManager.GetBlogPhotos(page.SitePageId).ToList();
-                var siteMapPhotoItems = ConvertToSiteMapImages(photos).ToList();
+                var siteMapPhotoItems = this.ConvertToSiteMapImages(photos).ToList();
                 siteMapHelper.AddUrl(
                     url,
                     lastUpdated,
@@ -174,7 +174,7 @@ namespace WebPagePub.Web.Controllers
 
         private List<SiteMapImageItem> ConvertToSiteMapImages(List<SitePagePhoto> photos)
         {
-            var mc = new ModelConverter(cacheService);
+            var mc = new ModelConverter(this.cacheService);
 
             var items = new List<SiteMapImageItem>();
 
@@ -218,7 +218,7 @@ namespace WebPagePub.Web.Controllers
                     continue;
                 }
 
-                AddPagesInSection(siteSectionPage, page);
+                this.AddPagesInSection(siteSectionPage, page);
             }
 
             siteSectionPage.ChildPages = siteSectionPage.ChildPages.OrderBy(x => x.AnchorText).ToList();

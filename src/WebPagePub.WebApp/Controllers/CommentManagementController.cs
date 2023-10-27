@@ -104,7 +104,7 @@ namespace WebPagePub.Web.Controllers
 
             this.sitePageCommentRepository.Update(dbModel);
 
-            return this.RedirectToAction(nameof(Index));
+            return this.RedirectToAction(nameof(this.Index));
         }
 
         [Route("CommentManagement/deletespam")]
@@ -113,7 +113,7 @@ namespace WebPagePub.Web.Controllers
         {
             var dbModel = this.sitePageCommentRepository.DeleteStaus(CommentStatus.Spam);
 
-            return this.RedirectToAction(nameof(Index));
+            return this.RedirectToAction(nameof(this.Index));
         }
     }
 }

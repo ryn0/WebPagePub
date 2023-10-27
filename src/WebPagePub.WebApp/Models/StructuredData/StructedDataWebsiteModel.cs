@@ -11,8 +11,8 @@ namespace WebPagePub.WebApp.Models.StructuredData
         public StructedDataWebsiteModel(ICacheService cacheService)
         {
             this.cacheService = cacheService;
-            Url = this.cacheService.GetSnippet(SiteConfigSetting.CanonicalDomain);
-            Name = this.cacheService.GetSnippet(SiteConfigSetting.WebsiteName);
+            this.Url = this.cacheService.GetSnippet(SiteConfigSetting.CanonicalDomain);
+            this.Name = this.cacheService.GetSnippet(SiteConfigSetting.WebsiteName);
         }
 
         [JsonProperty("@context")]

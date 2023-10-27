@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Rewrite;
-using Microsoft.Net.Http.Headers;
-using System.Net;
+﻿using System.Net;
 using System.Text;
+using Microsoft.AspNetCore.Rewrite;
+using Microsoft.Net.Http.Headers;
 
 namespace WebPagePub.WebApp.AppRules
 {
@@ -15,10 +15,10 @@ namespace WebPagePub.WebApp.AppRules
             PathString path = context.HttpContext.Request.Path;
             HostString host = context.HttpContext.Request.Host;
 
-            if (path.HasValue && path.Value.Any(char.IsUpper) || host.HasValue && host.Value.Any(char.IsUpper))
+            if ((path.HasValue && path.Value.Any(char.IsUpper)) || (host.HasValue && host.Value.Any(char.IsUpper)))
             {
                 HttpResponse response = context.HttpContext.Response;
-                response.StatusCode = StatusCode;
+                response.StatusCode = this.StatusCode;
                 var sb = new StringBuilder(request.Scheme.ToLower());
                 sb.Append("://");
                 sb.Append(host.Value.ToLower());
@@ -31,6 +31,7 @@ namespace WebPagePub.WebApp.AppRules
                 {
                     sb.Append(request.Path.Value.ToLower());
                 }
+
                 sb.Append(request.QueryString);
 
                 response.Headers[HeaderNames.Location] = sb.ToString();

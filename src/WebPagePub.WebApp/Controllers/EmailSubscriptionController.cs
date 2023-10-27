@@ -42,7 +42,7 @@ namespace WebPagePub.Web.Controllers
                 throw new InvalidOperationException("IP address is not available.");
             }
 
-            if (spamFilterService.IsBlocked(ipAddress))
+            if (this.spamFilterService.IsBlocked(ipAddress))
             {
                 throw new Exception("Invalid IP");
             }

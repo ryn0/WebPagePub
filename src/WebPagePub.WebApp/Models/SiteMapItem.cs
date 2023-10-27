@@ -16,7 +16,7 @@ namespace WebPagePub.WebApp.Models
 
         public bool HasImage()
         {
-            return Images != null && Images.Any();
+            return this.Images != null && this.Images.Any();
         }
     }
 }

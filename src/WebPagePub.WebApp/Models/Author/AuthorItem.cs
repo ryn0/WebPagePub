@@ -9,9 +9,9 @@ namespace WebPagePub.WebApp.Models.Author
             string firstName,
             string lastName)
         {
-            AuthorId = authorId;
-            FirstName = firstName;
-            LastName = lastName;
+            this.AuthorId = authorId;
+            this.FirstName = firstName;
+            this.LastName = lastName;
         }
 
         public string FirstName { get; private set; } = StringConstants.DefaultAuthorName;
@@ -22,7 +22,7 @@ namespace WebPagePub.WebApp.Models.Author
         {
             get
             {
-                return string.Format("{0} {1}", FirstName, LastName);
+                return string.Format("{0} {1}", this.FirstName, this.LastName);
             }
         }
     }

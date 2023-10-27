@@ -18,7 +18,7 @@
             }
 
             var request = context.Request;
-            UriBuilder uriBuilder = new()
+            UriBuilder uriBuilder = new ()
             {
                 Scheme = request.Scheme,
                 Host = request.Host.ToString(),
