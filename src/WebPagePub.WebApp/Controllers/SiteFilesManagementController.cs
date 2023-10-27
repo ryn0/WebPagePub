@@ -49,12 +49,12 @@ namespace WebPagePub.Web.Controllers
                     }
                 }
 
-                return this.RedirectToAction(nameof(Index));
+                return this.RedirectToAction(nameof(this.Index));
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-                return this.RedirectToAction(nameof(Index));
+                return this.RedirectToAction(nameof(this.Index));
             }
         }
 
@@ -71,12 +71,12 @@ namespace WebPagePub.Web.Controllers
                     await this.siteFilesRepository.CreateFolderAsync(folderName, currentDirectory);
                 }
 
-                return this.RedirectToAction(nameof(Index));
+                return this.RedirectToAction(nameof(this.Index));
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-                return this.RedirectToAction(nameof(Index));
+                return this.RedirectToAction(nameof(this.Index));
             }
         }
 
@@ -147,7 +147,7 @@ namespace WebPagePub.Web.Controllers
         {
             await this.siteFilesRepository.DeleteFileAsync(fileUrl);
 
-            return this.RedirectToAction(nameof(Index));
+            return this.RedirectToAction(nameof(this.Index));
         }
 
         [Route("sitefilesmanagement/DeleteFolderAsync")]
@@ -156,7 +156,7 @@ namespace WebPagePub.Web.Controllers
         {
             await this.siteFilesRepository.DeleteFolderAsync(folderUrl);
 
-            return this.RedirectToAction(nameof(Index));
+            return this.RedirectToAction(nameof(this.Index));
         }
     }
 }

@@ -12,15 +12,15 @@ namespace WebPagePub.Managers.Models.SitePages
         {
             get
             {
-                return canonicalUrl;
+                return this.canonicalUrl;
             }
             set
             {
-                canonicalUrl = value;
+                this.canonicalUrl = value;
 
-                if (!string.IsNullOrWhiteSpace(canonicalUrl))
+                if (!string.IsNullOrWhiteSpace(this.canonicalUrl))
                 {
-                    canonicalUrl = canonicalUrl.TrimEnd('/');
+                    this.canonicalUrl = this.canonicalUrl.TrimEnd('/');
                 }
             }
         }
@@ -45,7 +45,7 @@ namespace WebPagePub.Managers.Models.SitePages
         {
             get
             {
-                return Key.ToLower() == "index";
+                return this.Key.ToLower() == "index";
             }
         }
 
@@ -61,13 +61,13 @@ namespace WebPagePub.Managers.Models.SitePages
         {
             get
             {
-                if (LastUpdatedDateTimeUtc > PublishedDateTimeUtc)
+                if (this.LastUpdatedDateTimeUtc > this.PublishedDateTimeUtc)
                 {
-                    return DateUtilities.UtcFormatDate(LastUpdatedDateTimeUtc);
+                    return DateUtilities.UtcFormatDate(this.LastUpdatedDateTimeUtc);
                 }
                 else
                 {
-                    return DateUtilities.UtcFormatDate(PublishedDateTimeUtc);
+                    return DateUtilities.UtcFormatDate(this.PublishedDateTimeUtc);
                 }
             }
         }
@@ -76,7 +76,7 @@ namespace WebPagePub.Managers.Models.SitePages
         {
             get
             {
-                return DateUtilities.FriendlyFormatDate(PublishedDateTimeUtc);
+                return DateUtilities.FriendlyFormatDate(this.PublishedDateTimeUtc);
             }
         }
 
@@ -84,13 +84,13 @@ namespace WebPagePub.Managers.Models.SitePages
         {
             get
             {
-                if (LastUpdatedDateTimeUtc > PublishedDateTimeUtc)
+                if (this.LastUpdatedDateTimeUtc > this.PublishedDateTimeUtc)
                 {
-                    return DateUtilities.FriendlyFormatDate(LastUpdatedDateTimeUtc);
+                    return DateUtilities.FriendlyFormatDate(this.LastUpdatedDateTimeUtc);
                 }
                 else
                 {
-                    return DateUtilities.FriendlyFormatDate(PublishedDateTimeUtc);
+                    return DateUtilities.FriendlyFormatDate(this.PublishedDateTimeUtc);
                 }
             }
         }

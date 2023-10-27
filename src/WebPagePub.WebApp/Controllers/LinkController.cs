@@ -31,7 +31,7 @@ namespace WebPagePub.Web.Controllers
         public async Task<ActionResult> Go(string key)
         {
             var url = this.GetLinkForKey(key);
-            Response.Headers.Add("X-Robots-Tag", "noindex, nofollow");
+            this.Response.Headers.Add("X-Robots-Tag", "noindex, nofollow");
 
             if (string.IsNullOrEmpty(url))
             {
@@ -46,10 +46,16 @@ namespace WebPagePub.Web.Controllers
         private async Task LogClickAsync()
         {
             var context = this.httpContextAccessor?.HttpContext;
-            if (context == null) return;
+            if (context == null)
+            {
+                return;
+            }
 
             var request = context.Request;
-            if (request == null) return;
+            if (request == null)
+            {
+                return;
+            }
 
             var userAgent = request.Headers[StringConstants.UserAgent].ToString();
             var headers = this.GetHeadersString(request);

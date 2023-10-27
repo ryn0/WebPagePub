@@ -56,7 +56,7 @@ namespace WebPagePub.Web.Controllers
 
             if (string.IsNullOrEmpty(pathValue))
             {
-                return BadRequest("Path value is missing.");
+                return this.BadRequest("Path value is missing.");
             }
 
             return await this.ReturnContentAsync(pathValue);

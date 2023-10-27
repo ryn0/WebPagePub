@@ -16,8 +16,8 @@ namespace WebPagePub.Web.Helpers
         {
             this.cacheService = cacheService;
 
-            BlobPrefix = this.cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
-            CdnPrefix = this.cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
+            this.BlobPrefix = this.cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
+            this.CdnPrefix = this.cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
         }
 
         private List<SitePagePhotoModel> AddPhotos(List<SitePagePhoto> photos)
@@ -35,14 +35,14 @@ namespace WebPagePub.Web.Helpers
                     IsDefault = photo.IsDefault,
                     Title = photo.Title,
                     PhotoOriginalUrl = photo.PhotoOriginalUrl,
-                    PhotoOriginalCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoOriginalUrl, BlobPrefix, CdnPrefix),
-                    PhotoFullScreenCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoFullScreenUrl, BlobPrefix, CdnPrefix),
+                    PhotoOriginalCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoOriginalUrl, this.BlobPrefix, this.CdnPrefix),
+                    PhotoFullScreenCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoFullScreenUrl, this.BlobPrefix, this.CdnPrefix),
 
                     PhotoThumbUrl = photo.PhotoThumbUrl,
-                    PhotoThumbCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoThumbUrl, BlobPrefix, CdnPrefix),
+                    PhotoThumbCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoThumbUrl, this.BlobPrefix, this.CdnPrefix),
 
                     PhotoPreviewUrl = photo.PhotoPreviewUrl,
-                    PhotoPreviewCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoPreviewUrl, BlobPrefix, CdnPrefix),
+                    PhotoPreviewCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoPreviewUrl, this.BlobPrefix, this.CdnPrefix),
                 });
             }
 

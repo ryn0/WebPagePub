@@ -58,14 +58,14 @@ namespace WebPagePub.Web.Controllers
 
             if (homeSection == null)
             {
-                return Show404Page();
+                return this.Show404Page();
             }
 
             var homePage = this.sitePageRepository.GetSectionHomePage(homeSection.SitePageSectionId);
 
             if (homePage == null)
             {
-                return Show404Page();
+                return this.Show404Page();
             }
 
             return this.CatchAllRequests(homeSection.Key, homePage.Key);
@@ -104,7 +104,7 @@ namespace WebPagePub.Web.Controllers
 
             if (homePage == null)
             {
-                return Show404Page();
+                return this.Show404Page();
             }
 
             return this.CatchAllRequests(
@@ -125,17 +125,17 @@ namespace WebPagePub.Web.Controllers
         public IActionResult Index(string sectionKey)
         {
             var section = this.sitePageSectionRepository.Get(sectionKey);
-            
+
             if (section == null)
             {
-                return Show404Page();
+                return this.Show404Page();
             }
 
             var homePage = this.sitePageRepository.GetSectionHomePage(section.SitePageSectionId);
 
             if (homePage == null)
             {
-                return Show404Page();
+                return this.Show404Page();
             }
 
             return this.CatchAllRequests(sectionKey, homePage.Key);
@@ -155,8 +155,8 @@ namespace WebPagePub.Web.Controllers
         [HttpGet]
         public IActionResult Tags()
         {
-            var allSitePageTags = sitePageTagRepository.GetTagsForLivePages();
-            var allTags = tagRepository.GetAll();
+            var allSitePageTags = this.sitePageTagRepository.GetTagsForLivePages();
+            var allTags = this.tagRepository.GetAll();
 
             allTags = allTags.OrderBy(x => x.Name).ToList();
 
@@ -174,16 +174,17 @@ namespace WebPagePub.Web.Controllers
                     sb.AppendLine();
                 }
             }
+
             sb.AppendLine("</ul>");
 
             var title = "Tags";
-            var sitePage = new SitePageDisplayModel(cacheService);
-            ViewData["Title"] = title;
+            var sitePage = new SitePageDisplayModel(this.cacheService);
+            this.ViewData["Title"] = title;
             sitePage.PageContent.Title = title;
             sitePage.PageContent.PageHeader = title;
             sitePage.PageContent.Content = sb.ToString();
 
-            return View(sitePage);
+            return this.View(sitePage);
         }
 
         [HttpPost]
@@ -265,9 +266,9 @@ namespace WebPagePub.Web.Controllers
                     model = this.CreateDisplayListModel(tagKey: tagKey, pageNumber: pageNumber);
                 }
 
-                if (model != null && IsHomePagePathDuplicateContent(sectionKey, model))
+                if (model != null && this.IsHomePagePathDuplicateContent(sectionKey, model))
                 {
-                    return RedirectPermanent("~/");
+                    return this.RedirectPermanent("~/");
                 }
 
                 this.memoryCache.Set(cacheKey, model, DateTime.UtcNow.AddMinutes(IntegerConstants.PageCachingMinutes));
@@ -281,47 +282,47 @@ namespace WebPagePub.Web.Controllers
                 (!isPreview && !model.IsLive && string.IsNullOrWhiteSpace(tagKey)) ||
                 (!isPreview && model.IsLive && model.PageContent.PublishedDateTimeUtc > DateTime.UtcNow))
             {
-                return Show404Page();
+                return this.Show404Page();
             }
 
-            if (IsHomePagePathDuplicateContent(sectionKey, model))
+            if (this.IsHomePagePathDuplicateContent(sectionKey, model))
             {
-                return RedirectPermanent("~/");
+                return this.RedirectPermanent("~/");
             }
 
-            if (IsSectionPagePathDuplicateContent(model))
+            if (this.IsSectionPagePathDuplicateContent(model))
             {
-                return RedirectPermanent(string.Format("~/{0}", model.SectionKey));
+                return this.RedirectPermanent(string.Format("~/{0}", model.SectionKey));
             }
 
-            ViewData["Title"] = model.PageContent.Title;
-            ViewData["PhotoUrl"] = model.PageContent.PhotoOriginalUrl;
-            ViewData["PhotoUrlWidth"] = model.PageContent.PhotoUrlWidth;
-            ViewData["PhotoUrlHeight"] = model.PageContent.PhotoUrlHeight;
-            ViewData["MetaDescription"] = model.PageContent.MetaDescription;
-            ViewData[WebApp.Constants.StringConstants.CanonicalUrl] = model.PageContent.CanonicalUrl;
-            ViewData["ExcludePage"] = model.PageContent.ExcludePage;
+            this.ViewData["Title"] = model.PageContent.Title;
+            this.ViewData["PhotoUrl"] = model.PageContent.PhotoOriginalUrl;
+            this.ViewData["PhotoUrlWidth"] = model.PageContent.PhotoUrlWidth;
+            this.ViewData["PhotoUrlHeight"] = model.PageContent.PhotoUrlHeight;
+            this.ViewData["MetaDescription"] = model.PageContent.MetaDescription;
+            this.ViewData[WebApp.Constants.StringConstants.CanonicalUrl] = model.PageContent.CanonicalUrl;
+            this.ViewData["ExcludePage"] = model.PageContent.ExcludePage;
 
             if (model.PageContent.LastUpdatedDateTimeUtc == DateTime.MinValue ||
                 (model.PageType == PageType.PageList && model.Items.Count > 0))
             {
-                ViewData[WebApp.Constants.StringConstants.ArticlePublishTime] = model.Items.OrderByDescending(x => x.PublishedDateTimeUtc)
+                this.ViewData[WebApp.Constants.StringConstants.ArticlePublishTime] = model.Items.OrderByDescending(x => x.PublishedDateTimeUtc)
                                                             .First()
                                                             .LastUpdatedDateTimeUtcIso;
             }
             else
             {
-                ViewData[WebApp.Constants.StringConstants.ArticlePublishTime] = model.PageContent.LastUpdatedDateTimeUtcIso;
+                this.ViewData[WebApp.Constants.StringConstants.ArticlePublishTime] = model.PageContent.LastUpdatedDateTimeUtcIso;
             }
 
-            if (ViewData[WebApp.Constants.StringConstants.CanonicalUrl] == null)
+            if (this.ViewData[WebApp.Constants.StringConstants.CanonicalUrl] == null)
             {
                 var currentDomain = UrlHelper.GetCurrentDomain(this.HttpContext);
-                ViewData[WebApp.Constants.StringConstants.CanonicalUrl] = 
-                    string.Format("{0}{1}", currentDomain, HttpContext.Request.Path);
+                this.ViewData[WebApp.Constants.StringConstants.CanonicalUrl] = 
+                    string.Format("{0}{1}", currentDomain, this.HttpContext.Request.Path);
             }
 
-            ViewData["AuthorName"] = model.AuthorName;
+            this.ViewData["AuthorName"] = model.AuthorName;
 
             switch (model.PageType)
             {
@@ -380,7 +381,7 @@ namespace WebPagePub.Web.Controllers
             model.SectionKey = siteSection.Key;
             model.IsHomePageSection = siteSection.IsHomePageSection;
             model.IsSectionHomePage = dbModel.IsSectionHomePage;
-            model.AuthorName = SetAuthorName(dbModel.Author);
+            model.AuthorName = this.SetAuthorName(dbModel.Author);
 
             return model;
         }
@@ -390,13 +391,13 @@ namespace WebPagePub.Web.Controllers
             return model.IsHomePageSection &&
                    model.PageContent.IsIndex &&
                    !string.IsNullOrEmpty(sectionKey) &&
-                   Request.Path != "/" &&
+                   this.Request.Path != "/" &&
                    (model?.Paging?.CurrentPageNumber == 1 || model?.Paging?.CurrentPageNumber == 0);
         }
 
         private bool IsSectionPagePathDuplicateContent(SitePageDisplayModel model)
         {
-            string pathValue = Request.Path.Value ?? string.Empty;
+            string pathValue = this.Request.Path.Value ?? string.Empty;
 
             return model.IsSectionHomePage &&
                    !pathValue.Contains(string.Format("/{0}/page", model.SectionKey)) &&
@@ -420,16 +421,16 @@ namespace WebPagePub.Web.Controllers
                     throw new Exception("No section or site");
                 }
 
-                SetPageDisplayWithoutTags(sitePageSection, sitePage, pageNumber, out displayModel, out pages, out total);
+                this.SetPageDisplayWithoutTags(sitePageSection, sitePage, pageNumber, out displayModel, out pages, out total);
             }
             else
             {
-                SetPageDisplayWithTags(tagKey, pageNumber, displayModel, out pages, out total);
+                this.SetPageDisplayWithTags(tagKey, pageNumber, displayModel, out pages, out total);
             }
 
             if (pageNumber > 1)
             {
-                SetPagingText(pageNumber, displayModel);
+                this.SetPagingText(pageNumber, displayModel);
             }
 
             var pageCount = (double)total / IntegerConstants.PageSize;
@@ -559,10 +560,10 @@ namespace WebPagePub.Web.Controllers
                 var now = DateTime.UtcNow;
                 var previous = this.CreatePageContentModel(
                     sitePageSection,
-                    sitePageRepository.GetPreviousEntry(sitePage.PublishDateTimeUtc, now, sitePage.SitePageSectionId));
+                   this.sitePageRepository.GetPreviousEntry(sitePage.PublishDateTimeUtc, now, sitePage.SitePageSectionId));
                 var next = this.CreatePageContentModel(
                     sitePageSection,
-                    sitePageRepository.GetNextEntry(sitePage.PublishDateTimeUtc, now, sitePage.SitePageSectionId));
+                  this.sitePageRepository.GetNextEntry(sitePage.PublishDateTimeUtc, now, sitePage.SitePageSectionId));
                 displayModel.PreviousAndNext = new PreviousAndNextModel()
                 {
                     DefaultNextPhotoThumbCdnUrl = next?.DefaultPhotoThumbCdnUrl ?? string.Empty,
@@ -614,11 +615,11 @@ namespace WebPagePub.Web.Controllers
 
             var blobPrefix = this.cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
             var cdnPrefix = this.cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
-            Uri canonicalUrl = SetCanonicalUrl();
+            Uri canonicalUrl = this.SetCanonicalUrl();
 
             var defaultPhotoUrl = sitePage.Photos.FirstOrDefault(x => x.IsDefault == true);
 
-            var displayModel = CreateDisplayModel(
+            var displayModel = this.CreateDisplayModel(
                 sitePageSection,
                 sitePage,
                 blobPrefix,
@@ -628,7 +629,7 @@ namespace WebPagePub.Web.Controllers
 
             if (sitePage.Photos.Any())
             {
-                LoadPhotos(sitePage, blobPrefix, cdnPrefix, displayModel);
+                this.LoadPhotos(sitePage, blobPrefix, cdnPrefix, displayModel);
             }
 
             if (displayModel.Tags != null)
@@ -646,7 +647,7 @@ namespace WebPagePub.Web.Controllers
 
         private Uri SetCanonicalUrl()
         {
-            var location = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}{Request.QueryString}");
+            var location = new Uri($"{this.Request.Scheme}://{this.Request.Host}{this.Request.Path}{this.Request.QueryString}");
             var url = location.AbsoluteUri;
             var canonicalUrl = new Uri(url);
             return canonicalUrl;
@@ -731,7 +732,7 @@ namespace WebPagePub.Web.Controllers
             var ratingPercentage =
                 (sitePage.ReviewRatingValue / (sitePage.ReviewBestValue - sitePage.ReviewWorstValue)) * 100;
 
-            WebApp.Models.StructuredData.Author author = SetAuthor(sitePage.Author);
+            WebApp.Models.StructuredData.Author author = this.SetAuthor(sitePage.Author);
 
             return new StructureDataReviewModel(this.cacheService)
             {

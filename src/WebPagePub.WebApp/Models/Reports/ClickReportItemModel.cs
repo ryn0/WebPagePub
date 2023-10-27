@@ -12,7 +12,7 @@
         {
             get
             {
-                return IpsForClick.Distinct().Count();
+                return this.IpsForClick.Distinct().Count();
             }
         }
     }

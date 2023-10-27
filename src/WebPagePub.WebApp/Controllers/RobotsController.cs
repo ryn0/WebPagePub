@@ -10,10 +10,10 @@ namespace WebPagePub.Web.Controllers
     {
         public RobotsController(ISitePageRepository sitePageRepository)
         {
-            this.sitePageRepository = sitePageRepository;
+            this.SitePageRepository = sitePageRepository;
         }
 
-        public ISitePageRepository sitePageRepository { get; private set; }
+        public ISitePageRepository SitePageRepository { get; private set; }
 
         [Route("robots.txt")]
         [HttpGet]
@@ -23,7 +23,7 @@ namespace WebPagePub.Web.Controllers
 
             sb.AppendLine("User-agent: *");
 
-            var ignoredPages = sitePageRepository.GetIgnoredPages();
+            var ignoredPages = this.SitePageRepository.GetIgnoredPages();
 
             foreach (var ignoredPage in ignoredPages)
             {
@@ -37,7 +37,7 @@ namespace WebPagePub.Web.Controllers
                 {
                     path = UrlBuilder.BlogUrlPath(ignoredPage.SitePageSection.Key, ignoredPage.Key).ToString().TrimEnd('/');
                 }
-                
+
                 sb.AppendLine(string.Format("Disallow: /{0}", path));
             }
 

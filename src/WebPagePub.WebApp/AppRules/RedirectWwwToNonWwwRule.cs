@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Rewrite;
+﻿using System.Net;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Net.Http.Headers;
-using System.Net;
 
 namespace WebPagePub.WebApp.AppRules
 {
@@ -19,7 +19,7 @@ namespace WebPagePub.WebApp.AppRules
                 return;
             }
 
-            if (ExcludeLocalhost && string.Equals(host.Host, "localhost", StringComparison.OrdinalIgnoreCase))
+            if (this.ExcludeLocalhost && string.Equals(host.Host, "localhost", StringComparison.OrdinalIgnoreCase))
             {
                 context.Result = RuleResult.ContinueRules;
                 return;
@@ -35,7 +35,7 @@ namespace WebPagePub.WebApp.AppRules
                 request.QueryString);
 
             var response = context.HttpContext.Response;
-            response.StatusCode = StatusCode;
+            response.StatusCode = this.StatusCode;
             response.Headers[HeaderNames.Location] = newLocation;
             context.Result = RuleResult.EndResponse;  
         }

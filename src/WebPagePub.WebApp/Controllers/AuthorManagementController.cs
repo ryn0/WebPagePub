@@ -101,7 +101,7 @@ namespace WebPagePub.WebApp.Controllers
                 AuthorBio = model?.AuthorBio?.Trim()
             });
 
-            return this.RedirectToAction(nameof(Index));
+            return this.RedirectToAction(nameof(this.Index));
         }
 
         [Route("AuthorManagement/Edit")]
@@ -116,7 +116,7 @@ namespace WebPagePub.WebApp.Controllers
 
             this.authorRepository.Update(dbModel);
 
-            return this.RedirectToAction(nameof(Index));
+            return this.RedirectToAction(nameof(this.Index));
         }
 
         [Route("AuthorManagement/UploadPhoto/{AuthorId}")]
@@ -144,7 +144,7 @@ namespace WebPagePub.WebApp.Controllers
 
             try
             {
-                await UploadPhotoAsync(file, author);
+                await this.UploadPhotoAsync(file, author);
 
                 return this.RedirectToAction(nameof(this.Edit), new { AuthorId = authorId });
             }
@@ -160,9 +160,9 @@ namespace WebPagePub.WebApp.Controllers
         {
             var author = this.authorRepository.Get(authorId);
 
-            await DeleteExistingPhotos(author);
+            await this.DeleteExistingPhotos(author);
 
-            return this.RedirectToAction(nameof(Index));
+            return this.RedirectToAction(nameof(this.Index));
         }
 
         private async Task UploadPhotoAsync(IFormFile file, Data.Models.Db.Author author)
@@ -175,7 +175,7 @@ namespace WebPagePub.WebApp.Controllers
             await file.CopyToAsync(memoryStream);
             memoryStream.Seek(0, SeekOrigin.Begin);
 
-            await UploadSizesOfPhotos(author, folderPath, memoryStream, authorFileName);
+            await this.UploadSizesOfPhotos(author, folderPath, memoryStream, authorFileName);
         }
 
         private string GetAuthorPhotoFolder(int authorId)
@@ -189,7 +189,7 @@ namespace WebPagePub.WebApp.Controllers
                 MemoryStream memoryStream,
                 string fileName)
         {
-            await DeleteExistingPhotos(author);
+            await this.DeleteExistingPhotos(author);
 
             var originalPhotoUrl = await this.siteFilesRepository.UploadAsync(memoryStream, fileName, folderPath);
             var thumbnailPhotoUrl = await this.imageUploaderService.UploadResizedVersionOfPhoto(folderPath, memoryStream, originalPhotoUrl, 300, 200, StringConstants.SuffixThumb);
@@ -197,7 +197,7 @@ namespace WebPagePub.WebApp.Controllers
             var previewPhotoUrl = await this.imageUploaderService.UploadResizedVersionOfPhoto(folderPath, memoryStream, originalPhotoUrl, 800, 600, StringConstants.SuffixPrevew);
             memoryStream.Dispose();
 
-            UpdateAuthorPhoto(
+            this.UpdateAuthorPhoto(
                 author,
                 originalPhotoUrl,
                 thumbnailPhotoUrl,

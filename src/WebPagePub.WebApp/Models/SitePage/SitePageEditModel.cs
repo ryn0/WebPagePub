@@ -89,9 +89,9 @@ namespace WebPagePub.WebApp.Models.SitePage
         [Display(Name = "Author")]
         public int? AuthorId { get; set; }
 
-        public List<SelectListItem> Authors = new();
+        public List<SelectListItem> Authors = new ();
 
-        public List<SelectListItem> SiteSections = new();
+        public List<SelectListItem> SiteSections = new ();
 
         public IEnumerable<SelectListItem> ReviewRatingOptions
         {

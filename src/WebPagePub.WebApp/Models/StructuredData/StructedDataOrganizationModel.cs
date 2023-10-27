@@ -11,7 +11,7 @@ namespace WebPagePub.WebApp.Models.StructuredData
         public StructedDataOrganizationModel(ICacheService cacheService)
         {
             this.cacheService = cacheService;
-            SetProperties();
+            this.SetProperties();
         }
 
         [JsonProperty("@context")]
@@ -37,17 +37,17 @@ namespace WebPagePub.WebApp.Models.StructuredData
 
         private void SetProperties()
         {
-            Logo = cacheService.GetSnippet(SiteConfigSetting.LogoUrl);
+            this.Logo = this.cacheService.GetSnippet(SiteConfigSetting.LogoUrl);
 
-            SameAs = new[]
+            this.SameAs = new[]
             {
-               cacheService.GetSnippet(SiteConfigSetting.FacebookUrl),
-               cacheService.GetSnippet(SiteConfigSetting.YouTubeUrl),
-               cacheService.GetSnippet(SiteConfigSetting.TwitterUrl)
+              this.cacheService.GetSnippet(SiteConfigSetting.FacebookUrl),
+              this.cacheService.GetSnippet(SiteConfigSetting.YouTubeUrl),
+              this.cacheService.GetSnippet(SiteConfigSetting.TwitterUrl)
             };
 
-            Url = cacheService.GetSnippet(SiteConfigSetting.CanonicalDomain);
-            Name = cacheService.GetSnippet(SiteConfigSetting.WebsiteName);
+            this.Url = this.cacheService.GetSnippet(SiteConfigSetting.CanonicalDomain);
+            this.Name = this.cacheService.GetSnippet(SiteConfigSetting.WebsiteName);
         }
     }
 }

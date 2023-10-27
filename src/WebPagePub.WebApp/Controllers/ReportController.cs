@@ -160,7 +160,7 @@ namespace WebPagePub.Web.Controllers
                 sb.AppendLine($"{click.IpAddress},{click.Url},{click.RefererUrl},{click.CreateDate}");
             }
 
-            return File(Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", "ClickReport.csv");
+            return this.File(Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", "ClickReport.csv");
         }
     }
 }
