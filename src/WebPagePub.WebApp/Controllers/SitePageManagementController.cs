@@ -45,7 +45,6 @@ namespace WebPagePub.Web.Controllers
             return this.View();
         }
 
-
         [Route("sitepages/Search")]
         [HttpGet]
         public IActionResult Search(string term, int pageNumber = 1)
@@ -235,8 +234,8 @@ namespace WebPagePub.Web.Controllers
             }
 
             var entry = this.sitePageManager.CreatePage(
-                model.SiteSectionId, 
-                titleFormattted, 
+                model.SiteSectionId,
+                titleFormattted,
                 this.userManager.GetUserId(this.User));
 
             if (entry.SitePageId > 0)
@@ -272,7 +271,7 @@ namespace WebPagePub.Web.Controllers
         public IActionResult RankPhotoDown(int sitePagePhotoId)
         {
             var entry = this.sitePageManager.RankPhotoDown(sitePagePhotoId);
- 
+
             return this.RedirectToAction(nameof(this.EditSitePage), new { sitePageId = entry.SitePageId });
         }
 
@@ -353,6 +352,35 @@ namespace WebPagePub.Web.Controllers
             return this.View(model);
         }
 
+        private static void AddBlogPhotoToModel(
+            SitePageEditModel model,
+            SitePagePhoto? photo,
+            string blobPrefix,
+            string cdnPrefix)
+        {
+            if (photo == null)
+            {
+                return;
+            }
+
+            model.BlogPhotos.Add(new SitePagePhotoModel
+            {
+                SitePagePhotoId = photo.SitePagePhotoId,
+                IsDefault = photo.IsDefault,
+                PhotoOriginalUrl = photo.PhotoOriginalUrl,
+                PhotoFullScreenUrl = photo.PhotoFullScreenUrl,
+                PhotoThumbUrl = photo.PhotoThumbUrl,
+                PhotoPreviewUrl = photo.PhotoPreviewUrl,
+                PhotoOriginalCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoOriginalUrl, blobPrefix, cdnPrefix),
+                PhotoThumbCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoThumbUrl, blobPrefix, cdnPrefix),
+                PhotoFullScreenCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoFullScreenUrl, blobPrefix, cdnPrefix),
+                PhotoPreviewCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoPreviewUrl, blobPrefix, cdnPrefix),
+                Title = photo.Title,
+                Description = photo.Description,
+                FileName = Path.GetFileName(photo.PhotoOriginalUrl)
+            });
+        }
+
         private Managers.Models.SitePages.SitePageEditModel ConvertToSitePageEditManagerModel(
             SitePageEditModel model)
         {
@@ -382,12 +410,13 @@ namespace WebPagePub.Web.Controllers
                 SitePageSectionId = model.SitePageSectionId,
                 Tags = model.Tags,
                 Title = model.Title,
+
                 // TODO: ADD PHOTOS
             };
         }
 
         private IList<Managers.Models.SitePages.SitePagePhotoModel> GetSitePagePhotoDetails(
-                IList<SitePagePhoto> sitePagePhotos, 
+                IList<SitePagePhoto> sitePagePhotos,
                 IFormCollection form)
         {
             var mc = new ModelConverter(this.cacheService);
@@ -614,35 +643,6 @@ namespace WebPagePub.Web.Controllers
             }
 
             return authorList;
-        }
-
-        private static void AddBlogPhotoToModel(
-            SitePageEditModel model,
-            SitePagePhoto? photo,
-            string blobPrefix,
-            string cdnPrefix)
-        {
-            if (photo == null)
-            {
-                return;
-            }
-
-            model.BlogPhotos.Add(new SitePagePhotoModel
-            {
-                SitePagePhotoId = photo.SitePagePhotoId,
-                IsDefault = photo.IsDefault,
-                PhotoOriginalUrl = photo.PhotoOriginalUrl,
-                PhotoFullScreenUrl = photo.PhotoFullScreenUrl,
-                PhotoThumbUrl = photo.PhotoThumbUrl,
-                PhotoPreviewUrl = photo.PhotoPreviewUrl,
-                PhotoOriginalCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoOriginalUrl, blobPrefix, cdnPrefix),
-                PhotoThumbCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoThumbUrl, blobPrefix, cdnPrefix),
-                PhotoFullScreenCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoFullScreenUrl, blobPrefix, cdnPrefix),
-                PhotoPreviewCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoPreviewUrl, blobPrefix, cdnPrefix),
-                Title = photo.Title,
-                Description = photo.Description,
-                FileName = Path.GetFileName(photo.PhotoOriginalUrl)
-            });
         }
     }
 }
