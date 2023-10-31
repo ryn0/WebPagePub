@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using System.Text;
 using WebPagePub.Core;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.Enums;
@@ -278,7 +278,7 @@ namespace WebPagePub.Web.Controllers
                 model = (SitePageDisplayModel?)cachedPage;
             }
 
-            if (model == default || 
+            if (model == default ||
                 (!isPreview && !model.IsLive && string.IsNullOrWhiteSpace(tagKey)) ||
                 (!isPreview && model.IsLive && model.PageContent.PublishedDateTimeUtc > DateTime.UtcNow))
             {
@@ -318,7 +318,7 @@ namespace WebPagePub.Web.Controllers
             if (this.ViewData[WebApp.Constants.StringConstants.CanonicalUrl] == null)
             {
                 var currentDomain = UrlHelper.GetCurrentDomain(this.HttpContext);
-                this.ViewData[WebApp.Constants.StringConstants.CanonicalUrl] = 
+                this.ViewData[WebApp.Constants.StringConstants.CanonicalUrl] =
                     string.Format("{0}{1}", currentDomain, this.HttpContext.Request.Path);
             }
 
@@ -481,7 +481,8 @@ namespace WebPagePub.Web.Controllers
             SitePage sitePage,
             int pageNumber,
             out SitePageDisplayModel displayModel,
-            out List<SitePage> pages, out int total)
+            out List<SitePage> pages,
+            out int total)
         {
             var contentModel = this.CreatePageContentModel(sitePageSection, sitePage);
 
@@ -560,10 +561,10 @@ namespace WebPagePub.Web.Controllers
                 var now = DateTime.UtcNow;
                 var previous = this.CreatePageContentModel(
                     sitePageSection,
-                   this.sitePageRepository.GetPreviousEntry(sitePage.PublishDateTimeUtc, now, sitePage.SitePageSectionId));
+                    this.sitePageRepository.GetPreviousEntry(sitePage.PublishDateTimeUtc, now, sitePage.SitePageSectionId));
                 var next = this.CreatePageContentModel(
                     sitePageSection,
-                  this.sitePageRepository.GetNextEntry(sitePage.PublishDateTimeUtc, now, sitePage.SitePageSectionId));
+                    this.sitePageRepository.GetNextEntry(sitePage.PublishDateTimeUtc, now, sitePage.SitePageSectionId));
                 displayModel.PreviousAndNext = new PreviousAndNextModel()
                 {
                     DefaultNextPhotoThumbCdnUrl = next?.DefaultPhotoThumbCdnUrl ?? string.Empty,
@@ -647,7 +648,7 @@ namespace WebPagePub.Web.Controllers
 
         private Uri SetCanonicalUrl()
         {
-            var location = new Uri($"{this.Request.Scheme}://{this.Request.Host}{this.Request.Path}{this.Request.QueryString}");
+            var location = new Uri($"{this.Request.Scheme}://{this.Request.Host}{this.Request.Path}");
             var url = location.AbsoluteUri;
             var canonicalUrl = new Uri(url);
             return canonicalUrl;
@@ -758,6 +759,7 @@ namespace WebPagePub.Web.Controllers
             {
                 return new WebApp.Models.StructuredData.Author();
             }
+
             var authorItem = new AuthorItem(author.AuthorId, author.FirstName, author.LastName);
             var structuredDataAuthor = new WebApp.Models.StructuredData.Author()
             {
@@ -794,11 +796,11 @@ namespace WebPagePub.Web.Controllers
             var breadcrumbList = new StructuredDataBreadcrumbModel()
             {
                 ItemListElement = new List<BreadcrumbListItem>()
-                      {
+                {
                            new BreadcrumbListItem()
                            {
                                Position = 1,
-                                Item = new BreadcrumbListItemProperties()
+                               Item = new BreadcrumbListItemProperties()
                                 {
                                      Name = homeSection.BreadcrumbName,
                                      PageUrl = new Uri(domain)
@@ -828,9 +830,10 @@ namespace WebPagePub.Web.Controllers
                                Position = 3,
                                Item = new BreadcrumbListItemProperties()
                                {
-                                   Name = sitePage.BreadcrumbName,
-                                   PageUrl = new Uri(new Uri(domain),
-                                   UrlBuilder.BlogUrlPath(sitePageSection.Key, sitePage.Key))
+                                    Name = sitePage.BreadcrumbName,
+                                    PageUrl = new Uri(
+                                       new Uri(domain),
+                                       UrlBuilder.BlogUrlPath(sitePageSection.Key, sitePage.Key))
                                }
                            });
             }
