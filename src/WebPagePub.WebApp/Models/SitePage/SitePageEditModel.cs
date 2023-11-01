@@ -1,11 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using WebPagePub.Data.Enums;
 
 namespace WebPagePub.WebApp.Models.SitePage
 {
     public class SitePageEditModel
     {
+        public List<SelectListItem> Authors = new ();
+
+        public List<SelectListItem> SiteSections = new ();
+
         public int SitePageId { get; set; }
 
         public int? PreviousSitePageId { get; set; }
@@ -89,18 +93,14 @@ namespace WebPagePub.WebApp.Models.SitePage
         [Display(Name = "Author")]
         public int? AuthorId { get; set; }
 
-        public List<SelectListItem> Authors = new ();
-
-        public List<SelectListItem> SiteSections = new ();
-
         public IEnumerable<SelectListItem> ReviewRatingOptions
         {
             get
             {
                 var list = new List<SelectListItem>();
-                
-                for (decimal i = 5; i >= 0; i -= 0.1m) {
 
+                for (decimal i = 5; i >= 0; i -= 0.1m)
+                {
                     list.Add(new SelectListItem()
                     {
                         Text = i.ToString("G29"),
@@ -111,6 +111,5 @@ namespace WebPagePub.WebApp.Models.SitePage
                 return list;
             }
         }
-
     }
 }

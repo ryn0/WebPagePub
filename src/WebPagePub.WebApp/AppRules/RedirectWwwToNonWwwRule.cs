@@ -27,7 +27,8 @@ namespace WebPagePub.WebApp.AppRules
 
             var newHost = host.Value.Replace("www.", string.Empty);
 
-            var newLocation = string.Format("{0}://{1}{2}{3}{4}",
+            var newLocation = string.Format(
+                "{0}://{1}{2}{3}{4}",
                 request.Scheme,
                 newHost,
                 request.PathBase,
@@ -37,7 +38,7 @@ namespace WebPagePub.WebApp.AppRules
             var response = context.HttpContext.Response;
             response.StatusCode = this.StatusCode;
             response.Headers[HeaderNames.Location] = newLocation;
-            context.Result = RuleResult.EndResponse;  
+            context.Result = RuleResult.EndResponse;
         }
     }
 }

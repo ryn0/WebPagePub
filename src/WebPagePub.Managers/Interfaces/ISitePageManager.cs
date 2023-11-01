@@ -46,7 +46,7 @@ namespace WebPagePub.Managers.Interfaces
         public SitePagePhoto RankPhotoDown(int sitePagePhotoId);
 
         /// <summary>
-        /// Upload photo to page
+        /// Upload photo to page.
         /// </summary>
         /// <param name="sitePageId"></param>
         /// <param name="fileNameAndImageMemoryStream">Filename, photo memory stream</param>
@@ -66,7 +66,7 @@ namespace WebPagePub.Managers.Interfaces
         public Task UpdatePhotoProperties(int sitePageId, IList<SitePagePhotoModel> newSitePagePhotos);
 
         void UpdateBlogTags(SitePageEditModel model, SitePage dbModel);
-        
+
         public IList<Author> GetAllAuthors();
 
         public IList<SitePage> GetLivePage(int pageNumber, int maxPageSizeForSiteMap, out int total);

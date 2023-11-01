@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using WebPagePub.Core.Utilities;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
-using WebPagePub.Core.Utilities;
 using WebPagePub.WebApp.Models.Author;
 
 namespace WebPagePub.WebApp.Controllers
@@ -38,7 +38,6 @@ namespace WebPagePub.WebApp.Controllers
 
             var model = new AuthorListModel()
             {
-               
             };
 
             foreach (var item in dbModel)
@@ -72,7 +71,6 @@ namespace WebPagePub.WebApp.Controllers
 
             return this.View(model);
         }
-
 
         [Route("AuthorManagement/create")]
         [HttpGet]
@@ -203,10 +201,14 @@ namespace WebPagePub.WebApp.Controllers
                 thumbnailPhotoUrl,
                 fullScreenPhotoUrl,
                 previewPhotoUrl);
-
         }
 
-        private void UpdateAuthorPhoto(Data.Models.Db.Author author, Uri originalPhotoUrl, Uri thumbnailPhotoUrl, Uri fullScreenPhotoUrl, Uri previewPhotoUrl)
+        private void UpdateAuthorPhoto(
+            Data.Models.Db.Author author,
+            Uri originalPhotoUrl,
+            Uri thumbnailPhotoUrl,
+            Uri fullScreenPhotoUrl,
+            Uri previewPhotoUrl)
         {
             author.PhotoOriginalUrl = originalPhotoUrl.ToString();
             author.PhotoThumbUrl = thumbnailPhotoUrl.ToString();

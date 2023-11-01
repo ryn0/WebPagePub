@@ -11,7 +11,6 @@ namespace WebPagePub.Web.Controllers
         private readonly IEmailSubscriptionRepository emailSubscriptionRepository;
         private readonly IEmailSender emailSender;
 
-
         public EmailSubscriptionManagementController(
             IEmailSubscriptionRepository emailSubscriptionRepository,
             IEmailSender emailSender)

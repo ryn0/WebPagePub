@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Text;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.WebApp.Models.Reports;
 
@@ -149,7 +149,7 @@ namespace WebPagePub.Web.Controllers
             }
 
             var clicksInRange = this.clickLogRepository.GetClicksInRange(
-                Convert.ToDateTime(startDate), 
+                Convert.ToDateTime(startDate),
                 new DateTime(endDate.Value.Year, endDate.Value.Month, endDate.Value.Day, 23, 59, 59));
 
             var sb = new StringBuilder();

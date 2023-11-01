@@ -84,18 +84,15 @@
             }
           
             <div class="copyright">
-                &copy; @DateTime.UtcNow.Year <a href="~/">@_cacheHelper.GetSnippet(SiteConfigSetting.WebsiteName)</a>
-                | <a rel="nofollow" href="~/disclosure">Disclosure</a>
-                | <a rel="nofollow" href="~/terms-of-service">Terms of Service</a>
-                | <a rel="nofollow" href="~/privacy-policy">Privacy Policy</a>
-                | <a rel="nofollow" href="~/about">About</a>
-                | <a rel="nofollow" href="~/contact">Contact</a>
-                | <a rel="nofollow" href="~/sitemap">Sitemap</a>
+                &copy; @DateTime.UtcNow.Year 
+                @Html.Raw(@_cacheHelper.GetSnippet(SiteConfigSetting.MenuFooterHtml))
             </div>
 
-            <partial name="_LoginPartial" />
+          
         </footer>
     </div>
+
+    <partial name="_LoginPartial" />
     <!-- wrapper -->
     <!-- js -->
     @Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.GoogleAnalytics))

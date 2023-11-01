@@ -29,7 +29,7 @@ namespace WebPagePub.Web.Controllers
             {
                 string path;
 
-                if (ignoredPage.SitePageSection == null )
+                if (ignoredPage.SitePageSection == null)
                 {
                     path = ignoredPage.Key.ToString().TrimEnd('/');
                 }
