@@ -92,16 +92,12 @@ namespace WebPagePub.WebApp.Models.SitePage
                 }
             }
         }
+
         public string DefaultPhotoOriginalUrl { get; set; } = default!;
-
         public string DefaultPhotoOriginalCdnUrl { get; set; } = default!;
-
         public List<string> Tags { get; set; } = new List<string>();
-
         public List<SitePagePhotoModel> Photos { get; set; } = new List<SitePagePhotoModel>();
-
         public string DefaultPhotoThumbUrl { get; set; } = default!;
-
         public string DefaultPhotoThumbCdnUrl { get; set; } = default!;
         public string PreviousUrlPath { get; set; } = default!;
         public string NextUrlPath { get; set; } = default!;
@@ -109,7 +105,6 @@ namespace WebPagePub.WebApp.Models.SitePage
         public string NextName { get; set; } = default!;
         public string DefaultPreviousPhotoThumbCdnUrl { get; set; } = default!;
         public string DefaultNextPhotoThumbCdnUrl { get; set; } = default!;
-
         public string PageHeader { get; set; } = default!;
         public string SectionKey { get; set; } = default!;
         public bool ExcludePage { get; set; }

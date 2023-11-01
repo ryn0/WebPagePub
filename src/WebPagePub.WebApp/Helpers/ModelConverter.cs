@@ -9,8 +9,6 @@ namespace WebPagePub.Web.Helpers
     public class ModelConverter
     {
         private readonly ICacheService cacheService;
-        public string BlobPrefix { get; private set; }
-        public string CdnPrefix { get; private set; }
 
         public ModelConverter(ICacheService cacheService)
         {
@@ -19,6 +17,9 @@ namespace WebPagePub.Web.Helpers
             this.BlobPrefix = this.cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
             this.CdnPrefix = this.cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
         }
+
+        public string BlobPrefix { get; private set; }
+        public string CdnPrefix { get; private set; }
 
         private List<SitePagePhotoModel> AddPhotos(List<SitePagePhoto> photos)
         {
