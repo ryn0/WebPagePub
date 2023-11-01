@@ -1,6 +1,6 @@
 @echo off
 
-echo WebPagePub CI - Version 1.0.8
+echo WebPagePub CI - Version 1.0.9
 echo Copyright WebPagePub (tm) - All right reserved.
 
 powershell -command "if (!(Get-Module psake -ListAvailable)) { if (!(Get-Module PsGet -ListAvailable)) { Find-Module -Name 'psake' | Save-Module -Path; Install-Module 'psake'}}"
