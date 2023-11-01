@@ -31,6 +31,7 @@ namespace WebPagePub.Web.Helpers
             {
                 return userAgentValue.ToString();
             }
+
             return string.Empty;
         }
     }

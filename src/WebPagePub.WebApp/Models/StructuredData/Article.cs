@@ -14,7 +14,7 @@ namespace WebPagePub.WebApp.Models.StructuredData
         public string Headline { get; set; } = string.Empty;
 
         [JsonProperty("image")]
-        public Uri[]? Image { get; set; }
+        public Uri[] ? Image { get; set; }
 
         [JsonProperty("datePublished")]
         public DateTimeOffset DatePublished { get; set; }
@@ -23,6 +23,6 @@ namespace WebPagePub.WebApp.Models.StructuredData
         public DateTimeOffset DateModified { get; set; }
 
         [JsonProperty("author")]
-        public Author[]? Author { get; set; }
+        public Author[] ? Author { get; set; }
     }
 }

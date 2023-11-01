@@ -293,27 +293,6 @@ namespace WebPagePub.Managers.Implementations
             return entry.SitePageId;
         }
 
-        private async Task<Uri> RotateImage90Degrees(int sitePageId, string photoUrl)
-        {
-            var folderPath = GetBlogPhotoFolder(sitePageId);
-            var stream = await this.imageUploaderService.ToStreamAsync(new Uri(photoUrl));
-            var rotatedBitmap = ImageUtilities.Rotate90Degrees(Image.FromStream(stream));
-            var streamRotated = this.imageUploaderService.ToAStream(
-                rotatedBitmap,
-                this.imageUploaderService.SetImageFormat(photoUrl));
-
-            var url = await this.siteFilesRepository.UploadAsync(
-                                        streamRotated,
-                                        photoUrl.GetFileNameFromUrl(),
-                                        folderPath);
-
-            rotatedBitmap.Dispose();
-            streamRotated.Dispose();
-            rotatedBitmap.Dispose();
-
-            return url;
-        }
-
         public SitePage GetSitePage(int sitePageId)
         {
             return this.sitePageRepository.Get(sitePageId);
@@ -427,6 +406,117 @@ namespace WebPagePub.Managers.Implementations
             return entry.SitePageId;
         }
 
+        public IList<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total)
+        {
+            if (term == null)
+            {
+                total = 0;
+                return new List<SitePage>();
+            }
+
+            term = term.Trim();
+
+            return this.sitePageRepository.SearchForTerm(term, pageNumber, quantityPerPage, out total);
+        }
+
+        public bool DoesPageExistSimilar(int siteSectionId, string pageKey)
+        {
+            if (this.DoesPageExist(siteSectionId, pageKey))
+            {
+                return true;
+            }
+
+            if (this.DoesPageExist(siteSectionId, string.Format("{0}s", pageKey)))
+            {
+                return true;
+            }
+
+            if (pageKey.EndsWith("s") &&
+                this.DoesPageExist(siteSectionId, pageKey.Remove(pageKey.Length - 1, 1)))
+            {
+                return true;
+            }
+
+            if (this.DoesPageExist(siteSectionId, string.Format("a-{0}", pageKey)))
+            {
+                return true;
+            }
+
+            if (this.DoesPageExist(siteSectionId, string.Format("the-{0}", pageKey)))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public SitePage GetPageForUrl(Uri sourcePage)
+        {
+            if (ShouldSkipUrl(sourcePage))
+            {
+                return default;
+            }
+
+            SitePageSection siteSection;
+            SitePage sitePage;
+            string[] segments = sourcePage.Segments;
+
+            if (segments.Length == 1)
+            {
+                sitePage = this.sitePageRepository.GetSectionHomePage(this.siteSectionRepository.GetHomeSection().SitePageSectionId);
+            }
+            else if (segments.Length == 2)
+            {
+                siteSection = this.siteSectionRepository.Get(segments[1].TrimEnd('/'));
+                sitePage = this.sitePageRepository.GetSectionHomePage(siteSection.SitePageSectionId);
+            }
+            else if (segments.Length == 3)
+            {
+                // Removing any trailing slashes from the segments
+                var siteSectionKey = segments[1].TrimEnd('/');
+                var pathKey = segments[2].TrimEnd('/');
+                siteSection = this.siteSectionRepository.Get(siteSectionKey);
+                sitePage = this.sitePageRepository.Get(siteSection.SitePageSectionId, pathKey);
+            }
+            else
+            {
+                throw new InvalidOperationException("Url has incorrect many segments");
+            }
+
+            return sitePage;
+        }
+
+        private static bool ShouldSkipUrl(Uri url)
+        {
+            return url.ToString().Contains("/tag/") || url.ToString().Contains("/page/");
+        }
+
+        private static string GetBlogPhotoFolder(int sitePageId)
+        {
+            return $"/{StringConstants.SitePhotoBlobPhotoName}/{sitePageId}/";
+        }
+
+        private async Task<Uri> RotateImage90Degrees(int sitePageId, string photoUrl)
+        {
+            var folderPath = GetBlogPhotoFolder(sitePageId);
+            var stream = await this.imageUploaderService.ToStreamAsync(new Uri(photoUrl));
+            var rotatedBitmap = ImageUtilities.Rotate90Degrees(Image.FromStream(stream));
+            var streamRotated = this.imageUploaderService.ToAStream(
+                rotatedBitmap,
+                this.imageUploaderService.SetImageFormat(photoUrl));
+
+            var url = await this.siteFilesRepository.UploadAsync(
+                                        streamRotated,
+                                        photoUrl.GetFileNameFromUrl(),
+                                        folderPath);
+
+            rotatedBitmap.Dispose();
+            streamRotated.Dispose();
+            rotatedBitmap.Dispose();
+
+            return url;
+        }
+
         private async Task UpdateImageProperties(SitePagePhoto sitePagePhoto, SitePagePhotoModel photo)
         {
             var hasChanged = false;
@@ -498,11 +588,6 @@ namespace WebPagePub.Managers.Implementations
 
                 newRank++;
             }
-        }
-
-        private static string GetBlogPhotoFolder(int sitePageId)
-        {
-            return $"/{StringConstants.SitePhotoBlobPhotoName}/{sitePageId}/";
         }
 
         private async Task UploadSizesOfPhotos(
@@ -606,37 +691,46 @@ namespace WebPagePub.Managers.Implementations
                 blobPrefixFormatted = blobPrefix.Remove(blobPrefix.Length - 1, 1);
             }
 
-            //
-            var currentPathPhotoUrl = photo.PhotoOriginalUrl.Replace(string.Format("{0}/{1}/",
-               blobPrefixFormatted, StringConstants.ContainerName), string.Empty);
+            var currentPathPhotoUrl = photo.PhotoOriginalUrl.Replace(
+                string.Format(
+                    "{0}/{1}/",
+                    blobPrefixFormatted,
+                    StringConstants.ContainerName), string.Empty);
             var newFilePathPhotoUrl = currentPathPhotoUrl.Replace(currentFileName, newPhotoFileName);
             await this.siteFilesRepository.ChangeFileName(currentPathPhotoUrl, newFilePathPhotoUrl);
             photo.PhotoOriginalUrl = string.Format("{0}/{1}/{2}", blobPrefixFormatted, StringConstants.ContainerName, newFilePathPhotoUrl);
 
             var newPhotoExtension = Path.GetExtension(newPhotoFileName);
 
-            //
-            var currentPathPhotoFullScreenUrl = photo.PhotoFullScreenUrl.Replace(string.Format("{0}/{1}/",
-                blobPrefixFormatted, StringConstants.ContainerName), string.Empty);
-            var newFilePathPhotoFullScreenUrl = currentPathPhotoFullScreenUrl.Replace(Path.GetFileName(currentPathPhotoFullScreenUrl),
+            var currentPathPhotoFullScreenUrl = photo.PhotoFullScreenUrl.Replace(
+                string.Format(
+                    "{0}/{1}/",
+                    blobPrefixFormatted,
+                    StringConstants.ContainerName), string.Empty);
+            var newFilePathPhotoFullScreenUrl = currentPathPhotoFullScreenUrl.Replace(
+                Path.GetFileName(currentPathPhotoFullScreenUrl),
                 string.Format("{0}{1}{2}", Path.GetFileNameWithoutExtension(newPhotoFileName), StringConstants.SuffixFullscreen, newPhotoExtension));
             await this.siteFilesRepository.ChangeFileName(currentPathPhotoFullScreenUrl, newFilePathPhotoFullScreenUrl);
             photo.PhotoFullScreenUrl = string.Format("{0}/{1}/{2}", blobPrefixFormatted, StringConstants.ContainerName, newFilePathPhotoFullScreenUrl);
 
-            //
-            var currentPathPhotoPreviewUrl = photo.PhotoPreviewUrl.Replace(string.Format("{0}/{1}/",
-                blobPrefixFormatted, StringConstants.ContainerName), string.Empty);
-            var newFilePathPhotoPreviewUrl = currentPathPhotoPreviewUrl.Replace(Path.GetFileName(currentPathPhotoPreviewUrl),
+            var currentPathPhotoPreviewUrl = photo.PhotoPreviewUrl.Replace(
+                string.Format(
+                    "{0}/{1}/",
+                    blobPrefixFormatted,
+                    StringConstants.ContainerName), string.Empty);
+            var newFilePathPhotoPreviewUrl = currentPathPhotoPreviewUrl.Replace(
+                Path.GetFileName(currentPathPhotoPreviewUrl),
                 string.Format("{0}{1}{2}", Path.GetFileNameWithoutExtension(newPhotoFileName), StringConstants.SuffixPrevew, newPhotoExtension));
             await this.siteFilesRepository.ChangeFileName(currentPathPhotoPreviewUrl, newFilePathPhotoPreviewUrl);
             photo.PhotoPreviewUrl = string.Format("{0}/{1}/{2}", blobPrefixFormatted, StringConstants.ContainerName, newFilePathPhotoPreviewUrl);
 
-            //
             var currentPathPhotoThumbUrl = photo.PhotoThumbUrl.Replace(
                 string.Format(
                     "{0}/{1}/",
-                    blobPrefixFormatted, StringConstants.ContainerName), string.Empty);
-            var newFilePathPhotoThumbUrl = currentPathPhotoThumbUrl.Replace(Path.GetFileName(currentPathPhotoThumbUrl),
+                    blobPrefixFormatted,
+                    StringConstants.ContainerName), string.Empty);
+            var newFilePathPhotoThumbUrl = currentPathPhotoThumbUrl.Replace(
+                Path.GetFileName(currentPathPhotoThumbUrl),
                 string.Format("{0}{1}{2}", Path.GetFileNameWithoutExtension(newPhotoFileName), StringConstants.SuffixThumb, newPhotoExtension));
             await this.siteFilesRepository.ChangeFileName(currentPathPhotoThumbUrl, newFilePathPhotoThumbUrl);
             photo.PhotoThumbUrl = string.Format("{0}/{1}/{2}", blobPrefixFormatted, StringConstants.ContainerName, newFilePathPhotoThumbUrl);
@@ -654,91 +748,6 @@ namespace WebPagePub.Managers.Implementations
             this.sitePagePhotoRepository.Delete(sitePagePhotoId);
 
             return entry;
-        }
-
-        public IList<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total)
-        {
-            if (term == null)
-            {
-                total = 0;
-                return new List<SitePage>();
-            }
-
-            term = term.Trim();
-
-            return this.sitePageRepository.SearchForTerm(term, pageNumber, quantityPerPage, out total);
-        }
-
-        public bool DoesPageExistSimilar(int siteSectionId, string pageKey)
-        {
-            if (this.DoesPageExist(siteSectionId, pageKey))
-            {
-                return true;
-            }
-
-            if (this.DoesPageExist(siteSectionId, string.Format("{0}s", pageKey)))
-            {
-                return true;
-            }
-
-            if (pageKey.EndsWith("s") &&
-                this.DoesPageExist(siteSectionId, pageKey.Remove(pageKey.Length - 1, 1)))
-            {
-                return true;
-            }
-
-            if (this.DoesPageExist(siteSectionId, string.Format("a-{0}", pageKey)))
-            {
-                return true;
-            }
-
-            if (this.DoesPageExist(siteSectionId, string.Format("the-{0}", pageKey)))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        public SitePage GetPageForUrl(Uri sourcePage)
-        {
-            if (ShouldSkipUrl(sourcePage))
-            {
-                return default;
-            }
-
-            SitePageSection siteSection;
-            SitePage sitePage;
-            string[] segments = sourcePage.Segments;
-
-            if (segments.Length == 1)
-            {
-                sitePage = this.sitePageRepository.GetSectionHomePage(this.siteSectionRepository.GetHomeSection().SitePageSectionId);
-            }
-            else if (segments.Length == 2)
-            {
-                siteSection = this.siteSectionRepository.Get(segments[1].TrimEnd('/'));
-                sitePage = this.sitePageRepository.GetSectionHomePage(siteSection.SitePageSectionId);
-            }
-            else if (segments.Length == 3)
-            {
-                // Removing any trailing slashes from the segments
-                var siteSectionKey = segments[1].TrimEnd('/');
-                var pathKey = segments[2].TrimEnd('/');
-                siteSection = this.siteSectionRepository.Get(siteSectionKey);
-                sitePage = this.sitePageRepository.Get(siteSection.SitePageSectionId, pathKey);
-            }
-            else
-            {
-                throw new InvalidOperationException("Url has incorrect many segments");
-            }
-
-            return sitePage;
-        }
-
-        private static bool ShouldSkipUrl(Uri url)
-        {
-            return url.ToString().Contains("/tag/") || url.ToString().Contains("/page/");
         }
     }
 }

@@ -45,6 +45,7 @@ namespace WebPagePub.Web.Helpers
                         sb.AppendLine(@"     </image:image>");
                     }
                 }
+
                 sb.AppendLine();
                 sb.AppendLine(@"</url>");
             }

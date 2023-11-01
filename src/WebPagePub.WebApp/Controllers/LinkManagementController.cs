@@ -53,7 +53,6 @@ namespace WebPagePub.Web.Controllers
                 });
             }
 
-
             // TODO: organize links by letter
             foreach (var link in allLinks)
             {
@@ -64,7 +63,6 @@ namespace WebPagePub.Web.Controllers
                     model.UniqueFirstLetters.Add(firstLetter);
                 }
             }
-
 
             return this.View(model);
         }

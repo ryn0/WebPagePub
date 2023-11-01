@@ -29,7 +29,7 @@ namespace WebPagePub.WebApp.Models.SitePage
 
         public StructureDataReviewModel Review { get; set; }
 
-        public StructureDataReviewModel Article { get; set; } 
+        public StructureDataReviewModel Article { get; set; }
 
         public StructedDataWebsiteModel Website { get; set; }
 

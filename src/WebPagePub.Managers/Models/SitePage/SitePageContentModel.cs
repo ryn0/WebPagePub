@@ -94,6 +94,7 @@ namespace WebPagePub.Managers.Models.SitePages
                 }
             }
         }
+
         public string DefaultPhotoOriginalUrl { get; set; } = default!;
 
         public string DefaultPhotoOriginalCdnUrl { get; set; } = default!;

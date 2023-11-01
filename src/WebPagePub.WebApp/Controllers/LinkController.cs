@@ -73,7 +73,7 @@ namespace WebPagePub.Web.Controllers
                     Url = url,
                     Headers = headers,
                     UserAgent = userAgent,
-                    RefererUrl =  referrer ?? string.Empty,
+                    RefererUrl = referrer ?? string.Empty,
                     IsBot = isBot
                 });
             }

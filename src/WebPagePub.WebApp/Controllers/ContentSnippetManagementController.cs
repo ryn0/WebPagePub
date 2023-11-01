@@ -73,7 +73,7 @@ namespace WebPagePub.Web.Controllers
         public IActionResult Create()
         {
             var existingSnippets = this.contentSnippetRepository.GetAll().OrderBy(x => x.SnippetType.ToString());
-            
+
             var model = new ContentSnippetEditModel()
             {
                 SnippetType = Data.Enums.SiteConfigSetting.Unknown

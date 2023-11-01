@@ -54,7 +54,6 @@ namespace WebPagePub.Web.Controllers
             {
                 var allPages = this.sitePageManager.GetLivePage(1, MaxPageSizeForSiteMap, out int total);
 
-
                 foreach (var page in allPages)
                 {
                     if (!page.IsLive || page.ExcludePageFromSiteMapXml)
@@ -66,7 +65,8 @@ namespace WebPagePub.Web.Controllers
                 }
 
                 xml = siteMapHelper.GenerateXml();
-                this.memoryCache.Set(cacheKey,
+                this.memoryCache.Set(
+                    cacheKey,
                     xml,
                     DateTime.UtcNow.AddMinutes(IntegerConstants.PageCachingMinutes));
             }
@@ -111,8 +111,9 @@ namespace WebPagePub.Web.Controllers
 
                 model.SectionPages = model.SectionPages.OrderBy(x => x.AnchorText).ToList();
 
-                this.memoryCache.Set(cacheKey, 
-                    model, 
+                this.memoryCache.Set(
+                    cacheKey,
+                    model,
                     DateTime.UtcNow.AddMinutes(IntegerConstants.PageCachingMinutes));
             }
             else
@@ -136,16 +137,18 @@ namespace WebPagePub.Web.Controllers
                 }
                 else
                 {
-                    url = new Uri(string.Format("{0}/{1}",
+                    url = new Uri(string.Format(
+                        "{0}/{1}",
                         UrlHelper.GetCurrentDomain(this.HttpContext),
                         siteSection.Key)).ToString();
                 }
             }
             else
             {
-                url = new Uri(string.Format("{0}{1}",
-                                 UrlHelper.GetCurrentDomain(this.HttpContext),
-                                 UrlBuilder.BlogUrlPath(page.SitePageSection.Key, page.Key))).ToString().TrimEnd('/');
+                url = new Uri(string.Format(
+                    "{0}{1}",
+                    UrlHelper.GetCurrentDomain(this.HttpContext),
+                    UrlBuilder.BlogUrlPath(page.SitePageSection.Key, page.Key))).ToString().TrimEnd('/');
             }
 
             var lastUpdated = page.UpdateDate == null ? page.CreateDate : (DateTime)page.UpdateDate;
