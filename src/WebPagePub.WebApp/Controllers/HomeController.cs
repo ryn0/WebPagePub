@@ -433,13 +433,13 @@ namespace WebPagePub.Web.Controllers
                 this.SetPagingText(pageNumber, displayModel);
             }
 
-            var pageCount = (double)total / IntegerConstants.PageSize;
+            var pageCount = (double)total / WebApp.Constants.IntegerConstants.AmountPerPage;
 
             displayModel.Paging = new SitePagePagingModel()
             {
                 CurrentPageNumber = pageNumber,
                 PageCount = (int)Math.Ceiling(pageCount),
-                QuantityPerPage = IntegerConstants.PageSize,
+                QuantityPerPage = WebApp.Constants.IntegerConstants.AmountPerPage,
                 Total = total
             };
 
@@ -499,7 +499,7 @@ namespace WebPagePub.Web.Controllers
             pages = this.sitePageRepository.GetLivePageBySection(
                                                         sitePageSection.SitePageSectionId,
                                                         pageNumber,
-                                                        IntegerConstants.PageSize,
+                                                        WebApp.Constants.IntegerConstants.AmountPerPage,
                                                         out total).ToList();
 
             pages = pages.Where(x => x.IsSectionHomePage == false).ToList();
@@ -534,7 +534,7 @@ namespace WebPagePub.Web.Controllers
             pages = this.sitePageRepository.GetLivePageByTag(
                                                         tagKey,
                                                         pageNumber,
-                                                        IntegerConstants.PageSize,
+                                                        WebApp.Constants.IntegerConstants.AmountPerPage,
                                                         out total).ToList();
         }
 
