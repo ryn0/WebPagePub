@@ -116,7 +116,7 @@ namespace WebPagePub.Web.Controllers
             if (folderPath != null)
             {
                 model.CurrentDirectory = folderPath;
-                var lastPath = folderPath.Split('/')[folderPath.Split('/').Length - 2];
+                var lastPath = folderPath.Split('/')[^2];
 
                 if (string.IsNullOrWhiteSpace(lastPath))
                 {

@@ -171,7 +171,7 @@ await pageEditor.Execute();
 
 Console.ReadLine();
 
-string GetAzureConnectionString(IContentSnippetRepository? snippetsRepo)
+static string GetAzureConnectionString(IContentSnippetRepository? snippetsRepo)
 {
     if (snippetsRepo == null)
     {

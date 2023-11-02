@@ -239,6 +239,121 @@ namespace WebPagePub.Web.Controllers
             return this.View("Commented");
         }
 
+        private static void SetPagingText(int pageNumber, SitePageDisplayModel displayModel)
+        {
+            var pagingFormat = "{0} - Page: {1}";
+
+            displayModel.PageContent.Title =
+                string.Format(pagingFormat, displayModel.PageContent.Title, pageNumber);
+
+            if (string.IsNullOrWhiteSpace(displayModel.PageContent.MetaDescription))
+            {
+                displayModel.PageContent.MetaDescription = displayModel.PageContent.Title;
+            }
+            else
+            {
+                displayModel.PageContent.MetaDescription =
+                string.Format(pagingFormat, displayModel.PageContent.MetaDescription, pageNumber);
+            }
+        }
+
+        private static string SetAuthorName(Data.Models.Db.Author author)
+        {
+            if (author == null ||
+               (author.FirstName == null ||
+               author.LastName == null))
+            {
+                return string.Empty;
+            }
+
+            return string.Format("{0} {1}", author.FirstName, author.LastName);
+        }
+
+        private static string ConvertBlobToCdnUrl(string blobPrefix, string cdnPrefix, string blobUrl)
+        {
+            if (string.IsNullOrWhiteSpace(blobPrefix) ||
+                string.IsNullOrWhiteSpace(cdnPrefix) ||
+                string.IsNullOrWhiteSpace(blobUrl))
+            {
+                return string.Empty; // Return an empty string instead of null
+            }
+
+            return blobUrl.Replace(blobPrefix, cdnPrefix);
+        }
+
+        private static void LoadPhotos(SitePage sitePage, string blobPrefix, string cdnPrefix, SitePageContentModel displayModel)
+        {
+            sitePage.Photos = sitePage.Photos.OrderBy(x => x.Rank).ToList();
+
+            foreach (var photo in sitePage.Photos)
+            {
+                displayModel.Photos.Add(new SitePagePhotoModel()
+                {
+                    Description = photo.Description,
+                    IsDefault = photo.IsDefault,
+                    PhotoOriginalCdnUrl = ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoOriginalUrl),
+                    PhotoOriginalUrl = photo.PhotoOriginalUrl,
+                    PhotoFullScreenCdnUrl = ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoFullScreenUrl),
+                    PhotoFullScreenUrl = photo.PhotoFullScreenUrl,
+                    PhotoPreviewCdnUrl = ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoPreviewUrl),
+                    PhotoPreviewUrl = photo.PhotoPreviewUrl,
+                    PhotoThumbCdnUrl = ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoThumbUrl),
+                    PhotoThumbUrl = photo.PhotoThumbUrl,
+                    SitePagePhotoId = photo.SitePagePhotoId,
+                    Title = photo.Title
+                });
+            }
+        }
+
+        private static SitePageContentModel CreateDisplayModel(
+            SitePageSection sitePageSection,
+            SitePage sitePage,
+            string blobPrefix,
+            string cdnPrefix,
+            Uri canonicalUrl,
+            SitePagePhoto? defaultPhotoUrl)
+        {
+            string? originalUrl = defaultPhotoUrl?.PhotoFullScreenUrl;
+            string? thumbUrl = defaultPhotoUrl?.PhotoThumbUrl;
+
+            return new SitePageContentModel()
+            {
+                BreadcrumbName = sitePage.BreadcrumbName,
+                Title = sitePage.Title,
+                PageHeader = sitePage.PageHeader,
+                MetaDescription = sitePage.MetaDescription,
+                Content = sitePage.Content,
+                LastUpdatedDateTimeUtc = sitePage.UpdateDate ?? sitePage.CreateDate,
+                PublishedDateTimeUtc = sitePage.PublishDateTimeUtc,
+                CanonicalUrl = canonicalUrl.ToString(),
+                PhotoOriginalUrl = originalUrl != null ? ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, originalUrl) : string.Empty,
+                PhotoUrlHeight = defaultPhotoUrl?.PhotoFullScreenUrlHeight ?? 0,
+                PhotoUrlWidth = defaultPhotoUrl?.PhotoFullScreenUrlWidth ?? 0,
+                MetaKeywords = sitePage.MetaKeywords,
+                UrlPath = UrlBuilder.BlogUrlPath(sitePageSection.Key, sitePage.Key),
+                Key = sitePage.Key,
+                SectionKey = sitePageSection.Key,
+                DefaultPhotoThumbCdnUrl = thumbUrl != null ? ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, thumbUrl) : string.Empty,
+                ExcludePage = sitePage.ExcludePageFromSiteMapXml
+            };
+        }
+
+        private static WebApp.Models.StructuredData.Author SetAuthor(Data.Models.Db.Author author)
+        {
+            if (author == null)
+            {
+                return new WebApp.Models.StructuredData.Author();
+            }
+
+            var authorItem = new AuthorItem(author.AuthorId, author.FirstName, author.LastName);
+            var structuredDataAuthor = new WebApp.Models.StructuredData.Author()
+            {
+                Name = authorItem.FullName,
+            };
+
+            return structuredDataAuthor;
+        }
+
         private IActionResult CatchAllRequests(
                                 string? sectionKey = null,
                                 string? pageKey = null,
@@ -381,7 +496,7 @@ namespace WebPagePub.Web.Controllers
             model.SectionKey = siteSection.Key;
             model.IsHomePageSection = siteSection.IsHomePageSection;
             model.IsSectionHomePage = dbModel.IsSectionHomePage;
-            model.AuthorName = this.SetAuthorName(dbModel.Author);
+            model.AuthorName = SetAuthorName(dbModel.Author);
 
             return model;
         }
@@ -430,7 +545,7 @@ namespace WebPagePub.Web.Controllers
 
             if (pageNumber > 1)
             {
-                this.SetPagingText(pageNumber, displayModel);
+                SetPagingText(pageNumber, displayModel);
             }
 
             var pageCount = (double)total / WebApp.Constants.IntegerConstants.AmountPerPage;
@@ -458,24 +573,6 @@ namespace WebPagePub.Web.Controllers
             return displayModel;
         }
 
-        private void SetPagingText(int pageNumber, SitePageDisplayModel displayModel)
-        {
-            var pagingFormat = "{0} - Page: {1}";
-
-            displayModel.PageContent.Title =
-                string.Format(pagingFormat, displayModel.PageContent.Title, pageNumber);
-
-            if (string.IsNullOrWhiteSpace(displayModel.PageContent.MetaDescription))
-            {
-                displayModel.PageContent.MetaDescription = displayModel.PageContent.Title;
-            }
-            else
-            {
-                displayModel.PageContent.MetaDescription =
-                string.Format(pagingFormat, displayModel.PageContent.MetaDescription, pageNumber);
-            }
-        }
-
         private void SetPageDisplayWithoutTags(
             SitePageSection sitePageSection,
             SitePage sitePage,
@@ -492,7 +589,7 @@ namespace WebPagePub.Web.Controllers
                 PageType = sitePage.PageType,
                 Review = this.BuildReviewModel(sitePage),
                 PageContent = contentModel,
-                AuthorName = this.SetAuthorName(sitePage.Author),
+                AuthorName = SetAuthorName(sitePage.Author),
                 IsLive = sitePage.IsLive,
             };
 
@@ -503,18 +600,6 @@ namespace WebPagePub.Web.Controllers
                                                         out total).ToList();
 
             pages = pages.Where(x => x.IsSectionHomePage == false).ToList();
-        }
-
-        private string SetAuthorName(Data.Models.Db.Author author)
-        {
-            if (author == null ||
-               (author.FirstName == null ||
-               author.LastName == null))
-            {
-                return string.Empty;
-            }
-
-            return string.Format("{0} {1}", author.FirstName, author.LastName);
         }
 
         private void SetPageDisplayWithTags(
@@ -620,7 +705,7 @@ namespace WebPagePub.Web.Controllers
 
             var defaultPhotoUrl = sitePage.Photos.FirstOrDefault(x => x.IsDefault == true);
 
-            var displayModel = this.CreateDisplayModel(
+            var displayModel = CreateDisplayModel(
                 sitePageSection,
                 sitePage,
                 blobPrefix,
@@ -630,7 +715,7 @@ namespace WebPagePub.Web.Controllers
 
             if (sitePage.Photos.Any())
             {
-                this.LoadPhotos(sitePage, blobPrefix, cdnPrefix, displayModel);
+                LoadPhotos(sitePage, blobPrefix, cdnPrefix, displayModel);
             }
 
             if (displayModel.Tags != null)
@@ -654,75 +739,6 @@ namespace WebPagePub.Web.Controllers
             return canonicalUrl;
         }
 
-        private SitePageContentModel CreateDisplayModel(
-            SitePageSection sitePageSection,
-            SitePage sitePage,
-            string blobPrefix,
-            string cdnPrefix,
-            Uri canonicalUrl,
-            SitePagePhoto? defaultPhotoUrl)
-        {
-            string? originalUrl = defaultPhotoUrl?.PhotoFullScreenUrl;
-            string? thumbUrl = defaultPhotoUrl?.PhotoThumbUrl;
-
-            return new SitePageContentModel()
-            {
-                BreadcrumbName = sitePage.BreadcrumbName,
-                Title = sitePage.Title,
-                PageHeader = sitePage.PageHeader,
-                MetaDescription = sitePage.MetaDescription,
-                Content = sitePage.Content,
-                LastUpdatedDateTimeUtc = sitePage.UpdateDate ?? sitePage.CreateDate,
-                PublishedDateTimeUtc = sitePage.PublishDateTimeUtc,
-                CanonicalUrl = canonicalUrl.ToString(),
-                PhotoOriginalUrl = originalUrl != null ? this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, originalUrl) : string.Empty,
-                PhotoUrlHeight = defaultPhotoUrl?.PhotoFullScreenUrlHeight ?? 0,
-                PhotoUrlWidth = defaultPhotoUrl?.PhotoFullScreenUrlWidth ?? 0,
-                MetaKeywords = sitePage.MetaKeywords,
-                UrlPath = UrlBuilder.BlogUrlPath(sitePageSection.Key, sitePage.Key),
-                Key = sitePage.Key,
-                SectionKey = sitePageSection.Key,
-                DefaultPhotoThumbCdnUrl = thumbUrl != null ? this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, thumbUrl) : string.Empty,
-                ExcludePage = sitePage.ExcludePageFromSiteMapXml
-            };
-        }
-
-        private void LoadPhotos(SitePage sitePage, string blobPrefix, string cdnPrefix, SitePageContentModel displayModel)
-        {
-            sitePage.Photos = sitePage.Photos.OrderBy(x => x.Rank).ToList();
-
-            foreach (var photo in sitePage.Photos)
-            {
-                displayModel.Photos.Add(new SitePagePhotoModel()
-                {
-                    Description = photo.Description,
-                    IsDefault = photo.IsDefault,
-                    PhotoOriginalCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoOriginalUrl),
-                    PhotoOriginalUrl = photo.PhotoOriginalUrl,
-                    PhotoFullScreenCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoFullScreenUrl),
-                    PhotoFullScreenUrl = photo.PhotoFullScreenUrl,
-                    PhotoPreviewCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoPreviewUrl),
-                    PhotoPreviewUrl = photo.PhotoPreviewUrl,
-                    PhotoThumbCdnUrl = this.ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, photo.PhotoThumbUrl),
-                    PhotoThumbUrl = photo.PhotoThumbUrl,
-                    SitePagePhotoId = photo.SitePagePhotoId,
-                    Title = photo.Title
-                });
-            }
-        }
-
-        private string ConvertBlobToCdnUrl(string blobPrefix, string cdnPrefix, string blobUrl)
-        {
-            if (string.IsNullOrWhiteSpace(blobPrefix) ||
-                string.IsNullOrWhiteSpace(cdnPrefix) ||
-                string.IsNullOrWhiteSpace(blobUrl))
-            {
-                return string.Empty; // Return an empty string instead of null
-            }
-
-            return blobUrl.Replace(blobPrefix, cdnPrefix);
-        }
-
         private StructureDataReviewModel BuildReviewModel(SitePage sitePage)
         {
             if (sitePage.PageType != PageType.Review)
@@ -733,7 +749,7 @@ namespace WebPagePub.Web.Controllers
             var ratingPercentage =
                 (sitePage.ReviewRatingValue / (sitePage.ReviewBestValue - sitePage.ReviewWorstValue)) * 100;
 
-            WebApp.Models.StructuredData.Author author = this.SetAuthor(sitePage.Author);
+            WebApp.Models.StructuredData.Author author = SetAuthor(sitePage.Author);
 
             return new StructureDataReviewModel(this.cacheService)
             {
@@ -751,22 +767,6 @@ namespace WebPagePub.Web.Controllers
                     }
                 },
             };
-        }
-
-        private WebApp.Models.StructuredData.Author SetAuthor(Data.Models.Db.Author author)
-        {
-            if (author == null)
-            {
-                return new WebApp.Models.StructuredData.Author();
-            }
-
-            var authorItem = new AuthorItem(author.AuthorId, author.FirstName, author.LastName);
-            var structuredDataAuthor = new WebApp.Models.StructuredData.Author()
-            {
-                Name = authorItem.FullName,
-            };
-
-            return structuredDataAuthor;
         }
 
         private StructuredDataBreadcrumbModel BuildBreadcrumbList(SitePageSection sitePageSection, SitePage sitePage)

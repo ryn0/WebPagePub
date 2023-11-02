@@ -44,7 +44,7 @@ namespace WebPagePub.Web.Controllers
             };
             var clicksInRange = this.clickLogRepository.GetClicksInRange(model.StartDate, model.EndDate);
 
-            model.TotalClicks = clicksInRange.Count();
+            model.TotalClicks = clicksInRange.Count;
             model.UniqueIps = clicksInRange.DistinctBy(x => x.IpAddress).Count();
 
             foreach (var item in clicksInRange)
@@ -99,7 +99,7 @@ namespace WebPagePub.Web.Controllers
             };
             var clicksInRange = this.clickLogRepository.GetClicksInRange(model.StartDate, model.EndDate);
 
-            model.TotalClicks = clicksInRange.Count();
+            model.TotalClicks = clicksInRange.Count;
             model.UniqueIps = clicksInRange.DistinctBy(x => x.IpAddress).Count();
             model.TotalBotIps = clicksInRange.DistinctBy(x => x.IpAddress).Where(x => x.IsBot).Count();
 
