@@ -104,10 +104,7 @@ namespace WebPagePub.Web.Controllers
                 return this.View(model);
             }
 
-            if (model.Content == null)
-            {
-                model.Content = string.Empty;
-            }
+            model.Content ??= string.Empty;
 
             var dbModel = this.contentSnippetRepository.Get(model.ContentSnippetId);
 

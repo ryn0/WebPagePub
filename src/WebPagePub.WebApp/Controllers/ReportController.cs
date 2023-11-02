@@ -65,7 +65,7 @@ namespace WebPagePub.Web.Controllers
                 }
                 else
                 {
-                    urlClickItem.TotalClicks = urlClickItem.TotalClicks + 1;
+                    urlClickItem.TotalClicks++;
                     urlClickItem.IpsForClick.Add(item.IpAddress);
                 }
             }
@@ -121,7 +121,7 @@ namespace WebPagePub.Web.Controllers
                 }
                 else
                 {
-                    urlClickItem.TotalClicks = urlClickItem.TotalClicks + 1;
+                    urlClickItem.TotalClicks++;
                     urlClickItem.IpsForClick.Add(item.IpAddress);
                 }
             }
