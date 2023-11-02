@@ -9,7 +9,7 @@ namespace WebPagePub.Web.Controllers
     {
         private readonly IEmailSubscriptionRepository emailSubscriptionRepository;
         private readonly ISpamFilterService spamFilterService;
-        private IHttpContextAccessor accessor;
+        private readonly IHttpContextAccessor accessor;
 
         public EmailSubscriptionController(
                 IEmailSubscriptionRepository emailSubscriptionRepository,
@@ -30,12 +30,8 @@ namespace WebPagePub.Web.Controllers
                 throw new Exception("invalid email submission");
             }
 
-            var context = this.accessor.HttpContext;
-            if (context == null)
-            {
+            var context = this.accessor.HttpContext ??
                 throw new InvalidOperationException("HttpContext is not available.");
-            }
-
             var ipAddress = context.Connection.RemoteIpAddress?.ToString();
             if (string.IsNullOrEmpty(ipAddress))
             {

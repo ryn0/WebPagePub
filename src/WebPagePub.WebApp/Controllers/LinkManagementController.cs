@@ -56,7 +56,7 @@ namespace WebPagePub.Web.Controllers
             // TODO: organize links by letter
             foreach (var link in allLinks)
             {
-                char firstLetter = Convert.ToChar(link.LinkKey.ToString().Substring(0, 1));
+                char firstLetter = Convert.ToChar(link.LinkKey.ToString()[..1]);
 
                 if (!model.UniqueFirstLetters.Contains(firstLetter))
                 {

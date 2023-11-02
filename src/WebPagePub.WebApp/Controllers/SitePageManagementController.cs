@@ -290,7 +290,7 @@ namespace WebPagePub.Web.Controllers
         [HttpPost]
         public async Task<ActionResult> UploadPhotosAsync(IEnumerable<IFormFile> files, int sitePageId)
         {
-            var photosAsMemoryStreams = await this.ConvertFormFilesToMemoryStreamsAsync(files);
+            var photosAsMemoryStreams = await ConvertFormFilesToMemoryStreamsAsync(files);
             await this.sitePageManager.UploadPhotos(sitePageId, photosAsMemoryStreams);
 
             return this.RedirectToAction(nameof(this.EditSitePage), new { SitePageId = sitePageId });
@@ -340,7 +340,7 @@ namespace WebPagePub.Web.Controllers
             {
                 var sitePagePhotoDetails = this.GetSitePagePhotoDetails(this.sitePageManager.GetBlogPhotos(model.SitePageId), this.Request.Form);
                 await this.sitePageManager.UpdatePhotoProperties(model.SitePageId, sitePagePhotoDetails);
-                var sitePageEditManagerModel = this.ConvertToSitePageEditManagerModel(model);
+                var sitePageEditManagerModel = ConvertToSitePageEditManagerModel(model);
                 this.sitePageManager.UpdateBlogTags(sitePageEditManagerModel, dbModel);
 
                 this.ClearCache(model, dbModel);
@@ -351,36 +351,7 @@ namespace WebPagePub.Web.Controllers
             return this.View(model);
         }
 
-        private static void AddBlogPhotoToModel(
-            SitePageEditModel model,
-            SitePagePhoto? photo,
-            string blobPrefix,
-            string cdnPrefix)
-        {
-            if (photo == null)
-            {
-                return;
-            }
-
-            model.BlogPhotos.Add(new SitePagePhotoModel
-            {
-                SitePagePhotoId = photo.SitePagePhotoId,
-                IsDefault = photo.IsDefault,
-                PhotoOriginalUrl = photo.PhotoOriginalUrl,
-                PhotoFullScreenUrl = photo.PhotoFullScreenUrl,
-                PhotoThumbUrl = photo.PhotoThumbUrl,
-                PhotoPreviewUrl = photo.PhotoPreviewUrl,
-                PhotoOriginalCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoOriginalUrl, blobPrefix, cdnPrefix),
-                PhotoThumbCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoThumbUrl, blobPrefix, cdnPrefix),
-                PhotoFullScreenCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoFullScreenUrl, blobPrefix, cdnPrefix),
-                PhotoPreviewCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoPreviewUrl, blobPrefix, cdnPrefix),
-                Title = photo.Title,
-                Description = photo.Description,
-                FileName = Path.GetFileName(photo.PhotoOriginalUrl)
-            });
-        }
-
-        private Managers.Models.SitePages.SitePageEditModel ConvertToSitePageEditManagerModel(
+        private static Managers.Models.SitePages.SitePageEditModel ConvertToSitePageEditManagerModel(
             SitePageEditModel model)
         {
             return new Managers.Models.SitePages.SitePageEditModel()
@@ -412,6 +383,74 @@ namespace WebPagePub.Web.Controllers
 
                 // TODO: ADD PHOTOS
             };
+        }
+
+        private static async Task<List<Tuple<string, MemoryStream>>> ConvertFormFilesToMemoryStreamsAsync(
+            IEnumerable<IFormFile> files)
+        {
+            var list = new List<Tuple<string, MemoryStream>>();
+
+            foreach (var file in files)
+            {
+                var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
+                memoryStream.Seek(0, SeekOrigin.Begin);
+                list.Add(new Tuple<string, MemoryStream>(file.FileName, memoryStream));
+            }
+
+            return list;
+        }
+
+        private static SitePageListModel ConvertToListModel(IList<SitePage> pages)
+        {
+            var model = new SitePageListModel();
+
+            foreach (var page in pages)
+            {
+                model.Items.Add(new SitePageItemModel()
+                {
+                    SitePageId = page.SitePageId,
+                    CreateDate = page.CreateDate,
+                    Title = page.Title,
+                    IsLive = page.IsLive,
+                    Key = page.Key,
+                    LiveUrlPath = UrlBuilder.BlogUrlPath(page.SitePageSection.Key, page.Key),
+                    PreviewUrlPath = UrlBuilder.BlogPreviewUrlPath(page.SitePageId),
+                    IsIndex = page.IsSectionHomePage,
+                    PublishDateTimeUtc = page.PublishDateTimeUtc
+                });
+            }
+
+            return model;
+        }
+
+        private static void AddBlogPhotoToModel(
+            SitePageEditModel model,
+            SitePagePhoto? photo,
+            string blobPrefix,
+            string cdnPrefix)
+        {
+            if (photo == null)
+            {
+                return;
+            }
+
+            model.BlogPhotos.Add(new SitePagePhotoModel
+            {
+                SitePagePhotoId = photo.SitePagePhotoId,
+                IsDefault = photo.IsDefault,
+                PhotoOriginalUrl = photo.PhotoOriginalUrl,
+                PhotoFullScreenUrl = photo.PhotoFullScreenUrl,
+                PhotoThumbUrl = photo.PhotoThumbUrl,
+                PhotoPreviewUrl = photo.PhotoPreviewUrl,
+                PhotoOriginalCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoOriginalUrl, blobPrefix, cdnPrefix),
+                PhotoThumbCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoThumbUrl, blobPrefix, cdnPrefix),
+                PhotoFullScreenCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoFullScreenUrl, blobPrefix, cdnPrefix),
+                PhotoPreviewCdnUrl = UrlBuilder.ConvertBlobToCdnUrl(photo.PhotoPreviewUrl, blobPrefix, cdnPrefix),
+                Title = photo.Title,
+                Description = photo.Description,
+                FileName = Path.GetFileName(photo.PhotoOriginalUrl)
+            });
         }
 
         private IList<Managers.Models.SitePages.SitePagePhotoModel> GetSitePagePhotoDetails(
@@ -447,22 +486,6 @@ namespace WebPagePub.Web.Controllers
             return sitePagePhotoDetails;
         }
 
-        private async Task<List<Tuple<string, MemoryStream>>> ConvertFormFilesToMemoryStreamsAsync(
-            IEnumerable<IFormFile> files)
-        {
-            var list = new List<Tuple<string, MemoryStream>>();
-
-            foreach (var file in files)
-            {
-                var memoryStream = new MemoryStream();
-                await file.CopyToAsync(memoryStream);
-                memoryStream.Seek(0, SeekOrigin.Begin);
-                list.Add(new Tuple<string, MemoryStream>(file.FileName, memoryStream));
-            }
-
-            return list;
-        }
-
         private void ClearCache(SitePageEditModel model, SitePage dbModel)
         {
             if (dbModel.SitePageSection != null)
@@ -472,29 +495,6 @@ namespace WebPagePub.Web.Controllers
                 cacheKey = CacheHelper.GetPageCacheKey(dbModel.SitePageSection.Key, model.Key);
                 this.memoryCache.Remove(cacheKey);
             }
-        }
-
-        private SitePageListModel ConvertToListModel(IList<SitePage> pages)
-        {
-            var model = new SitePageListModel();
-
-            foreach (var page in pages)
-            {
-                model.Items.Add(new SitePageItemModel()
-                {
-                    SitePageId = page.SitePageId,
-                    CreateDate = page.CreateDate,
-                    Title = page.Title,
-                    IsLive = page.IsLive,
-                    Key = page.Key,
-                    LiveUrlPath = UrlBuilder.BlogUrlPath(page.SitePageSection.Key, page.Key),
-                    PreviewUrlPath = UrlBuilder.BlogPreviewUrlPath(page.SitePageId),
-                    IsIndex = page.IsSectionHomePage,
-                    PublishDateTimeUtc = page.PublishDateTimeUtc
-                });
-            }
-
-            return model;
         }
 
         private SitePage ConvertToDbModel(SitePageEditModel model)
@@ -604,7 +604,7 @@ namespace WebPagePub.Web.Controllers
 
             var pages = this.sitePageManager.GetSitePages(pageNumber, siteSectionId, WebApp.Constants.IntegerConstants.AmountPerPage, out int total);
 
-            model = this.ConvertToListModel(pages);
+            model = ConvertToListModel(pages);
             model.Total = total;
             model.CurrentPageNumber = pageNumber;
             model.QuantityPerPage = WebApp.Constants.IntegerConstants.AmountPerPage;

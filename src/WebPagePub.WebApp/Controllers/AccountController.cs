@@ -126,7 +126,7 @@ namespace WebPagePub.Web.Controllers
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
 
                 // Require the user to have a confirmed email before they can log on.
-                if (!this.EmailIsConfirmed(model.Email, out ApplicationUser user))
+                if (!this.EmailIsConfirmed(model.Email, out _))
                 {
                     this.ModelState.AddModelError(string.Empty, "You must have a confirmed email to log in.");
                     return this.View(model);
