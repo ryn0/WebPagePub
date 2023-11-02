@@ -133,14 +133,6 @@ namespace WebPagePub.Web.Controllers
             return this.View(model);
         }
 
-        private string ConvertBlobToCdnUrl(string filePath)
-        {
-            var blobPrefix = this.cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
-            var cdnPrefix = this.cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
-
-            return UrlBuilder.ConvertBlobToCdnUrl(filePath, blobPrefix, cdnPrefix);
-        }
-
         [Route("sitefilesmanagement/DeleteFileAsync")]
         [HttpGet]
         public async Task<ActionResult> DeleteFileAsync(string fileUrl)
@@ -157,6 +149,14 @@ namespace WebPagePub.Web.Controllers
             await this.siteFilesRepository.DeleteFolderAsync(folderUrl);
 
             return this.RedirectToAction(nameof(this.Index));
+        }
+
+        private string ConvertBlobToCdnUrl(string filePath)
+        {
+            var blobPrefix = this.cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
+            var cdnPrefix = this.cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
+
+            return UrlBuilder.ConvertBlobToCdnUrl(filePath, blobPrefix, cdnPrefix);
         }
     }
 }
