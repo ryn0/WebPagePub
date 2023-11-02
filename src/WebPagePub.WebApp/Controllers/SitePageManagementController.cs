@@ -20,7 +20,6 @@ namespace WebPagePub.Web.Controllers
     [Authorize(Roles = StringConstants.AdminRole)]
     public class SitePageManagementController : Controller
     {
-        private const int AmountPerPage = 10;
         private readonly ISitePageManager sitePageManager;
         private readonly IMemoryCache memoryCache;
         private readonly ICacheService cacheService;
@@ -603,12 +602,12 @@ namespace WebPagePub.Web.Controllers
             var sitePageSection = this.sitePageManager.GetSiteSection(siteSectionId);
             model.IsSiteSectionPage = false;
 
-            var pages = this.sitePageManager.GetSitePages(pageNumber, siteSectionId, AmountPerPage, out int total);
+            var pages = this.sitePageManager.GetSitePages(pageNumber, siteSectionId, WebApp.Constants.IntegerConstants.AmountPerPage, out int total);
 
             model = this.ConvertToListModel(pages);
             model.Total = total;
             model.CurrentPageNumber = pageNumber;
-            model.QuantityPerPage = AmountPerPage;
+            model.QuantityPerPage = WebApp.Constants.IntegerConstants.AmountPerPage;
             var pageCount = (double)model.Total / model.QuantityPerPage;
             model.PageCount = (int)Math.Ceiling(pageCount);
 

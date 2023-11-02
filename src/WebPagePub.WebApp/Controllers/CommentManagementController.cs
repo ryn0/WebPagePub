@@ -13,8 +13,6 @@ namespace WebPagePub.Web.Controllers
     [Authorize(Roles = StringConstants.AdminRole)]
     public class CommentManagementController : Controller
     {
-        private const int AmountPerPage = 10;
-
         private readonly ISitePageCommentRepository sitePageCommentRepository;
         private readonly ISitePageRepository sitePageRepository;
         private readonly ISpamFilterService spamFilterService;
@@ -36,13 +34,13 @@ namespace WebPagePub.Web.Controllers
         [HttpGet]
         public IActionResult Index(int pageNumber = 1)
         {
-            var dbModel = this.sitePageCommentRepository.GetPage(pageNumber, AmountPerPage, out int total);
+            var dbModel = this.sitePageCommentRepository.GetPage(pageNumber, WebApp.Constants.IntegerConstants.AmountPerPage, out int total);
 
             var model = new SitePageCommentListModel()
             {
                 Total = total,
                 CurrentPageNumber = pageNumber,
-                QuantityPerPage = AmountPerPage
+                QuantityPerPage = WebApp.Constants.IntegerConstants.AmountPerPage
             };
 
             var pageCount = (double)model.Total / model.QuantityPerPage;

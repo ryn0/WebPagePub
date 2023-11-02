@@ -5,7 +5,6 @@ using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.WebApp.Models.ContentSnippet;
-using static log4net.Appender.ColoredConsoleAppender;
 
 namespace WebPagePub.Web.Controllers
 {
