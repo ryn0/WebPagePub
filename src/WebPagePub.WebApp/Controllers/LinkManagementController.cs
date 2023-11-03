@@ -13,7 +13,7 @@ namespace WebPagePub.Web.Controllers
     public class LinkManagementController : Controller
     {
         private readonly ILinkRedirectionRepository linkRedirectionRepository;
-        private IMemoryCache memoryCache;
+        private readonly IMemoryCache memoryCache;
 
         public LinkManagementController(
             ILinkRedirectionRepository linkRedirectionRepository,
