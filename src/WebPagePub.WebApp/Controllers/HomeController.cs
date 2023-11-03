@@ -207,12 +207,8 @@ namespace WebPagePub.Web.Controllers
                 return this.View("CommentError");
             }
 
-            var context = this.accessor.HttpContext;
-            if (context == null)
-            {
+            var context = this.accessor.HttpContext ??
                 throw new InvalidOperationException("HttpContext is not available.");
-            }
-
             var ipAddress = context.Connection.RemoteIpAddress?.ToString();
             if (string.IsNullOrEmpty(ipAddress))
             {

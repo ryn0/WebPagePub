@@ -159,7 +159,7 @@ namespace WebPagePub.Web.Controllers
         {
             var entry = await this.sitePageManager.SetPhotoAsDefaultAsync(sitePagePhotoId);
 
-            return this.RedirectToAction(nameof(this.EditSitePage), new { SitePageId = entry.SitePageId });
+            return this.RedirectToAction(nameof(this.EditSitePage), new { entry.SitePageId });
         }
 
         [Route("sitepages")]
@@ -239,7 +239,7 @@ namespace WebPagePub.Web.Controllers
 
             if (entry.SitePageId > 0)
             {
-                return this.RedirectToAction(nameof(this.EditSitePage), new { SitePageId = entry.SitePageId });
+                return this.RedirectToAction(nameof(this.EditSitePage), new { entry.SitePageId });
             }
             else
             {
@@ -345,7 +345,7 @@ namespace WebPagePub.Web.Controllers
 
                 this.ClearCache(model, dbModel);
 
-                return this.RedirectToAction(nameof(this.EditSitePage), new { SitePageId = dbModel.SitePageId });
+                return this.RedirectToAction(nameof(this.EditSitePage), new { dbModel.SitePageId });
             }
 
             return this.View(model);
