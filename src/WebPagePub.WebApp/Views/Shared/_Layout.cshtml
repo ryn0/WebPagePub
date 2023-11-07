@@ -40,16 +40,7 @@
                         <span class="icon-bar"></span>
                     </button>
                
-                        @if (!string.IsNullOrEmpty(_cacheHelper.GetSnippet(SiteConfigSetting.LogoUrl)))
-                        {
-                            <a href="~/"><img class="logo" src="@_cacheHelper.GetSnippet(SiteConfigSetting.LogoUrl)"
-                                 alt="@_cacheHelper.GetSnippet(SiteConfigSetting.WebsiteName)"
-                                 title="@_cacheHelper.GetSnippet(SiteConfigSetting.WebsiteName)" /></a>
-                        }
-                        else
-                        {
-                        <a class="site-title" href="~/">@Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.WebsiteName))</a>
-                        }
+                    @Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.LogoHtml))
                 
                 </div>
                 <div id="navbar" class="navbar-collapse collapse">
