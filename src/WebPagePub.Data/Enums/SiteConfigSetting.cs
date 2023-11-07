@@ -24,5 +24,6 @@
         DefaultPageType = 19,
         SubscribeToNewsletterMessage = 20,
         MenuFooterHtml = 21,
+        LogoHtml = 22,
     }
 }
