@@ -33,6 +33,7 @@
   <ItemGroup>
     <ProjectReference Include="..\WebPagePub.Core\WebPagePub.Core.csproj" />
     <ProjectReference Include="..\WebPagePub.Data\WebPagePub.Data.csproj" />
+    <ProjectReference Include="..\WebPagePub.FileStorage\WebPagePub.FileStorage.csproj" />
     <ProjectReference Include="..\WebPagePub.Managers\WebPagePub.Managers.csproj" />
     <ProjectReference Include="..\WebPagePub.Services\WebPagePub.Services.csproj" />
   </ItemGroup>

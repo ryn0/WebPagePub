@@ -6,5 +6,11 @@
         {
             return fileName.Replace(" ", string.Empty);
         }
+
+        public static string GetFileExtensionLower(string fileName)
+        {
+            var extension = System.IO.Path.GetExtension(fileName);
+            return extension.ToLowerInvariant();
+        }
     }
 }

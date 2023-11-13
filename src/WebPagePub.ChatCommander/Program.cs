@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Storage.Blobs;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.Storage;
@@ -12,6 +13,8 @@ using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Repositories.Implementations;
 using WebPagePub.Data.Repositories.Interfaces;
+using WebPagePub.FileStorage.Repositories.Implementations;
+using WebPagePub.FileStorage.Repositories.Interfaces;
 using WebPagePub.Managers.Implementations;
 using WebPagePub.Managers.Interfaces;
 using WebPagePub.Services.Implementations;
@@ -60,9 +63,19 @@ serviceProvider = new ServiceCollection()
    .AddTransient<IAuthorRepository, AuthorRepository>()
    .AddTransient<ISitePageManager, SitePageManager>()
    .AddTransient<IImageUploaderService, ImageUploaderService>()
-   .AddSingleton<IBlobService>(provider => 
-        new BlobService(cloudBlobClient))
    .AddSingleton<ISiteFilesRepository, SiteFilesRepository>()
+   .AddSingleton<IBlobService>(provider =>
+    {
+        return Task.Run(async () =>
+        {
+            using var scope = provider.CreateScope();
+            var cacheService = scope.ServiceProvider.GetRequiredService<ICacheService>();
+            var azureStorageConnection = cacheService.GetSnippet(SiteConfigSetting.AzureStorageConnectionString);
+            var blobServiceClient = new BlobServiceClient(azureStorageConnection);
+
+            return await BlobService.CreateAsync(blobServiceClient);
+        }).GetAwaiter().GetResult();
+    })
    .BuildServiceProvider();
 
 Console.WriteLine("Select which workflow to run from below:");

@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using ImageMagick;
 using WebPagePub.Core.Utilities;
-using WebPagePub.Data.Repositories.Interfaces;
+using WebPagePub.FileStorage.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
 
 namespace WebPagePub.Services.Implementations
