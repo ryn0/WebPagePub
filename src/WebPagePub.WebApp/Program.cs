@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.WindowsAzure.Storage;
 using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models;
