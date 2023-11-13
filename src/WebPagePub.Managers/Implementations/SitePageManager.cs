@@ -11,6 +11,7 @@ using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
+using WebPagePub.FileStorage.Repositories.Interfaces;
 using WebPagePub.Managers.Interfaces;
 using WebPagePub.Managers.Models.SitePages;
 using WebPagePub.Services.Interfaces;

@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\WebPagePub.Core\WebPagePub.Core.csproj" />
     <ProjectReference Include="..\WebPagePub.Data\WebPagePub.Data.csproj" />
+    <ProjectReference Include="..\WebPagePub.FileStorage\WebPagePub.FileStorage.csproj" />
   </ItemGroup>
 
   <ItemGroup>

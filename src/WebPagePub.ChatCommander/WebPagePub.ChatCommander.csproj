@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WebPagePub.FileStorage\WebPagePub.FileStorage.csproj" />
     <ProjectReference Include="..\WebPagePub.Managers\WebPagePub.Managers.csproj" />
   </ItemGroup>
 

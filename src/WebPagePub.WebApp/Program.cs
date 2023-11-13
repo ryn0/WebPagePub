@@ -1,4 +1,5 @@
 using System.Net;
+using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,8 @@ using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Repositories.Implementations;
 using WebPagePub.Data.Repositories.Interfaces;
+using WebPagePub.FileStorage.Repositories.Implementations;
+using WebPagePub.FileStorage.Repositories.Interfaces;
 using WebPagePub.Managers.Implementations;
 using WebPagePub.Managers.Interfaces;
 using WebPagePub.Services.Implementations;
@@ -71,21 +74,15 @@ builder.Services.AddSingleton<ISiteFilesRepository, SiteFilesRepository>();
 
 builder.Services.AddSingleton<IBlobService>(provider =>
 {
-    using var scope = provider.CreateScope();
-    var cacheService = scope.ServiceProvider.GetRequiredService<ICacheService>();
-    var azureStorageConnection = cacheService.GetSnippet(SiteConfigSetting.AzureStorageConnectionString);
-
-    if (!string.IsNullOrEmpty(azureStorageConnection))
+    return Task.Run(async () =>
     {
-        var azureConnection = CloudStorageAccount.Parse(azureStorageConnection);
-        var cloudBlobClient = azureConnection.CreateCloudBlobClient();
+        using var scope = provider.CreateScope();
+        var cacheService = scope.ServiceProvider.GetRequiredService<ICacheService>();
+        var azureStorageConnection = cacheService.GetSnippet(SiteConfigSetting.AzureStorageConnectionString);
+        var blobServiceClient = new BlobServiceClient(azureStorageConnection);
 
-        return new BlobService(cloudBlobClient);
-    }
-    else
-    {
-        return new BlobService(null);
-    }
+        return await BlobService.CreateAsync(blobServiceClient);
+    }).GetAwaiter().GetResult();
 });
 
 builder.Services.AddTransient<ISpamFilterService>(provider =>

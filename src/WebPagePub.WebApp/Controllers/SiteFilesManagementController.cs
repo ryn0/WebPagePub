@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using WebPagePub.Core;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Repositories.Interfaces;
+using WebPagePub.FileStorage.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.Web.Models;
 
@@ -45,16 +46,17 @@ namespace WebPagePub.Web.Controllers
                 {
                     if (file != null && file.Length > 0)
                     {
-                        await this.siteFilesRepository.UploadAsync(file, folderPath);
+                        using var stream = file.OpenReadStream();
+                        await this.siteFilesRepository.UploadAsync(stream, file.FileName, folderPath);
                     }
                 }
 
-                return this.RedirectToAction(nameof(this.Index));
+                return this.RedirectToAction(nameof(this.IndexAsync));
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-                return this.RedirectToAction(nameof(this.Index));
+                return this.RedirectToAction(nameof(this.IndexAsync));
             }
         }
 
@@ -71,20 +73,20 @@ namespace WebPagePub.Web.Controllers
                     await this.siteFilesRepository.CreateFolderAsync(folderName, currentDirectory);
                 }
 
-                return this.RedirectToAction(nameof(this.Index));
+                return this.RedirectToAction(nameof(this.IndexAsync));
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-                return this.RedirectToAction(nameof(this.Index));
+                return this.RedirectToAction(nameof(this.IndexAsync));
             }
         }
 
         [Route("sitefilesmanagement")]
         [HttpGet]
-        public ActionResult Index(string? folderPath = null)
+        public async Task<ActionResult> IndexAsync(string? folderPath = null)
         {
-            var directory = this.siteFilesRepository.ListFiles(folderPath);
+            var directory = await this.siteFilesRepository.ListFilesAsync(folderPath);
 
             var model = new SiteFileListModel();
 
@@ -92,14 +94,19 @@ namespace WebPagePub.Web.Controllers
             {
                 var item = new SiteFileItem
                 {
-                    FilePath = file.FilePath,
-                    FolderName = file.FolderName,
-                    FolderPathFromRoot = file.FolderPathFromRoot,
+                    FilePath = file.FilePath ?? string.Empty,
+                    FolderName = file.FolderName ?? string.Empty,
+                    FolderPathFromRoot = file.FolderPathFromRoot ?? string.Empty,
                     IsFolder = file.IsFolder
                 };
 
                 if (!file.IsFolder)
                 {
+                    if (string.IsNullOrWhiteSpace(file.FilePath))
+                    {
+                        throw new ArgumentNullException($"{nameof(file.FilePath)}");
+                    }
+
                     item.CdnLink = this.ConvertBlobToCdnUrl(file.FilePath);
                 }
 
@@ -139,7 +146,7 @@ namespace WebPagePub.Web.Controllers
         {
             await this.siteFilesRepository.DeleteFileAsync(fileUrl);
 
-            return this.RedirectToAction(nameof(this.Index));
+            return this.RedirectToAction(nameof(this.IndexAsync));
         }
 
         [Route("sitefilesmanagement/DeleteFolderAsync")]
@@ -148,7 +155,7 @@ namespace WebPagePub.Web.Controllers
         {
             await this.siteFilesRepository.DeleteFolderAsync(folderUrl);
 
-            return this.RedirectToAction(nameof(this.Index));
+            return this.RedirectToAction(nameof(this.IndexAsync));
         }
 
         private string ConvertBlobToCdnUrl(string filePath)
