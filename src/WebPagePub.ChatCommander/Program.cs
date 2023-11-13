@@ -2,8 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
 using WebPagePub.ChatCommander.Enums;
 using WebPagePub.ChatCommander.Interfaces;
 using WebPagePub.ChatCommander.Models.SettingsModels;
@@ -35,13 +33,7 @@ var serviceProvider = new ServiceCollection()
 
 var snippetsRepo = serviceProvider.GetService<IContentSnippetRepository>();
 var azureStorageConnection = GetAzureConnectionString(snippetsRepo);
-CloudBlobClient? cloudBlobClient = null;
 
-if (!string.IsNullOrEmpty(azureStorageConnection))
-{
-    var azureConnection = CloudStorageAccount.Parse(azureStorageConnection);
-    cloudBlobClient = azureConnection.CreateCloudBlobClient();
-}
 serviceProvider = new ServiceCollection()
    .AddDbContext<ApplicationDbContext>(options =>
    options.UseSqlServer(
