@@ -31,7 +31,7 @@ namespace WebPagePub.Web.Controllers
         public async Task<ActionResult> Go(string key)
         {
             var url = this.GetLinkForKey(key);
-            this.Response.Headers.Add("X-Robots-Tag", "noindex, nofollow");
+            this.Response.Headers.Append("X-Robots-Tag", "noindex, nofollow");
 
             if (string.IsNullOrEmpty(url))
             {
