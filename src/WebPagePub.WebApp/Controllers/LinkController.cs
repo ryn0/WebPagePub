@@ -64,7 +64,7 @@ namespace WebPagePub.Web.Controllers
             {
                 var ipAddress = context.Connection?.RemoteIpAddress?.ToString();
                 var url = request.GetDisplayUrl();
-                var referrer = context.Request.Headers["Referer"].ToString();
+                var referrer = context.Request.Headers.Referer.ToString();
                 var isBot = StringConstants.BotUserAgents.Any(bot => userAgent.Contains(bot));
 
                 await this.clickLogRepository.CreateAsync(new ClickLog()
