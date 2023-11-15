@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
+using WebPagePub.Data.DbContextInfo.Implementations;
 
 namespace WebPagePub.Data.DbContextInfo
 {

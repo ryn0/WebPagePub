@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using WebPagePub.Data.DbContextInfo;
 using System;
+using WebPagePub.Data.DbContextInfo.Implementations;
 
 namespace WebPagePub.Data.Migrations
 {

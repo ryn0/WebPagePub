@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using WebPagePub.Data.DbContextInfo;
+using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models.Db;
 
 namespace WebPagePub.Data.Repositories.Interfaces

@@ -1,4 +1,4 @@
-﻿namespace WebPagePub.Data.DbContextInfo
+﻿namespace WebPagePub.Data.DbContextInfo.Interfaces
 {
     public interface IDbInitializer
     {

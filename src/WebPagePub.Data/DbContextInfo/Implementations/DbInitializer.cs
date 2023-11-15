@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models;
 
-namespace WebPagePub.Data.DbContextInfo
+namespace WebPagePub.Data.DbContextInfo.Implementations
 {
     public class DbInitializer : IDbInitializer
     {

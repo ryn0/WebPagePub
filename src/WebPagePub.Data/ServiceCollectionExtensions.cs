@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using WebPagePub.Data.DbContextInfo;
+using WebPagePub.Data.DbContextInfo.Implementations;
 
 namespace WebPagePub.Data
 {

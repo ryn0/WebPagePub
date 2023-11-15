@@ -5,7 +5,7 @@ using System.Reflection;
 using log4net;
 using Microsoft.EntityFrameworkCore;
 using WebPagePub.Data.Constants;
-using WebPagePub.Data.DbContextInfo;
+using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Repositories.Interfaces;
 

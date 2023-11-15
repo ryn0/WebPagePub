@@ -4,8 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using WebPagePub.Data.DbContextInfo;
+using WebPagePub.Data.DbContextInfo.Implementations;
 
 namespace WebPagePub.Data.Migrations
 {
