@@ -165,7 +165,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                 var articleBreadcrumb = await openAiApiClient.SubmitMessage(promptTextFormatted07);
                 articleBreadcrumb = TextHelpers.ParseBreadcrumb(articleBreadcrumb);
 
-                var newPage = sitePageManager.CreatePage(new SitePage()
+                var newPage = await sitePageManager.CreatePageAsync(new SitePage()
                 {
                     SitePageSectionId = siteSection.SitePageSectionId,
                     AllowsComments = true,

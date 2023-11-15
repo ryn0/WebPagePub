@@ -217,7 +217,7 @@ namespace WebPagePub.Web.Controllers
 
         [Route("sitepages/CreateSitePage/{sitePageSectionId}")]
         [HttpPost]
-        public IActionResult CreateSitePage(SitePageManagementCreateModel model)
+        public async Task<IActionResult> CreateSitePageAsync(SitePageManagementCreateModel model)
         {
             if (!this.ModelState.IsValid)
             {
@@ -232,7 +232,7 @@ namespace WebPagePub.Web.Controllers
                 throw new Exception($"Page with key '{titleFormattted}' already exists in this section");
             }
 
-            var entry = this.sitePageManager.CreatePage(
+            var entry = await this.sitePageManager.CreatePageAsync(
                 model.SiteSectionId,
                 titleFormattted,
                 this.userManager.GetUserId(this.User));
@@ -336,7 +336,7 @@ namespace WebPagePub.Web.Controllers
         {
             var dbModel = this.ConvertToDbModel(model);
 
-            if (this.sitePageManager.UpdateSitePage(dbModel))
+            if (await this.sitePageManager.UpdateSitePage(dbModel))
             {
                 var sitePagePhotoDetails = this.GetSitePagePhotoDetails(this.sitePageManager.GetBlogPhotos(model.SitePageId), this.Request.Form);
                 await this.sitePageManager.UpdatePhotoProperties(model.SitePageId, sitePagePhotoDetails);

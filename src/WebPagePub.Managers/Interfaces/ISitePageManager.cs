@@ -25,7 +25,7 @@ namespace WebPagePub.Managers.Interfaces
 
         SitePage GetPageForUrl(Uri sourcePage);
 
-        public SitePage CreatePage(int siteSectionId, string pageTitle, string createdByUserId);
+        public Task<SitePage> CreatePageAsync(int siteSectionId, string pageTitle, string createdByUserId);
 
         public IList<SitePage> GetSitePages(int pageNumber, int siteSectionId, int quantityPerPage, out int total);
 
@@ -37,7 +37,7 @@ namespace WebPagePub.Managers.Interfaces
 
         public IEnumerable<SitePageSection> GetAllSiteSection();
 
-        public SitePage CreatePage(SitePage sitePage);
+        public Task<SitePage> CreatePageAsync(SitePage sitePage);
 
         public Task<int> DeletePhotoAsync(int sitePagePhotoId);
 
@@ -48,8 +48,8 @@ namespace WebPagePub.Managers.Interfaces
         /// <summary>
         /// Upload photo to page.
         /// </summary>
-        /// <param name="sitePageId"></param>
-        /// <param name="fileNameAndImageMemoryStream">Filename, photo memory stream</param>
+        /// <param name="sitePageId">the page's ID</param>
+        /// <param name="fileNameAndImageMemoryStream">Filename, photo memory stream.</param>
         /// <returns></returns>
         public Task UploadPhotos(int sitePageId, IList<Tuple<string, MemoryStream>> fileNameAndImageMemoryStream);
 
@@ -59,7 +59,7 @@ namespace WebPagePub.Managers.Interfaces
 
         public SitePage GetSitePage(int sitePageId);
 
-        public bool UpdateSitePage(SitePage dbModel);
+        public Task<bool> UpdateSitePage(SitePage dbModel);
 
         public IList<SitePagePhoto> GetBlogPhotos(int sitePageId);
 

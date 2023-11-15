@@ -29,6 +29,12 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
         public async Task<SiteFileDirectory> ListFilesAsync(string? prefix = null)
         {
             var directory = new SiteFileDirectory();
+
+            if (this.blobService == null)
+            {
+                return directory;
+            }
+
             var container = this.blobService.GetContainerReference(StringConstants.ContainerName);
 
             if (prefix != null && prefix.StartsWith("/"))

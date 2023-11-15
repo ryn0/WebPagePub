@@ -2,6 +2,8 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebPagePub.Data.DbContextInfo.Implementations;
 
 #nullable disable
@@ -15,7 +17,7 @@ namespace WebPagePub.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.12")
+                .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -129,7 +131,8 @@ namespace WebPagePub.Data.Migrations
 
                     b.Property<string>("Discriminator")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(34)
+                        .HasColumnType("nvarchar(34)");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -655,6 +658,104 @@ namespace WebPagePub.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("SitePage");
+                });
+
+            modelBuilder.Entity("WebPagePub.Data.Models.SitePageAudit", b =>
+                {
+                    b.Property<int>("SitePageAuditId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SitePageAuditId"));
+
+                    b.Property<bool>("AllowsComments")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("AuthorId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("BreadcrumbName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByUserId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<bool>("ExcludePageFromSiteMapXml")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsLive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSectionHomePage")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("MetaDescription")
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
+
+                    b.Property<string>("MetaKeywords")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("PageHeader")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("PageType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("PublishDateTimeUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double>("ReviewBestValue")
+                        .HasColumnType("float");
+
+                    b.Property<string>("ReviewItemName")
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
+
+                    b.Property<double>("ReviewRatingValue")
+                        .HasColumnType("float");
+
+                    b.Property<double>("ReviewWorstValue")
+                        .HasColumnType("float");
+
+                    b.Property<int>("SitePageId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SitePageSectionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedByUserId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.HasKey("SitePageAuditId");
+
+                    b.ToTable("SitePageAudit");
                 });
 
             modelBuilder.Entity("WebPagePub.Data.Models.SitePagePhoto", b =>

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.DbContextInfo.Implementations;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Enums;
@@ -42,6 +41,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 // db repos
 builder.Services.AddTransient<ISitePageSectionRepository, SitePageSectionRepository>();
 builder.Services.AddTransient<ISitePageRepository, SitePageRepository>();
+builder.Services.AddTransient<ISitePageAuditRepository, SitePageAuditRepository>();
 builder.Services.AddTransient<ISitePagePhotoRepository, SitePagePhotoRepository>();
 builder.Services.AddTransient<ITagRepository, TagRepository>();
 builder.Services.AddTransient<ISitePageTagRepository, SitePageTagRepository>();
@@ -80,6 +80,12 @@ builder.Services.AddSingleton<IBlobService>(provider =>
         using var scope = provider.CreateScope();
         var cacheService = scope.ServiceProvider.GetRequiredService<ICacheService>();
         var azureStorageConnection = cacheService.GetSnippet(SiteConfigSetting.AzureStorageConnectionString);
+
+        if (string.IsNullOrWhiteSpace(azureStorageConnection))
+        {
+            return await BlobService.CreateAsync(null);
+        }
+
         var blobServiceClient = new BlobServiceClient(azureStorageConnection);
 
         return await BlobService.CreateAsync(blobServiceClient);
