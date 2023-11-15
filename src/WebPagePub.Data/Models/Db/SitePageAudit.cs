@@ -7,6 +7,9 @@ namespace WebPagePub.Data.Models
 {
     public class SitePageAudit : UserStateInfo
     {
+        [Key]
+        public int SitePageAuditId { get; set; }
+
         public int SitePageId { get; set; }
 
         [Required]

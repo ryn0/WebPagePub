@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models;
 
@@ -9,9 +10,9 @@ namespace WebPagePub.Data.Repositories.Interfaces
     {
         IApplicationDbContext Context { get; }
 
-        SitePage Create(SitePage model);
+        Task<SitePage> CreateAsync(SitePage model);
 
-        bool Update(SitePage model);
+        Task<bool> UpdateAsync(SitePage model);
 
         SitePage Get(int sitePageId);
 

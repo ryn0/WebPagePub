@@ -152,7 +152,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                 var articleHeader = await openAiApiClient.SubmitMessage(promptTextFormatted07);
                 articleHeader = TextHelpers.CleanH1(articleHeader);
 
-                var newPage = sitePageManager.CreatePage(new SitePage()
+                var newPage = await sitePageManager.CreatePageAsync(new SitePage()
                 {
                     SitePageSectionId = siteSection.SitePageSectionId,
                     AllowsComments = true,

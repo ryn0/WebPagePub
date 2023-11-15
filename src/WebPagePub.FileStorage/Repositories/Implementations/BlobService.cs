@@ -19,6 +19,11 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
 
         public static async Task<BlobService> CreateAsync(BlobServiceClient blobServiceClient)
         {
+            if (blobServiceClient == null)
+            {
+                return default;
+            }
+
             var blobService = new BlobService(blobServiceClient)
             {
                 BlobPrefix = blobServiceClient.Uri.OriginalString

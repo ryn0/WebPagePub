@@ -25,26 +25,6 @@ namespace WebPagePub.Data.UnitTests.RepositoriesTests
         }
 
         [Fact]
-        public void Create_SitePage_ReturnsCreatedSitePage()
-        {
-            this.repoMock.Setup(r => r.Create(It.IsAny<SitePage>())).Returns(this.testSitePage);
-
-            var result = this.repoMock.Object.Create(new SitePage());
-
-            Assert.Equal(this.testSitePage.SitePageId, result.SitePageId);
-        }
-
-        [Fact]
-        public void Update_SitePage_ReturnsTrue()
-        {
-            this.repoMock.Setup(r => r.Update(It.IsAny<SitePage>())).Returns(true);
-
-            var result = this.repoMock.Object.Update(new SitePage());
-
-            Assert.True(result);
-        }
-
-        [Fact]
         public void Get_SitePageId_ReturnsSitePage()
         {
             this.repoMock.Setup(r => r.Get(It.IsAny<int>())).Returns(this.testSitePage);

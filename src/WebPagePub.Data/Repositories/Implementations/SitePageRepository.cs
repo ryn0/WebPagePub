@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using log4net;
 using Microsoft.EntityFrameworkCore;
 using WebPagePub.Data.Constants;
@@ -15,19 +16,26 @@ namespace WebPagePub.Data.Repositories.Implementations
     {
         private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        public SitePageRepository(IApplicationDbContext context)
+        public SitePageRepository(
+            IApplicationDbContext context,
+            ISitePageAuditRepository sitePageAuditRepository)
         {
             this.Context = context;
+            this.SitePageAuditRepository = sitePageAuditRepository;
         }
 
         public IApplicationDbContext Context { get; private set; }
 
-        public SitePage Create(SitePage model)
+        private ISitePageAuditRepository SitePageAuditRepository { get; set; }
+
+        public async Task<SitePage> CreateAsync(SitePage model)
         {
             try
             {
                 this.Context.SitePage.Add(model);
                 this.Context.SaveChanges();
+
+                await this.LogToAuditTable(model);
 
                 return model;
             }
@@ -278,7 +286,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public bool Update(SitePage model)
+        public async Task<bool> UpdateAsync(SitePage model)
         {
             try
             {
@@ -299,6 +307,8 @@ namespace WebPagePub.Data.Repositories.Implementations
 
                 this.Context.SitePage.Update(model);
                 this.Context.SaveChanges();
+
+                await this.LogToAuditTable(model);
 
                 return true;
             }
@@ -471,6 +481,38 @@ namespace WebPagePub.Data.Repositories.Implementations
 
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
+        }
+
+        private async Task LogToAuditTable(SitePage model)
+        {
+            await this.SitePageAuditRepository.CreateAsync(
+                new SitePageAudit()
+                {
+                    SitePageId = model.SitePageId,
+                    AllowsComments = model.AllowsComments,
+                    AuthorId = model.AuthorId,
+                    BreadcrumbName = model.BreadcrumbName,
+                    Content = model.Content,
+                    CreateDate = model.CreateDate,
+                    CreatedByUserId = model.CreatedByUserId,
+                    ExcludePageFromSiteMapXml = model.ExcludePageFromSiteMapXml,
+                    IsLive = model.IsLive,
+                    IsSectionHomePage = model.IsSectionHomePage,
+                    Key = model.Key,
+                    MetaDescription = model.MetaDescription,
+                    MetaKeywords = model.MetaKeywords,
+                    PageHeader = model.PageHeader,
+                    PageType = model.PageType,
+                    PublishDateTimeUtc = model.PublishDateTimeUtc,
+                    ReviewBestValue = model.ReviewBestValue,
+                    ReviewItemName = model.ReviewItemName,
+                    ReviewRatingValue = model.ReviewRatingValue,
+                    ReviewWorstValue = model.ReviewWorstValue,
+                    SitePageSectionId = model.SitePageSectionId,
+                    Title = model.Title,
+                    UpdateDate = model.UpdateDate,
+                    UpdatedByUserId = model.UpdatedByUserId,
+                });
         }
     }
 }

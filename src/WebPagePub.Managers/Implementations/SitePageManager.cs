@@ -84,7 +84,7 @@ namespace WebPagePub.Managers.Implementations
                 BreadcrumbName = sitePageName.Trim()
             });
 
-            this.sitePageRepository.Create(new SitePage()
+            this.sitePageRepository.CreateAsync(new SitePage()
             {
                 Title = siteSection.Title,
                 Key = StringConstants.DefaultKey,
@@ -158,9 +158,9 @@ namespace WebPagePub.Managers.Implementations
             return this.siteSectionRepository.GetAll();
         }
 
-        public SitePage CreatePage(SitePage sitePage)
+        public async Task<SitePage> CreatePageAsync(SitePage sitePage)
         {
-            return this.sitePageRepository.Create(sitePage);
+            return await this.sitePageRepository.CreateAsync(sitePage);
         }
 
         public async Task<int> DeletePhotoAsync(int sitePagePhotoId)
@@ -299,9 +299,9 @@ namespace WebPagePub.Managers.Implementations
             return this.sitePageRepository.Get(sitePageId);
         }
 
-        public bool UpdateSitePage(SitePage dbModel)
+        public Task<bool> UpdateSitePage(SitePage dbModel)
         {
-            return this.sitePageRepository.Update(dbModel);
+            return this.sitePageRepository.UpdateAsync(dbModel);
         }
 
         public IList<SitePagePhoto> GetBlogPhotos(int sitePageId)
@@ -309,7 +309,7 @@ namespace WebPagePub.Managers.Implementations
             return this.sitePagePhotoRepository.GetBlogPhotos(sitePageId);
         }
 
-        public SitePage CreatePage(int siteSectionId, string pageTitle, string createdByUserId)
+        public async Task<SitePage> CreatePageAsync(int siteSectionId, string pageTitle, string createdByUserId)
         {
             var key = pageTitle.UrlKey();
             var pageTypeSetting = this.contentSnippetRepository.Get(SiteConfigSetting.DefaultPageType);
@@ -321,7 +321,7 @@ namespace WebPagePub.Managers.Implementations
                 Enum.TryParse(pageTypeSetting.Content, true, out pageType);
             }
 
-            return this.sitePageRepository.Create(
+            return await this.sitePageRepository.CreateAsync(
                 new SitePage()
                 {
                     Title = pageTitle,

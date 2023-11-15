@@ -49,6 +49,8 @@ namespace WebPagePub.Data.DbContextInfo.Implementations
 
         public DbSet<Author> Author { get; set; }
 
+        public DbSet<SitePageAudit> SitePageAudit { get; set; }
+
         public override int SaveChanges()
         {
             this.SetDates();
@@ -57,7 +59,7 @@ namespace WebPagePub.Data.DbContextInfo.Implementations
         }
 
         public override Task<int> SaveChangesAsync(
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             this.SetDates();
 

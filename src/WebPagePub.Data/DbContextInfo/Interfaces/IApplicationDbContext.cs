@@ -13,6 +13,8 @@ namespace WebPagePub.Data.DbContextInfo.Interfaces
 
         DbSet<SitePage> SitePage { get; set; }
 
+        DbSet<SitePageAudit> SitePageAudit { get; set; }
+
         DbSet<SitePageComment> SitePageComment { get; set; }
 
         DbSet<SitePagePhoto> SitePagePhoto { get; set; }
