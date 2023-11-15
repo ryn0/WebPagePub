@@ -3,11 +3,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.DbModels.BaseDbModels;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Db;
 
-namespace WebPagePub.Data.DbContextInfo
+namespace WebPagePub.Data.DbContextInfo.Implementations
 {
     public class ApplicationDbContext :
                     ApplicationBaseContext<ApplicationDbContext>,

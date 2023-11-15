@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using log4net;
 using WebPagePub.Data.Constants;
-using WebPagePub.Data.DbContextInfo;
+using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;

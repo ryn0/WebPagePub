@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace WebPagePub.Data.Models.AzureStorage.Blob
+﻿namespace WebPagePub.FileStorage.AzureStorage.Blob
 {
     public class SiteFileDirectory
     {

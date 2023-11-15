@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using WebPagePub.Data.DbContextInfo;
+using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Implementations;
 using Xunit;

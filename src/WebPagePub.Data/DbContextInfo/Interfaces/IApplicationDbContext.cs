@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Db;
 
-namespace WebPagePub.Data.DbContextInfo
+namespace WebPagePub.Data.DbContextInfo.Interfaces
 {
     public interface IApplicationDbContext : IDisposable
     {
@@ -41,6 +41,6 @@ namespace WebPagePub.Data.DbContextInfo
 
         int SaveChanges();
 
-        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

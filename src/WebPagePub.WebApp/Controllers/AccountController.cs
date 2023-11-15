@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebPagePub.Data.Constants;
-using WebPagePub.Data.DbContextInfo;
+using WebPagePub.Data.DbContextInfo.Implementations;
 using WebPagePub.Data.Models;
 using WebPagePub.Web.Models;
 

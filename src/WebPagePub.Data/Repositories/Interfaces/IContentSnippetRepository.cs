@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using WebPagePub.Data.DbContextInfo;
+using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models.Db;
 
