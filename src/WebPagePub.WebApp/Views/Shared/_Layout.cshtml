@@ -54,19 +54,19 @@
         <footer class="site-footer">
             @if (!string.IsNullOrEmpty(_cacheHelper.GetSnippet(SiteConfigSetting.InstagramUrl)))
             {
-                <a href="@_cacheHelper.GetSnippet(SiteConfigSetting.InstagramUrl)" class="btn btn-ig"><i class="fa fa-instagram left"></i> Instagram</a>
+                <a target="_blank" href="@_cacheHelper.GetSnippet(SiteConfigSetting.InstagramUrl)" class="btn btn-ig"><i class="fa fa-instagram left"></i> Instagram</a>
             }
             @if (!string.IsNullOrEmpty(_cacheHelper.GetSnippet(SiteConfigSetting.FacebookUrl)))
             {
-                <a href="@_cacheHelper.GetSnippet(SiteConfigSetting.FacebookUrl)" class="btn btn-fb"><i class="fa fa-facebook left"></i> Facebook</a>
+                <a target="_blank"  href="@_cacheHelper.GetSnippet(SiteConfigSetting.FacebookUrl)" class="btn btn-fb"><i class="fa fa-facebook left"></i> Facebook</a>
             }
             @if (!string.IsNullOrEmpty(_cacheHelper.GetSnippet(SiteConfigSetting.YouTubeUrl)))
             {
-                <a href="@_cacheHelper.GetSnippet(SiteConfigSetting.YouTubeUrl)" class="btn btn-youtube"><i class="fa fa-youtube left"></i> YouTube</a>
+                <a target="_blank" href="@_cacheHelper.GetSnippet(SiteConfigSetting.YouTubeUrl)" class="btn btn-youtube"><i class="fa fa-youtube left"></i> YouTube</a>
             }
             @if (!string.IsNullOrEmpty(_cacheHelper.GetSnippet(SiteConfigSetting.TwitterUrl)))
             {
-                <a href="@_cacheHelper.GetSnippet(SiteConfigSetting.TwitterUrl)" class="btn btn-twitter"><i class="fa fa-twitter left"></i> Twitter</a>
+                <a target="_blank" href="@_cacheHelper.GetSnippet(SiteConfigSetting.TwitterUrl)" class="btn btn-twitter"><i class="fa fa-twitter left"></i> Twitter</a>
             }
             <div class="copyright">
                 &copy; @DateTime.UtcNow.Year 
