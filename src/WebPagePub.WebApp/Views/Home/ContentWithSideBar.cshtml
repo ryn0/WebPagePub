@@ -27,13 +27,16 @@
 
                     @Html.Raw(Model.PageContent.Content)
 
-                    <hr />
                     @if (Model.AllowCommenting)
                     {
-                        await Html.RenderPartialAsync("_ListComments", Model.Comments);
-                        await Html.RenderPartialAsync("_PostComment", Model.PostComment);
-
                         <hr />
+                        <h3>Comments</h3>
+
+                        await Html.RenderPartialAsync("_ListComments", Model.Comments);
+
+                        await Html.RenderPartialAsync("_PostComment", Model.PostComment);
+                        <hr />
+
                     }
                 </article>
 
