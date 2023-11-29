@@ -1,4 +1,5 @@
-﻿using WebPagePub.Data.Enums;
+﻿using Schema.NET;
+using WebPagePub.Data.Enums;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.Web.Models;
 using WebPagePub.WebApp.Models.StructuredData;
@@ -16,7 +17,7 @@ namespace WebPagePub.WebApp.Models.SitePage
             this.Organization = new StructedDataOrganizationModel(this.cacheService);
             this.Review = new StructureDataReviewModel(this.cacheService);
             this.Website = new StructedDataWebsiteModel(this.cacheService);
-            this.Article = new StructureDataReviewModel(this.cacheService);
+            this.Article = new Article();
         }
 
         public SitePageContentModel PageContent { get; set; } = new SitePageContentModel();
@@ -29,7 +30,7 @@ namespace WebPagePub.WebApp.Models.SitePage
 
         public StructureDataReviewModel Review { get; set; }
 
-        public StructureDataReviewModel Article { get; set; }
+        public Article Article { get; set; }
 
         public StructedDataWebsiteModel Website { get; set; }
 
