@@ -37,22 +37,22 @@
                         <hr />
 
                     }
-        @if (Model.PageContent.Tags.Count > 0)
-        {
-            var current = 1;
+                    @if (Model.PageContent.Tags.Count > 0)
+                    {
+                        var current = 1;
 
-            <div class="page-tags">
-            <b>Tagged:</b>
-            
-            @foreach (var tag in Model.PageContent.Tags)
-            {
-                <a href="~/tag/@tag.UrlKey()">@tag</a>if (current != Model.PageContent.Tags.Count)
-                        {<text>, </text>
-                        current++;
+                        <div class="page-tags">
+                        <b>Tagged:</b>
+                        
+                        @foreach (var tag in Model.PageContent.Tags)
+                        {
+                            <a href="~/tag/@tag.UrlKey()">@tag</a>if (current != Model.PageContent.Tags.Count)
+                                    {<text>, </text>
+                                    current++;
+                                    }
                         }
-            }
-                </div>
-        }
+                            </div>
+                    }
                 </article>
 
                 @{
