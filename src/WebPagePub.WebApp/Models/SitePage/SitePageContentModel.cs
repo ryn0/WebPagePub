@@ -82,14 +82,17 @@ namespace WebPagePub.WebApp.Models.SitePage
         {
             get
             {
+                var dateToUse = this.PublishedDateTimeUtc;
+
                 if (this.LastUpdatedDateTimeUtc > this.PublishedDateTimeUtc)
                 {
-                    return DateUtilities.FriendlyFormatDate(this.LastUpdatedDateTimeUtc);
+                    dateToUse = this.LastUpdatedDateTimeUtc;
                 }
-                else
-                {
-                    return DateUtilities.FriendlyFormatDate(this.PublishedDateTimeUtc);
-                }
+
+                // set back in time to make sure date isn't in future for someone
+                dateToUse = dateToUse.AddDays(-1);
+
+                return DateUtilities.FriendlyFormatDate(dateToUse);
             }
         }
 
