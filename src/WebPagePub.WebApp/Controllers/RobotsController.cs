@@ -45,7 +45,7 @@ namespace WebPagePub.Web.Controllers
 
             var siteMapUrl = new Uri(new Uri(UrlHelper.GetCurrentDomain(this.HttpContext)), "sitemap.xml");
 
-            sb.AppendLine($"Sitemap: {siteMapUrl}");
+            sb.AppendLine($"Allow: /Sitemap: {siteMapUrl}");
 
             return this.Content(sb.ToString());
         }
