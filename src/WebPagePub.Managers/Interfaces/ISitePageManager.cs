@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Db;
+using WebPagePub.Data.Models.Transfer;
 using WebPagePub.Managers.Models.SitePages;
 
 namespace WebPagePub.Managers.Interfaces
@@ -76,5 +77,7 @@ namespace WebPagePub.Managers.Interfaces
         public int? NextCreatedPage(DateTime createDate, int sitePageId, int sitePageSectionId);
 
         IList<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total);
+
+        IList<SiteMapDisplaySection> GetAllLinksAndTitles();
     }
 }

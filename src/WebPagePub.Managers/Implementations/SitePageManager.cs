@@ -10,6 +10,7 @@ using WebPagePub.Data.Constants;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Db;
+using WebPagePub.Data.Models.Transfer;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.FileStorage.Repositories.Interfaces;
 using WebPagePub.Managers.Interfaces;
@@ -347,6 +348,11 @@ namespace WebPagePub.Managers.Implementations
                 var currentPhoto = allImages.First(x => x.SitePagePhotoId == newSitePagePhoto.SitePagePhotoId);
                 await this.UpdateImageProperties(currentPhoto, newSitePagePhoto);
             }
+        }
+
+        public IList<SiteMapDisplaySection> GetAllLinksAndTitles()
+        {
+            return this.sitePageRepository.GetAllLinksAndTitles();
         }
 
         public IList<SitePage> GetLivePage(int pageNumber, int quantityPerpage, out int total)
