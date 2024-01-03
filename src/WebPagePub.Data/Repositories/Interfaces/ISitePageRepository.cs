@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models;
+using WebPagePub.Data.Models.Transfer;
 
 namespace WebPagePub.Data.Repositories.Interfaces
 {
@@ -45,5 +46,7 @@ namespace WebPagePub.Data.Repositories.Interfaces
         SitePage GetNextCreatedEntry(DateTime createDate, int sitePageId, int sitePageSectionId);
 
         IList<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total);
+
+        IList<SiteMapDisplaySection> GetAllLinksAndTitles();
     }
 }

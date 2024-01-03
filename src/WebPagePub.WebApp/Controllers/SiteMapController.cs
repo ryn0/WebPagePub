@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Amazon.Runtime.EventStreams.Internal;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using WebPagePub.Core;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Db;
+using WebPagePub.Data.Models.Transfer;
 using WebPagePub.Managers.Interfaces;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.Web.Helpers;
@@ -92,24 +94,9 @@ namespace WebPagePub.Web.Controllers
 
             if (cachedPage == null)
             {
-                var allPages = this.sitePageManager.GetLivePage(1, int.MaxValue, out int total);
-                var sectionIds = allPages.Select(x => x.SitePageSectionId).Distinct();
+                var sectionsAndPages = this.sitePageManager.GetAllLinksAndTitles();
 
-                foreach (var sectionId in sectionIds)
-                {
-                    var section = this.sitePageManager.GetSiteSection(sectionId);
-                    var allPagesInSection = allPages.Where(x => x.SitePageSectionId == sectionId).ToList();
-                    var indexPage = allPagesInSection.FirstOrDefault(x => x.IsSectionHomePage == true);
-
-                    if (indexPage == null)
-                    {
-                        continue;
-                    }
-
-                    this.AddPagesToSection(model, section, allPagesInSection, indexPage);
-                }
-
-                model.SectionPages = model.SectionPages.OrderBy(x => x.AnchorText).ToList();
+                model = this.ConvertToHtmlSiteMapModel(sectionsAndPages);
 
                 this.memoryCache.Set(
                     cacheKey,
@@ -259,6 +246,35 @@ namespace WebPagePub.Web.Controllers
 
             return new Uri(
                 $"{UrlHelper.GetCurrentDomain(this.HttpContext)}{sectionPath}").ToString().TrimEnd('/');
+        }
+
+        private HtmlSiteMapModel ConvertToHtmlSiteMapModel(IList<SiteMapDisplaySection> sections)
+        {
+            var htmlSiteMapModel = new HtmlSiteMapModel();
+
+            foreach (var section in sections)
+            {
+                var sectionPage = new SectionPage
+                {
+                    CanonicalUrl = string.Format("{0}{1}", UrlHelper.GetCurrentDomain(this.HttpContext), section.RelativePath),
+                    AnchorText = section.PageTitle
+                };
+
+                foreach (var item in section.Items)
+                {
+                    var childPage = new SectionPage
+                    {
+                        CanonicalUrl = string.Format("{0}{1}", UrlHelper.GetCurrentDomain(this.HttpContext), item.RelativePath),
+                        AnchorText = item.PageTitle
+                    };
+
+                    sectionPage.ChildPages.Add(childPage);
+                }
+
+                htmlSiteMapModel.SectionPages.Add(sectionPage);
+            }
+
+            return htmlSiteMapModel;
         }
     }
 }

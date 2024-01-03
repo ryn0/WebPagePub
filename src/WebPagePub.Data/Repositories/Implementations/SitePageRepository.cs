@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using log4net;
 using Microsoft.EntityFrameworkCore;
+using WebPagePub.Core;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models;
+using WebPagePub.Data.Models.Transfer;
 using WebPagePub.Data.Repositories.Interfaces;
 
 namespace WebPagePub.Data.Repositories.Implementations
@@ -90,6 +93,33 @@ namespace WebPagePub.Data.Repositories.Implementations
                                    .ToList();
 
                 total = this.Context.SitePage.Where(x => x.IsLive == true && x.PublishDateTimeUtc < now).Count();
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex);
+
+                throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
+            }
+        }
+
+        public IList<SiteMapDisplaySection> GetAllLinksAndTitles()
+        {
+            var now = DateTime.UtcNow;
+
+            try
+            {
+                var pageItems = this.Context.SitePage
+                                       .Where(x => x.IsLive && x.PublishDateTimeUtc < now)
+                                       .Select(x => new SiteMapDisplayItem
+                                       {
+                                           PageTitle = x.Title,
+                                           RelativePath = UrlBuilder.BlogUrlPath(x.SitePageSection.Key, x.Key)
+                                       })
+                                       .ToList();
+
+                var model = this.GroupItemsIntoSections(pageItems);
 
                 return model;
             }
@@ -513,6 +543,42 @@ namespace WebPagePub.Data.Repositories.Implementations
                     UpdateDate = model.UpdateDate,
                     UpdatedByUserId = model.UpdatedByUserId,
                 });
+        }
+
+        private IList<SiteMapDisplaySection> GroupItemsIntoSections(IList<SiteMapDisplayItem> items)
+        {
+            var sections = new List<SiteMapDisplaySection>();
+
+            // Group items by their root path
+            var groupedItems = items.GroupBy(
+                item => item.RelativePath.Split('/')[1]); // This assumes the format is always '/root/child'
+
+            foreach (var group in groupedItems)
+            {
+                var rootPath = "/" + group.Key;
+                var rootItem = group.FirstOrDefault(i => i.RelativePath == rootPath || i.RelativePath == $"{rootPath}/{StringConstants.DefaultKey}");
+
+                var section = new SiteMapDisplaySection
+                {
+                    RelativePath = rootPath,
+                    Items = new List<SiteMapDisplayItem>(),
+                    PageTitle = rootItem?.PageTitle ?? group.Key // Fallback to group.Key if rootItem is null
+                };
+
+                foreach (var item in group.OrderBy(i => i.PageTitle)) // Sort children by title
+                {
+                    // Skip the root/index page of the section
+                    if (item != rootItem)
+                    {
+                        section.Items.Add(item);
+                    }
+                }
+
+                sections.Add(section);
+            }
+
+            // Sort sections by a consistent property, fallback to RelativePath if PageTitle is not available
+            return sections.OrderBy(s => s.PageTitle ?? s.RelativePath).ToList();
         }
     }
 }
