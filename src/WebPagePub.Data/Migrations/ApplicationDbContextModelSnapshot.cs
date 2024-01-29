@@ -17,7 +17,7 @@ namespace WebPagePub.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
+                .HasAnnotation("ProductVersion", "8.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -649,6 +649,9 @@ namespace WebPagePub.Data.Migrations
                     b.Property<string>("UpdatedByUserId")
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
+
+                    b.Property<int>("WordCount")
+                        .HasColumnType("int");
 
                     b.HasKey("SitePageId");
 

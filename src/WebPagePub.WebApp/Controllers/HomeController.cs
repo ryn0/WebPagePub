@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Schema.NET;
 using WebPagePub.Core;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.Enums;
@@ -413,13 +414,15 @@ namespace WebPagePub.Web.Controllers
             this.ViewData["MetaDescription"] = model.PageContent.MetaDescription;
             this.ViewData[WebApp.Constants.StringConstants.CanonicalUrl] = model.PageContent.CanonicalUrl;
             this.ViewData["ExcludePage"] = model.PageContent.ExcludePage;
+            this.ViewData[WebApp.Constants.StringConstants.ArticleJson] = model.ArticleSchema;
 
             if (model.PageContent.LastUpdatedDateTimeUtc == DateTime.MinValue ||
                 (model.PageType == PageType.PageList && model.Items.Count > 0))
             {
-                this.ViewData[WebApp.Constants.StringConstants.ArticlePublishTime] = model.Items.OrderByDescending(x => x.PublishedDateTimeUtc)
-                                                            .First()
-                                                            .LastUpdatedDateTimeUtcIso;
+                this.ViewData[WebApp.Constants.StringConstants.ArticlePublishTime] = model.Items
+                                                                                          .OrderByDescending(x => x.PublishedDateTimeUtc)
+                                                                                          .First()
+                                                                                          .LastUpdatedDateTimeUtcIso;
             }
             else
             {
@@ -626,6 +629,7 @@ namespace WebPagePub.Web.Controllers
 
             var displayModel = new SitePageDisplayModel(this.cacheService)
             {
+                ArticleSchema = this.BuildArticleSchema(sitePage),
                 BreadcrumbList = this.BuildBreadcrumbList(sitePageSection, sitePage),
                 PageType = sitePage.PageType,
                 Review = this.BuildReviewModel(sitePage),
@@ -751,7 +755,7 @@ namespace WebPagePub.Web.Controllers
             {
                 Name = sitePage.ReviewItemName,
                 Description = sitePage.MetaDescription,
-                Review = new Review()
+                Review = new WebApp.Models.StructuredData.Review()
                 {
                     Author = author,
                     ReviewRating = new ReviewRating()
@@ -763,6 +767,24 @@ namespace WebPagePub.Web.Controllers
                     }
                 },
             };
+        }
+
+        private string BuildArticleSchema(SitePage sitePage)
+        {
+            var article = new Article()
+            {
+                WordCount = sitePage.WordCount,
+                ArticleBody = sitePage.Content,
+                Headline = sitePage.Title,
+                InLanguage = WebApp.Constants.StringConstants.DefaultLanguage,
+                DateCreated = sitePage.CreateDate,
+                DateModified = sitePage.UpdateDate,
+                DatePublished = sitePage.PublishDateTimeUtc
+            };
+
+            var result = article.ToHtmlEscapedString();
+
+            return result;
         }
 
         private StructuredDataBreadcrumbModel BuildBreadcrumbList(SitePageSection sitePageSection, SitePage sitePage)

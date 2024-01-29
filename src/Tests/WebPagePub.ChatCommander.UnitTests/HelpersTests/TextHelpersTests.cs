@@ -82,16 +82,6 @@ namespace WebPagePub.ChatCommander.UnitTests.HelpersTests
         }
 
         [Theory]
-        [InlineData("<p>This is something.</p>", "This is something.")]
-        [InlineData("This is something.", "This is something.")]
-        public void StripHtml_ValidText_IsRemovedOfUnwantedCharacters(string input, string expected)
-        {
-            var result = TextHelpers.StripHtml(input);
-
-            Assert.Equal(expected, result);
-        }
-
-        [Theory]
         [InlineData("&lt;div&gt;Hello &amp; World&lt;/div&gt;", "<div>Hello & World</div>")]
         [InlineData("&lt;p&gt;This is a paragraph.&lt;/p&gt;", "<p>This is a paragraph.</p>")]
         [InlineData("No special characters.", "No special characters.")]
@@ -100,22 +90,6 @@ namespace WebPagePub.ChatCommander.UnitTests.HelpersTests
         {
             // Act
             var result = TextHelpers.HtmlDecode(input);
-
-            // Assert
-            Assert.Equal(expected, result);
-        }
-
-        [Theory]
-        [InlineData("<div>Hello</div>", "Hello")]
-        [InlineData("<div><p>Hello & World</p></div>", "Hello & World")]
-        [InlineData("<strong>Bold</strong> and <em>italic</em>", "Bold and italic")]
-        [InlineData("No special characters.", "No special characters.")]
-        [InlineData("<a href=\"example.com\">Link</a>", "Link")]
-        [InlineData("&#60;div&#62;Encoded?&#60;/div&#62;", "&#60;div&#62;Encoded?&#60;/div&#62;")] // Not actual tags due to encoding
-        public void StripHtml_HtmlCharsAndNonHtmlChars_RemovesHtmlTags(string input, string expected)
-        {
-            // Act
-            var result = TextHelpers.StripHtml(input);
 
             // Assert
             Assert.Equal(expected, result);

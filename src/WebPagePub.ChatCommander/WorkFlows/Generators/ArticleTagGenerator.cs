@@ -2,6 +2,7 @@
 using WebPagePub.ChatCommander.Interfaces;
 using WebPagePub.ChatCommander.Models.SettingsModels;
 using WebPagePub.ChatCommander.Utilities;
+using WebPagePub.Core.Utilities;
 using WebPagePub.Managers.Interfaces;
 
 namespace WebPagePub.ChatCommander.WorkFlows.Generators
@@ -70,7 +71,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
 
         private string FormatPromptText(string promptTextRaw, string text)
         {
-            var textWithoutHtml = TextHelpers.StripHtml(text);
+            var textWithoutHtml = TextUtilities.StripHtml(text);
             var shortedTextWithoutHtml = TextHelpers.TruncateLongString(textWithoutHtml, 4000);
 
             if (shortedTextWithoutHtml == null)

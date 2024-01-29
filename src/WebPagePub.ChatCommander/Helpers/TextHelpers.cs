@@ -174,13 +174,6 @@ namespace WebPagePub.ChatCommander.Utilities
             return cleaned;
         }
 
-        public static string StripHtml(string htmlString)
-        {
-            string pattern = @"<(.|\n)*?>";
-
-            return Regex.Replace(htmlString, pattern, string.Empty);
-        }
-
         public static string ReduceSpaces(string extractedText)
         {
             extractedText = extractedText.Replace(Environment.NewLine, " ");

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using log4net;
 using Microsoft.EntityFrameworkCore;
 using WebPagePub.Core;
+using WebPagePub.Core.Utilities;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models;
@@ -333,6 +334,8 @@ namespace WebPagePub.Data.Repositories.Implementations
                         }
                     }
                 }
+
+                model.WordCount = TextUtilities.GetWordCount(model.Content);
 
                 this.Context.SitePage.Update(model);
                 this.Context.SaveChanges();
