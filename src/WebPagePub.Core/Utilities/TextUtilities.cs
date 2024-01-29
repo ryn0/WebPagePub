@@ -7,6 +7,11 @@ namespace WebPagePub.Core.Utilities
     {
         public static int GetWordCount(string html)
         {
+            if (string.IsNullOrEmpty(html))
+            {
+                return 0;
+            }
+
             var text = html.Replace("\r\n", " ");
             text = StripHtml(text);
             var words = text.Split(' ').Where(x => !string.IsNullOrWhiteSpace(x));

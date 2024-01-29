@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using WebPagePub.ChatCommander.Enums;
@@ -7,7 +8,6 @@ using WebPagePub.ChatCommander.Interfaces;
 using WebPagePub.ChatCommander.Models.SettingsModels;
 using WebPagePub.ChatCommander.SettingsModels;
 using WebPagePub.ChatCommander.WorkFlows.Generators;
-using WebPagePub.Data.DbContextInfo;
 using WebPagePub.Data.DbContextInfo.Implementations;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Enums;
@@ -57,7 +57,10 @@ serviceProvider = new ServiceCollection()
    .AddTransient<IAuthorRepository, AuthorRepository>()
    .AddTransient<ISitePageManager, SitePageManager>()
    .AddTransient<IImageUploaderService, ImageUploaderService>()
+   .AddTransient<ISitePageAuditRepository, SitePageAuditRepository>()
    .AddSingleton<ISiteFilesRepository, SiteFilesRepository>()
+   .AddTransient<ICacheService, CacheService>()
+   .AddMemoryCache()
    .AddSingleton<IBlobService>(provider =>
     {
         return Task.Run(async () =>
