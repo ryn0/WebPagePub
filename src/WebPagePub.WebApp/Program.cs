@@ -61,9 +61,6 @@ builder.Services.AddTransient<IDbInitializer, DbInitializer>();
 // managers
 builder.Services.AddTransient<ISitePageManager, SitePageManager>();
 
-// other
-builder.Services.AddTransient<ICacheService, CacheService>();
-
 builder.Services.AddTransient<IEmailSender>(x => new AmazonMailService(
     builder.Configuration.GetSection("AmazonEmailCredentials:AccessKey").Value,
     builder.Configuration.GetSection("AmazonEmailCredentials:SecretKey").Value,
