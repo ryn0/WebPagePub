@@ -78,5 +78,7 @@ namespace WebPagePub.Data.Models
 
         [Required]
         public bool IsSectionHomePage { get; set; }
+
+        public int WordCount { get; set; }
     }
 }

@@ -1,7 +1,7 @@
 ﻿@inject WebPagePub.Services.Interfaces.ICacheService _cacheHelper
 @using WebPagePub.Data.Enums;
 <!DOCTYPE html>
-<html lang="en-US">
+<html lang="@WebPagePub.WebApp.Constants.StringConstants.DefaultLanguage">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -25,6 +25,9 @@
     </environment>
     @RenderSection("StylesHeader", required: false)
     @RenderSection("ScriptsHeader", required: false)
+    <script type="application/ld+json">
+        @Html.Raw(ViewData[WebPagePub.WebApp.Constants.StringConstants.ArticleJson])
+    </script>
 </head>
 <body>
     <div id="wrapper">

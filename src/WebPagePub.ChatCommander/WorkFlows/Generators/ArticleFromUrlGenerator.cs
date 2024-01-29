@@ -10,6 +10,8 @@ using WebPagePub.ChatCommander.Utilities;
 using WebPagePub.Data.Models;
 using WebPagePub.Managers.Interfaces;
 using WebPagePub.ChatCommander.Helpers;
+using static System.Net.Mime.MediaTypeNames;
+using WebPagePub.Core.Utilities;
 
 namespace WebPagePub.ChatCommander.WorkFlows.Generators
 {
@@ -342,7 +344,7 @@ namespace WebPagePub.ChatCommander.WorkFlows.Generators
                 doc.LoadHtml(htmlContent);
 
                 string rawText = doc.DocumentNode.SelectSingleNode(ContentExtractionXPath).InnerText;
-                var finalText = TextHelpers.StripHtml(rawText);
+                var finalText = TextUtilities.StripHtml(rawText);
 
                 return finalText;
             }
