@@ -35,6 +35,8 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
+                model.WordCount = TextUtilities.GetWordCount(model.Content);
+
                 this.Context.SitePage.Add(model);
                 this.Context.SaveChanges();
 
