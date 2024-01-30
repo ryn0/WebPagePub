@@ -777,23 +777,46 @@ namespace WebPagePub.Web.Controllers
                 ArticleBody = sitePage.Content,
                 Headline = sitePage.Title,
                 InLanguage = WebApp.Constants.StringConstants.DefaultLanguage,
-                DateCreated = sitePage.CreateDate,
-                DateModified = sitePage.UpdateDate,
-                DatePublished = sitePage.PublishDateTimeUtc
+                DateCreated = new DateTimeOffset(sitePage.CreateDate, TimeSpan.Zero),
+                DateModified = (sitePage.UpdateDate != null) ? new DateTimeOffset(sitePage.UpdateDate.Value, TimeSpan.Zero) : sitePage.UpdateDate,
+                DatePublished = new DateTimeOffset(sitePage.PublishDateTimeUtc, TimeSpan.Zero)
             };
+
+            var defaultImage = sitePage.Photos.FirstOrDefault(x => x.IsDefault);
+
+            if (defaultImage != null)
+            {
+                var blobPrefix = this.cacheService.GetSnippet(SiteConfigSetting.BlobPrefix);
+                var cdnPrefix = this.cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
+                article.Image = new Uri(ConvertBlobToCdnUrl(blobPrefix, cdnPrefix, defaultImage.PhotoThumbUrl));
+            }
+
+            if (sitePage.Author != null)
+            {
+                article.Author = this.GetAuthorDetails(sitePage.Author);
+            }
 
             var result = article.ToHtmlEscapedString();
 
             return result;
         }
 
+        private Values<IOrganization, IPerson> GetAuthorDetails(Data.Models.Db.Author author)
+        {
+            var authorItem = new AuthorItem(author.AuthorId, author.FirstName, author.LastName);
+
+            return new List<object>()
+            {
+                new Person() { Name = authorItem.FullName }
+            };
+        }
+
         private StructuredDataBreadcrumbModel BuildBreadcrumbList(SitePageSection sitePageSection, SitePage sitePage)
         {
             var domain = UrlHelper.GetCurrentDomain(this.HttpContext);
-
             var cacheKey = CacheHelper.GetPageCacheKey(sitePageSection);
-            SitePageSection homeSection;
             var cachedValue = this.memoryCache.Get(cacheKey);
+            SitePageSection homeSection;
 
             if (cachedValue != null)
             {

@@ -92,7 +92,6 @@ var chatGptSettings = config.GetRequiredSection("OpenAiApiSettings").Get<OpenAiA
 if (chatGptSettings == null)
 {
     throw new NullReferenceException(nameof(chatGptSettings));
-
 }
 var sitePageManager = serviceProvider.GetService<ISitePageManager>();
 
