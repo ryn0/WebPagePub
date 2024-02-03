@@ -1,0 +1,14 @@
+﻿For the given text, give 1 to 3 words or phrases which can be used as a tag for the article.
+
+Give these tags as a ',' comma seperated list.
+
+If the article text was about boats, you would respond with the following: 'water sports, boating, boats'.
+
+Do not include numbers or HTML in your reponse. Only provide the comma seperated list of words. 
+Do not include anything except for the comma seperated list of words.
+
+Below is the text:
+
+----------------------------------
+
+[text]

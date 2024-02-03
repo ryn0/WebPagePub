@@ -1,0 +1,11 @@
+﻿For the given title of a webpage, create an SEO friendly URL key. 
+
+The URL key must represent the main intent of the text so that duplicate articles on this topic are not created.
+
+A URL key for an article about "How many feet are in a mile" would be formatted as: "feet-in-mile".
+
+The URL key must be short and consice, less than 5 words. It must summarize the intent of the article.
+
+Only respond with the URL key, nothing else.
+
+The following is the title of the article to make the URL key for: "[title]"

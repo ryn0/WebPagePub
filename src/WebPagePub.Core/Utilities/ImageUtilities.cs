@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 
 namespace WebPagePub.Core.Utilities
 {
@@ -44,6 +45,19 @@ namespace WebPagePub.Core.Utilities
             }
 
             return newImage;
+        }
+
+        public static MemoryStream ConvertFileToMemoryStream(string filePath)
+        {
+            MemoryStream memoryStream = new MemoryStream();
+            using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                fileStream.CopyTo(memoryStream);
+            }
+
+            // It's important to reset the position of the MemoryStream to the beginning after copying the content
+            memoryStream.Position = 0;
+            return memoryStream;
         }
     }
 }

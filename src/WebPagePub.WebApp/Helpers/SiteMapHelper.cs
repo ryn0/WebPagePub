@@ -23,8 +23,8 @@ namespace WebPagePub.Web.Helpers
         public string GenerateXml()
         {
             var sb = new StringBuilder();
-            sb.Append(@"<?xml version=""1.0"" encoding=""UTF-8""?>");
-            sb.AppendLine(@"<urlset xmlns=""https://www.sitemaps.org/schemas/sitemap/0.9"" xmlns:image=""https://www.google.com/schemas/sitemap-image/1.1"">");
+            sb.AppendLine(@"<?xml version=""1.0"" encoding=""UTF-8""?>");
+            sb.AppendLine(@"<urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">");
 
             foreach (var siteMapItem in this.SiteMapItems)
             {

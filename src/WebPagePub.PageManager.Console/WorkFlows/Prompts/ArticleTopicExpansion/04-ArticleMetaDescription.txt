@@ -1,0 +1,5 @@
+﻿For the given question: "[question]", create an SEO optimized meta description.
+
+The meta description needs to be between 100 and 130 characters. It cannot be longer than 150 characters.
+
+Do not quote the text or say long long it is, just give the raw text.
