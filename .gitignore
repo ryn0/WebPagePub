@@ -96,3 +96,5 @@ rcf/
 /src/WebPagePub.ChatCommander/appsettings.json
 /src/WebPagePub.Data/appsettings.json
 /src/WebPagePub.WebApp/appsettings.json
+/src/WebPagePub.PageManager.Console/appSettings.json
+/src/WebPagePub.PageManager.Console/appSettings.json

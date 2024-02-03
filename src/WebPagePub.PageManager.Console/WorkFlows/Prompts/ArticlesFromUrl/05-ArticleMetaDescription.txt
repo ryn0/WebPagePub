@@ -1,0 +1,5 @@
+﻿For the given title: "[title]" - create an SEO optimized meta description.
+
+The meta description needs to be between 100 and 130 characters. It cannot be longer than 150 characters. It should be 1 to 2 sentences.
+
+Do not quote the text or say long long it is, just give the raw text. Do not include HTML. Just give a short meta description for the text.

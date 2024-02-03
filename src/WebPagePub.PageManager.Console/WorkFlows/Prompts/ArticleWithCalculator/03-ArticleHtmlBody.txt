@@ -1,0 +1,11 @@
+﻿For the given keyword/ phrase: "[keyword]", create an SEO friendly article as HTML. 
+
+Make the article contain 1,000 to 2,000 words of text.
+
+When you write it, make sure there are several sections and multiple paragraphs so that it's easy to read online.
+
+Only give the text which would be in the <body></body> section of the article. 
+
+Do not include the <h1></h1> tag. Only use <h2> and <p> tags. Do not HTML encode the tags.
+
+Your response must be properly formatted HTML. Do not send a response unless it is properly formatted HTML.

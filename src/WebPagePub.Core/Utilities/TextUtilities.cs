@@ -25,5 +25,12 @@ namespace WebPagePub.Core.Utilities
 
             return Regex.Replace(htmlString, pattern, string.Empty);
         }
+
+        public static string RemoveNonAlphaNumeric(string input)
+        {
+            Regex rgx = new Regex("[^a-zA-Z0-9 -]");
+            var result = rgx.Replace(input, string.Empty);
+            return result;
+        }
     }
 }
