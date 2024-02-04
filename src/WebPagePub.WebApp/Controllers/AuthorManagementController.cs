@@ -52,7 +52,7 @@ namespace WebPagePub.WebApp.Controllers
             return this.View(model);
         }
 
-        [Route("AuthorManagement/Edit/{authorId}")]
+        [Route("authormanagement/edit/{authorId}")]
         [HttpGet]
         public IActionResult Edit(int authorId)
         {
@@ -73,7 +73,22 @@ namespace WebPagePub.WebApp.Controllers
             return this.View(model);
         }
 
-        [Route("AuthorManagement/create")]
+        [Route("authormanagement/edit/{authorId}")]
+        [HttpPost]
+        public IActionResult Edit(AuthorEditModel model)
+        {
+            var dbModel = this.authorRepository.Get(model.AuthorId);
+
+            dbModel.AuthorBio = model.AuthorBio?.Trim();
+            dbModel.FirstName = model.FirstName?.Trim();
+            dbModel.LastName = model.LastName?.Trim();
+
+            this.authorRepository.Update(dbModel);
+
+            return this.RedirectToAction(nameof(this.Index));
+        }
+
+        [Route("authormanagement/create")]
         [HttpGet]
         public IActionResult Create()
         {
@@ -84,7 +99,7 @@ namespace WebPagePub.WebApp.Controllers
             return this.View(nameof(this.Create));
         }
 
-        [Route("AuthorManagement/create")]
+        [Route("authormanagement/create")]
         [HttpPost]
         public IActionResult Create(AuthorCreateModel model)
         {
@@ -103,22 +118,7 @@ namespace WebPagePub.WebApp.Controllers
             return this.RedirectToAction(nameof(this.Index));
         }
 
-        [Route("AuthorManagement/Edit")]
-        [HttpPost]
-        public IActionResult Edit(AuthorEditModel model)
-        {
-            var dbModel = this.authorRepository.Get(model.AuthorId);
-
-            dbModel.AuthorBio = model.AuthorBio.Trim();
-            dbModel.FirstName = model.FirstName.Trim();
-            dbModel.LastName = model.LastName.Trim();
-
-            this.authorRepository.Update(dbModel);
-
-            return this.RedirectToAction(nameof(this.Index));
-        }
-
-        [Route("AuthorManagement/UploadPhoto/{AuthorId}")]
+        [Route("authormanagement/uploadphoto/{AuthorId}")]
         [HttpGet]
         public IActionResult UploadPhoto(int authorId)
         {
@@ -130,7 +130,7 @@ namespace WebPagePub.WebApp.Controllers
             return this.View(nameof(this.UploadPhoto), model);
         }
 
-        [Route("AuthorManagement/UploadPhoto/{authorId}")]
+        [Route("authormanagement/uploadphoto/{authorId}")]
         [HttpPost]
         public async Task<ActionResult> UploadPhotoAsync(IFormFile file, int authorId)
         {
@@ -153,7 +153,7 @@ namespace WebPagePub.WebApp.Controllers
             }
         }
 
-        [Route("AuthorManagement/deleteauthorphoto/{AuthorId}")]
+        [Route("authormanagement/deleteauthorphoto/{AuthorId}")]
         [HttpGet]
         public async Task<IActionResult> DeleteAuthorPhotoAsync(int authorId)
         {
