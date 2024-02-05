@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebPagePub.Core;
 using WebPagePub.Data.Enums;
-using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.FileStorage.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.Web.Models;
@@ -51,12 +50,13 @@ namespace WebPagePub.Web.Controllers
                     }
                 }
 
-                return this.RedirectToAction(nameof(this.IndexAsync));
+                return this.RedirectToSiteMagementIndex();
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-                return this.RedirectToAction(nameof(this.IndexAsync));
+
+                return this.RedirectToSiteMagementIndex();
             }
         }
 
@@ -73,12 +73,12 @@ namespace WebPagePub.Web.Controllers
                     await this.siteFilesRepository.CreateFolderAsync(folderName, currentDirectory);
                 }
 
-                return this.RedirectToAction(nameof(this.IndexAsync));
+                return this.RedirectToSiteMagementIndex();
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-                return this.RedirectToAction(nameof(this.IndexAsync));
+                return this.RedirectToSiteMagementIndex();
             }
         }
 
@@ -146,7 +146,7 @@ namespace WebPagePub.Web.Controllers
         {
             await this.siteFilesRepository.DeleteFileAsync(fileUrl);
 
-            return this.RedirectToAction(nameof(this.IndexAsync));
+            return this.RedirectToSiteMagementIndex();
         }
 
         [Route("sitefilesmanagement/DeleteFolderAsync")]
@@ -155,7 +155,7 @@ namespace WebPagePub.Web.Controllers
         {
             await this.siteFilesRepository.DeleteFolderAsync(folderUrl);
 
-            return this.RedirectToAction(nameof(this.IndexAsync));
+            return this.RedirectToSiteMagementIndex();
         }
 
         private string ConvertBlobToCdnUrl(string filePath)
@@ -164,6 +164,11 @@ namespace WebPagePub.Web.Controllers
             var cdnPrefix = this.cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
 
             return UrlBuilder.ConvertBlobToCdnUrl(filePath, blobPrefix, cdnPrefix);
+        }
+
+        private ActionResult RedirectToSiteMagementIndex()
+        {
+            return this.RedirectToAction("Index", "SiteFilesManagement");
         }
     }
 }
