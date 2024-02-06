@@ -2,15 +2,10 @@
 using WebPagePub.PageManager.Console.Models.SettingsModels;
 using WebPagePub.Managers.Interfaces;
 using WebPagePub.PageManager.Console.Interfaces;
-using OpenAI_API.Moderation;
-using Microsoft.Identity.Client;
 using WebPagePub.Core.Utilities;
-using Azure;
-using System.Linq;
 using WebPagePub.Core;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Repositories.Interfaces;
-using System.Diagnostics;
 
 namespace WebPagePub.PageManager.Console.WorkFlows.Generators
 {
