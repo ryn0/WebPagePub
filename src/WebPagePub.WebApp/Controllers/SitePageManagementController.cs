@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Caching.Memory;
-using System.Security.Cryptography;
 using WebPagePub.Core;
 using WebPagePub.Core.Utilities;
 using WebPagePub.Data.Constants;
@@ -485,7 +484,7 @@ namespace WebPagePub.Web.Controllers
             }
 
             return sitePagePhotoDetails;
-        } 
+        }
 
         private void ClearCache(SitePageEditModel model, SitePage dbModel)
         {
