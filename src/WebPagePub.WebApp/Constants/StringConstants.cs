@@ -6,5 +6,6 @@
         public const string ArticlePublishTime = "ArticlePublishTime";
         public const string ArticleJson = "Article";
         public const string DefaultLanguage = "en-US";
+        public const string DefaultSectionKey = "index";
     }
 }

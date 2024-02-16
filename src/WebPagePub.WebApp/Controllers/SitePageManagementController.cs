@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Caching.Memory;
+using System.Security.Cryptography;
 using WebPagePub.Core;
 using WebPagePub.Core.Utilities;
 using WebPagePub.Data.Constants;
@@ -132,7 +133,7 @@ namespace WebPagePub.Web.Controllers
             return this.RedirectToAction(nameof(this.SitePages));
         }
 
-        [Route("sitepages/EditSiteSection/{sitePageSectionId}")]
+        [Route("sitepages/editsitesection/{sitePageSectionId}")]
         [HttpPost]
         public IActionResult EditSiteSection(SiteSectionEditModel model)
         {
@@ -153,7 +154,7 @@ namespace WebPagePub.Web.Controllers
             return this.RedirectToAction(nameof(this.SitePages));
         }
 
-        [Route("sitepages/SetDefaultPhoto/{sitePagePhotoId}")]
+        [Route("sitepages/setdefaultphoto/{sitePagePhotoId}")]
         [HttpGet]
         public async Task<IActionResult> SetDefaultPhotoAsync(int sitePagePhotoId)
         {
@@ -200,7 +201,7 @@ namespace WebPagePub.Web.Controllers
             return this.View("index", model);
         }
 
-        [Route("sitepages/CreateSitePage/{sitePageSectionId}")]
+        [Route("sitepages/createsitepage/{sitePageSectionId}")]
         [HttpGet]
         public IActionResult CreateSitePage(int sitePageSectionId)
         {
@@ -215,7 +216,7 @@ namespace WebPagePub.Web.Controllers
             return this.View(model);
         }
 
-        [Route("sitepages/CreateSitePage/{sitePageSectionId}")]
+        [Route("sitepages/createsitepage/{sitePageSectionId}")]
         [HttpPost]
         public async Task<IActionResult> CreateSitePageAsync(SitePageManagementCreateModel model)
         {
@@ -256,7 +257,7 @@ namespace WebPagePub.Web.Controllers
             return this.RedirectToAction(nameof(this.EditSitePage), new { SitePageId = sitePageId });
         }
 
-        [Route("sitepages/RankPhotoUp/{sitePagePhotoId}")]
+        [Route("sitepages/rankphotoup/{sitePagePhotoId}")]
         [HttpGet]
         public IActionResult RankPhotoUp(int sitePagePhotoId)
         {
@@ -484,7 +485,7 @@ namespace WebPagePub.Web.Controllers
             }
 
             return sitePagePhotoDetails;
-        }
+        } 
 
         private void ClearCache(SitePageEditModel model, SitePage dbModel)
         {
@@ -492,8 +493,13 @@ namespace WebPagePub.Web.Controllers
             {
                 var cacheKey = CacheHelper.GetPageCacheKey(dbModel.SitePageSection.Key, model.Key);
                 this.memoryCache.Remove(cacheKey);
-                cacheKey = CacheHelper.GetPageCacheKey(dbModel.SitePageSection.Key, model.Key);
-                this.memoryCache.Remove(cacheKey);
+
+                var firstPageOfSectionKey = CacheHelper.GetPageCacheKey(
+                    dbModel.SitePageSection.Key,
+                    WebApp.Constants.StringConstants.DefaultSectionKey,
+                    1,
+                    string.Empty);
+                this.memoryCache.Remove(firstPageOfSectionKey);
             }
         }
 
