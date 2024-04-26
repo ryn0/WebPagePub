@@ -1,5 +1,4 @@
-﻿using Amazon.Runtime.EventStreams.Internal;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using WebPagePub.Core;
 using WebPagePub.Data.Constants;
