@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
+using WebPagePub.Web.Helpers;
 using WebPagePub.WebApp.Models.SitePage;
 
 namespace WebPagePub.Web.Controllers
@@ -16,17 +18,20 @@ namespace WebPagePub.Web.Controllers
         private readonly ISitePageCommentRepository sitePageCommentRepository;
         private readonly ISitePageRepository sitePageRepository;
         private readonly ISpamFilterService spamFilterService;
+        private readonly IMemoryCache memoryCache;
         private readonly UserManager<ApplicationUser> userManager;
 
         public CommentManagementController(
             ISitePageCommentRepository sitePageCommentRepository,
             ISitePageRepository sitePageRepository,
             ISpamFilterService spamFilterService,
+            IMemoryCache memoryCache,
             UserManager<ApplicationUser> userManager)
         {
             this.sitePageCommentRepository = sitePageCommentRepository;
             this.sitePageRepository = sitePageRepository;
             this.spamFilterService = spamFilterService;
+            this.memoryCache = memoryCache;
             this.userManager = userManager;
         }
 
@@ -94,13 +99,21 @@ namespace WebPagePub.Web.Controllers
             dbModel.WebSite = model.Website?.Trim();
             dbModel.CommentStatus = model.CommentStatus;
 
-            if (model.CommentStatus == Data.Enums.CommentStatus.Spam &&
+            if (model.CommentStatus == CommentStatus.Spam &&
                 !this.spamFilterService.IsBlocked(dbModel.IpAddress))
             {
                 this.spamFilterService.Create(dbModel.IpAddress);
             }
 
             this.sitePageCommentRepository.Update(dbModel);
+
+            if (dbModel.CommentStatus == CommentStatus.Approved ||
+                dbModel.CommentStatus == CommentStatus.Removed)
+            {
+                var sitePage = this.sitePageRepository.Get(dbModel.SitePageId);
+                var cacheKey = CacheHelper.GetPageCacheKey(sitePage.SitePageSection.Key, sitePage.Key);
+                this.memoryCache.Remove(cacheKey);
+            }
 
             return this.RedirectToAction(nameof(this.Index));
         }
