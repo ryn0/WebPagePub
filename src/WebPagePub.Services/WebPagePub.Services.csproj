@@ -6,11 +6,11 @@
 
   </PropertyGroup>
   <ItemGroup>
-  <PackageReference Include="Aspose.Imaging" Version="24.4.0" />
-  <PackageReference Include="AWSSDK.Core" Version="3.7.303.23" />
-  <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.300.83" />
+  <PackageReference Include="Aspose.Imaging" Version="24.5.0" />
+  <PackageReference Include="AWSSDK.Core" Version="3.7.303.28" />
+  <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.300.88" />
   <PackageReference Include="log4net" Version="2.0.17" />
-  <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.7.0" />
+  <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.8.0" />
   <PackageReference Include="NeutrinoAPI" Version="3.6.0" />
   <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
     <PrivateAssets>all</PrivateAssets>
