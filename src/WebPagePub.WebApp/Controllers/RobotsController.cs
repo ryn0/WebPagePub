@@ -47,7 +47,33 @@ namespace WebPagePub.Web.Controllers
 
             sb.AppendLine($"Allow: /Sitemap: {siteMapUrl}");
 
-            return this.Content(sb.ToString());
+            var result = RemoveDuplicateLines(sb);
+
+            return this.Content(result.ToString());
+        }
+
+        private static StringBuilder RemoveDuplicateLines(StringBuilder sb)
+        {
+            // Convert StringBuilder content to a string
+            string content = sb.ToString();
+
+            // Split the string into lines
+            string[] lines = content.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+
+            // Use a HashSet to keep track of unique lines
+            HashSet<string> uniqueLines = new HashSet<string>();
+
+            // Rebuild the string without duplicate lines
+            StringBuilder result = new StringBuilder();
+            foreach (string line in lines)
+            {
+                if (uniqueLines.Add(line))
+                {
+                    result.AppendLine(line);
+                }
+            }
+
+            return result;
         }
     }
 }
