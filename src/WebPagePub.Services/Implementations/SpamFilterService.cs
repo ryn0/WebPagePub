@@ -1,6 +1,5 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using NeutrinoAPI;
+﻿using System.Threading.Tasks;
+using IPinfo;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
 
@@ -9,17 +8,18 @@ namespace WebPagePub.Services.Implementations
     public class SpamFilterService : ISpamFilterService
     {
         private readonly IBlockedIPRepository blockedIPRepository;
-        private readonly string userId;
-        private readonly string apiKey;
+        private readonly string ipinfoToken;
+        private readonly IPinfoClient client;
 
-        public SpamFilterService (
+        public SpamFilterService(
             IBlockedIPRepository blockedIPRepository,
-            string userId,
-            string apiKey)
+            string ipinfoToken)
         {
             this.blockedIPRepository = blockedIPRepository;
-            this.userId = userId;
-            this.apiKey = apiKey;
+            this.ipinfoToken = ipinfoToken;
+            this.client = new IPinfoClient.Builder()
+                .AccessToken(ipinfoToken)
+                .Build();
         }
 
         public void Create(string ipAddress)
@@ -42,38 +42,26 @@ namespace WebPagePub.Services.Implementations
                 return false;
             }
 
-            var neutrinoApiClient = new NeutrinoAPIClient(this.userId, this.apiKey);
-
             try
             {
-                var response = neutrinoApiClient.SecurityAndNetworking.IPBlocklist(ipAddress);
+                var ipResponse = this.client.IPApi.GetDetails(ipAddress);
 
-                if (response.Blocklists.Any() ||
-                            response.IsBot || response.IsExploitBot || response.IsHijacked || response.IsMalware ||
-                            response.IsProxy || response.IsSpamBot || response.IsSpyware)
+                if (ipResponse.Country == "US")
                 {
-                    return true;
+                    return false; // Accept only US traffic
                 }
-                else
-                {
-                    return false;
-                }
+
+                return true; // Block traffic outside of US
             }
             catch
             {
-                return false;
+                return false; // In case of an error, do not block
             }
         }
 
         private bool HasConfigs()
         {
-            if (string.IsNullOrWhiteSpace(this.apiKey) ||
-                string.IsNullOrWhiteSpace(this.userId))
-            {
-                return false;
-            }
-
-            return true;
+            return !string.IsNullOrWhiteSpace(this.ipinfoToken);
         }
     }
 }

@@ -33,8 +33,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPagePub.Data.UnitTests",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CI", "CI", "{33FBAC70-729B-4CFE-A13E-A21BF0A01E02}"
 	ProjectSection(SolutionItems) = preProject
+		..\CI-Tools\Scripts\ApplicationHelperFunctions.ps1 = ..\CI-Tools\Scripts\ApplicationHelperFunctions.ps1
+		..\CI-Tools\Scripts\BuildHelperFunctions.ps1 = ..\CI-Tools\Scripts\BuildHelperFunctions.ps1
 		..\CI-Tools\CI-Main.ps1 = ..\CI-Tools\CI-Main.ps1
 		..\CI.bat = ..\CI.bat
+		..\CI-Tools\Scripts\GeneralHelperFunctions.ps1 = ..\CI-Tools\Scripts\GeneralHelperFunctions.ps1
 		..\CI-Tools\Scripts\GitHelperFunctions.ps1 = ..\CI-Tools\Scripts\GitHelperFunctions.ps1
 	EndProjectSection
 EndProject
