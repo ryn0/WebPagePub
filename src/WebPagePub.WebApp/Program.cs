@@ -96,8 +96,7 @@ builder.Services.AddTransient<ISpamFilterService>(provider =>
 
     return new SpamFilterService(
         blockedIPRepo,
-        config.GetSection("NeutrinoApi:UserId").Value,
-        config.GetSection("NeutrinoApi:ApiKey").Value);
+        config.GetSection("IPinfo:AccessToken").Value);
 });
 
 builder.WebHost.ConfigureKestrel(options =>

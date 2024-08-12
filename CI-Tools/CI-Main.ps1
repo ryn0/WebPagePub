@@ -34,7 +34,7 @@ properties {
 
    $WebAppSettings              = "..\src\WebPagePub.WebApp\appsettings.json"
    $DatabaseAppSettings         = "..\src\WebPagePub.Data\appsettings.json"
-    $AppOfflineFilePath         = "..\src\WebPagePub.WebApp\HelperPages\app_offline-template.htm"
+   $AppOfflineFilePath         = "..\src\WebPagePub.WebApp\HelperPages\app_offline-template.htm"
 
    # Credentials
    $MsDeployLocation            = ""
@@ -43,8 +43,7 @@ properties {
    $msDeployUserName            = ""
    $msDeployPassword            = ""
    $dbConnectionString          = ""
-   $NeutrinoApiUserId           = ""
-   $NeutrinoApiApiKey           = ""
+   $IPinfoAccessToken           = ""
    $deploymentUserName          = ""
    $deploymentUserPassword      = ""
    $AzureSubscriptionId         = ""
@@ -96,8 +95,6 @@ Sleep 20
 New-AzureRmRoleAssignment -RoleDefinitionName Contributor -ServicePrincipalName $sp.ApplicationId
 
 }
-
-
 
 
 task -name BuildProject -description "Build Project"  -action { 
