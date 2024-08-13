@@ -11,6 +11,7 @@ using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.Web.Helpers;
 using WebPagePub.Web.Models;
+using WebPagePub.WebApp.Helpers;
 using WebPagePub.WebApp.Models.Author;
 using WebPagePub.WebApp.Models.SitePage;
 using WebPagePub.WebApp.Models.StructuredData;
@@ -206,6 +207,11 @@ namespace WebPagePub.Web.Controllers
             if (!SiteUtilityHelper.IsCaptchaValid(this.Request.Form))
             {
                 return this.View("CommentError");
+            }
+
+            if (LinkChecker.ContainsLink(model.Comment))
+            {
+                return this.View("Commented");
             }
 
             var context = this.accessor.HttpContext ??
