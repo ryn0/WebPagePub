@@ -19,18 +19,24 @@
            string blobPrefix,
            string cdnPrefix)
         {
-            if (string.IsNullOrWhiteSpace(blobUrl))
+            if (string.IsNullOrWhiteSpace(blobUrl) ||
+                string.IsNullOrWhiteSpace(blobPrefix) ||
+                string.IsNullOrWhiteSpace(cdnPrefix))
             {
                 return null;
             }
 
-            if (string.IsNullOrWhiteSpace(cdnPrefix) ||
-                string.IsNullOrWhiteSpace(blobPrefix))
-            {
-                return null;
-            }
+            // Normalize inputs to remove trailing slashes
+            blobUrl = RemoveTrailingSlash(blobUrl);
+            blobPrefix = RemoveTrailingSlash(blobPrefix);
+            cdnPrefix = RemoveTrailingSlash(cdnPrefix);
 
             return blobUrl.Replace(blobPrefix, cdnPrefix);
+        }
+
+        private static string RemoveTrailingSlash(string input)
+        {
+            return input.EndsWith("/") ? input.TrimEnd('/') : input;
         }
     }
 }
