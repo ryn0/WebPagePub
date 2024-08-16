@@ -71,27 +71,35 @@ namespace WebPagePub.Web.Controllers
         [HttpGet]
         public IActionResult Create()
         {
+            // Get all existing snippets and order them alphabetically by their SnippetType as a string
             var existingSnippets = this.contentSnippetRepository.GetAll().OrderBy(x => x.SnippetType.ToString());
 
+            // Initialize the model with a default SnippetType
             var model = new ContentSnippetEditModel()
             {
                 SnippetType = Data.Enums.SiteConfigSetting.Unknown
             };
 
-            foreach (string snippetType in Enum.GetNames(typeof(Data.Enums.SiteConfigSetting)))
+            // Get all enum names, sort them alphabetically, and iterate over them
+            var sortedSnippetTypes = Enum.GetNames(typeof(Data.Enums.SiteConfigSetting)).OrderBy(snippetType => snippetType);
+
+            foreach (string snippetType in sortedSnippetTypes)
             {
-                if (existingSnippets.FirstOrDefault(x => x.SnippetType.ToString() == snippetType) != null)
+                // Check if the snippet type is already in use
+                if (existingSnippets.Any(x => x.SnippetType.ToString() == snippetType))
                 {
-                    continue;
+                    continue; // Skip the snippet type if it's already used
                 }
 
+                // Add the unused snippet type to the model's UnusedSnippetTypes list
                 model.UnusedSnippetTypes.Add(new SelectListItem()
                 {
-                    Text = snippetType.ToString(),
-                    Value = snippetType.ToString(),
+                    Text = snippetType,
+                    Value = snippetType,
                 });
             }
 
+            // Return the view with the model
             return this.View(model);
         }
 

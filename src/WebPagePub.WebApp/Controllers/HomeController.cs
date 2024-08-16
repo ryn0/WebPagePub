@@ -695,7 +695,7 @@ namespace WebPagePub.Web.Controllers
                 });
             }
 
-            return commentModel.OrderBy(x => x.CreateDate).ToList();
+            return commentModel.OrderByDescending(x => x.CreateDate).ToList();
         }
 
         private SitePageContentModel CreatePageContentModel(SitePageSection sitePageSection, SitePage sitePage)
