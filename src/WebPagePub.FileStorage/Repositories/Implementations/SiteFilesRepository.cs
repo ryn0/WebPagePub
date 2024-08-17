@@ -112,7 +112,7 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
             }
         }
 
-        public async Task<Uri> UploadAsync(Stream? stream, string? fileName, string? directory = null)
+        public async Task<Uri> UploadAsync(Stream? stream, string? fileName, string? directory = null, string? expiresDate = null)
         {
             try
             {
@@ -140,24 +140,37 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
                     }
                 }
 
-                var container =
-                    this.blobService.GetContainerReference(StringConstants.ContainerName)
-                    ?? throw new Exception("Container not found");
-
-                if (container == null)
-                {
-                    throw new Exception("Container not found");
-                }
+                var container = this.blobService.GetContainerReference(StringConstants.ContainerName)
+                                ?? throw new Exception("Container not found");
 
                 var blob = container.GetBlobClient(filePath);
 
                 stream.Seek(0, SeekOrigin.Begin);
 
+                // Upload the stream to the blob storage
                 await blob.UploadAsync(stream, overwrite: true);
+
                 var extension = FileNameUtilities.GetFileExtensionLower(fileName);
 
-                // Assuming SetPropertiesAsync is updated for the new SDK as well
+                // Assuming SetPropertiesAsync handles content-type and other properties
                 await this.SetPropertiesAsync(blob, extension);
+
+                // Set the Cache-Control header if expiresDate is provided
+                if (!string.IsNullOrWhiteSpace(expiresDate))
+                {
+                    if (DateTimeOffset.TryParse(expiresDate, out var expirationDate))
+                    {
+                        var cacheDuration = expirationDate - DateTimeOffset.UtcNow;
+                        var headers = new BlobHttpHeaders
+                        {
+                            // Use Math.Floor to ensure the max-age is an integer value
+                            CacheControl = $"max-age={(int)Math.Floor(cacheDuration.TotalSeconds)}"
+                        };
+
+                        // Set the headers for the blob
+                        await blob.SetHttpHeadersAsync(headers);
+                    }
+                }
 
                 return blob.Uri;
             }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Mvc;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.Web.Models;
@@ -27,7 +28,13 @@ namespace WebPagePub.Web.Controllers
         {
             if (!this.ModelState.IsValid)
             {
-                throw new Exception("invalid email submission");
+                throw new Exception("Invalid email submission.");
+            }
+
+            // Validate and sanitize the email input
+            if (!this.IsValidEmail(model.Email))
+            {
+                throw new Exception("Invalid email format.");
             }
 
             var context = this.accessor.HttpContext ??
@@ -57,7 +64,7 @@ namespace WebPagePub.Web.Controllers
             return this.View();
         }
 
-        [Route("EmailSubscription/unsubscribe")]
+        [Route("EmailSubscription /unsubscribe")]
         [HttpGet]
         public IActionResult UnSubscribe()
         {
@@ -85,6 +92,19 @@ namespace WebPagePub.Web.Controllers
             }
 
             return this.View();
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            // Basic email validation using regular expressions
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return false;
+            }
+
+            // This regex pattern can be adjusted to be more or less strict as needed
+            var emailRegex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+            return Regex.IsMatch(email, emailRegex);
         }
     }
 }

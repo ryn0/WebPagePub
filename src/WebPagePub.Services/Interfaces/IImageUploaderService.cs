@@ -8,7 +8,7 @@ namespace WebPagePub.Services.Interfaces
 {
     public interface IImageUploaderService
     {
-        Task<Uri> UploadResizedVersionOfPhoto(string folderPath, MemoryStream stream, Uri originalPhotoUrl, int maxWidthPx, int maxHeightPx, string suffix);
+        Task<Uri> UploadResizedVersionOfPhoto(string folderPath, MemoryStream stream, Uri originalPhotoUrl, int maxWidthPx, int maxHeightPx, string suffix, string? expiresDate = null);
 
         Stream ToAStream(Image image, ImageFormat formaw);
 
