@@ -21,7 +21,7 @@ namespace WebPagePub.Services.Implementations
             this.siteFilesRepository = siteFilesRepository;
         }
 
-        public async Task<Uri> UploadResizedVersionOfPhoto(string folderPath, MemoryStream stream, Uri originalPhotoUrl, int maxWidthPx, int maxHeightPx, string suffix)
+        public async Task<Uri> UploadResizedVersionOfPhoto(string folderPath, MemoryStream stream, Uri originalPhotoUrl, int maxWidthPx, int maxHeightPx, string suffix, string expiresDate = null)
         {
             var extension = originalPhotoUrl.ToString().GetFileExtension();
             var resizedImage = ImageUtilities.ScaleImage(Image.FromStream(stream), maxWidthPx, maxHeightPx);
@@ -41,7 +41,8 @@ namespace WebPagePub.Services.Implementations
             await this.siteFilesRepository.UploadAsync(
                                         streamRotated,
                                         lowerQualityImageUrl.GetFileNameFromUrl(),
-                                        folderPath);
+                                        folderPath,
+                                        expiresDate);
 
             resizedImage.Dispose();
 
