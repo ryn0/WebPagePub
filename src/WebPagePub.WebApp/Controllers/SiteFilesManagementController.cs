@@ -7,6 +7,7 @@ using WebPagePub.Data.Enums;
 using WebPagePub.FileStorage.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.Web.Models;
+using WebPagePub.WebApp.Constants;
 
 namespace WebPagePub.Web.Controllers
 {
@@ -69,6 +70,11 @@ namespace WebPagePub.Web.Controllers
                 if (!string.IsNullOrWhiteSpace(folderName))
                 {
                     folderName = folderName.Trim();
+
+                    if (folderName == Data.Constants.StringConstants.ContainerName)
+                    {
+                        throw new Exception($"do not create a folder with this name {Data.Constants.StringConstants.ContainerName}");
+                    }
 
                     await this.siteFilesRepository.CreateFolderAsync(folderName, currentDirectory);
                 }
