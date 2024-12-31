@@ -454,6 +454,8 @@ namespace WebPagePub.Web.Controllers
                     return this.View("PageList", model);
                 case PageType.Review:
                     return this.View("Review", model);
+                case PageType.ReviewWithSideBar:
+                    return this.View("ReviewWithSideBar", model);
                 case PageType.ContentWithSideBar:
                     return this.View("ContentWithSideBar", model);
                 case PageType.Content:

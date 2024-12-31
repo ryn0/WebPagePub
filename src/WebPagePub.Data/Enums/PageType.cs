@@ -9,6 +9,7 @@
         Photo = 4,
         Informational = 5,
         AffiliateContent = 6,
-        ContentWithSideBar = 7
+        ContentWithSideBar = 7,
+        ReviewWithSideBar = 8,
     }
 }
