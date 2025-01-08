@@ -490,15 +490,50 @@ namespace WebPagePub.Web.Controllers
         {
             if (dbModel.SitePageSection != null)
             {
+                // Clear cache for the specific page
                 var cacheKey = CacheHelper.GetPageCacheKey(dbModel.SitePageSection.Key, model.Key);
                 this.memoryCache.Remove(cacheKey);
 
-                var firstPageOfSectionKey = CacheHelper.GetPageCacheKey(
-                    dbModel.SitePageSection.Key,
-                    WebApp.Constants.StringConstants.DefaultSectionKey,
-                    1,
-                    string.Empty);
-                this.memoryCache.Remove(firstPageOfSectionKey);
+                // Get total pages for the section
+                int totalPages;
+                var pages = this.sitePageManager.GetSitePages(1, dbModel.SitePageSection.SitePageSectionId, int.MaxValue, out totalPages);
+
+                // Clear cache for each page in the section
+                for (int i = 1; i <= totalPages; i++)
+                {
+                    var pageCacheKey = CacheHelper.GetPageCacheKey(
+                        dbModel.SitePageSection.Key,
+                        WebApp.Constants.StringConstants.DefaultSectionKey,
+                        i,
+                        string.Empty);
+                    this.memoryCache.Remove(pageCacheKey);
+                }
+
+                // Clear cache for pages associated with tags
+                this.ClearCacheTagPages(model, dbModel, totalPages);
+            }
+        }
+
+        private void ClearCacheTagPages(SitePageEditModel model, SitePage dbModel, int totalPages)
+        {
+            if (!string.IsNullOrWhiteSpace(model.Tags))
+            {
+                var tags = model.Tags.Split(',')
+                                     .Select(tag => tag.Trim())
+                                     .Where(tag => !string.IsNullOrEmpty(tag));
+
+                foreach (var tag in tags)
+                {
+                    for (int i = 1; i <= totalPages; i++)
+                    {
+                        var tagCacheKey = CacheHelper.GetPageCacheKey(
+                            dbModel.SitePageSection.Key,
+                            WebApp.Constants.StringConstants.DefaultSectionKey,
+                            i,
+                            tag);
+                        this.memoryCache.Remove(tagCacheKey);
+                    }
+                }
             }
         }
 

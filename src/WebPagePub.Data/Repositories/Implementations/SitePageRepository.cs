@@ -416,31 +416,36 @@ namespace WebPagePub.Data.Repositories.Implementations
             var now = DateTime.UtcNow;
             try
             {
+                // Calculate total count first
+                total = this.Context.SitePage
+                    .Where(x => x.IsLive == true &&
+                                x.PublishDateTimeUtc < now &&
+                                x.SitePageSectionId == sectionId &&
+                                x.IsSectionHomePage == false)
+                    .Count();
+
+                // Fetch paginated results
                 var model = this.Context.SitePage
-                                   .Where(x => x.IsLive == true &&
-                                               x.PublishDateTimeUtc < now &&
-                                               x.SitePageSectionId == sectionId)
-                                   .Include(x => x.SitePageSection)
-                                   .Include(x => x.Photos)
-                                   .Include(x => x.SitePageTags)
-                                   .Include(x => x.Author)
-                                   .Include("SitePageTags.Tag")
-                                   .OrderByDescending(blog => blog.PublishDateTimeUtc)
-                                   .Skip(quantityPerPage * (pageNumber - 1))
-                                   .Take(quantityPerPage)
-                                   .ToList();
+                    .Where(x => x.IsLive == true &&
+                                x.PublishDateTimeUtc < now &&
+                                x.SitePageSectionId == sectionId)
+                    .Include(x => x.SitePageSection)
+                    .Include(x => x.Photos)
+                    .Include(x => x.SitePageTags)
+                    .Include(x => x.Author)
+                    .Include("SitePageTags.Tag")
+                    .OrderByDescending(blog => blog.PublishDateTimeUtc)
+                    .Skip((pageNumber - 1) * quantityPerPage)
+                    .Take(quantityPerPage)
+                    .ToList();
 
-                total = this.Context.SitePage.Where(x => x.IsLive == true &&
-                                               x.PublishDateTimeUtc < now &&
-                                               x.SitePageSectionId == sectionId).Count();
-
-                return model;
+                // Ensure we only return the requested number of items
+                return model.Take(quantityPerPage).ToList();
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
-                throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
+                throw new Exception(StringConstants.DBErrorMessage, ex);
             }
         }
 
