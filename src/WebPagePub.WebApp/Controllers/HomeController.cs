@@ -749,7 +749,7 @@ namespace WebPagePub.Web.Controllers
 
         private StructureDataReviewModel BuildReviewModel(SitePage sitePage)
         {
-            if (sitePage.PageType != PageType.Review)
+            if (!this.IsReview(sitePage.PageType))
             {
                 return new StructureDataReviewModel(this.cacheService); // Return a default instance instead of null
             }
@@ -775,6 +775,16 @@ namespace WebPagePub.Web.Controllers
                     }
                 },
             };
+        }
+
+        private bool IsReview(PageType pageType)
+        {
+            if (pageType == PageType.Review || pageType == PageType.ReviewWithSideBar)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private string BuildArticleSchema(SitePage sitePage)
