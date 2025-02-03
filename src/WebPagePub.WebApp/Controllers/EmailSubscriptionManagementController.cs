@@ -18,45 +18,26 @@ namespace WebPagePub.Web.Controllers
             this.emailSubscriptionRepository = emailSubscriptionRepository;
             this.emailSender = emailSender;
         }
-
         [Route("EmailSubscriptionManagement")]
-        public IActionResult Index()
+        public IActionResult Index(int pageNumber = 1, int pageSize = 10)
         {
-            var allEmails = this.emailSubscriptionRepository.GetAll();
-            var model = new EmailSubscribeEditListModel();
+            int totalItems;
+            var pagedEmails = this.emailSubscriptionRepository.GetPaged(pageNumber, pageSize, out totalItems);
 
-            foreach (var sub in allEmails)
+            var model = new EmailSubscribeEditListModel
             {
-                model.Items.Add(new EmailSubscribeEditModel()
+                Items = pagedEmails.Select(sub => new EmailSubscribeEditModel
                 {
                     Email = sub.Email,
                     IsSubscribed = sub.IsSubscribed,
                     EmailSubscriptionId = sub.EmailSubscriptionId
-                });
-            }
+                }).ToList(),
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalItems = totalItems
+            };
 
-            if (allEmails != null && allEmails.Count > 0)
-            {
-                var sb = new StringBuilder();
-                foreach (var sub in allEmails)
-                {
-                    if (!sub.IsSubscribed)
-                    {
-                        continue;
-                    }
-
-                    sb.AppendFormat("{0}, ", sub.Email);
-                }
-
-                model.Emails = sb.ToString();
-                model.Emails = model.Emails.Trim().TrimEnd(',');
-            }
-
-            var link = string.Format(
-                "{0}://{1}/EmailSubscription/Unsubscribe",
-                this.HttpContext.Request.Scheme,
-                this.HttpContext.Request.Host);
-            model.UnsubscribeLink = link;
+            model.TotalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 
             return this.View(model);
         }

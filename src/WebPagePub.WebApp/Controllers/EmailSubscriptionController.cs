@@ -64,7 +64,7 @@ namespace WebPagePub.Web.Controllers
             return this.View();
         }
 
-        [Route("EmailSubscription /unsubscribe")]
+        [Route("EmailSubscription/unsubscribe")]
         [HttpGet]
         public IActionResult UnSubscribe()
         {

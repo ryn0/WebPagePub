@@ -495,8 +495,9 @@ namespace WebPagePub.Web.Controllers
                 this.memoryCache.Remove(cacheKey);
 
                 // Get total pages for the section
-                int totalPages;
-                var pages = this.sitePageManager.GetSitePages(1, dbModel.SitePageSection.SitePageSectionId, int.MaxValue, out totalPages);
+                int total;
+                var pages = this.sitePageManager.GetSitePages(1, dbModel.SitePageSection.SitePageSectionId, int.MaxValue, out total);
+                int totalPages = (int)Math.Floor((double)(total / IntegerConstants.PageSize));
 
                 // Clear cache for each page in the section
                 for (int i = 1; i <= totalPages; i++)
@@ -516,6 +517,7 @@ namespace WebPagePub.Web.Controllers
 
         private void ClearCacheTagPages(SitePageEditModel model, SitePage dbModel, int totalPages)
         {
+            // todo: use correct value for 'totalPages'
             if (!string.IsNullOrWhiteSpace(model.Tags))
             {
                 var tags = model.Tags.Split(',')
@@ -527,7 +529,7 @@ namespace WebPagePub.Web.Controllers
                     for (int i = 1; i <= totalPages; i++)
                     {
                         var tagCacheKey = CacheHelper.GetPageCacheKey(
-                            dbModel.SitePageSection.Key,
+                            string.Empty,
                             WebApp.Constants.StringConstants.DefaultSectionKey,
                             i,
                             tag);

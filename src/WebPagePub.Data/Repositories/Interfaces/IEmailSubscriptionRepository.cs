@@ -20,5 +20,6 @@ namespace WebPagePub.Data.Repositories.Interfaces
         IList<EmailSubscription> GetAll();
 
         bool Delete(int emailSubscriptionId);
+        IEnumerable<EmailSubscription> GetPaged(int pageNumber, int pageSize, out int totalItems);
     }
 }
