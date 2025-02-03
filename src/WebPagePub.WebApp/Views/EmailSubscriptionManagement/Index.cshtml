@@ -1,96 +1,105 @@
 ﻿@model WebPagePub.Web.Models.EmailSubscribeEditListModel
- 
- 
-@{
-    ViewData["Title"] = "Emails";
-}
- <h2>@ViewData["Title"]</h2>
- 
- <hr />
 
+@{
+    ViewData["Title"] = "Email Subscription Management";
+}
+<h2>@ViewData["Title"]</h2>
+<hr />
 
 <form asp-controller="EmailSubscriptionManagement" asp-action="SendMail" method="post" class="form-horizontal">
-    <div class="form-group"> <i>Comma seperated</i>
-        <label   class="col-md-2 control-label"></label>
+    <div class="form-group">
+        <label class="col-md-2 control-label"><b>To:</b> <i>(Comma-separated emails)</i></label>
         <div class="col-md-10">
-      <b>To:</b>      
-      <input name="SendToEmails" class="form-control" />
+            <input name="SendToEmails" class="form-control" placeholder="Enter recipient emails" />
         </div>
     </div>
 
     <div class="form-group">
-        <label  class="col-md-2 control-label"></label>
+        <label class="col-md-2 control-label"><b>Title:</b></label>
         <div class="col-md-10">
-            <b>Title:</b>      
-            <input name="EmailTitle" class="form-control" />
+            <input name="EmailTitle" class="form-control" placeholder="Enter email subject" />
         </div>
     </div>
 
     <div class="form-group">
-        <label   class="col-md-2 control-label"></label>
+        <label class="col-md-2 control-label"><b>Message:</b></label>
         <div class="col-md-10">
-            <b>Message:</b> <textarea cols="5" name="EmailMessage" class="form-control"></textarea>
+            <textarea cols="5" name="EmailMessage" class="form-control" placeholder="Enter your message"></textarea>
         </div>
     </div>
 
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
-            <button type="submit" class="btn btn-default">Send Mail</button>
+            <button type="submit" class="btn btn-primary">Send Mail</button>
         </div>
     </div>
 </form>
 
-    @if (Model != null && Model.Items.Count() > 0)
-    {
-        <b>Subscribers:</b>
-        <span>@Model.Emails</span>
+<hr />
 
-        <br />
-        <b>Unsubscribe:</b>
-        <span>@Model.UnsubscribeLink</span>
-
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Email</th>
-
-                    <th>Is Subscribed</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.Items)
-                {
-                    <tr>
-                        <td>
-                            @item.Email
-                        </td>
-                        <td>@item.IsSubscribed</td>
-                        <td>
-                            <a class="btn btn-sm btn-info" href="~/EmailSubscriptionManagement/edit?EmailSubscriptionId=@item.EmailSubscriptionId">Edit</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
-    else
-    {
-        <i>No emails</i>
-    }
-    @*@{
-            int pageCount = Model.PageCount;
-
-            for (int pageNumber = 1; pageNumber <= pageCount; pageNumber++)
+@if (Model != null && Model.Items.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Is Subscribed</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
             {
-                if (Model.CurrentPageNumber == pageNumber)
+                <tr>
+                    <td>@item.Email</td>
+                    <td>@(item.IsSubscribed ? "Yes" : "No")</td>
+                    <td>
+                        <a class="btn btn-sm btn-info" href="~/EmailSubscriptionManagement/edit?EmailSubscriptionId=@item.EmailSubscriptionId">Edit</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            @if (Model.PageNumber > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="~/EmailSubscriptionManagement?pageNumber=@(Model.PageNumber - 1)&pageSize=@Model.PageSize" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            }
+
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                if (i == Model.PageNumber)
                 {
-                    @pageNumber
+                    <li class="page-item active">
+                        <span class="page-link">@i</span>
+                    </li>
                 }
                 else
                 {
-                    <a href="@Url.Content("~/BlogManagement?pageNumber=" + pageNumber.ToString())">@pageNumber.ToString()</a>
+                    <li class="page-item">
+                        <a class="page-link" href="~/EmailSubscriptionManagement?pageNumber=@i&pageSize=@Model.PageSize">@i</a>
+                    </li>
                 }
             }
 
-        }*@
+            @if (Model.PageNumber < Model.TotalPages)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="~/EmailSubscriptionManagement?pageNumber=@(Model.PageNumber + 1)&pageSize=@Model.PageSize" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+else
+{
+    <p><i>No emails available.</i></p>
+}

@@ -114,5 +114,25 @@ namespace WebPagePub.Data.Repositories.Implementations
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
+
+        public IEnumerable<EmailSubscription> GetPaged(int pageNumber, int pageSize, out int totalItems)
+        {
+            try
+            {
+                var query = this.Context.EmailSubscription.OrderByDescending(x => x.CreateDate);
+
+                totalItems = query.Count();
+
+                return query
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex);
+                throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
+            }
+        }
     }
 }

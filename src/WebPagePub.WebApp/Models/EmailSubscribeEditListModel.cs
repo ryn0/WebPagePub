@@ -2,10 +2,24 @@
 {
     public class EmailSubscribeEditListModel
     {
-        public List<EmailSubscribeEditModel> Items { get; set; } = new List<EmailSubscribeEditModel>();
+        public EmailSubscribeEditListModel()
+        {
+            this.Items = new List<EmailSubscribeEditModel>();
+        }
 
-        public string Emails { get; set; } = default!;
+        public List<EmailSubscribeEditModel> Items { get; set; }
 
-        public string UnsubscribeLink { get; set; } = default!;
+        // Paging Properties
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+        public int TotalItems { get; set; }
+        public int TotalPages { get; set; }
+
+        // Current page helpers
+        public bool HasPreviousPage => this.PageNumber > 1;
+        public bool HasNextPage => this.PageNumber < this.TotalPages;
+
+        // Unsubscribe link
+        public string UnsubscribeLink { get; set; }
     }
 }

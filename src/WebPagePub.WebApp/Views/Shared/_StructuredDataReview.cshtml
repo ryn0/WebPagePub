@@ -14,7 +14,7 @@
         <meta property="bestRating" content="@(Model?.Review?.ReviewRating?.BestRating ?? "5")">
         <meta property="worstRating" content="@(Model?.Review?.ReviewRating?.WorstRating ?? "1")">
         <b>Overall Rating:</b>
-        <span property="ratingValue">@(Model?.Review?.ReviewRating?.RatingValue ?? "3")</span>
+        <span property="ratingValue">@(Model?.Review?.ReviewRating?.RatingValue ?? "3") / 5</span>
 
         @*<div class="star-ratings-css">
             <div class="star-ratings-css-top" style="width:@Model.Review.RatingPercentage%"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
