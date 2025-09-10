@@ -1,0 +1,33 @@
+﻿@model WebPagePub.WebApp.Models.MiniSearchBoxModel
+
+@{
+    var controller = Model?.Controller ?? "SitePageSearch";
+    var action = Model?.Action ?? "Results";
+    var qName = Model?.QueryName ?? "term";
+    var placeholder = Model?.Placeholder ?? "Search pages…";
+    var button = Model?.ButtonText ?? "Search";
+    var initial = Model?.InitialValue ?? string.Empty;
+    var wrapperClass = string.IsNullOrWhiteSpace(Model?.CssClass) ? "mini-search" : $"mini-search {Model.CssClass}";
+}
+
+<form method="get" asp-controller="SitePageSearch" asp-action="Index" class="form-inline mb-3">
+    <input type="text"
+           autocomplete="off"
+           name="term"
+           value="@initial"
+           maxlength="200"
+           class="form-control mr-2"
+           placeholder="Search..." />
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+<style>
+    /* tiny, unobtrusive */
+    .mini-search .form-control {
+        max-width: 280px;
+    }
+
+    .mini-search .input-group {
+        gap: .5rem;
+    } 
+</style>
