@@ -1,0 +1,16 @@
+﻿@model WebPagePub.WebApp.Models.SitePage.SitePageSearchResultsModel
+@{
+    ViewData["Title"] = "Search Pages";
+}
+
+<h1>Search Pages</h1>
+
+<form method="get" asp-controller="SitePageSearch" asp-action="Results" class="form-inline mb-3">
+    <input type="text"
+           name="term"
+           value="@Model.SearchTerm"
+           maxlength="200"
+           class="form-control mr-2"
+           placeholder="Search title, content, header, meta, key, tags..." />
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>

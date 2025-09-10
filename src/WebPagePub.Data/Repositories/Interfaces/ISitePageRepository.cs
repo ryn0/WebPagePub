@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models;
@@ -47,6 +48,19 @@ namespace WebPagePub.Data.Repositories.Interfaces
 
         IList<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total);
 
+        Task<Models.Transfer.PagedResult<SitePage>> PagedSearchAsync(string term, int pageNumber, int pageSize);
+
         IList<SiteMapDisplaySection> GetAllLinksAndTitles();
+        IList<SitePage> SearchAdvanced(
+            string? term,
+            IEnumerable<string>? tags,
+            int? sitePageSectionId,
+            bool? isLive,
+            DateTime? publishedFromUtc,
+            DateTime? publishedToUtc,
+            int pageNumber,
+            int quantityPerPage,
+            out int total);
+ 
     }
 }

@@ -1,0 +1,72 @@
+﻿@model WebPagePub.WebApp.Models.SitePage.SitePageSearchResultsModel
+@{
+    ViewData["Title"] = "Search Results";
+}
+
+<h1>Search Results</h1>
+
+<form method="get" asp-controller="SitePageSearch" asp-action="Results" class="form-inline mb-3">
+    <input type="text"
+           name="term"
+           value="@Model.SearchTerm"
+           maxlength="200"
+           class="form-control mr-2"
+           placeholder="Search title, content, header, meta, key, tags..." />
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+@if (Model.Total == 0)
+{
+    <p class="text-muted">No results.</p>
+}
+else
+{
+    <p><i>Showing @Model.Items.Count of @Model.Total results.</i></p>
+
+    <table >
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Section</th>
+                <th>Key</th>
+                <th>Live?</th>
+                <th>Publish/Create</th>
+                <th>Links</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var i in Model.Items)
+            {
+                <tr>
+                    <td>@i.Title</td>
+                    <td>@i.SitePageSectionId</td>
+                    <td>@i.Key</td>
+                    <td>@(i.IsLive ? "Yes" : "No")</td>
+                    <td>@(i.PublishDateTimeUtc > i.CreateDate ? i.PublishDateTimeUtc : i.CreateDate)</td>
+                    <td>
+               
+                        <a target="_blank" href="@i.LiveUrlPath">Live</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <nav aria-label="Pagination">
+        <ul class="pagination">
+            @for (int p = 1; p <= Model.PageCount; p++)
+            {
+                <li class="page-item @(p == Model.CurrentPageNumber ? "active" : "")">
+                    <a class="page-link"
+                       asp-controller="SitePageSearch"
+                       asp-action="Results"
+                       asp-route-term="@Model.SearchTerm"
+                       asp-route-page="@p"
+                       asp-route-pageSize="@Model.QuantityPerPage">
+                        @p
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

@@ -1,0 +1,136 @@
+﻿@model WebPagePub.WebApp.Models.SitePage.SitePageAdvancedSearchModel
+@{
+    ViewData["Title"] = "Advanced Page Search";
+    Layout = "_Layout";
+}
+
+<h1>Advanced Page Search</h1>
+<hr />
+
+<form method="get" asp-controller="SitePageSearch" asp-action="Index" class="mb-3">
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="term">Term</label>
+            <input type="text" id="term" name="term" value="@Model.Term" class="form-control" placeholder="Title, content, header, etc." />
+        </div>
+
+        <div class="form-group col-md-4">
+            <label for="tagsCsv">Tags (comma-separated)</label>
+            <input type="text" id="tagsCsv" name="tagsCsv" value="@Model.TagsCsv" class="form-control" placeholder="tag1, tag2" />
+        </div>
+
+        <div class="form-group col-md-4">
+            <label for="sitePageSectionId">Section</label>
+            <select id="sitePageSectionId" name="sitePageSectionId" class="form-control"
+                    asp-items="Model.Sections">
+            </select>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-2">
+            <label for="isLive">Is Live</label>
+            <select asp-for="IsLive" class="form-control">
+                <option value="">(Any)</option>
+                <option value="true">Live</option>
+                <option value="false">Not Live</option>
+            </select>
+
+        </div>
+
+        <div class="form-group col-md-3">
+            <label for="publishedFromUtc">Published From (UTC)</label>
+            <input type="datetime-local" id="publishedFromUtc" name="publishedFromUtc"
+                   value="@(Model.PublishedFromUtc?.ToString("yyyy-MM-ddTHH:mm"))" class="form-control" />
+        </div>
+
+        <div class="form-group col-md-3">
+            <label for="publishedToUtc">Published To (UTC)</label>
+            <input type="datetime-local" id="publishedToUtc" name="publishedToUtc"
+                   value="@(Model.PublishedToUtc?.ToString("yyyy-MM-ddTHH:mm"))" class="form-control" />
+        </div>
+
+        <div class="form-group col-md-2">
+            <label for="quantityPerPage">Per Page</label>
+            <input type="number" id="quantityPerPage" name="quantityPerPage" min="1" max="100"
+                   value="@Model.QuantityPerPage" class="form-control" />
+        </div>
+
+        <div class="form-group col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary btn-block">Search</button>
+        </div>
+    </div>
+
+    <input type="hidden" name="pageNumber" value="1" />
+</form>
+
+@if (Model.Total > 0)
+{
+    <p class="text-muted">Showing @Model.Items.Count of @Model.Total results.</p>
+
+    <table class="table table-sm table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Section</th>
+                <th>Live</th>
+                <th>Publish (UTC)</th>
+                <th>Tags</th>
+                <th>Links</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var r in Model.Items)
+        {
+            <tr>
+                <td>@r.Title</td>
+                <td>@r.Section</td>
+                <td>@(r.IsLive ? "Yes" : "No")</td>
+                <td>@(r.PublishDateTimeUtc?.ToString("yyyy-MM-dd HH:mm") ?? "-")</td>
+                <td>@string.Join(", ", r.Tags)</td>
+                <td>
+                    <a href="@r.LiveUrlPath" target="_blank" rel="noopener">Live</a>
+                    |
+                    <a asp-controller="SitePageManagement"
+                       asp-action="EditSitePage"
+                       asp-route-sitePageId="@r.SitePageId">Edit</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    {
+        var totalPages = Model.PageCount;
+        if (totalPages > 1)
+        {
+            <nav aria-label="Pagination">
+                <ul class="pagination">
+                    @for (int p = 1; p <= totalPages; p++)
+                    {
+                        var active = p == Model.PageNumber ? "active" : "";
+                        <li class="page-item @active">
+                            <a class="page-link"
+                               asp-controller="SitePageSearch"
+                               asp-action="Index"
+                               asp-route-term="@Model.Term"
+                               asp-route-tagsCsv="@Model.TagsCsv"
+                               asp-route-sitePageSectionId="@Model.SitePageSectionId"
+                               asp-route-isLive="@(Model.IsLive?.ToString().ToLower())"
+                               asp-route-publishedFromUtc="@(Model.PublishedFromUtc?.ToString("o"))"
+                               asp-route-publishedToUtc="@(Model.PublishedToUtc?.ToString("o"))"
+                               asp-route-quantityPerPage="@Model.QuantityPerPage"
+                               asp-route-pageNumber="@p">
+                                @p
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    }
+}
+else
+{
+    <p class="text-muted">No results yet — try adjusting your filters.</p>
+}

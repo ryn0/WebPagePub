@@ -11,8 +11,9 @@ using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Transfer;
+using WebPagePub.Core.Utilities; // for .UrlKey()
 using WebPagePub.Data.Repositories.Interfaces;
-
+ 
 namespace WebPagePub.Data.Repositories.Implementations
 {
     public class SitePageRepository : ISitePageRepository
@@ -51,8 +52,166 @@ namespace WebPagePub.Data.Repositories.Implementations
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
+        public IList<SitePage> SearchAdvanced(
+    string? term,
+    IEnumerable<string>? tags,
+    int? sitePageSectionId,
+    bool? isLive,
+    DateTime? publishedFromUtc,
+    DateTime? publishedToUtc,
+    int pageNumber,
+    int quantityPerPage,
+    out int total)
+        {
+            try
+            {
+                term = (term ?? string.Empty).Trim();
+                var hasTerm = !string.IsNullOrWhiteSpace(term);
+                var now = DateTime.UtcNow;
 
-        public IList<SitePage> GetPage(int pageNumber, int sitePageSectionId, int quantityPerPage, out int total)
+                // normalize tag filters (match by Name OR Key)
+                var tagList = (tags ?? Enumerable.Empty<string>())
+                    .Select(t => t?.Trim())
+                    .Where(t => !string.IsNullOrWhiteSpace(t))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                var termLower = term.ToLowerInvariant();
+
+                var q = this.Context.SitePage
+                    .Include(x => x.SitePageSection)
+                    .Include(x => x.Author)
+                    .Include(x => x.SitePageTags)
+                    .ThenInclude(x => x.Tag)
+                    .AsQueryable();
+
+                // filter by section
+                if (sitePageSectionId.HasValue && sitePageSectionId.Value > 0)
+                    q = q.Where(x => x.SitePageSectionId == sitePageSectionId.Value);
+
+                // filter by IsLive if requested
+                if (isLive.HasValue)
+                    q = q.Where(x => x.IsLive == isLive.Value);
+
+                // filter by publish date
+                if (publishedFromUtc.HasValue)
+                    q = q.Where(x => x.PublishDateTimeUtc >= publishedFromUtc.Value);
+
+                if (publishedToUtc.HasValue)
+                    q = q.Where(x => x.PublishDateTimeUtc <= publishedToUtc.Value);
+
+                // filter by text term across common page properties
+                if (hasTerm)
+                {
+                    q = q.Where(x =>
+                        x.Title.ToLower().Contains(termLower) ||
+                        x.Content.ToLower().Contains(termLower) ||
+                        x.PageHeader.ToLower().Contains(termLower) ||
+                        x.MetaDescription.ToLower().Contains(termLower) ||
+                        x.BreadcrumbName.ToLower().Contains(termLower) ||
+                        x.Key.ToLower().Contains(termLower) ||
+                        x.ReviewItemName.ToLower().Contains(termLower));
+                }
+
+                // filter by tags (ANY match)
+                if (tagList.Count > 0)
+                {
+                    // normalize inputs
+                    var names = tagList
+                        .Where(t => !string.IsNullOrWhiteSpace(t))
+                        .Select(t => t.Trim())
+                        .ToList();
+
+                    var nameLowers = names
+                        .Select(t => t.ToLowerInvariant())
+                        .ToList();
+
+                    var keyLowers = names
+                        .Select(t => t.UrlKey())                // << correct usage
+                        .Select(t => t.ToLowerInvariant())
+                        .ToList();
+
+                    q = q.Where(x => x.SitePageTags.Any(pt =>
+                        nameLowers.Contains(pt.Tag.Name.ToLower()) ||
+                        keyLowers.Contains(pt.Tag.Key.ToLower())));
+                }
+
+                // Count before paging
+                total = q.Count();
+
+                // Order newest first (publish date if set, else create date)
+                q = q.OrderByDescending(x =>
+                        x.PublishDateTimeUtc == DateTime.MinValue
+                            ? x.CreateDate
+                            : x.PublishDateTimeUtc)
+                     .ThenByDescending(x => x.CreateDate);
+
+                // paging
+                var results = q
+                    .Skip((pageNumber - 1) * quantityPerPage)
+                    .Take(quantityPerPage)
+                    .ToList();
+
+                return results;
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex);
+                throw new Exception(StringConstants.DBErrorMessage, ex.InnerException ?? ex);
+            }
+        }
+ 
+
+public async Task<PagedResult<SitePage>> PagedSearchAsync(string term, int pageNumber, int pageSize)
+    {
+        if (pageNumber < 1) pageNumber = 1;
+        if (pageSize < 1) pageSize = 10;
+
+        term = (term ?? string.Empty).Trim();
+
+        // Base query with includes you want in the UI
+        IQueryable<SitePage> q = this.Context.SitePage
+            .Include(x => x.SitePageSection)
+            .Include(x => x.Author)
+            .Include(x => x.SitePageTags).ThenInclude(t => t.Tag);
+
+        if (!string.IsNullOrWhiteSpace(term))
+        {
+            var like = $"%{term}%";
+            q = q.Where(x =>
+                   EF.Functions.Like(x.Title, like)
+                || EF.Functions.Like(x.Content, like)
+                || EF.Functions.Like(x.PageHeader, like)
+                || EF.Functions.Like(x.MetaDescription, like)
+                || EF.Functions.Like(x.BreadcrumbName, like)
+                || EF.Functions.Like(x.Key, like)
+                || EF.Functions.Like(x.ReviewItemName, like)
+                || x.SitePageTags.Any(t =>
+                       EF.Functions.Like(t.Tag.Name, like) ||
+                       EF.Functions.Like(t.Tag.Key, like)));
+        }
+
+        // Order newest first by publish, then create
+        q = q.OrderByDescending(x => x.PublishDateTimeUtc > x.CreateDate
+                                       ? x.PublishDateTimeUtc
+                                       : x.CreateDate)
+             .ThenByDescending(x => x.CreateDate);
+
+        var total = await q.CountAsync();
+
+        var items = await q.Skip((pageNumber - 1) * pageSize)
+                           .Take(pageSize)
+                           .ToListAsync();
+
+        return new PagedResult<SitePage>
+        {    
+            TotalCount = total,
+            Items = items
+        };
+    }
+
+
+    public IList<SitePage> GetPage(int pageNumber, int sitePageSectionId, int quantityPerPage, out int total)
         {
             try
             {
@@ -589,5 +748,6 @@ namespace WebPagePub.Data.Repositories.Implementations
             // Sort sections by a consistent property, fallback to RelativePath if PageTitle is not available
             return sections.OrderBy(s => s.PageTitle ?? s.RelativePath).ToList();
         }
+ 
     }
 }
