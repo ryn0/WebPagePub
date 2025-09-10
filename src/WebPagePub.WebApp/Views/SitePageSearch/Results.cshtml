@@ -44,7 +44,7 @@ else
                 <li class="page-item @(p == Model.CurrentPageNumber ? "active" : "")">
                     <a class="page-link"
                        asp-controller="SitePageSearch"
-                       asp-action="Results"
+                       asp-action="Index"
                        asp-route-term="@Model.SearchTerm"
                        asp-route-page="@p"
                        asp-route-pageSize="@Model.QuantityPerPage">
