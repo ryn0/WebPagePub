@@ -24,21 +24,21 @@ namespace WebPagePub.Web.Controllers
         }
 
 
-        [HttpGet("search")]
-        public IActionResult Index(string term = "", int page = 1, int pageSize = 10)
-        {
-            // Just render the form first; results are fetched by /results
-            return this.View("Index", new SitePageSearchResultsModel
-            {
-                SearchTerm = term ?? string.Empty,
-                CurrentPageNumber = page,
-                QuantityPerPage = pageSize,
-                Total = 0
-            });
-        }
+        //[HttpGet("search")]
+        //public IActionResult Index(string term = "", int page = 1, int pageSize = 10)
+        //{
+        //    // Just render the form first; results are fetched by /results
+        //    return this.View("Index", new SitePageSearchResultsModel
+        //    {
+        //        SearchTerm = term ?? string.Empty,
+        //        CurrentPageNumber = page,
+        //        QuantityPerPage = pageSize,
+        //        Total = 0
+        //    });
+        //}
 
-        [HttpGet("results")]
-        public async Task<IActionResult> Results(string term = "", int page = 1, int pageSize = 10)
+        [HttpGet("search")]
+        public async Task<IActionResult> Index(string term = "", int page = 1, int pageSize = 10)
         {
             var result = await this.sitePageRepository.PagedSearchAsync(term, page, pageSize);
 
@@ -75,7 +75,7 @@ namespace WebPagePub.Web.Controllers
 
         [Authorize(Roles = WebPagePub.Data.Constants.StringConstants.AdminRole)]
         [HttpGet("sitepages/advanced-search")]
-        public IActionResult Index(
+        public IActionResult AdvancedSearch(
             string? term,
             string? tagsCsv,
             int? sitePageSectionId,

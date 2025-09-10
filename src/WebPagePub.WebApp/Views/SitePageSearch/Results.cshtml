@@ -5,15 +5,10 @@
 
 <h1>Search Results</h1>
 
-<form method="get" asp-controller="SitePageSearch" asp-action="Results" class="form-inline mb-3">
-    <input type="text"
-           name="term"
-           value="@Model.SearchTerm"
-           maxlength="200"
-           class="form-control mr-2"
-           placeholder="Search title, content, header, meta, key, tags..." />
-    <button type="submit" class="btn btn-primary">Search</button>
-</form>
+
+@await Html.PartialAsync("_MiniSearchBox", new WebPagePub.WebApp.Models.MiniSearchBoxModel())
+
+
 
 @if (Model.Total == 0)
 {
@@ -26,26 +21,16 @@ else
     <table >
         <thead>
             <tr>
+                
                 <th>Title</th>
-                <th>Section</th>
-                <th>Key</th>
-                <th>Live?</th>
-                <th>Publish/Create</th>
-                <th>Links</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var i in Model.Items)
             {
                 <tr>
-                    <td>@i.Title</td>
-                    <td>@i.SitePageSectionId</td>
-                    <td>@i.Key</td>
-                    <td>@(i.IsLive ? "Yes" : "No")</td>
-                    <td>@(i.PublishDateTimeUtc > i.CreateDate ? i.PublishDateTimeUtc : i.CreateDate)</td>
                     <td>
-               
-                        <a target="_blank" href="@i.LiveUrlPath">Live</a>
+                        <a target="_blank" href="@i.LiveUrlPath">@i.Title</a>
                     </td>
                 </tr>
             }

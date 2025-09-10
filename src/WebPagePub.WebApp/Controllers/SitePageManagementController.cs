@@ -44,7 +44,8 @@ namespace WebPagePub.Web.Controllers
             return this.View();
         }
 
-        [Route("sitepages/Search")]
+        [AllowAnonymous]
+        [Route("sitepages/search")]
         [HttpGet]
         public IActionResult Search(string term, int pageNumber = 1)
         {
