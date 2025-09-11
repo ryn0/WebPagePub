@@ -11,9 +11,8 @@ using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Transfer;
-using WebPagePub.Core.Utilities; // for .UrlKey()
 using WebPagePub.Data.Repositories.Interfaces;
- 
+
 namespace WebPagePub.Data.Repositories.Implementations
 {
     public class SitePageRepository : ISitePageRepository
@@ -52,16 +51,17 @@ namespace WebPagePub.Data.Repositories.Implementations
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
+
         public IList<SitePage> SearchAdvanced(
-    string? term,
-    IEnumerable<string>? tags,
-    int? sitePageSectionId,
-    bool? isLive,
-    DateTime? publishedFromUtc,
-    DateTime? publishedToUtc,
-    int pageNumber,
-    int quantityPerPage,
-    out int total)
+            string? term,
+            IEnumerable<string>? tags,
+            int? sitePageSectionId,
+            bool? isLive,
+            DateTime? publishedFromUtc,
+            DateTime? publishedToUtc,
+            int pageNumber,
+            int quantityPerPage,
+            out int total)
         {
             try
             {
@@ -87,18 +87,26 @@ namespace WebPagePub.Data.Repositories.Implementations
 
                 // filter by section
                 if (sitePageSectionId.HasValue && sitePageSectionId.Value > 0)
+                {
                     q = q.Where(x => x.SitePageSectionId == sitePageSectionId.Value);
+                }
 
                 // filter by IsLive if requested
                 if (isLive.HasValue)
+                {
                     q = q.Where(x => x.IsLive == isLive.Value);
+                }
 
                 // filter by publish date
                 if (publishedFromUtc.HasValue)
+                {
                     q = q.Where(x => x.PublishDateTimeUtc >= publishedFromUtc.Value);
+                }
 
                 if (publishedToUtc.HasValue)
+                {
                     q = q.Where(x => x.PublishDateTimeUtc <= publishedToUtc.Value);
+                }
 
                 // filter by text term across common page properties
                 if (hasTerm)
@@ -127,7 +135,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                         .ToList();
 
                     var keyLowers = names
-                        .Select(t => t.UrlKey())                // << correct usage
+                        .Select(t => t.UrlKey()) // << correct usage
                         .Select(t => t.ToLowerInvariant())
                         .ToList();
 
@@ -160,58 +168,63 @@ namespace WebPagePub.Data.Repositories.Implementations
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException ?? ex);
             }
         }
- 
 
-public async Task<PagedResult<SitePage>> PagedSearchAsync(string term, int pageNumber, int pageSize)
-    {
-        if (pageNumber < 1) pageNumber = 1;
-        if (pageSize < 1) pageSize = 10;
-
-        term = (term ?? string.Empty).Trim();
-
-        // Base query with includes you want in the UI
-        IQueryable<SitePage> q = this.Context.SitePage
-            .Include(x => x.SitePageSection)
-            .Include(x => x.Author)
-            .Include(x => x.SitePageTags).ThenInclude(t => t.Tag);
-
-        if (!string.IsNullOrWhiteSpace(term))
+        public async Task<PagedResult<SitePage>> PagedSearchAsync(string term, int pageNumber, int pageSize)
         {
-            var like = $"%{term}%";
-            q = q.Where(x =>
-                   EF.Functions.Like(x.Title, like)
-                || EF.Functions.Like(x.Content, like)
-                || EF.Functions.Like(x.PageHeader, like)
-                || EF.Functions.Like(x.MetaDescription, like)
-                || EF.Functions.Like(x.BreadcrumbName, like)
-                || EF.Functions.Like(x.Key, like)
-                || EF.Functions.Like(x.ReviewItemName, like)
-                || x.SitePageTags.Any(t =>
-                       EF.Functions.Like(t.Tag.Name, like) ||
-                       EF.Functions.Like(t.Tag.Key, like)));
+            if (pageNumber < 1)
+            {
+                pageNumber = 1;
+            }
+
+            if (pageSize < 1)
+            {
+                pageSize = 10;
+            }
+
+            term = (term ?? string.Empty).Trim();
+
+            // Base query with includes you want in the UI
+            IQueryable<SitePage> q = this.Context.SitePage
+                .Include(x => x.SitePageSection)
+                .Include(x => x.Author)
+                .Include(x => x.SitePageTags).ThenInclude(t => t.Tag);
+
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                var like = $"%{term}%";
+                q = q.Where(x =>
+                       EF.Functions.Like(x.Title, like)
+                    || EF.Functions.Like(x.Content, like)
+                    || EF.Functions.Like(x.PageHeader, like)
+                    || EF.Functions.Like(x.MetaDescription, like)
+                    || EF.Functions.Like(x.BreadcrumbName, like)
+                    || EF.Functions.Like(x.Key, like)
+                    || EF.Functions.Like(x.ReviewItemName, like)
+                    || x.SitePageTags.Any(t =>
+                           EF.Functions.Like(t.Tag.Name, like) ||
+                           EF.Functions.Like(t.Tag.Key, like)));
+            }
+
+            // Order newest first by publish, then create
+            q = q.OrderByDescending(x => x.PublishDateTimeUtc > x.CreateDate
+                                           ? x.PublishDateTimeUtc
+                                           : x.CreateDate)
+                 .ThenByDescending(x => x.CreateDate);
+
+            var total = await q.CountAsync();
+
+            var items = await q.Skip((pageNumber - 1) * pageSize)
+                               .Take(pageSize)
+                               .ToListAsync();
+
+            return new PagedResult<SitePage>
+            {
+                TotalCount = total,
+                Items = items
+            };
         }
 
-        // Order newest first by publish, then create
-        q = q.OrderByDescending(x => x.PublishDateTimeUtc > x.CreateDate
-                                       ? x.PublishDateTimeUtc
-                                       : x.CreateDate)
-             .ThenByDescending(x => x.CreateDate);
-
-        var total = await q.CountAsync();
-
-        var items = await q.Skip((pageNumber - 1) * pageSize)
-                           .Take(pageSize)
-                           .ToListAsync();
-
-        return new PagedResult<SitePage>
-        {    
-            TotalCount = total,
-            Items = items
-        };
-    }
-
-
-    public IList<SitePage> GetPage(int pageNumber, int sitePageSectionId, int quantityPerPage, out int total)
+        public IList<SitePage> GetPage(int pageNumber, int sitePageSectionId, int quantityPerPage, out int total)
         {
             try
             {
@@ -639,6 +652,7 @@ public async Task<PagedResult<SitePage>> PagedSearchAsync(string term, int pageN
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
+
         public IList<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total)
         {
             var results = new List<SitePage>();
@@ -685,24 +699,25 @@ public async Task<PagedResult<SitePage>> PagedSearchAsync(string term, int pageN
                     .Include(x => x.Author)
                     .OrderByDescending(page =>
                         (
+
                             // Title: strong weight
-                            ((double)((page.Title ?? string.Empty).Length - (page.Title ?? string.Empty).Replace(term, string.Empty).Length) / termLen * 5.0)
-                            +
+                            ((double)((page.Title ?? string.Empty).Length - (page.Title ?? string.Empty).Replace(term, string.Empty).Length) / termLen * 5.0) +
+
                             // PageHeader: strong
-                            ((double)((page.PageHeader ?? string.Empty).Length - (page.PageHeader ?? string.Empty).Replace(term, string.Empty).Length) / termLen * 3.5)
-                            +
+                            ((double)((page.PageHeader ?? string.Empty).Length - (page.PageHeader ?? string.Empty).Replace(term, string.Empty).Length) / termLen * 3.5) +
+
                             // BreadcrumbName: medium
-                            (((double)((page.BreadcrumbName ?? string.Empty).Length - (page.BreadcrumbName ?? string.Empty).Replace(term, string.Empty).Length) / termLen) * 3.0)
-                            +
+                            (((double)((page.BreadcrumbName ?? string.Empty).Length - (page.BreadcrumbName ?? string.Empty).Replace(term, string.Empty).Length) / termLen) * 3.0) +
+
                             // MetaDescription: medium
-                            (((double)((page.MetaDescription ?? string.Empty).Length - (page.MetaDescription ?? string.Empty).Replace(term, string.Empty).Length) / termLen) * 2.5)
-                            +
+                            (((double)((page.MetaDescription ?? string.Empty).Length - (page.MetaDescription ?? string.Empty).Replace(term, string.Empty).Length) / termLen) * 2.5) +
+
                             // Key: medium
-                            ((double)((page.Key ?? string.Empty).Length - (page.Key ?? string.Empty).Replace(term, string.Empty).Length) / termLen * 3.0)
-                            +
+                            ((double)((page.Key ?? string.Empty).Length - (page.Key ?? string.Empty).Replace(term, string.Empty).Length) / termLen * 3.0) +
+
                             // ReviewItemName: medium
-                            ((double)((page.ReviewItemName ?? string.Empty).Length - (page.ReviewItemName ?? string.Empty).Replace(term, string.Empty).Length) / termLen * 2.5)
-                            +
+                            ((double)((page.ReviewItemName ?? string.Empty).Length - (page.ReviewItemName ?? string.Empty).Replace(term, string.Empty).Length) / termLen * 2.5) +
+
                             // Content: lower weight so long pages don't dominate purely by size
                             ((double)((page.Content ?? string.Empty).Length - (page.Content ?? string.Empty).Replace(term, string.Empty).Length) / termLen * 1.0)
                         ))
@@ -719,7 +734,6 @@ public async Task<PagedResult<SitePage>> PagedSearchAsync(string term, int pageN
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
-
 
         private async Task LogToAuditTable(SitePage model)
         {
@@ -788,6 +802,5 @@ public async Task<PagedResult<SitePage>> PagedSearchAsync(string term, int pageN
             // Sort sections by a consistent property, fallback to RelativePath if PageTitle is not available
             return sections.OrderBy(s => s.PageTitle ?? s.RelativePath).ToList();
         }
- 
     }
 }

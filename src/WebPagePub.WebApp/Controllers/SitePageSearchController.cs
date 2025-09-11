@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using WebPagePub.Core;
@@ -9,7 +7,6 @@ using WebPagePub.WebApp.Models.SitePage;
 
 namespace WebPagePub.Web.Controllers
 {
-    //
     public class SitePageSearchController : Controller
     {
         private readonly ISitePageRepository sitePageRepository;
@@ -22,20 +19,6 @@ namespace WebPagePub.Web.Controllers
             this.sitePageRepository = sitePageRepository;
             this.sitePageSectionRepository = sitePageSectionRepository;
         }
-
-
-        //[HttpGet("search")]
-        //public IActionResult Index(string term = "", int page = 1, int pageSize = 10)
-        //{
-        //    // Just render the form first; results are fetched by /results
-        //    return this.View("Index", new SitePageSearchResultsModel
-        //    {
-        //        SearchTerm = term ?? string.Empty,
-        //        CurrentPageNumber = page,
-        //        QuantityPerPage = pageSize,
-        //        Total = 0
-        //    });
-        //}
 
         [HttpGet("search")]
         public async Task<IActionResult> Index(string term = "", int page = 1, int pageSize = 10)
