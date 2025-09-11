@@ -1,6 +1,4 @@
-﻿ 
-
-namespace WebPagePub.WebApp.Models
+﻿namespace WebPagePub.WebApp.Models
 {
     public class MiniSearchBoxModel
     {
@@ -9,7 +7,7 @@ namespace WebPagePub.WebApp.Models
         public string QueryName { get; set; } = "term";   // input name expected by your action
         public string? Placeholder { get; set; } = "Search pages…";
         public string ButtonText { get; set; } = "Search";
-        public string? InitialValue { get; set; }         // to persist the term if you want
-        public string? CssClass { get; set; }             // extra classes for the wrapper
+        public string? InitialValue { get; set; } // to persist the term if you want
+        public string? CssClass { get; set; } // extra classes for the wrapper
     }
 }
