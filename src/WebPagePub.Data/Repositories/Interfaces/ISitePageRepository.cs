@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models;
@@ -61,6 +60,5 @@ namespace WebPagePub.Data.Repositories.Interfaces
             int pageNumber,
             int quantityPerPage,
             out int total);
- 
     }
 }
