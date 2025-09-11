@@ -639,47 +639,87 @@ public async Task<PagedResult<SitePage>> PagedSearchAsync(string term, int pageN
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
-
         public IList<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total)
         {
             var results = new List<SitePage>();
-            var now = DateTime.UtcNow;
+
+            if (string.IsNullOrWhiteSpace(term))
+            {
+                // Fallback: no term, just newest live pages
+                total = this.Context.SitePage.Count(x => x.IsLive);
+                return this.Context.SitePage
+                           .Where(x => x.IsLive)
+                           .Include(x => x.SitePageSection)
+                           .Include(x => x.Photos)
+                           .Include(x => x.Author)
+                           .OrderByDescending(x => x.CreateDate)
+                           .Skip(quantityPerPage * (pageNumber - 1))
+                           .Take(quantityPerPage)
+                           .ToList();
+            }
+
+            term = term.Trim();
+            var termLen = term.Length;
+
             try
             {
-                results = this.Context.SitePage
-                            .Where(x => x.Title.Contains(term) ||
-                                x.Content.Contains(term) ||
-                                x.PageHeader.Contains(term) ||
-                                x.MetaDescription.Contains(term) ||
-                                x.BreadcrumbName.Contains(term) ||
-                                x.Key.Contains(term) ||
-                                x.ReviewItemName.Contains(term))
-                            .Include(x => x.SitePageSection)
-                                   .Include(x => x.Photos)
-                                   .Include(x => x.Author)
-                                   .OrderByDescending(page => page.CreateDate)
-                                   .Skip(quantityPerPage * (pageNumber - 1))
-                                   .Take(quantityPerPage)
-                            .ToList();
+                // Base filter first (keeps it sargable-ish before scoring)
+                var query = this.Context.SitePage
+                    .Where(x => x.IsLive && (
+                        x.Title.Contains(term) ||
+                        x.Content.Contains(term) ||
+                        x.PageHeader.Contains(term) ||
+                        x.MetaDescription.Contains(term) ||
+                        x.BreadcrumbName.Contains(term) ||
+                        x.Key.Contains(term) ||
+                        x.ReviewItemName.Contains(term)));
 
-                total = this.Context.SitePage
-                                .Where(x => x.Title.Contains(term) ||
-                                    x.Content.Contains(term) ||
-                                    x.PageHeader.Contains(term) ||
-                                    x.MetaDescription.Contains(term) ||
-                                    x.BreadcrumbName.Contains(term) ||
-                                    x.Key.Contains(term) ||
-                                    x.ReviewItemName.Contains(term)).Count();
+                total = query.Count();
+
+                // Weighted occurrence count:
+                // count = (LEN(f) - LEN(REPLACE(f, term, ''))) / LEN(term)
+                // Cast to double to avoid integer division.
+                results = query
+                    .Include(x => x.SitePageSection)
+                    .Include(x => x.Photos)
+                    .Include(x => x.Author)
+                    .OrderByDescending(page =>
+                        (
+                            // Title: strong weight
+                            ((double)((page.Title ?? string.Empty).Length - (page.Title ?? string.Empty).Replace(term, string.Empty).Length) / termLen * 5.0)
+                            +
+                            // PageHeader: strong
+                            ((double)((page.PageHeader ?? string.Empty).Length - (page.PageHeader ?? string.Empty).Replace(term, string.Empty).Length) / termLen * 3.5)
+                            +
+                            // BreadcrumbName: medium
+                            (((double)((page.BreadcrumbName ?? string.Empty).Length - (page.BreadcrumbName ?? string.Empty).Replace(term, string.Empty).Length) / termLen) * 3.0)
+                            +
+                            // MetaDescription: medium
+                            (((double)((page.MetaDescription ?? string.Empty).Length - (page.MetaDescription ?? string.Empty).Replace(term, string.Empty).Length) / termLen) * 2.5)
+                            +
+                            // Key: medium
+                            ((double)((page.Key ?? string.Empty).Length - (page.Key ?? string.Empty).Replace(term, string.Empty).Length) / termLen * 3.0)
+                            +
+                            // ReviewItemName: medium
+                            ((double)((page.ReviewItemName ?? string.Empty).Length - (page.ReviewItemName ?? string.Empty).Replace(term, string.Empty).Length) / termLen * 2.5)
+                            +
+                            // Content: lower weight so long pages don't dominate purely by size
+                            ((double)((page.Content ?? string.Empty).Length - (page.Content ?? string.Empty).Replace(term, string.Empty).Length) / termLen * 1.0)
+                        ))
+                    .ThenByDescending(page => page.CreateDate) // tiebreaker: newer first
+                    .Skip(quantityPerPage * (pageNumber - 1))
+                    .Take(quantityPerPage)
+                    .ToList();
 
                 return results;
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
+
 
         private async Task LogToAuditTable(SitePage model)
         {
