@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Db;
 
@@ -40,6 +41,7 @@ namespace WebPagePub.Data.DbContextInfo.Interfaces
         DbSet<RedirectPath> RedirectPath { get; set; }
 
         DbSet<Author> Author { get; set; }
+        DbSet<SiteSearchLog> SiteSearchLogs { get; }
 
         int SaveChanges();
 
