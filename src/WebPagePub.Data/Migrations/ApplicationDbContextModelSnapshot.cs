@@ -17,7 +17,7 @@ namespace WebPagePub.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.1")
+                .HasAnnotation("ProductVersion", "9.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -140,7 +140,7 @@ namespace WebPagePub.Data.Migrations
 
                     b.ToTable("AspNetUserRoles", (string)null);
 
-                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUserRole<string>");
+                    b.HasDiscriminator().HasValue("IdentityUserRole<string>");
 
                     b.UseTphMappingStrategy();
                 });
@@ -845,6 +845,56 @@ namespace WebPagePub.Data.Migrations
                     b.HasIndex("TagId");
 
                     b.ToTable("SitePageTag");
+                });
+
+            modelBuilder.Entity("WebPagePub.Data.Models.SiteSearchLog", b =>
+                {
+                    b.Property<int>("SiteSearchLogId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SiteSearchLogId"));
+
+                    b.Property<string>("ClientIp")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PageNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PageSize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Path")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Referer")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<int>("ResultsCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Term")
+                        .IsRequired()
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.HasKey("SiteSearchLogId");
+
+                    b.HasIndex("CreateDate");
+
+                    b.HasIndex("Term");
+
+                    b.ToTable("SiteSearchLogs");
                 });
 
             modelBuilder.Entity("WebPagePub.Data.Models.Tag", b =>

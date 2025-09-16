@@ -168,6 +168,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException ?? ex);
             }
         }
+
         public async Task<PagedResult<SitePage>> PagedSearchAsync(string term, int pageNumber, int pageSize)
         {
             if (pageNumber < 1)

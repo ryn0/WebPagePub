@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.DbModels.BaseDbModels;
 using WebPagePub.Data.Models;
@@ -50,6 +51,8 @@ namespace WebPagePub.Data.DbContextInfo.Implementations
         public DbSet<Author> Author { get; set; }
 
         public DbSet<SitePageAudit> SitePageAudit { get; set; }
+
+        public DbSet<SiteSearchLog> SiteSearchLogs { get; set; }
 
         public override int SaveChanges()
         {
@@ -111,6 +114,20 @@ namespace WebPagePub.Data.DbContextInfo.Implementations
 
             builder.Entity<ClickLog>()
                 .HasIndex(p => p.CreateDate);
+
+            builder.Entity<SiteSearchLog>(eb =>
+            {
+                eb.HasKey(x => x.SiteSearchLogId);
+                eb.Property(x => x.Term).IsRequired().HasMaxLength(400);
+                eb.Property(x => x.UserAgent).HasMaxLength(512);
+                eb.Property(x => x.ClientIp).HasMaxLength(64);
+                eb.Property(x => x.Referer).HasMaxLength(512);
+                eb.Property(x => x.Path).HasMaxLength(256);
+
+                eb.HasIndex(x => x.CreateDate);
+                eb.HasIndex(x => x.Term);
+            });
+
 
             base.OnModelCreating(builder);
         }

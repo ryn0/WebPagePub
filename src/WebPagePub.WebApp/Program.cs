@@ -53,6 +53,7 @@ builder.Services.AddTransient<ISitePageCommentRepository, SitePageCommentReposit
 builder.Services.AddTransient<IBlockedIPRepository, BlockedIPRepository>();
 builder.Services.AddTransient<IRedirectPathRepository, RedirectPathRepository>();
 builder.Services.AddTransient<IAuthorRepository, AuthorRepository>();
+builder.Services.AddTransient<ISiteSearchLogRepository, SiteSearchLogRepository>();
 
 // db context
 builder.Services.AddTransient<IApplicationDbContext, ApplicationDbContext>();

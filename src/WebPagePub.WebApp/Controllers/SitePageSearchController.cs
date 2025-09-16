@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using WebPagePub.Core;
+using WebPagePub.Data.Models;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.WebApp.Models.SitePage;
 
@@ -11,19 +12,45 @@ namespace WebPagePub.Web.Controllers
     {
         private readonly ISitePageRepository sitePageRepository;
         private readonly ISitePageSectionRepository sitePageSectionRepository;
+        private readonly ISiteSearchLogRepository siteSearchLogRepository;
 
         public SitePageSearchController(
             ISitePageRepository sitePageRepository,
-            ISitePageSectionRepository sitePageSectionRepository)
+            ISitePageSectionRepository sitePageSectionRepository,
+            ISiteSearchLogRepository siteSearchLogRepository)
         {
             this.sitePageRepository = sitePageRepository;
             this.sitePageSectionRepository = sitePageSectionRepository;
+            this.siteSearchLogRepository = siteSearchLogRepository;
         }
 
         [HttpGet("search")]
         public async Task<IActionResult> Index(string term = "", int page = 1, int pageSize = 10)
         {
             var result = await this.sitePageRepository.PagedSearchAsync(term, page, pageSize);
+
+            // Best-effort log (don’t block the request if logging fails)
+            try
+            {
+                var log = new SiteSearchLog
+                {
+                    Term = term ?? string.Empty,
+                    PageNumber = page,
+                    PageSize = pageSize,
+                    ResultsCount = result.TotalCount,
+                    CreateDate = DateTime.UtcNow,
+                    ClientIp = GetClientIp(this.HttpContext),
+                    UserAgent = this.Request?.Headers["User-Agent"].ToString(),
+                    Referer = this.Request?.Headers["Referer"].ToString(),
+                    Path = this.Request?.Path.ToString()
+                };
+
+                await this.siteSearchLogRepository.CreateAsync(log);
+            }
+            catch
+            {
+                // swallow logging exceptions
+            }
 
             var model = new SitePageSearchResultsModel
             {
@@ -45,7 +72,7 @@ namespace WebPagePub.Web.Controllers
                     IsLive = p.IsLive,
                     IsIndex = p.IsSectionHomePage,
                     SitePageSectionId = p.SitePageSectionId,
-                    LiveUrlPath =  UrlBuilder.BlogUrlPath(p.SitePageSection.Key, p.Key),
+                    LiveUrlPath = UrlBuilder.BlogUrlPath(p.SitePageSection.Key, p.Key),
                     PreviewUrlPath = UrlBuilder.BlogPreviewUrlPath(p.SitePageId)
                 });
             }
@@ -125,6 +152,30 @@ namespace WebPagePub.Web.Controllers
             }
 
             return this.View("Advanced", model);
+        }
+
+        private static string? GetClientIp(HttpContext ctx)
+        {
+            // Friendly to proxies/CDNs
+            var headers = ctx?.Request?.Headers;
+            var cf = headers?["CF-Connecting-IP"].ToString();
+            if (!string.IsNullOrWhiteSpace(cf))
+            {
+                return cf;
+            }
+
+            var xff = headers?["X-Forwarded-For"].ToString();
+            if (!string.IsNullOrWhiteSpace(xff))
+            {
+                // first IP in the list is the original client
+                var first = xff.Split(',', StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+                if (!string.IsNullOrWhiteSpace(first))
+                {
+                    return first;
+                }
+            }
+
+            return ctx?.Connection?.RemoteIpAddress?.ToString();
         }
     }
 }
