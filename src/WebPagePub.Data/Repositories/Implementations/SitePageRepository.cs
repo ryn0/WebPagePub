@@ -168,7 +168,6 @@ namespace WebPagePub.Data.Repositories.Implementations
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException ?? ex);
             }
         }
-
         public async Task<PagedResult<SitePage>> PagedSearchAsync(string term, int pageNumber, int pageSize)
         {
             if (pageNumber < 1)
@@ -183,46 +182,107 @@ namespace WebPagePub.Data.Repositories.Implementations
 
             term = (term ?? string.Empty).Trim();
 
-            // Base query with includes you want in the UI
-            IQueryable<SitePage> q = this.Context.SitePage
-                .Include(x => x.SitePageSection)
-                .Include(x => x.Author)
-                .Include(x => x.SitePageTags).ThenInclude(t => t.Tag);
+            // Base (no Includes for scoring; we rehydrate after paging)
+            IQueryable<SitePage> baseQ = this.Context.SitePage;
 
-            if (!string.IsNullOrWhiteSpace(term))
+            // If no term, keep your original "newest first" behavior with Includes
+            if (string.IsNullOrWhiteSpace(term))
             {
-                var like = $"%{term}%";
-                q = q.Where(x =>
-                       EF.Functions.Like(x.Title, like)
-                    || EF.Functions.Like(x.Content, like)
-                    || EF.Functions.Like(x.PageHeader, like)
-                    || EF.Functions.Like(x.MetaDescription, like)
-                    || EF.Functions.Like(x.BreadcrumbName, like)
-                    || EF.Functions.Like(x.Key, like)
-                    || EF.Functions.Like(x.ReviewItemName, like)
-                    || x.SitePageTags.Any(t =>
-                           EF.Functions.Like(t.Tag.Name, like) ||
-                           EF.Functions.Like(t.Tag.Key, like)));
+                var totalNoTerm = await baseQ.CountAsync();
+                var itemsNoTerm = await this.Context.SitePage
+                    .Include(x => x.SitePageSection)
+                    .Include(x => x.Author)
+                    .Include(x => x.SitePageTags).ThenInclude(t => t.Tag)
+                    .OrderByDescending(x => x.PublishDateTimeUtc > x.CreateDate ? x.PublishDateTimeUtc : x.CreateDate)
+                    .ThenByDescending(x => x.CreateDate)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                return new PagedResult<SitePage>
+                {
+                    TotalCount = totalNoTerm,
+                    Items = itemsNoTerm
+                };
             }
 
-            // Order newest first by publish, then create
-            q = q.OrderByDescending(x => x.PublishDateTimeUtc > x.CreateDate
-                                           ? x.PublishDateTimeUtc
-                                           : x.CreateDate)
-                 .ThenByDescending(x => x.CreateDate);
+            var likeAny = $"%{term}%";
+            var likeStart = $"{term}%";
+            var termLen = term.Length; // non-zero here
 
-            var total = await q.CountAsync();
+            // Filter candidates (includes tag name/key matches like your original)
+            var candidates = baseQ.Where(x =>
+                   EF.Functions.Like(x.Title ?? string.Empty, likeAny)
+                || EF.Functions.Like(x.Content ?? string.Empty, likeAny)
+                || EF.Functions.Like(x.PageHeader ?? string.Empty, likeAny)
+                || EF.Functions.Like(x.MetaDescription ?? string.Empty, likeAny)
+                || EF.Functions.Like(x.BreadcrumbName ?? string.Empty, likeAny)
+                || EF.Functions.Like(x.Key ?? string.Empty, likeAny)
+                || EF.Functions.Like(x.ReviewItemName ?? string.Empty, likeAny)
+                || x.SitePageTags.Any(t =>
+                       EF.Functions.Like(t.Tag.Name ?? string.Empty, likeAny) ||
+                       EF.Functions.Like(t.Tag.Key ?? string.Empty, likeAny)));
 
-            var items = await q.Skip((pageNumber - 1) * pageSize)
-                               .Take(pageSize)
-                               .ToListAsync();
+            var total = await candidates.CountAsync();
+
+            // Score by weighted occurrence counts + big title bonus; tie-break by recency
+            var scoredIds = await candidates
+                .Select(x => new
+                {
+                    x.SitePageId,
+
+                    TitleCnt = (double)((x.Title ?? string.Empty).Length - (x.Title ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
+                    HeaderCnt = (double)((x.PageHeader ?? string.Empty).Length - (x.PageHeader ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
+                    CrumbCnt = (double)((x.BreadcrumbName ?? string.Empty).Length - (x.BreadcrumbName ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
+                    KeyCnt = (double)((x.Key ?? string.Empty).Length - (x.Key ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
+                    MetaCnt = (double)((x.MetaDescription ?? string.Empty).Length - (x.MetaDescription ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
+                    ReviewCnt = (double)((x.ReviewItemName ?? string.Empty).Length - (x.ReviewItemName ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
+                    ContentCnt = (double)((x.Content ?? string.Empty).Length - (x.Content ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
+
+                    TitleHit = EF.Functions.Like(x.Title ?? string.Empty, likeAny),
+                    StartsHit = EF.Functions.Like(x.Title ?? string.Empty, likeStart),
+
+                    Recency = x.PublishDateTimeUtc > x.CreateDate ? x.PublishDateTimeUtc : x.CreateDate
+                })
+                .Select(r => new
+                {
+                    r.SitePageId,
+                    TotalScore =
+                        (r.TitleCnt * 100.0) +
+                        (r.HeaderCnt * 20.0) +
+                        (r.CrumbCnt * 15.0) +
+                        (r.KeyCnt * 20.0) +
+                        (r.MetaCnt * 10.0) +
+                        (r.ReviewCnt * 10.0) +
+                        (r.ContentCnt * 5.0)
+                        + (r.TitleHit ? 5000.0 : 0.0)
+                        + (r.StartsHit ? 1500.0 : 0.0),
+                    r.Recency
+                })
+                .OrderByDescending(r => r.TotalScore)
+                .ThenByDescending(r => r.Recency)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(r => r.SitePageId)
+                .ToListAsync();
+
+            // Rehydrate with Includes and preserve the scored order
+            var map = await this.Context.SitePage
+                .Where(x => scoredIds.Contains(x.SitePageId))
+                .Include(x => x.SitePageSection)
+                .Include(x => x.Author)
+                .Include(x => x.SitePageTags).ThenInclude(t => t.Tag)
+                .ToDictionaryAsync(x => x.SitePageId);
+
+            var orderedItems = scoredIds.Where(map.ContainsKey).Select(id => map[id]).ToList();
 
             return new PagedResult<SitePage>
             {
                 TotalCount = total,
-                Items = items
+                Items = orderedItems
             };
         }
+
 
         public IList<SitePage> GetPage(int pageNumber, int sitePageSectionId, int quantityPerPage, out int total)
         {
@@ -655,85 +715,99 @@ namespace WebPagePub.Data.Repositories.Implementations
 
         public IList<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total)
         {
-            var results = new List<SitePage>();
+            if (pageNumber < 1) pageNumber = 1;
+            if (quantityPerPage < 1) quantityPerPage = 10;
 
+            term = (term ?? string.Empty).Trim();
+
+            // No term: newest live pages
             if (string.IsNullOrWhiteSpace(term))
             {
-                // Fallback: no term, just newest live pages
                 total = this.Context.SitePage.Count(x => x.IsLive);
                 return this.Context.SitePage
-                           .Where(x => x.IsLive)
-                           .Include(x => x.SitePageSection)
-                           .Include(x => x.Photos)
-                           .Include(x => x.Author)
-                           .OrderByDescending(x => x.CreateDate)
-                           .Skip(quantityPerPage * (pageNumber - 1))
-                           .Take(quantityPerPage)
-                           .ToList();
-            }
-
-            term = term.Trim();
-            var termLen = term.Length;
-
-            try
-            {
-                // Base filter first (keeps it sargable-ish before scoring)
-                var query = this.Context.SitePage
-                    .Where(x => x.IsLive && (
-                        x.Title.Contains(term) ||
-                        x.Content.Contains(term) ||
-                        x.PageHeader.Contains(term) ||
-                        x.MetaDescription.Contains(term) ||
-                        x.BreadcrumbName.Contains(term) ||
-                        x.Key.Contains(term) ||
-                        x.ReviewItemName.Contains(term)));
-
-                total = query.Count();
-
-                // Weighted occurrence count:
-                // count = (LEN(f) - LEN(REPLACE(f, term, ''))) / LEN(term)
-                // Cast to double to avoid integer division.
-                results = query
+                    .Where(x => x.IsLive)
                     .Include(x => x.SitePageSection)
                     .Include(x => x.Photos)
                     .Include(x => x.Author)
-                    .OrderByDescending(page =>
-                        (
-
-                            // Title: strong weight
-                            ((double)((page.Title ?? string.Empty).Length - (page.Title ?? string.Empty).Replace(term, string.Empty).Length) / termLen * 5.0) +
-
-                            // PageHeader: strong
-                            ((double)((page.PageHeader ?? string.Empty).Length - (page.PageHeader ?? string.Empty).Replace(term, string.Empty).Length) / termLen * 3.5) +
-
-                            // BreadcrumbName: medium
-                            (((double)((page.BreadcrumbName ?? string.Empty).Length - (page.BreadcrumbName ?? string.Empty).Replace(term, string.Empty).Length) / termLen) * 3.0) +
-
-                            // MetaDescription: medium
-                            (((double)((page.MetaDescription ?? string.Empty).Length - (page.MetaDescription ?? string.Empty).Replace(term, string.Empty).Length) / termLen) * 2.5) +
-
-                            // Key: medium
-                            ((double)((page.Key ?? string.Empty).Length - (page.Key ?? string.Empty).Replace(term, string.Empty).Length) / termLen * 3.0) +
-
-                            // ReviewItemName: medium
-                            ((double)((page.ReviewItemName ?? string.Empty).Length - (page.ReviewItemName ?? string.Empty).Replace(term, string.Empty).Length) / termLen * 2.5) +
-
-                            // Content: lower weight so long pages don't dominate purely by size
-                            ((double)((page.Content ?? string.Empty).Length - (page.Content ?? string.Empty).Replace(term, string.Empty).Length) / termLen * 1.0)
-                        ))
-                    .ThenByDescending(page => page.CreateDate) // tiebreaker: newer first
-                    .Skip(quantityPerPage * (pageNumber - 1))
+                    .OrderByDescending(x => x.CreateDate)
+                    .Skip((pageNumber - 1) * quantityPerPage)
                     .Take(quantityPerPage)
                     .ToList();
+            }
 
-                return results;
-            }
-            catch (Exception ex)
-            {
-                Log.Fatal(ex);
-                throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
-            }
+            var like = $"%{term}%";
+            var termLen = term.Length;
+
+            // Candidate set
+            var baseQ = this.Context.SitePage
+                .Where(x => x.IsLive && (
+                       EF.Functions.Like(x.Title ?? string.Empty, like)
+                    || EF.Functions.Like(x.Content ?? string.Empty, like)
+                    || EF.Functions.Like(x.PageHeader ?? string.Empty, like)
+                    || EF.Functions.Like(x.MetaDescription ?? string.Empty, like)
+                    || EF.Functions.Like(x.BreadcrumbName ?? string.Empty, like)
+                    || EF.Functions.Like(x.Key ?? string.Empty, like)
+                    || EF.Functions.Like(x.ReviewItemName ?? string.Empty, like)));
+
+            total = baseQ.Count();
+            if (total == 0) return new List<SitePage>();
+
+            // Helper inline for occurrence counts: ((LEN(f)-LEN(REPLACE(f,term,'')))/LEN(term))
+            // We multiply before dividing to keep it integer and SQL-translatable.
+            var scored = baseQ
+                .Select(x => new
+                {
+                    x.SitePageId,
+
+                    TitleHit = EF.Functions.Like(x.Title ?? string.Empty, like), // hard bump to the top
+
+                    // Occurrence counts per field (integer)
+                    TitleCnt = ((x.Title ?? string.Empty).Length - (x.Title ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
+                    HeaderCnt = ((x.PageHeader ?? string.Empty).Length - (x.PageHeader ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
+                    CrumbCnt = ((x.BreadcrumbName ?? string.Empty).Length - (x.BreadcrumbName ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
+                    KeyCnt = ((x.Key ?? string.Empty).Length - (x.Key ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
+                    MetaCnt = ((x.MetaDescription ?? string.Empty).Length - (x.MetaDescription ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
+                    ReviewCnt = ((x.ReviewItemName ?? string.Empty).Length - (x.ReviewItemName ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
+                    ContentCnt = ((x.Content ?? string.Empty).Length - (x.Content ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
+
+                    Recency = x.PublishDateTimeUtc > x.CreateDate ? x.PublishDateTimeUtc : x.CreateDate
+                })
+                .Select(r => new
+                {
+                    r.SitePageId,
+                    r.TitleHit,
+                    // Light weights—title count matters most inside the TitleHit bucket
+                    Score =
+                        (r.TitleCnt * 10) +
+                        (r.HeaderCnt * 7) +
+                        (r.CrumbCnt * 6) +
+                        (r.KeyCnt * 6) +
+                        (r.MetaCnt * 4) +
+                        (r.ReviewCnt * 4) +
+                        (r.ContentCnt * 1),
+                    r.Recency
+                })
+                .OrderByDescending(r => r.TitleHit)   // 1) any title hit goes first
+                .ThenByDescending(r => r.Score)       // 2) more occurrences / better fields
+                .ThenByDescending(r => r.Recency)     // 3) newer wins ties
+                .Skip((pageNumber - 1) * quantityPerPage)
+                .Take(quantityPerPage)
+                .ToList();
+
+            var ids = scored.Select(s => s.SitePageId).ToList();
+
+            // Rehydrate with includes and preserve order
+            var pageMap = this.Context.SitePage
+                .Where(x => ids.Contains(x.SitePageId))
+                .Include(x => x.SitePageSection)
+                .Include(x => x.Photos)
+                .Include(x => x.Author)
+                .ToList()
+                .ToDictionary(x => x.SitePageId);
+
+            return ids.Where(id => pageMap.ContainsKey(id)).Select(id => pageMap[id]).ToList();
         }
+
 
         private async Task LogToAuditTable(SitePage model)
         {
