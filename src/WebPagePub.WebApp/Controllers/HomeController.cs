@@ -31,6 +31,13 @@ namespace WebPagePub.Web.Controllers
         private readonly ICacheService cacheService;
         private readonly IHttpContextAccessor accessor;
 
+        // === cache policy (inside HomeController) ===
+        private static readonly TimeSpan CacheSlidingExpiry = TimeSpan.FromMinutes(20);
+
+        // rough sizing for entries (units ≈ bytes; doesn't need to be exact)
+        private const long DefaultPageEntrySize = 64 * 1024;     // ~64 KB per page model
+        private const long DefaultSectionEntrySize = 8 * 1024;   // ~8 KB per section
+
         public HomeController(
             IHttpContextAccessor accessor,
             ISpamFilterService spamFilterService,
@@ -369,11 +376,9 @@ namespace WebPagePub.Web.Controllers
             tagKey ??= string.Empty;
 
             var cacheKey = CacheHelper.GetPageCacheKey(sectionKey, pageKey, pageNumber, tagKey);
-            var cachedPage = this.memoryCache.Get(cacheKey);
+            var model = this.memoryCache.Get<SitePageDisplayModel>(cacheKey);
 
-            SitePageDisplayModel? model;
-
-            if (cachedPage == null)
+            if (model == null)
             {
                 if (string.IsNullOrWhiteSpace(tagKey))
                 {
@@ -389,11 +394,13 @@ namespace WebPagePub.Web.Controllers
                     return this.RedirectPermanent("~/");
                 }
 
-                this.memoryCache.Set(cacheKey, model, DateTime.UtcNow.AddMinutes(IntegerConstants.PageCachingMinutes));
-            }
-            else
-            {
-                model = (SitePageDisplayModel?)cachedPage;
+                // ENFORCE: 20-min sliding + size for global cache limit (~200 MB)
+                var options = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(CacheSlidingExpiry)
+                    .SetPriority(CacheItemPriority.Normal)
+                    .SetSize(DefaultPageEntrySize);
+
+                this.memoryCache.Set(cacheKey, model, options);
             }
 
             if (model == default ||
@@ -833,18 +840,19 @@ namespace WebPagePub.Web.Controllers
         {
             var domain = UrlHelper.GetCurrentDomain(this.HttpContext);
             var cacheKey = CacheHelper.GetPageCacheKey(sitePageSection);
-            var cachedValue = this.memoryCache.Get(cacheKey);
-            SitePageSection homeSection;
+            var homeSection = this.memoryCache.Get<SitePageSection>(cacheKey);
 
-            if (cachedValue != null)
-            {
-                homeSection = (SitePageSection)cachedValue;
-            }
-            else
+            if (homeSection == null)
             {
                 homeSection = this.sitePageSectionRepository.GetHomeSection();
 
-                this.memoryCache.Set(cacheKey, homeSection, DateTime.UtcNow.AddMinutes(10));
+                // ENFORCE: 20-min sliding + size for global cache limit (~200 MB)
+                var options = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(CacheSlidingExpiry)
+                    .SetPriority(CacheItemPriority.Normal)
+                    .SetSize(DefaultSectionEntrySize);
+
+                this.memoryCache.Set(cacheKey, homeSection, options);
             }
 
             if (homeSection == null)

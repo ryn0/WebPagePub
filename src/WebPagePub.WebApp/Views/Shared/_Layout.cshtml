@@ -28,6 +28,57 @@
     <script type="application/ld+json">
         @Html.Raw(ViewData[WebPagePub.WebApp.Constants.StringConstants.ArticleJson])
     </script>
+
+@*     <style>
+        /* ===== CSS-only mobile nav (no JS) ===== */
+
+        /* Neutralize Bootstrap's JS-dependent collapse on small screens */
+        @@media (max-width: 767px) {
+          .navbar-toggle-link { display: inline-block; cursor: pointer; }
+          .navbar-header { display: flex; align-items: center; justify-content: space-between; }
+
+          /* Make the collapse container always present so we can animate it */
+          .navbar-collapse.collapse {
+            display: block !important;     /* override bootstrap */
+            height: auto !important;       /* prevent forced height */
+            padding: 0;
+          }
+
+          /* Hide menu by default using max-height clip */
+          #navbar {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height .3s ease;
+          }
+
+          /* Show when targeted */
+          #navbar:target {
+            max-height: 80vh;              /* adjust as needed */
+          }
+
+          /* Optional close link inside the menu */
+          #navbar .nav-close {
+            display: block;
+            padding: 12px 15px;
+            font-weight: 600;
+            text-align: right;
+            text-decoration: none;
+          }
+
+          /* Make top-level links easier to tap */
+          #navbar .nav > li > a {
+            padding: 12px 15px;
+            display: block;
+          }
+        }
+
+        /* Desktop: always show menu and hide the mobile toggler */
+        @@media (min-width: 768px) {
+          .navbar-toggle-link { display: none !important; }
+          #navbar { max-height: none !important; overflow: visible !important; }
+        }
+    </style> *@
+    
 </head>
 <body>
     <div id="wrapper">
