@@ -1,10 +1,10 @@
 ﻿using System.Net;
-using System.Runtime.InteropServices;
 using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo.Implementations;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Enums;
@@ -185,7 +185,7 @@ using (var scope = app.Services.CreateScope())
             var cacheKey = CacheHelper.GetLinkCacheKey(link.LinkKey);
 
             var optionsEntry = new MemoryCacheEntryOptions()
-                .SetSlidingExpiration(TimeSpan.FromMinutes(20)) // never lasts over 20 min unless used
+                .SetSlidingExpiration(TimeSpan.FromMinutes(IntegerConstants.PageCachingMinutes)) // never lasts over 20 min unless used
                                                                 // (optional absolute cap if you want a hard max lifetime):
                                                                 // .SetAbsoluteExpiration(TimeSpan.FromHours(12))
                 .SetPriority(CacheItemPriority.Normal)

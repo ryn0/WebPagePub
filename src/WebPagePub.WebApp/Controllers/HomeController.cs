@@ -32,7 +32,7 @@ namespace WebPagePub.Web.Controllers
         private readonly IHttpContextAccessor accessor;
 
         // === cache policy (inside HomeController) ===
-        private static readonly TimeSpan CacheSlidingExpiry = TimeSpan.FromMinutes(20);
+        private static readonly TimeSpan CacheSlidingExpiry = TimeSpan.FromMinutes(IntegerConstants.PageCachingMinutes);
 
         // rough sizing for entries (units ≈ bytes; doesn't need to be exact)
         private const long DefaultPageEntrySize = 64 * 1024;     // ~64 KB per page model

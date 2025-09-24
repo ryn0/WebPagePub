@@ -1,7 +1,4 @@
-﻿// WebPagePub.WebApp/Models/Admin/SearchLogs/SiteSearchLogListModel.cs
-using System;
-using System.Collections.Generic;
-using WebPagePub.Data.Models;
+﻿using WebPagePub.Data.Models;
 
 namespace WebPagePub.WebApp.Models.Admin.SearchLogs
 {
