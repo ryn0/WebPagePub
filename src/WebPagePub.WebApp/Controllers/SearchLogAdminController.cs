@@ -1,7 +1,4 @@
-﻿// WebPagePub.Web/Controllers/Admin/SearchLogAdminController.cs
-using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.Repositories.Interfaces;

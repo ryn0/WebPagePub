@@ -11,5 +11,7 @@
         public const int OneWeekInSeconds = 604800;
 
         public const int OneYearInSeconds = 31536000;
+
+        public const int CacheInMinutes = 20;
     }
 }

@@ -1,5 +1,6 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using System;
+﻿using System;
+using Microsoft.Extensions.Caching.Memory;
+using WebPagePub.Data.Constants;
 using WebPagePub.Data.Enums;
 using WebPagePub.Data.Repositories.Interfaces;
 using WebPagePub.Services.Interfaces;
@@ -9,7 +10,7 @@ namespace WebPagePub.Services.Implementations
     public class CacheService : ICacheService
     {
         private const string SnippetCachePrefix = "snippet-";
-        private static readonly TimeSpan SlidingExpiry = TimeSpan.FromMinutes(20);
+        private static readonly TimeSpan SlidingExpiry = TimeSpan.FromMinutes(IntegerConstants.PageCachingMinutes);
 
         private readonly IContentSnippetRepository contentSnippetRepository;
         private readonly IMemoryCache memoryCache;
