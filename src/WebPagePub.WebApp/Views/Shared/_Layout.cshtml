@@ -6,105 +6,224 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@ViewData["Title"]</title>
-    <partial name="_MetaTags" /> 
-    <partial name="_FavIcons" /> 
-@*
-    <environment names="Development">
-        <link rel="stylesheet" href="~/css/bootstrap.min.css">
-        <link rel="stylesheet" href="~/css/ionicons.min.css">
-        <link rel="stylesheet" href="~/css/owl.carousel.min.css">
-        <link rel="stylesheet" href="~/css/style.css">
-        <link rel="stylesheet" href="~/font/font.css">
-        <link rel="stylesheet" href="~/css/font-awesome.css" />
-        <link rel="stylesheet" href="~/css/starratting.css" />
-        <link rel="stylesheet" href="~/css/stacktable.css" />
-        <link rel="stylesheet" href="~/css/lineratings.css" />
-    </environment>*@
+    <partial name="_MetaTags" />
+    <partial name="_FavIcons" />
     <environment names="Development,Staging,Production">
-       @Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.HeaderHtml))
+        @Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.HeaderHtml))
     </environment>
     @RenderSection("StylesHeader", required: false)
     @RenderSection("ScriptsHeader", required: false)
+
     <script type="application/ld+json">
         @Html.Raw(ViewData[WebPagePub.WebApp.Constants.StringConstants.ArticleJson])
     </script>
 
-@*     <style>
-        /* ===== CSS-only mobile nav (no JS) ===== */
+    <style>
+        /* bar color + remove gap under bar */
+        .nav-header {
+            background: #0C5B9C;
+        }
 
-        /* Neutralize Bootstrap's JS-dependent collapse on small screens */
-        @@media (max-width: 767px) {
-          .navbar-toggle-link { display: inline-block; cursor: pointer; }
-          .navbar-header { display: flex; align-items: center; justify-content: space-between; }
+        .navbar, .navbar-default {
+            margin-bottom: 0 !important;
+            border: 0 !important;
+            box-shadow: none !important;
+        }
 
-          /* Make the collapse container always present so we can animate it */
-          .navbar-collapse.collapse {
-            display: block !important;     /* override bootstrap */
-            height: auto !important;       /* prevent forced height */
+            /* make the header row the positioning context for the burger */
+            .navbar .container {
+                position: relative;
+            }
+
+        /* ======= Pure CSS toggle (checkbox + label) ======= */
+
+        /* Visually hide the checkbox, keep it accessible */
+        #nav-toggle {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: 0 !important;
+            overflow: hidden !important;
+            clip: rect(0 0 0 0) !important;
+            white-space: nowrap !important;
+        }
+
+        /* STRONG override against any global .nav-toggle rules on the site */
+        .nav-header #nav-toggle + label.nav-toggle {
+            position: absolute !important;
+            top: 50% !important;
+            right: 12px !important;
+            left: auto !important;
+            transform: translateY(-50%) !important; /* kill any translateX from theme */
+            display: block !important;
+            width: 38px !important;
+            height: 34px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            line-height: 0 !important;
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            text-indent: 0 !important;
+            z-index: 5 !important;
+            cursor: pointer !important;
+            -webkit-tap-highlight-color: transparent;
+        }
+            /* ignore clicks on spans inside the label */
+            .nav-header #nav-toggle + label.nav-toggle * {
+                pointer-events: none;
+            }
+
+            /* Hamburger bars */
+            .nav-header #nav-toggle + label.nav-toggle .icon-bar {
+                display: block;
+                width: 24px;
+                height: 2px;
+                margin: 5px 0;
+                background: #fff;
+            }
+
+            /* Reset any generic label styling that leaks in */
+            .nav-header #nav-toggle + label.nav-toggle,
+            .nav-header #nav-toggle + label.nav-toggle:before,
+            .nav-header #nav-toggle + label.nav-toggle:after {
+                font: inherit;
+                color: inherit;
+                text-align: left;
+                text-shadow: none;
+                background-image: none;
+            }
+
+        /* Base menu UL cleanup (your snippet already outputs Bootstrap classes) */
+        .nav-panel .nav, .nav-panel .navbar-nav, .nav-panel .navbar-nav > li {
+            list-style: none;
+            margin: 0;
             padding: 0;
-          }
+        }
 
-          /* Hide menu by default using max-height clip */
-          #navbar {
+            .nav-panel .navbar-nav > li > a {
+                display: block;
+                text-decoration: none;
+            }
+
+        /* ===== Mobile (<=991px) ===== */
+        @@media (max-width:991px) {
+            .navbar-header
+
+        {
+            min-height: 56px;
+        }
+
+        .nav-panel {
             max-height: 0;
             overflow: hidden;
             transition: max-height .3s ease;
-          }
-
-          /* Show when targeted */
-          #navbar:target {
-            max-height: 80vh;              /* adjust as needed */
-          }
-
-          /* Optional close link inside the menu */
-          #navbar .nav-close {
-            display: block;
-            padding: 12px 15px;
-            font-weight: 600;
-            text-align: right;
-            text-decoration: none;
-          }
-
-          /* Make top-level links easier to tap */
-          #navbar .nav > li > a {
-            padding: 12px 15px;
-            display: block;
-          }
+            margin-top: 0;
+            border-top: 0;
+        }
+        /* when checked, drop the panel below the header row */
+        #nav-toggle:checked ~ .nav-panel {
+            max-height: 80vh;
+            margin-top: 56px;
+            border-top: 1px solid rgba(255,255,255,.15);
         }
 
-        /* Desktop: always show menu and hide the mobile toggler */
-        @@media (min-width: 768px) {
-          .navbar-toggle-link { display: none !important; }
-          #navbar { max-height: none !important; overflow: visible !important; }
+        .nav-panel .nav.navbar-nav {
+            float: none !important;
         }
-    </style> *@
-    
+
+        .nav-panel .nav > li {
+            float: none !important;
+            border-bottom: 1px solid rgba(255,255,255,.12);
+        }
+
+            .nav-panel .nav > li > a {
+                color: #fff !important;
+                padding: 14px 16px !important;
+            }
+
+        /* burger -> X animation */
+        #nav-toggle:checked + label.nav-toggle .icon-bar:nth-child(2) {
+            opacity: 0;
+        }
+
+        #nav-toggle:checked + label.nav-toggle .icon-bar:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+            transform-origin: center;
+        }
+
+        #nav-toggle:checked + label.nav-toggle .icon-bar:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+            transform-origin: center;
+        }
+
+        }
+
+        /* ===== Desktop (>=992px) ===== */
+        @@media (min-width:992px) {
+            /* hide burger completely on desktop */
+            .nav-header #nav-toggle + label.nav-toggle
+
+        {
+            display: none !important;
+        }
+
+        .nav-panel {
+            display: block;
+            max-height: none !important;
+            overflow: visible !important;
+            background: transparent;
+            margin-top: 0;
+        }
+
+            .nav-panel .nav.navbar-nav {
+                float: right !important;
+            }
+
+            .nav-panel .nav > li {
+                float: left !important;
+            }
+
+                .nav-panel .nav > li > a {
+                    color: #fff !important;
+                    padding: 5px !important;
+                    line-height: 26px;
+                }
+
+        }
+    </style>
 </head>
 <body>
     <div id="wrapper">
         <nav class="navbar navbar-default nav-header">
             <div class="container">
                 <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-               
                     @Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.LogoHtml))
-                
                 </div>
-                <div id="navbar" class="navbar-collapse collapse">
-                    @Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.MenuHtml))
 
+                <!-- Pure CSS toggle: input + label + panel -->
+                <input id="nav-toggle" class="nav-toggle-input" type="checkbox" aria-hidden="true" />
+                <label for="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </label>
+
+                <div id="primary-menu" class="nav-panel">
+                    @Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.MenuHtml))
                 </div>
             </div>
         </nav>
+
         <div class="clear"></div>
+
         <div class="container">
             @RenderBody()
         </div>
+
         <footer class="site-footer">
             @if (!string.IsNullOrEmpty(_cacheHelper.GetSnippet(SiteConfigSetting.InstagramUrl)))
             {
@@ -112,7 +231,7 @@
             }
             @if (!string.IsNullOrEmpty(_cacheHelper.GetSnippet(SiteConfigSetting.FacebookUrl)))
             {
-                <a target="_blank"  href="@_cacheHelper.GetSnippet(SiteConfigSetting.FacebookUrl)" class="btn btn-fb"><i class="fa fa-facebook left"></i> Facebook</a>
+                <a target="_blank" href="@_cacheHelper.GetSnippet(SiteConfigSetting.FacebookUrl)" class="btn btn-fb"><i class="fa fa-facebook left"></i> Facebook</a>
             }
             @if (!string.IsNullOrEmpty(_cacheHelper.GetSnippet(SiteConfigSetting.YouTubeUrl)))
             {
@@ -123,18 +242,14 @@
                 <a target="_blank" href="@_cacheHelper.GetSnippet(SiteConfigSetting.TwitterUrl)" class="btn btn-twitter"><i class="fa fa-twitter left"></i> Twitter</a>
             }
             <div class="copyright">
-                &copy; @DateTime.UtcNow.Year 
+                &copy; @DateTime.UtcNow.Year
                 @Html.Raw(@_cacheHelper.GetSnippet(SiteConfigSetting.MenuFooterHtml))
             </div>
         </footer>
     </div>
+
     <partial name="_LoginPartial" />
     @Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.GoogleAnalytics))
-    @*    <environment names="Development">
-        <script src="~/js/jquery-2.1.3.min.js"></script>
-        <script src="~/js/bootstrap.min.js"></script>
-        <script src="~/js/stacktable.js"></script>
-    </environment>*@
     <environment names="Development,Staging,Production">
         @Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.FooterHtml))
     </environment>
