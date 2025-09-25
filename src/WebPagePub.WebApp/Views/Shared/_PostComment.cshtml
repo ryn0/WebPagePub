@@ -1,48 +1,40 @@
 ﻿@model WebPagePub.WebApp.Models.SitePage.SitePageCommentModel
 
-<form asp-controller="Home" asp-action="Comment" method="post" class="form-horizontal">
-    <h4>Post Comment</h4>
-    <input type="hidden" asp-for="RequestId" />
+<form asp-action="Comment" method="post">
+    @Html.AntiForgeryToken()
+
+    @* your existing fields *@
     <input type="hidden" asp-for="SitePageId" />
+    <input type="hidden" asp-for="RequestId" />
 
-    <div asp-validation-summary="All" class="text-danger"></div>
     <div class="form-group">
-        <label asp-for="Name" class="col-md-2 control-label"></label>
-        <div class="col-md-4">
-            <input asp-for="Name" class="form-control" />
-            <span asp-validation-for="Name" class="text-danger"></span>
-        </div>
+        <label asp-for="Name"></label>
+        <input class="form-control" asp-for="Name" />
+        <span class="text-danger" asp-validation-for="Name"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="Website" class="col-md-2 control-label"></label>
-        <div class="col-md-4">
-            <input asp-for="Website" class="form-control" />
-            <span asp-validation-for="Website" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="form-group">
-        <label asp-for="Email" class="col-md-2 control-label"></label>
-        <div class="col-md-4">
-            <input asp-for="Email" class="form-control" type="email" />
-            <span asp-validation-for="Email" class="text-danger"></span>
-        </div>
+        <label asp-for="Email"></label>
+        <input class="form-control" asp-for="Email" />
+        <span class="text-danger" asp-validation-for="Email"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="Comment" class="col-md-2 control-label"></label>
-        <div class="col-md-4">
-            <textarea asp-for="Comment" class="form-control" rows="8"></textarea>
-            <span asp-validation-for="Comment" class="text-danger"></span>
-        </div>
+        <label asp-for="Website"></label>
+        <input class="form-control" asp-for="Website" />
+        <span class="text-danger" asp-validation-for="Website"></span>
     </div>
-
-    <partial name="_captcha" />
 
     <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
-            <button type="submit" class="btn btn-success">Submit</button>
-        </div>
+        <label asp-for="Comment"></label>
+        <textarea class="form-control" asp-for="Comment" rows="6"></textarea>
+        <span class="text-danger" asp-validation-for="Comment"></span>
     </div>
 
+    @{
+        var captchaCtx = $"comment:{Model?.SitePageId ?? 0}";
+    }
+    @await Html.PartialAsync("_CaptchaBlock", captchaCtx)
+
+    <button type="submit" class="btn btn-primary">Post Comment</button>
 </form>
