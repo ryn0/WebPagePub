@@ -25,5 +25,6 @@
         SubscribeToNewsletterMessage = 20,
         MenuFooterHtml = 21,
         LogoHtml = 22,
+        AdNetworkProviderUrl = 23,
     }
 }
