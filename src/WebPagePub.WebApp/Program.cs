@@ -109,6 +109,7 @@ builder.Services.AddTransient<IEmailSender>(x => new AmazonMailService(
 
 builder.Services.AddSingleton<IImageUploaderService, ImageUploaderService>();
 builder.Services.AddSingleton<ISiteFilesRepository, SiteFilesRepository>();
+builder.Services.AddSingleton<ISnippetFetcher, SnippetFetcher>();
 
 builder.Services.Configure<CaptchaOptions>(builder.Configuration.GetSection("Captcha"));
 builder.Services.AddTransient<ICaptchaService, CaptchaService>();

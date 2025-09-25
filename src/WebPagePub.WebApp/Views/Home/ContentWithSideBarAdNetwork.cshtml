@@ -1,0 +1,119 @@
+﻿@model WebPagePub.WebApp.Models.SitePage.SitePageDisplayModel
+@inject WebPagePub.Services.Interfaces.ICacheService _cacheHelper
+@using WebPagePub.Data.Enums;
+
+@section StylesHeader {
+    <style>
+        @@media (min-width: 768px) {
+            .sidebar-sticky
+
+        {
+            position: sticky;
+            top: 1rem;
+        }
+
+        }
+
+        .ads-widget {
+            margin-top: 1rem;
+            border: 1px solid rgba(0,0,0,.08);
+            border-radius: 12px;
+  
+            box-shadow: 0 1px 2px rgba(0,0,0,.06);
+            overflow: hidden;
+        }
+
+        .ads-header {
+            font-weight: 700;
+            font-size: .95rem;
+            padding: .75rem 1rem;
+            border-bottom: 1px solid rgba(0,0,0,.06);
+        }
+
+        .ads-body {
+            padding: .75rem 1rem;
+
+        }
+
+        .sponsor-card { background-color: #FFF;}
+    </style>
+}
+
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+
+                <h1 class="main-page-header">@Model.PageContent.PageHeader</h1>
+
+                @{
+                    await Html.RenderPartialAsync("_BreadcrumbList", Model.BreadcrumbList);
+                }
+                @{
+                    await Html.RenderPartialAsync("_StructuredDataOrganization", Model.Organization);
+                }
+                @{
+                    await Html.RenderPartialAsync("_StructuredDataWebsite", Model.Website);
+                }
+
+                <article>
+                    <i>Last updated:  @Model.PageContent.FriendlyLastUpdateDateDisplay</i>
+                    <hr />
+
+                    @if (Model.PageType == Data.Enums.PageType.Photo &&
+                                        Model.PageContent.Photos.Any())
+                    {
+                        await Html.RenderPartialAsync("_ListPhotos", Model.PageContent.Photos);
+                    }
+
+                    @Html.Raw(Model.PageContent.Content)
+
+                    @if (Model.AllowCommenting)
+                    {
+                        <hr />
+                        <h3>Comments</h3>
+
+                        await Html.RenderPartialAsync("_ListComments", Model.Comments);
+                        await Html.RenderPartialAsync("_PostComment", Model.PostComment);
+                        <hr />
+                    }
+                </article>
+
+                @if (Model.PageContent.Tags.Count > 0)
+                {
+                    await Html.RenderPartialAsync("_TagFooter", Model.PageContent.Tags);
+                }
+
+                @{
+                    await Html.RenderPartialAsync("_PreviousAndNext", Model.PreviousAndNext);
+                }
+
+                <hr />
+                @{
+                    await Html.RenderPartialAsync("_EmailSubscribePartial", Model);
+                }
+                <br />
+            </div>
+
+            <div class="col-md-4">
+                <div class="sidebar-sticky">
+                 
+                    <!-- Server-rendered ads snippet (no JS) -->
+                    <div class="ads-widget">
+                        
+                        <div class="ads-body">
+                            @Html.Raw(ViewBag.AdsHtml as string)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+@section ScriptsFooter { }
+
+    @{
+        await Html.RenderPartialAsync("_LoginPartialPageEdit", Model);
+    }

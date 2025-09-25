@@ -13,6 +13,7 @@ using WebPagePub.Web.Helpers;
 using WebPagePub.Web.Models;
 using WebPagePub.WebApp.Helpers;
 using WebPagePub.WebApp.Models.Author;
+using System.Text.RegularExpressions;
 using WebPagePub.WebApp.Models.SitePage;
 using WebPagePub.WebApp.Models.StructuredData;
 
@@ -38,6 +39,9 @@ namespace WebPagePub.Web.Controllers
         private readonly IHttpContextAccessor accessor;
         private readonly ICaptchaService captcha;
 
+        // NEW: server-side snippet fetcher (no JS on client)
+        private readonly ISnippetFetcher snippetFetcher;
+
         public HomeController(
             IHttpContextAccessor accessor,
             ISpamFilterService spamFilterService,
@@ -48,7 +52,8 @@ namespace WebPagePub.Web.Controllers
             ITagRepository tagRepository,
             IMemoryCache memoryCache,
             ICacheService cacheService,
-            ICaptchaService captcha)
+            ICaptchaService captcha,
+            ISnippetFetcher snippetFetcher) // << NEW
         {
             this.accessor = accessor;
             this.spamFilterService = spamFilterService;
@@ -60,6 +65,7 @@ namespace WebPagePub.Web.Controllers
             this.memoryCache = memoryCache;
             this.cacheService = cacheService;
             this.captcha = captcha;
+            this.snippetFetcher = snippetFetcher; // << NEW
         }
 
         [HttpGet]
@@ -349,6 +355,111 @@ namespace WebPagePub.Web.Controllers
             };
         }
 
+        /// <summary>
+        /// Rewrites common relative URL patterns inside an HTML/CSS snippet to absolute URLs
+        /// based on the provided baseUri's origin (scheme + host + port).
+        /// Handles href/src/action, srcset, css url(...), and "~/path".
+        /// </summary>
+        private static string RewriteRelativeUrlsToAbsolute(string html, Uri baseUri)
+        {
+            if (string.IsNullOrEmpty(html))
+            {
+                return string.Empty;
+            }
+
+            var origin = baseUri.GetLeftPart(UriPartial.Authority);
+
+            // 1) href/src/action with double quotes: attr="/path"
+            html = Regex.Replace(
+                html,
+                @"\b(href|src|action)\s*=\s*""\s*(/[^""]*)""",
+                m => $"{m.Groups[1].Value}=\"{origin}{m.Groups[2].Value}\"",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+            // 2) href/src/action with single quotes: attr='/path'
+            html = Regex.Replace(
+                html,
+                @"\b(href|src|action)\s*=\s*'\s*(/[^']*)'",
+                m => $"{m.Groups[1].Value}='{origin}{m.Groups[2].Value}'",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+            // 3) Tilde-root variants: attr="~/path" or attr='~/path'
+            html = Regex.Replace(
+                html,
+                @"\b(href|src|action)\s*=\s*""\s*~(/[^""]*)""",
+                m => $"{m.Groups[1].Value}=\"{origin}{m.Groups[2].Value}\"",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            html = Regex.Replace(
+                html,
+                @"\b(href|src|action)\s*=\s*'\s*~(/[^']*)'",
+                m => $"{m.Groups[1].Value}='{origin}{m.Groups[2].Value}'",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+            // 4) srcset: multiple candidates, e.g. "/img 1x, /img@2x 2x"
+            html = Regex.Replace(
+                html,
+                @"\bsrcset\s*=\s*""([^""]+)""",
+                m => $"srcset=\"{RewriteSrcSetCandidates(m.Groups[1].Value, origin)}\"",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            html = Regex.Replace(
+                html,
+                @"\bsrcset\s*=\s*'([^']+)'",
+                m => $"srcset='{RewriteSrcSetCandidates(m.Groups[1].Value, origin)}'",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+            // 5) CSS url(/path) inside <style> or inline styles
+            html = Regex.Replace(
+                html,
+                @"url\(\s*(['""]?)(/[^)'""]+)\1\s*\)",
+                m => $"url({m.Groups[1].Value}{origin}{m.Groups[2].Value}{m.Groups[1].Value})",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+            return html;
+        }
+
+        private static string RewriteSrcSetCandidates(string srcsetValue, string origin)
+        {
+            // srcset: comma-separated candidates; each is: URL [descriptor]
+            // We upgrade any candidate whose URL starts with "/" or "~/".
+            var parts = srcsetValue.Split(',');
+            for (int i = 0; i < parts.Length; i++)
+            {
+                var cand = parts[i].Trim();
+                if (string.IsNullOrEmpty(cand))
+                {
+                    continue;
+                }
+
+                // split on first whitespace to separate URL from descriptor (e.g., "2x", "480w")
+                var firstSpace = cand.IndexOf(' ');
+                string urlPart, descriptorPart;
+
+                if (firstSpace >= 0)
+                {
+                    urlPart = cand.Substring(0, firstSpace).Trim();
+                    descriptorPart = cand.Substring(firstSpace).Trim();
+                }
+                else
+                {
+                    urlPart = cand.Trim();
+                    descriptorPart = string.Empty;
+                }
+
+                if (urlPart.StartsWith("~/"))
+                {
+                    urlPart = origin + urlPart.Substring(1); // "~/" -> "/"
+                }
+                else if (urlPart.StartsWith("/"))
+                {
+                    urlPart = origin + urlPart;
+                }
+
+                parts[i] = string.IsNullOrEmpty(descriptorPart) ? urlPart : $"{urlPart} {descriptorPart}";
+            }
+
+            return string.Join(", ", parts);
+        }
+
         private static WebApp.Models.StructuredData.Author SetAuthor(Data.Models.Db.Author author)
         {
             if (author == null)
@@ -452,6 +563,13 @@ namespace WebPagePub.Web.Controllers
 
             this.ViewData["AuthorName"] = model.AuthorName;
 
+            // Server-side ads fetch controlled by a single setting (URL)
+            if (model.PageType == PageType.ContentWithSideBarAdNetwork ||
+                model.PageType == PageType.ContentWithSideBar)
+            {
+                this.ViewBag.AdsHtml = this.FetchAdsHtmlFromSetting();
+            }
+
             switch (model.PageType)
             {
                 case PageType.AffiliateContent:
@@ -466,6 +584,8 @@ namespace WebPagePub.Web.Controllers
                     return this.View("ReviewWithSideBar", model);
                 case PageType.ContentWithSideBar:
                     return this.View("ContentWithSideBar", model);
+                case PageType.ContentWithSideBarAdNetwork:
+                    return this.View("ContentWithSideBarAdNetwork", model);
                 case PageType.Content:
                 default:
                     return this.View("Content", model);
@@ -898,8 +1018,8 @@ namespace WebPagePub.Web.Controllers
                                Position = 3,
                                Item = new BreadcrumbListItemProperties()
                                {
-                                    Name = sitePage.BreadcrumbName,
-                                    PageUrl = new Uri(
+                                   Name = sitePage.BreadcrumbName,
+                                   PageUrl = new Uri(
                                        new Uri(domain),
                                        UrlBuilder.BlogUrlPath(sitePageSection.Key, sitePage.Key))
                                }
@@ -915,6 +1035,36 @@ namespace WebPagePub.Web.Controllers
             this.Response.StatusCode = 404;
 
             return this.View("Page404");
+        }
+
+        /// <summary>
+        /// Reads the single config setting (AdNetworkProviderUrl). If present and absolute, fetches HTML and
+        /// rewrites any root-relative URLs (/path or ~/path) to absolute using the ad provider origin.
+        /// Otherwise returns empty string.
+        /// </summary>
+        private string FetchAdsHtmlFromSetting()
+        {
+            var rawUrl = (this.cacheService.GetSnippet(SiteConfigSetting.AdNetworkProviderUrl) ?? string.Empty).Trim();
+            if (string.IsNullOrEmpty(rawUrl) || !Uri.TryCreate(rawUrl, UriKind.Absolute, out var baseUri))
+            {
+                return string.Empty;
+            }
+
+            string html;
+            try
+            {
+                html = this.snippetFetcher
+                    .GetAsync(rawUrl, TimeSpan.FromMinutes(IntegerConstants.CacheInMinutes))
+                    .GetAwaiter()
+                    .GetResult();
+            }
+            catch
+            {
+                // Optional: log the error; never fail the page render due to ad issues
+                return string.Empty;
+            }
+
+            return RewriteRelativeUrlsToAbsolute(html, baseUri);
         }
     }
 }

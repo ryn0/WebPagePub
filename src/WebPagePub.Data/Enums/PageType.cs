@@ -11,5 +11,6 @@
         AffiliateContent = 6,
         ContentWithSideBar = 7,
         ReviewWithSideBar = 8,
+        ContentWithSideBarAdNetwork = 9
     }
 }
