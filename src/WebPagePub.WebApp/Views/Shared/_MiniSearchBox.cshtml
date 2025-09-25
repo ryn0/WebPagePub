@@ -7,27 +7,71 @@
     var placeholder = Model?.Placeholder ?? "Search pages…";
     var button = Model?.ButtonText ?? "Search";
     var initial = Model?.InitialValue ?? string.Empty;
-    var wrapperClass = string.IsNullOrWhiteSpace(Model?.CssClass) ? "mini-search" : $"mini-search {Model.CssClass}";
+    var wrapperClass = string.IsNullOrWhiteSpace(Model?.CssClass)
+        ? "mini-search"
+        : $"mini-search {Model.CssClass}";
 }
 
-<form method="get" asp-controller="SitePageSearch" asp-action="Index" class="form-inline mb-3">
+<form method="get"
+      asp-controller="@controller"
+      asp-action="@action"
+      class="@wrapperClass form-inline mb-3"
+      role="search">
     <input type="text"
-           autocomplete="off"
-           name="term"
+           name="@qName"
            value="@initial"
            maxlength="200"
-           class="form-control mr-2"
-           placeholder="Search..." />
-    <button type="submit" class="btn btn-primary">Search</button>
+           class="form-control"
+           placeholder="@placeholder"
+           aria-label="Search" autocomplete="off" />
+    <button type="submit" class="btn btn-primary">@button</button>
 </form>
 
 <style>
-    /* tiny, unobtrusive */
-    .mini-search .form-control {
-        max-width: 280px;
+    /* one-line at all widths */
+    .mini-search.form-inline {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        align-items: center;
+        gap: .5rem;
+        width: 100%;
     }
 
-    .mini-search .input-group {
-        gap: .5rem;
-    } 
+    /* input grows but can shrink on tiny screens */
+    .mini-search .form-control {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .mini-search .btn {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+    /* ---- Compact on larger screens (keep a normal length) ---- */
+    @@media (min-width: 768px) { /* tablet+ */
+        .mini-search.form-inline
+
+    {
+        width: auto; /* stop filling the row */
+        max-width: 560px; /* cap the overall search bar width */
+    }
+
+    .mini-search .form-control {
+        flex: 1 0 22rem; /* sensible default length */
+        max-width: 28rem; /* don’t let it get absurdly long */
+    }
+
+    }
+
+    /* optional: slightly smaller button on very narrow phones */
+    @@media (max-width: 375px) {
+        .mini-search .btn
+
+    {
+        padding: .4rem .6rem;
+    }
+
+    }
 </style>
