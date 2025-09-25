@@ -17,6 +17,7 @@ using WebPagePub.Managers.Implementations;
 using WebPagePub.Managers.Interfaces;
 using WebPagePub.Services.Implementations;
 using WebPagePub.Services.Interfaces;
+using WebPagePub.Services.Models;
 using WebPagePub.Web.Helpers;
 using WebPagePub.WebApp.AppRules;
 
@@ -28,8 +29,8 @@ var builder = WebApplication.CreateBuilder(args);
 const long CacheSizeLimitBytes = 200L * 1024L * 1024L; // ~200 MB
 builder.Services.AddMemoryCache(opts =>
 {
-    opts.SizeLimit = CacheSizeLimitBytes;              // units = "bytes" (we'll set SetSize per entry)
-    opts.CompactionPercentage = 0.20;                  // trim 20% on pressure
+    opts.SizeLimit = CacheSizeLimitBytes;
+    opts.CompactionPercentage = 0.20;
     opts.ExpirationScanFrequency = TimeSpan.FromMinutes(5);
 });
 
@@ -40,11 +41,26 @@ builder.Services.AddRazorPages();
 builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
 var mvc = builder.Services.AddControllersWithViews();
-// Runtime compilation only while developing (saves memory in prod)
 if (builder.Environment.IsDevelopment())
 {
     mvc.AddRazorRuntimeCompilation();
 }
+
+// -------------------------------
+// Session (REQUIRED for CAPTCHA)
+// -------------------------------
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.Cookie.Name = ".WebPagePub.Session";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.IdleTimeout = TimeSpan.FromMinutes(20);
+});
+
+// Useful helpers
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient();
 
 // -------------------------------
 // App services
@@ -93,6 +109,9 @@ builder.Services.AddTransient<IEmailSender>(x => new AmazonMailService(
 
 builder.Services.AddSingleton<IImageUploaderService, ImageUploaderService>();
 builder.Services.AddSingleton<ISiteFilesRepository, SiteFilesRepository>();
+
+builder.Services.Configure<CaptchaOptions>(builder.Configuration.GetSection("Captcha"));
+builder.Services.AddTransient<ICaptchaService, CaptchaService>();
 
 builder.Services.AddSingleton<IBlobService>(provider =>
 {
@@ -170,10 +189,7 @@ using (var scope = app.Services.CreateScope())
 
     app.UseRewriter(options);
 
-    // -------------------------------------------
-    // Pre-warm link cache with 20-minute sliding expiration
-    // and per-entry size so the 200 MB cap is enforced.
-    // -------------------------------------------
+    // Pre-warm link cache
     var memoryCache = scopedServiceProvider.GetService<IMemoryCache>();
     var linkRepo = scopedServiceProvider.GetService<ILinkRedirectionRepository>();
     var links = linkRepo?.GetAll();
@@ -185,11 +201,9 @@ using (var scope = app.Services.CreateScope())
             var cacheKey = CacheHelper.GetLinkCacheKey(link.LinkKey);
 
             var optionsEntry = new MemoryCacheEntryOptions()
-                .SetSlidingExpiration(TimeSpan.FromMinutes(IntegerConstants.PageCachingMinutes)) // never lasts over 20 min unless used
-                                                                // (optional absolute cap if you want a hard max lifetime):
-                                                                // .SetAbsoluteExpiration(TimeSpan.FromHours(12))
+                .SetSlidingExpiration(TimeSpan.FromMinutes(IntegerConstants.PageCachingMinutes))
                 .SetPriority(CacheItemPriority.Normal)
-                .SetSize(EstimateBytes(cacheKey, link.UrlDestination)); // set entry size (bytes)
+                .SetSize(EstimateBytes(cacheKey, link.UrlDestination));
 
             memoryCache.Set(cacheKey, link.UrlDestination, optionsEntry);
         }
@@ -199,24 +213,32 @@ using (var scope = app.Services.CreateScope())
 app.UseStaticFiles();
 app.UseRouting();
 
+app.UseSession();           // <-- REQUIRED: before auth and endpoints
+
+app.UseAuthentication();    // <-- include with Identity
+app.UseAuthorization();
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.UseAuthorization();
 
 app.Run();
 
 // -------------------------------
 // Local helpers
 // -------------------------------
-
-// Estimate bytes for string-based cache entries so SizeLimit (~200 MB) is meaningful.
-// .NET strings are UTF-16 (≈2 bytes/char). Add small overhead for object headers.
 static long EstimateBytes(string key, string value)
 {
-    long bytes = 64; // overhead fudge factor for entry structures
-    if (!string.IsNullOrEmpty(key)) bytes += (long)key.Length * 2;
-    if (!string.IsNullOrEmpty(value)) bytes += (long)value.Length * 2;
+    long bytes = 64; // overhead fudge factor
+    if (!string.IsNullOrEmpty(key))
+    {
+        bytes += (long)key.Length * 2;
+    }
+
+    if (!string.IsNullOrEmpty(value))
+    {
+        bytes += (long)value.Length * 2;
+    }
+
     return bytes;
 }

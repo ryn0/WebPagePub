@@ -284,7 +284,6 @@ namespace WebPagePub.Data.Repositories.Implementations
             };
         }
 
-
         public IList<SitePage> GetPage(int pageNumber, int sitePageSectionId, int quantityPerPage, out int total)
         {
             try
@@ -716,8 +715,15 @@ namespace WebPagePub.Data.Repositories.Implementations
 
         public IList<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total)
         {
-            if (pageNumber < 1) pageNumber = 1;
-            if (quantityPerPage < 1) quantityPerPage = 10;
+            if (pageNumber < 1)
+            {
+                pageNumber = 1;
+            }
+
+            if (quantityPerPage < 1)
+            {
+                quantityPerPage = 10;
+            }
 
             term = (term ?? string.Empty).Trim();
 
@@ -751,7 +757,10 @@ namespace WebPagePub.Data.Repositories.Implementations
                     || EF.Functions.Like(x.ReviewItemName ?? string.Empty, like)));
 
             total = baseQ.Count();
-            if (total == 0) return new List<SitePage>();
+            if (total == 0)
+            {
+                return new List<SitePage>();
+            }
 
             // Helper inline for occurrence counts: ((LEN(f)-LEN(REPLACE(f,term,'')))/LEN(term))
             // We multiply before dividing to keep it integer and SQL-translatable.
@@ -777,6 +786,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                 {
                     r.SitePageId,
                     r.TitleHit,
+
                     // Light weights—title count matters most inside the TitleHit bucket
                     Score =
                         (r.TitleCnt * 10) +
@@ -788,9 +798,9 @@ namespace WebPagePub.Data.Repositories.Implementations
                         (r.ContentCnt * 1),
                     r.Recency
                 })
-                .OrderByDescending(r => r.TitleHit)   // 1) any title hit goes first
-                .ThenByDescending(r => r.Score)       // 2) more occurrences / better fields
-                .ThenByDescending(r => r.Recency)     // 3) newer wins ties
+                .OrderByDescending(r => r.TitleHit)
+                .ThenByDescending(r => r.Score)
+                .ThenByDescending(r => r.Recency)
                 .Skip((pageNumber - 1) * quantityPerPage)
                 .Take(quantityPerPage)
                 .ToList();
@@ -808,7 +818,6 @@ namespace WebPagePub.Data.Repositories.Implementations
 
             return ids.Where(id => pageMap.ContainsKey(id)).Select(id => pageMap[id]).ToList();
         }
-
 
         private async Task LogToAuditTable(SitePage model)
         {

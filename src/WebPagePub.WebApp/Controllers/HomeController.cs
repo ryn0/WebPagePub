@@ -21,6 +21,12 @@ namespace WebPagePub.Web.Controllers
     // todo: cache keys which are retrieved for lookups
     public class HomeController : Controller
     {
+        // rough sizing for entries (units ≈ bytes; doesn't need to be exact)
+        private const long DefaultPageEntrySize = 64 * 1024;     // ~64 KB per page model
+        private const long DefaultSectionEntrySize = 8 * 1024;   // ~8 KB per section
+
+        private static readonly TimeSpan CacheSlidingExpiry = TimeSpan.FromMinutes(IntegerConstants.PageCachingMinutes);
+
         private readonly ISpamFilterService spamFilterService;
         private readonly ISitePageCommentRepository sitePageCommentRepository;
         private readonly ISitePageRepository sitePageRepository;
@@ -30,13 +36,7 @@ namespace WebPagePub.Web.Controllers
         private readonly IMemoryCache memoryCache;
         private readonly ICacheService cacheService;
         private readonly IHttpContextAccessor accessor;
-
-        // === cache policy (inside HomeController) ===
-        private static readonly TimeSpan CacheSlidingExpiry = TimeSpan.FromMinutes(IntegerConstants.PageCachingMinutes);
-
-        // rough sizing for entries (units ≈ bytes; doesn't need to be exact)
-        private const long DefaultPageEntrySize = 64 * 1024;     // ~64 KB per page model
-        private const long DefaultSectionEntrySize = 8 * 1024;   // ~8 KB per section
+        private readonly ICaptchaService captcha;
 
         public HomeController(
             IHttpContextAccessor accessor,
@@ -47,7 +47,8 @@ namespace WebPagePub.Web.Controllers
             ISitePageTagRepository sitePageTagRepository,
             ITagRepository tagRepository,
             IMemoryCache memoryCache,
-            ICacheService cacheService)
+            ICacheService cacheService,
+            ICaptchaService captcha)
         {
             this.accessor = accessor;
             this.spamFilterService = spamFilterService;
@@ -58,6 +59,7 @@ namespace WebPagePub.Web.Controllers
             this.tagRepository = tagRepository;
             this.memoryCache = memoryCache;
             this.cacheService = cacheService;
+            this.captcha = captcha;
         }
 
         [HttpGet]
@@ -200,7 +202,6 @@ namespace WebPagePub.Web.Controllers
         public IActionResult Comment(SitePageCommentModel model)
         {
             var existingComment = this.sitePageCommentRepository.Get(model.RequestId);
-
             if (existingComment != null)
             {
                 return this.View("Commented");
@@ -211,7 +212,7 @@ namespace WebPagePub.Web.Controllers
                 return this.View("CommentError");
             }
 
-            if (!SiteUtilityHelper.IsCaptchaValid(this.Request.Form))
+            if (!this.captcha.IsValid(this.Request))
             {
                 return this.View("CommentError");
             }
