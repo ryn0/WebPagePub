@@ -27,6 +27,11 @@ namespace WebPagePub.Web.Controllers
         [HttpGet("search")]
         public async Task<IActionResult> Index(string term = "", int page = 1, int pageSize = 10)
         {
+            if (string.IsNullOrWhiteSpace(term))
+            {
+                return this.BadRequest("No search");
+            }
+
             var result = await this.sitePageRepository.PagedSearchAsync(term, page, pageSize);
 
             // Best-effort log (don’t block the request if logging fails)
