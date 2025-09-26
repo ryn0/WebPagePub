@@ -1,0 +1,141 @@
+﻿@model WebPagePub.WebApp.Models.SitePage.SitePageDisplayModel
+@inject WebPagePub.Services.Interfaces.ICacheService _cacheHelper
+@using WebPagePub.Data.Enums
+@using WebPagePub.Core.Utilities
+
+@section StylesHeader {
+    <style>
+        @@media (min-width: 768px) {
+            .sidebar-sticky
+
+        {
+            position: sticky;
+            top: 1rem;
+        }
+
+        }
+
+        .ads-widget {
+            margin-top: 1rem;
+            border: 1px solid rgba(0,0,0,.08);
+            border-radius: 12px;
+           
+            box-shadow: 0 1px 2px rgba(0,0,0,.06);
+            overflow: hidden;
+        }
+
+        .ads-body {
+            padding: .75rem 1rem;
+        }
+
+        .img-page-list {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .sponsor-card {
+            background-color: #FFF;
+        }
+    </style>
+}
+
+<section>
+    <div class="container">
+        <div class="row">
+
+            <!-- Main column -->
+            <div class="col-md-8">
+                @if (string.IsNullOrWhiteSpace(Model.TagKeyword))
+                {
+                    <h1 class="main-page-header">@Model.PageContent.PageHeader</h1>
+                }
+                else
+                {
+                    <h1 class="main-page-header">Tagged &quot;@Model.TagKeyword&quot;</h1>
+                }
+
+                @{
+                    await Html.RenderPartialAsync("_BreadcrumbList", Model.BreadcrumbList);
+                }
+                @{
+                    await Html.RenderPartialAsync("_StructuredDataOrganization", Model.Organization);
+                }
+                @{
+                    await Html.RenderPartialAsync("_StructuredDataWebsite", Model.Website);
+                }
+
+                <hr />
+
+                @await Html.PartialAsync("_MiniSearchBox", new WebPagePub.WebApp.Models.MiniSearchBoxModel())
+
+                @foreach (var sitePage in Model.Items)
+                {
+                    var sitePageUrlPath = sitePage.UrlPath.TrimStart('/');
+                    <div class="post-preview">
+                        <h3 class="post-title">
+                            <a href="~/@sitePageUrlPath" title="@sitePage.PageHeader">@sitePage.BreadcrumbName</a>
+                        </h3>
+
+                        @if (!string.IsNullOrWhiteSpace(sitePage.DefaultPhotoThumbCdnUrl))
+                        {
+                            <a href="~/@sitePageUrlPath" title="@sitePage.PageHeader">
+                                <img class="img-responsive img-page-list"
+                                     src="@sitePage.DefaultPhotoThumbCdnUrl"
+                                     alt="@sitePage.PageHeader"
+                                     title="@sitePage.PageHeader" />
+                            </a>
+                        }
+
+                        <i class="post-meta">@sitePage.FriendlyLastUpdateDateDisplay</i>
+
+                        <p class="post-subtitle">
+                            @sitePage.MetaDescription
+                        </p>
+
+                        @if (sitePage.Tags.Count > 0)
+                        {
+                            <div style="clear:both"></div>
+                            var current = 1;
+
+                            <div class="sitePage-tags">
+                                <b>Tagged:</b>
+                                @foreach (var tag in sitePage.Tags)
+                                {
+                                    <a href="~/tag/@tag.UrlKey()">@tag</a>
+                                    if (current != sitePage.Tags.Count)
+                                    {
+                                        <text>, </text>
+                                        current++;
+                                    }
+                                }
+                            </div>
+                        }
+
+                        <div style="clear:both"></div>
+                        <hr />
+                    </div>
+                }
+
+                <partial name="_PagingPartial" />
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-md-4">
+                <div class="sidebar-sticky">
+                    <div class="ads-widget">
+                        <div class="ads-body">
+                            @Html.Raw(ViewBag.AdsHtml as string)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+@section ScriptsFooter { }
+
+    @{
+        await Html.RenderPartialAsync("_LoginPartialPageEdit", Model);
+    }

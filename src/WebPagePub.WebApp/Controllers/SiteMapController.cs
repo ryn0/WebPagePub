@@ -16,6 +16,9 @@ namespace WebPagePub.Web.Controllers
 {
     public class SiteMapController : Controller
     {
+        private static readonly TimeSpan CacheSlidingExpiry = TimeSpan.FromMinutes(IntegerConstants.PageCachingMinutes);
+        private const long DefaultPageEntrySize = 64 * 1024;     // ~64 KB per page model
+
         private const int MaxPageSizeForSiteMap = 50000;
 
         private readonly ICacheService cacheService;
@@ -66,10 +69,16 @@ namespace WebPagePub.Web.Controllers
                 }
 
                 xml = siteMapHelper.GenerateXml();
+
+                var options = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(CacheSlidingExpiry)
+                    .SetPriority(CacheItemPriority.Normal)
+                    .SetSize(DefaultPageEntrySize);
+
                 this.memoryCache.Set(
                     cacheKey,
                     xml,
-                    DateTime.UtcNow.AddMinutes(IntegerConstants.PageCachingMinutes));
+                    options);
             }
             else
             {
@@ -97,10 +106,15 @@ namespace WebPagePub.Web.Controllers
 
                 model = this.ConvertToHtmlSiteMapModel(sectionsAndPages);
 
+                var options = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(CacheSlidingExpiry)
+                    .SetPriority(CacheItemPriority.Normal)
+                    .SetSize(DefaultPageEntrySize);
+
                 this.memoryCache.Set(
                     cacheKey,
                     model,
-                    DateTime.UtcNow.AddMinutes(IntegerConstants.PageCachingMinutes));
+                    options);
             }
             else
             {

@@ -542,7 +542,7 @@ namespace WebPagePub.Web.Controllers
             this.ViewData[WebApp.Constants.StringConstants.ArticleJson] = model.ArticleSchema;
 
             if (model.PageContent.LastUpdatedDateTimeUtc == DateTime.MinValue ||
-                (model.PageType == PageType.PageList && model.Items.Count > 0))
+                ((model.PageType == PageType.PageList || model.PageType == PageType.PageListWithSideBarAdNetwork) && model.Items.Count > 0))
             {
                 this.ViewData[WebApp.Constants.StringConstants.ArticlePublishTime] = model.Items
                                                                                           .OrderByDescending(x => x.PublishedDateTimeUtc)
@@ -565,7 +565,8 @@ namespace WebPagePub.Web.Controllers
 
             // Server-side ads fetch controlled by a single setting (URL)
             if (model.PageType == PageType.ContentWithSideBarAdNetwork ||
-                model.PageType == PageType.ContentWithSideBar)
+                model.PageType == PageType.PageListWithSideBarAdNetwork ||
+                model.PageType == PageType.ReviewWithSideBarAdNetwork)
             {
                 this.ViewBag.AdsHtml = this.FetchAdsHtmlFromSetting();
             }
@@ -578,10 +579,14 @@ namespace WebPagePub.Web.Controllers
                     return this.View("Informational", model);
                 case PageType.PageList:
                     return this.View("PageList", model);
+                case PageType.PageListWithSideBarAdNetwork:
+                    return this.View("PageListWithSideBarAdNetwork", model);
                 case PageType.Review:
                     return this.View("Review", model);
                 case PageType.ReviewWithSideBar:
                     return this.View("ReviewWithSideBar", model);
+                case PageType.ReviewWithSideBarAdNetwork:
+                    return this.View("ReviewWithSideBarAdNetwork", model);
                 case PageType.ContentWithSideBar:
                     return this.View("ContentWithSideBar", model);
                 case PageType.ContentWithSideBarAdNetwork:
@@ -617,10 +622,12 @@ namespace WebPagePub.Web.Controllers
             switch (dbModel.PageType)
             {
                 case PageType.PageList:
+                case PageType.PageListWithSideBarAdNetwork:
                     model = this.CreateDisplayListModel(siteSection, dbModel, tagKey, pageNumber);
                     break;
                 case PageType.Content:
                 case PageType.Review:
+                case PageType.ReviewWithSideBarAdNetwork:
                 case PageType.Photo:
                 default:
                     model = this.CreateDisplayModel(siteSection, dbModel);
