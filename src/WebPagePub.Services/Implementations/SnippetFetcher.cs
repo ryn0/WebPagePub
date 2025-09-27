@@ -7,8 +7,8 @@ using WebPagePub.Services.Interfaces;
 
 public sealed class SnippetFetcher : ISnippetFetcher
 {
-    private const long DefaultSectionEntrySize = 8 * 1024;   // ~8 KB per section
-    private static readonly TimeSpan CacheSlidingExpiry = TimeSpan.FromMinutes(IntegerConstants.PageCachingMinutes);
+    private const long DefaultSectionEntrySize = 8 * 1024; // ~8 KB per section
+    private static readonly TimeSpan CacheAbsoluteExpiry = TimeSpan.FromMinutes(IntegerConstants.CacheInMinutes);
 
     private readonly IHttpClientFactory httpFactory;
     private readonly IMemoryCache cache;
@@ -19,23 +19,23 @@ public sealed class SnippetFetcher : ISnippetFetcher
         this.cache = cache;
     }
 
-    public async Task<string> GetAsync(string url, TimeSpan cacheFor)
+    /// <summary>
+    /// Always caches for 20 minutes (absolute). After 20 minutes the next call refetches.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    public async Task<string> GetAsync(string url)
     {
-        if (this.cache.TryGetValue(url, out string cached))
+        // Use GetOrCreateAsync so concurrent callers share the same fetch on a miss.
+        return await this.cache.GetOrCreateAsync(url, async entry =>
         {
-            return cached;
-        }
+            entry.SetAbsoluteExpiration(CacheAbsoluteExpiry)
+                 .SetPriority(CacheItemPriority.Normal)
+                 .SetSize(DefaultSectionEntrySize);
 
-        var client = this.httpFactory.CreateClient();
-        client.Timeout = TimeSpan.FromSeconds(5);
-        var html = await client.GetStringAsync(url);
+            var client = this.httpFactory.CreateClient();
+            client.Timeout = TimeSpan.FromSeconds(5);
 
-        var options = new MemoryCacheEntryOptions()
-                .SetSlidingExpiration(CacheSlidingExpiry)
-                .SetPriority(CacheItemPriority.Normal)
-                .SetSize(DefaultSectionEntrySize);
-
-        this.cache.Set(url, html, options);
-        return html;
+            return await client.GetStringAsync(url);
+        });
     }
 }

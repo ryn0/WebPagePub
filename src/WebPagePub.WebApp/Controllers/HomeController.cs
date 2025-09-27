@@ -1061,7 +1061,7 @@ namespace WebPagePub.Web.Controllers
             try
             {
                 html = this.snippetFetcher
-                    .GetAsync(rawUrl, TimeSpan.FromMinutes(IntegerConstants.CacheInMinutes))
+                    .GetAsync(rawUrl)
                     .GetAwaiter()
                     .GetResult();
             }
