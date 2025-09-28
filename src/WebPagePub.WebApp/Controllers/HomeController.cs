@@ -914,7 +914,7 @@ namespace WebPagePub.Web.Controllers
 
         private bool IsReview(PageType pageType)
         {
-            if (pageType == PageType.Review || pageType == PageType.ReviewWithSideBar)
+            if (pageType == PageType.Review || pageType == PageType.ReviewWithSideBar || pageType == PageType.ReviewWithSideBarAdNetwork)
             {
                 return true;
             }
