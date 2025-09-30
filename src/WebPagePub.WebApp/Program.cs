@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
@@ -23,20 +24,20 @@ using WebPagePub.WebApp.AppRules;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// -------------------------------
-// Memory cache: cap ≈ 200 MB, 5 min scan, 20% compaction
-// -------------------------------
-const long CacheSizeLimitBytes = 200L * 1024L * 1024L; // ~200 MB
+// -------------------------------------
+// Memory cache: use KB UNITS (not bytes)
+// -------------------------------------
+const long CacheSizeLimitKb = 200L * 1024L; // ~200 MB in KB units
 builder.Services.AddMemoryCache(opts =>
 {
-    opts.SizeLimit = CacheSizeLimitBytes;
+    opts.SizeLimit = CacheSizeLimitKb;
     opts.CompactionPercentage = 0.20;
     opts.ExpirationScanFrequency = TimeSpan.FromMinutes(5);
 });
 
-// -------------------------------
+// -------------------------------------
 // MVC / Razor
-// -------------------------------
+// -------------------------------------
 builder.Services.AddRazorPages();
 builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
@@ -46,9 +47,9 @@ if (builder.Environment.IsDevelopment())
     mvc.AddRazorRuntimeCompilation();
 }
 
-// -------------------------------
-// Session (REQUIRED for CAPTCHA)
-// -------------------------------
+// -------------------------------------
+// Session (in-process; required for CAPTCHA)
+// -------------------------------------
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -62,16 +63,15 @@ builder.Services.AddSession(options =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
 
-// -------------------------------
+// -------------------------------------
 // App services
-// -------------------------------
+// -------------------------------------
 builder.Services.AddTransient<ICacheService, CacheService>();
 
-// DbContext: use pooling to reduce allocations
+// DbContext: pooling
 builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection")));
 
-// If you need to resolve via the interface, map it to the pooled context (scoped)
 builder.Services.AddScoped<IApplicationDbContext>(sp =>
     sp.GetRequiredService<ApplicationDbContext>());
 
@@ -142,16 +142,27 @@ builder.Services.AddTransient<ISpamFilterService>(provider =>
         config.GetSection("IPinfo:AccessToken").Value);
 });
 
+// -------------------------------------
+// Request/body limits (reduce spikes)
+// -------------------------------------
+builder.Services.Configure<FormOptions>(o =>
+{
+    o.MultipartBodyLengthLimit = 64L * 1024 * 1024; // 64 MB
+    o.ValueCountLimit = 1024;
+    o.ValueLengthLimit = 64 * 1024; // 64 KB per value
+    o.MultipartHeadersLengthLimit = 16 * 1024;
+});
+
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.Limits.MaxRequestBodySize = 262_144_000; // 250 MB
+    options.Limits.MaxRequestBodySize = 64L * 1024 * 1024; // 64 MB
 });
 
 var app = builder.Build();
 
-// -------------------------------
+// -------------------------------------
 // Pipeline
-// -------------------------------
+// -------------------------------------
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -161,9 +172,9 @@ if (!app.Environment.IsDevelopment())
 // Build rewrite rules (including custom redirects from DB)
 using (var scope = app.Services.CreateScope())
 {
-    var scopedServiceProvider = scope.ServiceProvider;
+    var sp = scope.ServiceProvider;
 
-    var redirectRepo = scopedServiceProvider.GetService<IRedirectPathRepository>();
+    var redirectRepo = sp.GetService<IRedirectPathRepository>();
     var redirects = redirectRepo?.GetAll();
 
     var options = new RewriteOptions()
@@ -173,6 +184,8 @@ using (var scope = app.Services.CreateScope())
 
     if (redirects != null)
     {
+        // NOTE: Avoid precomputing massive regex tables.
+        // If this grows large, consider limiting or batching.
         foreach (var redirect in redirects)
         {
             var fromPath = redirect.Path;
@@ -190,33 +203,15 @@ using (var scope = app.Services.CreateScope())
 
     app.UseRewriter(options);
 
-    // Pre-warm link cache
-    var memoryCache = scopedServiceProvider.GetService<IMemoryCache>();
-    var linkRepo = scopedServiceProvider.GetService<ILinkRedirectionRepository>();
-    var links = linkRepo?.GetAll();
-
-    if (links != null && links.Any() && memoryCache != null)
-    {
-        foreach (var link in links)
-        {
-            var cacheKey = CacheHelper.GetLinkCacheKey(link.LinkKey);
-
-            var optionsEntry = new MemoryCacheEntryOptions()
-                .SetSlidingExpiration(TimeSpan.FromMinutes(IntegerConstants.PageCachingMinutes))
-                .SetPriority(CacheItemPriority.Normal)
-                .SetSize(EstimateBytes(cacheKey, link.UrlDestination));
-
-            memoryCache.Set(cacheKey, link.UrlDestination, optionsEntry);
-        }
-    }
+    // IMPORTANT: Removed link cache pre-warm to avoid large startup memory usage.
+    // Cache will populate lazily on first access with proper size units.
 }
 
 app.UseStaticFiles();
 app.UseRouting();
 
-app.UseSession();           // <-- REQUIRED: before auth and endpoints
-
-app.UseAuthentication();    // <-- include with Identity
+app.UseSession();           // keep before auth/endpoints
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
@@ -225,21 +220,20 @@ app.MapControllerRoute(
 
 app.Run();
 
-// -------------------------------
-// Local helpers
-// -------------------------------
-static long EstimateBytes(string key, string value)
+// -------------------------------------
+// (Optional) Helper you can copy where needed:
+// Use this in your own caching code to set IMemoryCache entry sizes in KB units.
+// -------------------------------------
+static long ToKbUnits(params string?[] values)
 {
-    long bytes = 64; // overhead fudge factor
-    if (!string.IsNullOrEmpty(key))
+    long bytes = 64; // overhead
+    foreach (var v in values)
     {
-        bytes += (long)key.Length * 2;
+        if (!string.IsNullOrEmpty(v))
+        {
+            bytes += (long)v.Length * 2; // UTF-16 chars ~2 bytes
+        }
     }
-
-    if (!string.IsNullOrEmpty(value))
-    {
-        bytes += (long)value.Length * 2;
-    }
-
-    return bytes;
+    long kb = Math.Max(1, (bytes + 1023) / 1024);
+    return kb;
 }
