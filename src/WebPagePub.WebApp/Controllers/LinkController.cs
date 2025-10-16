@@ -91,27 +91,39 @@ namespace WebPagePub.Web.Controllers
             return string.Join(Environment.NewLine, requestHeaders.ToArray());
         }
 
+        private const long LinkEntryOverheadBytes = 128; // rough object overhead
+        private static readonly TimeSpan CacheSlidingExpiry = TimeSpan.FromMinutes(IntegerConstants.PageCachingMinutes);
+
         private string GetLinkForKey(string key)
+    {
+        var cacheKey = CacheHelper.GetLinkCacheKey(key);
+
+        if (this.memoryCache.TryGetValue<string>(cacheKey, out var destination) &&
+            !string.IsNullOrWhiteSpace(destination))
         {
-            var cacheKey = CacheHelper.GetLinkCacheKey(key);
-
-            if (this.memoryCache.TryGetValue(cacheKey, out string? destination) && !string.IsNullOrEmpty(destination))
-            {
-                return destination;
-            }
-            else
-            {
-                var link = this.linkRedirectionRepository.Get(key);
-
-                if (link == null || string.IsNullOrEmpty(link.UrlDestination))
-                {
-                    return string.Empty; // or any other default value you'd want to return
-                }
-
-                this.memoryCache.Set(cacheKey, link.UrlDestination);
-
-                return link.UrlDestination;
-            }
+            return destination;
         }
+
+        var link = this.linkRedirectionRepository.Get(key);
+
+        if (link is null || string.IsNullOrWhiteSpace(link.UrlDestination))
+        {
+            return string.Empty; // or your default
+        }
+
+        var value = link.UrlDestination.Trim();
+
+        // char ≈ 2 bytes; add small overhead so we're consistent with a byte-based SizeLimit
+        long approxBytes = LinkEntryOverheadBytes + (value.Length * 2L);
+
+        var options = new MemoryCacheEntryOptions()
+            .SetSize(approxBytes) // REQUIRED when SizeLimit is set
+            .SetSlidingExpiration(CacheSlidingExpiry); // adjust if you like
+
+        this.memoryCache.Set(cacheKey, value, options);
+
+        return value;
     }
+
+}
 }
