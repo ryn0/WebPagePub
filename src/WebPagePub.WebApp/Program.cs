@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo.Implementations;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Enums;
@@ -68,9 +66,10 @@ builder.Services.AddHttpClient();
 // -------------------------------------
 builder.Services.AddTransient<ICacheService, CacheService>();
 
-// DbContext: pooling
-builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection")));
+// DbContext: **pooling with cap**
+builder.Services.AddDbContextPool<ApplicationDbContext>(
+    options => options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection")),
+    poolSize: 64);
 
 builder.Services.AddScoped<IApplicationDbContext>(sp =>
     sp.GetRequiredService<ApplicationDbContext>());
@@ -158,6 +157,11 @@ builder.WebHost.ConfigureKestrel(options =>
     options.Limits.MaxRequestBodySize = 64L * 1024 * 1024; // 64 MB
 });
 
+// -------------------------------------
+// Memory watchdog (soft trim + hard cap)
+// -------------------------------------
+builder.Services.AddHostedService<MemoryPressureGuard>();
+
 var app = builder.Build();
 
 // -------------------------------------
@@ -203,14 +207,13 @@ using (var scope = app.Services.CreateScope())
 
     app.UseRewriter(options);
 
-    // IMPORTANT: Removed link cache pre-warm to avoid large startup memory usage.
-    // Cache will populate lazily on first access with proper size units.
+    // IMPORTANT: Avoid big pre-warmers; let cache fill lazily with size limits.
 }
 
 app.UseStaticFiles();
 app.UseRouting();
 
-app.UseSession();           // keep before auth/endpoints
+app.UseSession();           // before auth/endpoints
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -219,21 +222,3 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
-
-// -------------------------------------
-// (Optional) Helper you can copy where needed:
-// Use this in your own caching code to set IMemoryCache entry sizes in KB units.
-// -------------------------------------
-static long ToKbUnits(params string?[] values)
-{
-    long bytes = 64; // overhead
-    foreach (var v in values)
-    {
-        if (!string.IsNullOrEmpty(v))
-        {
-            bytes += (long)v.Length * 2; // UTF-16 chars ~2 bytes
-        }
-    }
-    long kb = Math.Max(1, (bytes + 1023) / 1024);
-    return kb;
-}
