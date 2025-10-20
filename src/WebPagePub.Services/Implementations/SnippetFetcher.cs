@@ -38,7 +38,10 @@ namespace WebPagePub.Services.Implementations
 
             // Ensure entry has a Size in KB (required for SizeLimit to apply)
             var sizeKb = MemoryCacheSizeEstimator.EstimateKb(html);
-            if (sizeKb <= 0) sizeKb = DefaultSectionEntrySize / 1024;
+            if (sizeKb <= 0)
+            {
+                sizeKb = DefaultSectionEntrySize / 1024;
+            }
 
             var options = new MemoryCacheEntryOptions()
                 .SetSlidingExpiration(CacheSlidingExpiry)
@@ -49,9 +52,24 @@ namespace WebPagePub.Services.Implementations
             return html;
         }
 
-        public Task<string> GetAsync(string url)
+        /// <summary>
+        /// Always caches for 20 minutes (absolute). After 20 minutes the next call refetches.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task<string> GetAsync(string url)
         {
-            throw new NotImplementedException();
+            // Use GetOrCreateAsync so concurrent callers share the same fetch on a miss.
+            return await this.cache.GetOrCreateAsync(url, async entry =>
+            {
+                entry.SetAbsoluteExpiration(CacheSlidingExpiry)
+                     .SetPriority(CacheItemPriority.Normal)
+                     .SetSize(DefaultSectionEntrySize);
+
+                var client = this.httpFactory.CreateClient();
+                client.Timeout = TimeSpan.FromSeconds(5);
+
+                return await client.GetStringAsync(url);
+            });
         }
     }
 }
