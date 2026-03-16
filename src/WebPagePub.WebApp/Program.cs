@@ -25,13 +25,13 @@ var builder = WebApplication.CreateBuilder(args);
 // -------------------------------------
 // Memory cache: use KB UNITS (not bytes)
 // -------------------------------------
-const long CacheSizeLimitKb = 200L * 1024L; // ~200 MB in KB units
 builder.Services.AddMemoryCache(opts =>
 {
-    opts.SizeLimit = CacheSizeLimitKb;
-    opts.CompactionPercentage = 0.20;
+    opts.SizeLimit = 200L * 1024 * 1024; // 200 MB, in BYTES
+    opts.CompactionPercentage = 0.25;
     opts.ExpirationScanFrequency = TimeSpan.FromMinutes(5);
 });
+
 
 // -------------------------------------
 // MVC / Razor

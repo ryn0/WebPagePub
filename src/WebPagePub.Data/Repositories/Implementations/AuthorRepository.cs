@@ -1,8 +1,9 @@
-﻿using System;
+﻿using log4net;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using log4net;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models.Db;
@@ -59,7 +60,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.Author.FirstOrDefault(x => x.AuthorId == authorId);
+                return this.Context.Author.AsNoTracking().FirstOrDefault(x => x.AuthorId == authorId);
             }
             catch (Exception ex)
             {
@@ -71,7 +72,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.Author.ToList();
+                return this.Context.Author.AsNoTracking().ToList();
             }
             catch (Exception ex)
             {

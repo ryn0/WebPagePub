@@ -23,7 +23,7 @@ namespace WebPagePub.Web.Controllers
     public class HomeController : Controller
     {
         // rough sizing for entries (units ≈ bytes; doesn't need to be exact)
-        private const long DefaultPageEntrySize = 64 * 1024;     // ~64 KB per page model
+        private const long DefaultPageEntrySize = 128 * 1024; // 128 KB in byte
         private const long DefaultSectionEntrySize = 8 * 1024;   // ~8 KB per section
 
         private static readonly TimeSpan CacheSlidingExpiry = TimeSpan.FromMinutes(IntegerConstants.PageCachingMinutes);

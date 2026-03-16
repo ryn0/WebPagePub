@@ -1,8 +1,9 @@
-﻿using System;
+﻿using log4net;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using log4net;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models;
@@ -100,7 +101,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.SitePagePhoto
+                return this.Context.SitePagePhoto.AsNoTracking()
                               .Where(x => x.SitePageId == sitePageId)
                               .ToList();
             }

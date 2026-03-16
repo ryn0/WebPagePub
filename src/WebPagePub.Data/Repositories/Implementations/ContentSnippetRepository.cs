@@ -1,8 +1,9 @@
-﻿using System;
+﻿using log4net;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using log4net;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Enums;
@@ -59,7 +60,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.ContentSnippet.FirstOrDefault(x => x.SnippetType == snippetType);
+                return this.Context.ContentSnippet.AsNoTracking().FirstOrDefault(x => x.SnippetType == snippetType);
             }
             catch (Exception ex)
             {
@@ -107,7 +108,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.ContentSnippet.ToList();
+                return this.Context.ContentSnippet.AsNoTracking().ToList();
             }
             catch (Exception ex)
             {

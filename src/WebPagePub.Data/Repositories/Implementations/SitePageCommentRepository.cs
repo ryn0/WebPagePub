@@ -1,8 +1,9 @@
-﻿using System;
+﻿using log4net;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using log4net;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Enums;
@@ -55,7 +56,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.SitePageComment
+                return this.Context.SitePageComment.AsNoTracking()
                               .FirstOrDefault(x => x.RequestId == requestId);
             }
             catch (Exception ex)
@@ -69,7 +70,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.SitePageComment
+                return this.Context.SitePageComment.AsNoTracking()
                               .Where(x => x.SitePageId == sitePageId)
                               .ToList();
             }
@@ -84,7 +85,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.SitePageComment
+                return this.Context.SitePageComment.AsNoTracking()
                               .Where(x => x.SitePageId == sitePageId && x.CommentStatus == commentStatus)
                               .ToList();
             }

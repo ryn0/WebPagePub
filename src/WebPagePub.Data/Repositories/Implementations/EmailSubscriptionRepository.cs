@@ -1,8 +1,9 @@
-﻿using System;
+﻿using log4net;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using log4net;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models.Db;
@@ -58,7 +59,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.EmailSubscription.FirstOrDefault(x => x.Email == email);
+                return this.Context.EmailSubscription.AsNoTracking().FirstOrDefault(x => x.Email == email);
             }
             catch (Exception ex)
             {
@@ -106,7 +107,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.EmailSubscription.ToList();
+                return this.Context.EmailSubscription.AsNoTracking().ToList();
             }
             catch (Exception ex)
             {
@@ -119,7 +120,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var query = this.Context.EmailSubscription.OrderByDescending(x => x.CreateDate);
+                var query = this.Context.EmailSubscription.AsNoTracking().OrderByDescending(x => x.CreateDate);
 
                 totalItems = query.Count();
 

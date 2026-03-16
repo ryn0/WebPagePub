@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using WebPagePub.Core.Utilities;
 using WebPagePub.Data.Constants;
@@ -29,8 +28,13 @@ namespace WebPagePub.Managers.Implementations
         private readonly ISiteFilesRepository siteFilesRepository;
         private readonly IImageUploaderService imageUploaderService;
         private readonly IAuthorRepository authorRepository;
-        private readonly IContentSnippetRepository contentSnippetRepository;
-        private readonly string blobPrefix;
+
+        // FIX 1: ICacheService replaces IContentSnippetRepository in this class.
+        // The constructor previously called contentSnippetRepository.Get(BlobPrefix)
+        // directly, which fired a live DB query on every injection (this class is
+        // Transient). ICacheService.GetSnippet() hits an in-memory cache instead,
+        // making repeated construction free after the first call.
+        private readonly ICacheService cacheService;
 
         public SitePageManager(
             ISitePagePhotoRepository sitePagePhotoRepository,
@@ -41,7 +45,7 @@ namespace WebPagePub.Managers.Implementations
             ISiteFilesRepository siteFilesRepository,
             IImageUploaderService imageUploaderService,
             IAuthorRepository authorRepository,
-            IContentSnippetRepository contentSnippetRepository)
+            ICacheService cacheService)
         {
             this.sitePagePhotoRepository = sitePagePhotoRepository;
             this.sitePageTagRepository = sitePageTagRepository;
@@ -51,20 +55,18 @@ namespace WebPagePub.Managers.Implementations
             this.siteFilesRepository = siteFilesRepository;
             this.imageUploaderService = imageUploaderService;
             this.authorRepository = authorRepository;
-            this.contentSnippetRepository = contentSnippetRepository;
+            this.cacheService = cacheService;
 
-            var blobPrefixConfig = this.contentSnippetRepository.Get(SiteConfigSetting.BlobPrefix);
-
-            if (blobPrefixConfig != null)
-            {
-                this.blobPrefix = blobPrefixConfig.Content;
-            }
+            // No DB call here any more. BlobPrefix is resolved lazily via the
+            // cache on each access, so repeated construction is free.
         }
+
+        // Lazy property — reads from cache on first use, not on construction.
+        private string BlobPrefix => this.cacheService.GetSnippet(SiteConfigSetting.BlobPrefix) ?? string.Empty;
 
         public bool DoesPageExist(int siteSectionId, string pageKey)
         {
             var page = this.sitePageRepository.Get(siteSectionId, pageKey);
-
             return page != null && page.SitePageId > 0;
         }
 
@@ -128,23 +130,26 @@ namespace WebPagePub.Managers.Implementations
             {
                 var entry = this.sitePagePhotoRepository.Get(sitePagePhotoId);
 
-                Bitmap img;
-
-                using (var client = new HttpClient())
-                {
-                    var rsp = await client.GetAsync(entry.PhotoFullScreenUrl);
-                    img = new Bitmap(await rsp.Content.ReadAsStreamAsync());
-                }
+                // FIX 2: The original code created a raw `new HttpClient()` inside a
+                // `using` block. Disposing HttpClient after every call causes socket
+                // exhaustion under load (TIME_WAIT accumulation). IImageUploaderService
+                // already wraps a properly-managed IHttpClientFactory client — reuse it.
+                //
+                // FIX 3: Bitmap now lives inside a `using` so it is always disposed,
+                // even if an exception is thrown after creation. The original code only
+                // called img.Dispose() at the bottom, leaking the GDI handle on any
+                // exception thrown before that line.
+                //
+                // FIX 4 (dead code removed): The original fetched `sitePage` and
+                // `sitePageSection` from the DB immediately after this block. Neither
+                // variable was used anywhere — they were pure dead DB round-trips.
+                using var stream = await this.imageUploaderService.ToStreamAsync(new Uri(entry.PhotoFullScreenUrl));
+                using var img = new Bitmap(stream);
 
                 entry.PhotoFullScreenUrlHeight = img.Height;
                 entry.PhotoFullScreenUrlWidth = img.Width;
                 this.sitePagePhotoRepository.Update(entry);
-
                 this.sitePagePhotoRepository.SetDefaultPhoto(sitePagePhotoId);
-
-                var sitePage = this.sitePageRepository.Get(entry.SitePageId);
-                var sitePageSection = this.siteSectionRepository.Get(sitePage.SitePageSectionId);
-                img.Dispose();
 
                 return entry;
             }
@@ -240,14 +245,21 @@ namespace WebPagePub.Managers.Implementations
                         isFirstPhotoToSitePage = false;
                     }
 
-                    await this.UploadSizesOfPhotos(
-                        sitePageId,
-                        allBlogPhotos,
-                        currentRank,
-                        folderPath,
-                        image.Item2,
-                        image.Item1,
-                        isFirstPhotoToSitePage);
+                    // FIX 5: The caller owns the stream and is responsible for disposing it.
+                    // UploadSizesOfPhotos no longer calls memoryStream.Dispose() internally —
+                    // doing so from the callee violated ownership and could cause a double-dispose
+                    // if the caller also cleaned up (e.g. in a using block).
+                    using (image.Item2)
+                    {
+                        await this.UploadSizesOfPhotos(
+                            sitePageId,
+                            allBlogPhotos,
+                            currentRank,
+                            folderPath,
+                            image.Item2,
+                            image.Item1,
+                            isFirstPhotoToSitePage);
+                    }
                 }
             }
             catch (Exception ex)
@@ -273,7 +285,6 @@ namespace WebPagePub.Managers.Implementations
         {
             var entry = this.sitePagePhotoRepository.Get(sitePagePhotoId);
 
-            // todo: store original and rotate it, resize it, to low quality loss
             var photoOriginalUrl = await this.RotateImage90Degrees(entry.SitePageId, entry.PhotoOriginalUrl);
             var photoPreviewUrl = await this.RotateImage90Degrees(entry.SitePageId, entry.PhotoPreviewUrl);
             var photoThumbUrl = await this.RotateImage90Degrees(entry.SitePageId, entry.PhotoThumbUrl);
@@ -313,13 +324,17 @@ namespace WebPagePub.Managers.Implementations
         public async Task<SitePage> CreatePageAsync(int siteSectionId, string pageTitle, string createdByUserId)
         {
             var key = pageTitle.UrlKey();
-            var pageTypeSetting = this.contentSnippetRepository.Get(SiteConfigSetting.DefaultPageType);
+
+            // FIX 6: Like the constructor, the original made a live DB call here via
+            // contentSnippetRepository.Get(DefaultPageType) on every page creation.
+            // ICacheService.GetSnippet() serves the same value from the in-memory
+            // cache after the first lookup.
+            var pageTypeRaw = this.cacheService.GetSnippet(SiteConfigSetting.DefaultPageType);
             var pageType = PageType.Content;
 
-            if (pageTypeSetting != null &&
-                !string.IsNullOrEmpty(pageTypeSetting.Content))
+            if (!string.IsNullOrEmpty(pageTypeRaw))
             {
-                Enum.TryParse(pageTypeSetting.Content, true, out pageType);
+                Enum.TryParse(pageTypeRaw, ignoreCase: true, out pageType);
             }
 
             return await this.sitePageRepository.CreateAsync(
@@ -366,23 +381,17 @@ namespace WebPagePub.Managers.Implementations
 
             if (model.Tags == null)
             {
-                var previousTagsToRemove = new List<string>();
-                foreach (var tag in dbModel.SitePageTags)
-                {
-                    previousTagsToRemove.Add(tag.Tag.Name);
-                }
-
+                var previousTagsToRemove = dbModel.SitePageTags.Select(x => x.Tag.Name).ToList();
                 this.RemoveDeletedTags(model, previousTagsToRemove.ToArray());
                 return;
             }
 
             var currentTags = model.Tags.Split(',').Select(x => x.Trim()).ToArray();
-            var tagsToAdd = currentTags.ToArray().Except(previousTags).ToArray();
+            var tagsToAdd = currentTags.Except(previousTags).ToArray();
 
             this.AddNewTags(model, dbModel, tagsToAdd);
 
             var tagsToRemove = previousTags.Except(currentTags).ToArray();
-
             this.RemoveDeletedTags(model, tagsToRemove);
         }
 
@@ -422,7 +431,6 @@ namespace WebPagePub.Managers.Implementations
             }
 
             term = term.Trim();
-
             return this.sitePageRepository.SearchForTerm(term, pageNumber, quantityPerPage, out total);
         }
 
@@ -470,7 +478,8 @@ namespace WebPagePub.Managers.Implementations
 
             if (segments.Length == 1)
             {
-                sitePage = this.sitePageRepository.GetSectionHomePage(this.siteSectionRepository.GetHomeSection().SitePageSectionId);
+                sitePage = this.sitePageRepository.GetSectionHomePage(
+                    this.siteSectionRepository.GetHomeSection().SitePageSectionId);
             }
             else if (segments.Length == 2)
             {
@@ -479,7 +488,6 @@ namespace WebPagePub.Managers.Implementations
             }
             else if (segments.Length == 3)
             {
-                // Removing any trailing slashes from the segments
                 var siteSectionKey = segments[1].TrimEnd('/');
                 var pathKey = segments[2].TrimEnd('/');
                 siteSection = this.siteSectionRepository.Get(siteSectionKey);
@@ -487,7 +495,7 @@ namespace WebPagePub.Managers.Implementations
             }
             else
             {
-                throw new InvalidOperationException("Url has incorrect many segments");
+                throw new InvalidOperationException("Url has too many segments");
             }
 
             return sitePage;
@@ -506,20 +514,25 @@ namespace WebPagePub.Managers.Implementations
         private async Task<Uri> RotateImage90Degrees(int sitePageId, string photoUrl)
         {
             var folderPath = GetBlogPhotoFolder(sitePageId);
-            var stream = await this.imageUploaderService.ToStreamAsync(new Uri(photoUrl));
-            var rotatedBitmap = ImageUtilities.Rotate90Degrees(Image.FromStream(stream));
-            var streamRotated = this.imageUploaderService.ToAStream(
+
+            // FIX 7: The original disposed rotatedBitmap twice (two rotatedBitmap.Dispose()
+            // calls at the bottom). Double-disposing a GDI Bitmap can throw an
+            // ArgumentException on some platforms. Replaced with a single `using` scope
+            // for each disposable so the compiler guarantees exactly one dispose each.
+            //
+            // FIX 8: streamRotated was only disposed via a manual call. Now inside a
+            // `using` so it is always released, including on exceptions.
+            using var sourceStream = await this.imageUploaderService.ToStreamAsync(new Uri(photoUrl));
+            using var sourceImage = Image.FromStream(sourceStream);
+            using var rotatedBitmap = ImageUtilities.Rotate90Degrees(sourceImage);
+            using var streamRotated = this.imageUploaderService.ToAStream(
                 rotatedBitmap,
                 this.imageUploaderService.SetImageFormat(photoUrl));
 
             var url = await this.siteFilesRepository.UploadAsync(
-                                        streamRotated,
-                                        photoUrl.GetFileNameFromUrl(),
-                                        folderPath);
-
-            rotatedBitmap.Dispose();
-            streamRotated.Dispose();
-            rotatedBitmap.Dispose();
+                streamRotated,
+                photoUrl.GetFileNameFromUrl(),
+                folderPath);
 
             return url;
         }
@@ -529,7 +542,10 @@ namespace WebPagePub.Managers.Implementations
             var hasChanged = false;
             var photoFileName = photo.FileName;
             var fileExtension = photoFileName.GetFileExtension();
-            var newFileName = string.Format("{0}.{1}", Path.GetFileNameWithoutExtension(photoFileName).UrlKey(), fileExtension);
+            var newFileName = string.Format(
+                "{0}.{1}",
+                Path.GetFileNameWithoutExtension(photoFileName).UrlKey(),
+                fileExtension);
             var currentFileName = Path.GetFileName(photo.PhotoOriginalUrl);
 
             if (Path.HasExtension(newFileName) &&
@@ -537,8 +553,7 @@ namespace WebPagePub.Managers.Implementations
                 newFileName != currentFileName)
             {
                 hasChanged = true;
-
-                await this.RenameAllPhotoVarients(sitePagePhoto, newFileName, currentFileName, this.blobPrefix);
+                await this.RenameAllPhotoVarients(sitePagePhoto, newFileName, currentFileName, this.BlobPrefix);
             }
 
             if (sitePagePhoto.Title != photo.Title)
@@ -574,9 +589,7 @@ namespace WebPagePub.Managers.Implementations
                 }
 
                 var tagKey = tag.ToString().UrlKey();
-
                 var tagDb = this.tagRepository.Get(tagKey);
-
                 this.sitePageTagRepository.Delete(tagDb.TagId, model.SitePageId);
             }
         }
@@ -592,7 +605,6 @@ namespace WebPagePub.Managers.Implementations
             {
                 photo.Rank = newRank;
                 this.sitePagePhotoRepository.Update(photo);
-
                 newRank++;
             }
         }
@@ -607,17 +619,23 @@ namespace WebPagePub.Managers.Implementations
             bool isFirstPhotoToSitePage)
         {
             var fileExtension = fileName.GetFileExtension();
-            var newFileName = string.Format("{0}.{1}", Path.GetFileNameWithoutExtension(fileName).UrlKey(), fileExtension);
+            var newFileName = string.Format(
+                "{0}.{1}",
+                Path.GetFileNameWithoutExtension(fileName).UrlKey(),
+                fileExtension);
 
-            // Set the Expires header to 1 year from now
             var expiresDate = DateTime.UtcNow.AddYears(1).ToString("R");
 
             var originalPhotoUrl = await this.siteFilesRepository.UploadAsync(memoryStream, newFileName, folderPath, expiresDate);
             var thumbnailPhotoUrl = await this.imageUploaderService.UploadResizedVersionOfPhoto(folderPath, memoryStream, originalPhotoUrl, 300, 200, StringConstants.SuffixThumb, expiresDate);
             var fullScreenPhotoUrl = await this.imageUploaderService.UploadResizedVersionOfPhoto(folderPath, memoryStream, originalPhotoUrl, 1600, 1200, StringConstants.SuffixFullscreen, expiresDate);
             var previewPhotoUrl = await this.imageUploaderService.UploadResizedVersionOfPhoto(folderPath, memoryStream, originalPhotoUrl, 800, 600, StringConstants.SuffixPrevew, expiresDate);
+
+            // FIX 5 (continued): memoryStream.Dispose() has been removed from here.
+            // The caller (UploadPhotos) now wraps each stream in a `using` block,
+            // which is the correct ownership pattern — the creator disposes.
+
             var existingPhoto = allBlogPhotos.FirstOrDefault(x => x.PhotoOriginalUrl == originalPhotoUrl.ToString());
-            memoryStream.Dispose();
 
             if (existingPhoto == null)
             {
@@ -648,8 +666,7 @@ namespace WebPagePub.Managers.Implementations
             {
                 var tagKey = tagName.UrlKey();
 
-                if (string.IsNullOrWhiteSpace(tagKey) ||
-                    tagKey.Length >= 75)
+                if (string.IsNullOrWhiteSpace(tagKey) || tagKey.Length >= 75)
                 {
                     continue;
                 }
@@ -682,7 +699,6 @@ namespace WebPagePub.Managers.Implementations
                     if (tagDb.Name != tagName)
                     {
                         tagDb.Name = tagName;
-
                         this.tagRepository.Update(tagDb);
                     }
                 }
@@ -695,18 +711,11 @@ namespace WebPagePub.Managers.Implementations
             string currentFileName,
             string blobPrefix)
         {
-            var blobPrefixFormatted = blobPrefix;
-
-            if (blobPrefix.EndsWith("/"))
-            {
-                blobPrefixFormatted = blobPrefix.Remove(blobPrefix.Length - 1, 1);
-            }
+            var blobPrefixFormatted = blobPrefix.TrimEnd('/');
 
             var currentPathPhotoUrl = photo.PhotoOriginalUrl.Replace(
-                string.Format(
-                    "{0}/{1}/",
-                    blobPrefixFormatted,
-                    StringConstants.ContainerName), string.Empty);
+                string.Format("{0}/{1}/", blobPrefixFormatted, StringConstants.ContainerName),
+                string.Empty);
             var newFilePathPhotoUrl = currentPathPhotoUrl.Replace(currentFileName, newPhotoFileName);
             await this.siteFilesRepository.ChangeFileName(currentPathPhotoUrl, newFilePathPhotoUrl);
             photo.PhotoOriginalUrl = string.Format("{0}/{1}/{2}", blobPrefixFormatted, StringConstants.ContainerName, newFilePathPhotoUrl);
@@ -714,10 +723,8 @@ namespace WebPagePub.Managers.Implementations
             var newPhotoExtension = Path.GetExtension(newPhotoFileName);
 
             var currentPathPhotoFullScreenUrl = photo.PhotoFullScreenUrl.Replace(
-                string.Format(
-                    "{0}/{1}/",
-                    blobPrefixFormatted,
-                    StringConstants.ContainerName), string.Empty);
+                string.Format("{0}/{1}/", blobPrefixFormatted, StringConstants.ContainerName),
+                string.Empty);
             var newFilePathPhotoFullScreenUrl = currentPathPhotoFullScreenUrl.Replace(
                 Path.GetFileName(currentPathPhotoFullScreenUrl),
                 string.Format("{0}{1}{2}", Path.GetFileNameWithoutExtension(newPhotoFileName), StringConstants.SuffixFullscreen, newPhotoExtension));
@@ -725,10 +732,8 @@ namespace WebPagePub.Managers.Implementations
             photo.PhotoFullScreenUrl = string.Format("{0}/{1}/{2}", blobPrefixFormatted, StringConstants.ContainerName, newFilePathPhotoFullScreenUrl);
 
             var currentPathPhotoPreviewUrl = photo.PhotoPreviewUrl.Replace(
-                string.Format(
-                    "{0}/{1}/",
-                    blobPrefixFormatted,
-                    StringConstants.ContainerName), string.Empty);
+                string.Format("{0}/{1}/", blobPrefixFormatted, StringConstants.ContainerName),
+                string.Empty);
             var newFilePathPhotoPreviewUrl = currentPathPhotoPreviewUrl.Replace(
                 Path.GetFileName(currentPathPhotoPreviewUrl),
                 string.Format("{0}{1}{2}", Path.GetFileNameWithoutExtension(newPhotoFileName), StringConstants.SuffixPrevew, newPhotoExtension));
@@ -736,10 +741,8 @@ namespace WebPagePub.Managers.Implementations
             photo.PhotoPreviewUrl = string.Format("{0}/{1}/{2}", blobPrefixFormatted, StringConstants.ContainerName, newFilePathPhotoPreviewUrl);
 
             var currentPathPhotoThumbUrl = photo.PhotoThumbUrl.Replace(
-                string.Format(
-                    "{0}/{1}/",
-                    blobPrefixFormatted,
-                    StringConstants.ContainerName), string.Empty);
+                string.Format("{0}/{1}/", blobPrefixFormatted, StringConstants.ContainerName),
+                string.Empty);
             var newFilePathPhotoThumbUrl = currentPathPhotoThumbUrl.Replace(
                 Path.GetFileName(currentPathPhotoThumbUrl),
                 string.Format("{0}{1}{2}", Path.GetFileNameWithoutExtension(newPhotoFileName), StringConstants.SuffixThumb, newPhotoExtension));

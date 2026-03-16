@@ -288,7 +288,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var model = this.Context.SitePage
+                var model = this.Context.SitePage.AsNoTracking()
                                    .Where(x => x.SitePageSectionId == sitePageSectionId)
                                    .OrderByDescending(page => page.CreateDate)
                                    .Skip(quantityPerPage * (pageNumber - 1))
@@ -314,7 +314,7 @@ namespace WebPagePub.Data.Repositories.Implementations
 
             try
             {
-                var model = this.Context.SitePage
+                var model = this.Context.SitePage.AsNoTracking()
                                    .Where(x => x.IsLive == true && x.PublishDateTimeUtc < now)
                                    .Include(x => x.Photos)
                                    .Include(x => x.Author)
@@ -344,7 +344,7 @@ namespace WebPagePub.Data.Repositories.Implementations
 
             try
             {
-                var pageItems = this.Context.SitePage
+                var pageItems = this.Context.SitePage.AsNoTracking()
                                        .Where(x => x.IsLive && x.PublishDateTimeUtc < now)
                                        .Select(x => new SiteMapDisplayItem
                                        {
@@ -369,7 +369,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var model = this.Context.SitePage
+                var model = this.Context.SitePage.AsNoTracking()
                                    .Where(x => x.IsSectionHomePage == false &&
                                                x.SitePageSectionId == sitePageSectionId &&
                                                x.SitePageId != sitePageId &&
@@ -396,7 +396,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var model = this.Context.SitePage
+                var model = this.Context.SitePage.AsNoTracking()
                                    .Where(x => x.IsSectionHomePage == false &&
                                                x.SitePageSectionId == sitePageSectionId &&
                                                x.SitePageId != sitePageId &&
@@ -423,7 +423,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var model = this.Context.SitePage
+                var model = this.Context.SitePage.AsNoTracking()
                                    .Where(x => x.PublishDateTimeUtc < now &&
                                                x.PublishDateTimeUtc < currentSitePagePublishDateTimeUtc &&
                                                x.IsLive == true && x.IsSectionHomePage == false &&
@@ -450,7 +450,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var model = this.Context.SitePage
+                var model = this.Context.SitePage.AsNoTracking()
                                    .Where(x => x.PublishDateTimeUtc < now &&
                                                x.PublishDateTimeUtc > currentSitePagePublishDateTimeUtc &&
                                                x.IsLive == true && x.IsSectionHomePage == false &&
@@ -479,7 +479,7 @@ namespace WebPagePub.Data.Repositories.Implementations
 
             try
             {
-                var model = this.Context.SitePage
+                var model = this.Context.SitePage.AsNoTracking()
                                    .Where(x => x.IsLive == true &&
                                                x.PublishDateTimeUtc < now &&
                                                (x.SitePageTags.FirstOrDefault(y => y.Tag.Key == tagKey) != null))
@@ -516,7 +516,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.SitePage
+                return this.Context.SitePage.AsNoTracking()
                               .Include(x => x.SitePageSection)
                               .Include(x => x.Photos)
                               .Include(x => x.SitePageTags)
@@ -534,7 +534,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.SitePage
+                return this.Context.SitePage.AsNoTracking()
                               .Include(x => x.SitePageSection)
                               .Include(x => x.Photos)
                               .Include(x => x.SitePageTags)
@@ -609,7 +609,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.SitePage
+                return this.Context.SitePage.AsNoTracking()
                               .Include(x => x.SitePageSection)
                               .Include(x => x.Photos)
                               .Include(x => x.SitePageTags)
@@ -627,7 +627,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.SitePage
+                return this.Context.SitePage.AsNoTracking()
                               .Include(x => x.SitePageSection)
                               .Include(x => x.Photos)
                               .Include(x => x.SitePageTags)
@@ -649,7 +649,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             try
             {
                 // Calculate total count first
-                total = this.Context.SitePage
+                total = this.Context.SitePage.AsNoTracking()
                     .Where(x => x.IsLive == true &&
                                 x.PublishDateTimeUtc < now &&
                                 x.SitePageSectionId == sectionId &&
@@ -685,7 +685,8 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.SitePage
+                return this.Context.SitePage.AsNoTracking()
+                               .AsNoTracking()
                               .FirstOrDefault(x => x.IsSectionHomePage == true &&
                                                    x.SitePageSectionId == sitePageSectionId);
             }
@@ -701,7 +702,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.SitePage
+                return this.Context.SitePage.AsNoTracking()
                               .Where(x => x.ExcludePageFromSiteMapXml == true && x.IsLive == true)
                               .ToList();
             }
@@ -731,7 +732,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             if (string.IsNullOrWhiteSpace(term))
             {
                 total = this.Context.SitePage.Count(x => x.IsLive);
-                return this.Context.SitePage
+                return this.Context.SitePage.AsNoTracking()
                     .Where(x => x.IsLive)
                     .Include(x => x.SitePageSection)
                     .Include(x => x.Photos)
@@ -746,7 +747,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             var termLen = term.Length;
 
             // Candidate set
-            var baseQ = this.Context.SitePage
+            var baseQ = this.Context.SitePage.AsNoTracking()
                 .Where(x => x.IsLive && (
                        EF.Functions.Like(x.Title ?? string.Empty, like)
                     || EF.Functions.Like(x.Content ?? string.Empty, like)

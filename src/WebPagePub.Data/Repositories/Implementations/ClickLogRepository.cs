@@ -1,9 +1,10 @@
-﻿using System;
+﻿using log4net;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using log4net;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models.Db;
@@ -42,7 +43,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var clicks = this.Context.ClickLog.Where(x => x.CreateDate >= startDate && x.CreateDate <= endDate).ToList();
+                var clicks = this.Context.ClickLog.AsNoTracking().Where(x => x.CreateDate >= startDate && x.CreateDate <= endDate).ToList();
 
                 return clicks;
             }

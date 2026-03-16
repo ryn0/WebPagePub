@@ -1,8 +1,9 @@
-﻿using System;
+﻿using log4net;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using log4net;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models.Db;
@@ -46,7 +47,7 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var result = this.Context.BlockedIP.FirstOrDefault(x => x.IpAddress == ipAddress);
+                var result = this.Context.BlockedIP.AsNoTracking().FirstOrDefault(x => x.IpAddress == ipAddress);
 
                 return result != null;
             }
