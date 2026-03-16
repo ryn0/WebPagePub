@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using log4net;
@@ -25,21 +25,30 @@ namespace WebPagePub.Data.Repositories.Implementations
             try
             {
                 await this.Context.SitePageAudit.AddAsync(model);
-                this.Context.SaveChanges();
+
+                // FIX: The original called the synchronous SaveChanges() inside an
+                // async method after already awaiting AddAsync. Mixing sync and async
+                // DB calls on the same context is inconsistent and blocks a thread
+                // pool thread for the duration of the write. SaveChangesAsync completes
+                // the full operation without blocking.
+                await this.Context.SaveChangesAsync();
 
                 return model;
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
 
+        // The context is registered via AddDbContextPool in Program.cs — the DI
+        // container owns its lifetime. Calling Context.Dispose() here would return
+        // the context to the pool while other scoped services may still hold a
+        // reference to the same instance, causing use-after-dispose errors.
         public void Dispose()
         {
-            this.Context.Dispose();
+            // Intentionally empty. Context lifetime is managed by the DI container.
         }
     }
 }

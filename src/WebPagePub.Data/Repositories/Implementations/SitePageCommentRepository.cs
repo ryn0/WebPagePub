@@ -1,9 +1,9 @@
-﻿using log4net;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using log4net;
+using Microsoft.EntityFrameworkCore;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Enums;
@@ -21,7 +21,9 @@ namespace WebPagePub.Data.Repositories.Implementations
             this.Context = context;
         }
 
-        public IApplicationDbContext Context { get; set; }
+        // FIX: was `public set` — external code should never swap the context out
+        // from under a repository that is already in use.
+        public IApplicationDbContext Context { get; private set; }
 
         public SitePageComment Create(SitePageComment model)
         {
@@ -56,8 +58,9 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.SitePageComment.AsNoTracking()
-                              .FirstOrDefault(x => x.RequestId == requestId);
+                return this.Context.SitePageComment
+                    .AsNoTracking()
+                    .FirstOrDefault(x => x.RequestId == requestId);
             }
             catch (Exception ex)
             {
@@ -70,9 +73,10 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.SitePageComment.AsNoTracking()
-                              .Where(x => x.SitePageId == sitePageId)
-                              .ToList();
+                return this.Context.SitePageComment
+                    .AsNoTracking()
+                    .Where(x => x.SitePageId == sitePageId)
+                    .ToList();
             }
             catch (Exception ex)
             {
@@ -85,9 +89,10 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.SitePageComment.AsNoTracking()
-                              .Where(x => x.SitePageId == sitePageId && x.CommentStatus == commentStatus)
-                              .ToList();
+                return this.Context.SitePageComment
+                    .AsNoTracking()
+                    .Where(x => x.SitePageId == sitePageId && x.CommentStatus == commentStatus)
+                    .ToList();
             }
             catch (Exception ex)
             {
@@ -100,9 +105,11 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
+                // FIX: added AsNoTracking — read-only scalar count; no need to load
+                // tracked entities into the change tracker.
                 return this.Context.SitePageComment
-                              .Where(x => x.CommentStatus == commentStatus)
-                              .Count();
+                    .AsNoTracking()
+                    .Count(x => x.CommentStatus == commentStatus);
             }
             catch (Exception ex)
             {
@@ -127,29 +134,25 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public void Dispose()
-        {
-            this.Context.Dispose();
-        }
-
         public IList<SitePageComment> GetPage(int pageNumber, int quantityPerPage, out int total)
         {
             try
             {
+                // FIX: added AsNoTracking — paged admin list is read-only display.
                 var model = this.Context.SitePageComment
-                                   .OrderByDescending(x => x.CreateDate)
-                                   .Skip(quantityPerPage * (pageNumber - 1))
-                                   .Take(quantityPerPage)
-                                   .ToList();
+                    .AsNoTracking()
+                    .OrderByDescending(x => x.CreateDate)
+                    .Skip(quantityPerPage * (pageNumber - 1))
+                    .Take(quantityPerPage)
+                    .ToList();
 
-                total = this.Context.SitePageComment.Count();
+                total = this.Context.SitePageComment.AsNoTracking().Count();
 
                 return model;
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
@@ -158,19 +161,42 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var model = this.Context.SitePageComment.Where(x => x.CommentStatus == commentStatus);
+                // FIX: The original stored an IQueryable in `model`, called RemoveRange
+                // (which enumerates and stages the deletes), called SaveChanges (which
+                // commits them), then called model.Count() — which re-ran the SQL COUNT
+                // against a table that now has zero matching rows. The method therefore
+                // ALWAYS returned false, regardless of how many rows were deleted.
+                //
+                // Fix: materialize the list first so the count is known before any rows
+                // are removed, then remove the already-loaded entities by reference.
+                var toDelete = this.Context.SitePageComment
+                    .Where(x => x.CommentStatus == commentStatus)
+                    .ToList();
 
-                this.Context.SitePageComment.RemoveRange(model);
+                if (toDelete.Count == 0)
+                {
+                    return false;
+                }
+
+                this.Context.SitePageComment.RemoveRange(toDelete);
                 this.Context.SaveChanges();
 
-                return model.Count() > 0;
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
+        }
+
+        // The context is registered via AddDbContextPool in Program.cs — the DI
+        // container owns its lifetime. Calling Context.Dispose() here would return
+        // the context to the pool while other scoped services may still hold a
+        // reference to the same instance, causing use-after-dispose errors.
+        public void Dispose()
+        {
+            // Intentionally empty. Context lifetime is managed by the DI container.
         }
     }
 }

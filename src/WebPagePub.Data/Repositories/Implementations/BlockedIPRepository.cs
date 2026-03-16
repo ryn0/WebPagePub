@@ -1,9 +1,9 @@
-﻿using log4net;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using log4net;
+using Microsoft.EntityFrameworkCore;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models.Db;
@@ -38,11 +38,6 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public void Dispose()
-        {
-            this.Context.Dispose();
-        }
-
         public bool IsBlockedIp(string ipAddress)
         {
             try
@@ -56,6 +51,15 @@ namespace WebPagePub.Data.Repositories.Implementations
                 Log.Fatal(ex);
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
+        }
+
+        // The context is registered via AddDbContextPool in Program.cs — the DI
+        // container owns its lifetime. Calling Context.Dispose() here would return
+        // the context to the pool while other scoped services may still hold a
+        // reference to the same instance, causing use-after-dispose errors.
+        public void Dispose()
+        {
+            // Intentionally empty. Context lifetime is managed by the DI container.
         }
     }
 }

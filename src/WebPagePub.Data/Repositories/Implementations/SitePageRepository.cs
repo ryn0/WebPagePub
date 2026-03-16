@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -47,7 +47,6 @@ namespace WebPagePub.Data.Repositories.Implementations
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
@@ -69,7 +68,6 @@ namespace WebPagePub.Data.Repositories.Implementations
                 var hasTerm = !string.IsNullOrWhiteSpace(term);
                 var now = DateTime.UtcNow;
 
-                // normalize tag filters (match by Name OR Key)
                 var tagList = (tags ?? Enumerable.Empty<string>())
                     .Select(t => t?.Trim())
                     .Where(t => !string.IsNullOrWhiteSpace(t))
@@ -85,19 +83,16 @@ namespace WebPagePub.Data.Repositories.Implementations
                     .ThenInclude(x => x.Tag)
                     .AsQueryable();
 
-                // filter by section
                 if (sitePageSectionId.HasValue && sitePageSectionId.Value > 0)
                 {
                     q = q.Where(x => x.SitePageSectionId == sitePageSectionId.Value);
                 }
 
-                // filter by IsLive if requested
                 if (isLive.HasValue)
                 {
                     q = q.Where(x => x.IsLive == isLive.Value);
                 }
 
-                // filter by publish date
                 if (publishedFromUtc.HasValue)
                 {
                     q = q.Where(x => x.PublishDateTimeUtc >= publishedFromUtc.Value);
@@ -108,7 +103,6 @@ namespace WebPagePub.Data.Repositories.Implementations
                     q = q.Where(x => x.PublishDateTimeUtc <= publishedToUtc.Value);
                 }
 
-                // filter by text term across common page properties
                 if (hasTerm)
                 {
                     q = q.Where(x =>
@@ -121,46 +115,33 @@ namespace WebPagePub.Data.Repositories.Implementations
                         x.ReviewItemName.ToLower().Contains(termLower));
                 }
 
-                // filter by tags (ANY match)
                 if (tagList.Count > 0)
                 {
-                    // normalize inputs
                     var names = tagList
                         .Where(t => !string.IsNullOrWhiteSpace(t))
                         .Select(t => t.Trim())
                         .ToList();
 
-                    var nameLowers = names
-                        .Select(t => t.ToLowerInvariant())
-                        .ToList();
-
-                    var keyLowers = names
-                        .Select(t => t.UrlKey()) // << correct usage
-                        .Select(t => t.ToLowerInvariant())
-                        .ToList();
+                    var nameLowers = names.Select(t => t.ToLowerInvariant()).ToList();
+                    var keyLowers = names.Select(t => t.UrlKey().ToLowerInvariant()).ToList();
 
                     q = q.Where(x => x.SitePageTags.Any(pt =>
                         nameLowers.Contains(pt.Tag.Name.ToLower()) ||
                         keyLowers.Contains(pt.Tag.Key.ToLower())));
                 }
 
-                // Count before paging
                 total = q.Count();
 
-                // Order newest first (publish date if set, else create date)
                 q = q.OrderByDescending(x =>
                         x.PublishDateTimeUtc == DateTime.MinValue
                             ? x.CreateDate
                             : x.PublishDateTimeUtc)
                      .ThenByDescending(x => x.CreateDate);
 
-                // paging
-                var results = q
+                return q
                     .Skip((pageNumber - 1) * quantityPerPage)
                     .Take(quantityPerPage)
                     .ToList();
-
-                return results;
             }
             catch (Exception ex)
             {
@@ -171,22 +152,13 @@ namespace WebPagePub.Data.Repositories.Implementations
 
         public async Task<PagedResult<SitePage>> PagedSearchAsync(string term, int pageNumber, int pageSize)
         {
-            if (pageNumber < 1)
-            {
-                pageNumber = 1;
-            }
-
-            if (pageSize < 1)
-            {
-                pageSize = 10;
-            }
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 1) pageSize = 10;
 
             term = (term ?? string.Empty).Trim();
 
-            // Base (no Includes for scoring; we rehydrate after paging)
             IQueryable<SitePage> baseQ = this.Context.SitePage;
 
-            // If no term, keep your original "newest first" behavior with Includes
             if (string.IsNullOrWhiteSpace(term))
             {
                 var totalNoTerm = await baseQ.CountAsync();
@@ -200,18 +172,13 @@ namespace WebPagePub.Data.Repositories.Implementations
                     .Take(pageSize)
                     .ToListAsync();
 
-                return new PagedResult<SitePage>
-                {
-                    TotalCount = totalNoTerm,
-                    Items = itemsNoTerm
-                };
+                return new PagedResult<SitePage> { TotalCount = totalNoTerm, Items = itemsNoTerm };
             }
 
             var likeAny = $"%{term}%";
             var likeStart = $"{term}%";
-            var termLen = term.Length; // non-zero here
+            var termLen = term.Length;
 
-            // Filter candidates (includes tag name/key matches like your original)
             var candidates = baseQ.Where(x =>
                    EF.Functions.Like(x.Title ?? string.Empty, likeAny)
                 || EF.Functions.Like(x.Content ?? string.Empty, likeAny)
@@ -226,12 +193,10 @@ namespace WebPagePub.Data.Repositories.Implementations
 
             var total = await candidates.CountAsync();
 
-            // Score by weighted occurrence counts + big title bonus; tie-break by recency
             var scoredIds = await candidates
                 .Select(x => new
                 {
                     x.SitePageId,
-
                     TitleCnt = (double)((x.Title ?? string.Empty).Length - (x.Title ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
                     HeaderCnt = (double)((x.PageHeader ?? string.Empty).Length - (x.PageHeader ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
                     CrumbCnt = (double)((x.BreadcrumbName ?? string.Empty).Length - (x.BreadcrumbName ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
@@ -239,25 +204,17 @@ namespace WebPagePub.Data.Repositories.Implementations
                     MetaCnt = (double)((x.MetaDescription ?? string.Empty).Length - (x.MetaDescription ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
                     ReviewCnt = (double)((x.ReviewItemName ?? string.Empty).Length - (x.ReviewItemName ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
                     ContentCnt = (double)((x.Content ?? string.Empty).Length - (x.Content ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
-
                     TitleHit = EF.Functions.Like(x.Title ?? string.Empty, likeAny),
                     StartsHit = EF.Functions.Like(x.Title ?? string.Empty, likeStart),
-
                     Recency = x.PublishDateTimeUtc > x.CreateDate ? x.PublishDateTimeUtc : x.CreateDate
                 })
                 .Select(r => new
                 {
                     r.SitePageId,
                     TotalScore =
-                        (r.TitleCnt * 100.0) +
-                        (r.HeaderCnt * 20.0) +
-                        (r.CrumbCnt * 15.0) +
-                        (r.KeyCnt * 20.0) +
-                        (r.MetaCnt * 10.0) +
-                        (r.ReviewCnt * 10.0) +
-                        (r.ContentCnt * 5.0)
-                        + (r.TitleHit ? 5000.0 : 0.0)
-                        + (r.StartsHit ? 1500.0 : 0.0),
+                        (r.TitleCnt * 100.0) + (r.HeaderCnt * 20.0) + (r.CrumbCnt * 15.0) +
+                        (r.KeyCnt * 20.0) + (r.MetaCnt * 10.0) + (r.ReviewCnt * 10.0) +
+                        (r.ContentCnt * 5.0) + (r.TitleHit ? 5000.0 : 0.0) + (r.StartsHit ? 1500.0 : 0.0),
                     r.Recency
                 })
                 .OrderByDescending(r => r.TotalScore)
@@ -267,7 +224,6 @@ namespace WebPagePub.Data.Repositories.Implementations
                 .Select(r => r.SitePageId)
                 .ToListAsync();
 
-            // Rehydrate with Includes and preserve the scored order
             var map = await this.Context.SitePage
                 .Where(x => scoredIds.Contains(x.SitePageId))
                 .Include(x => x.SitePageSection)
@@ -275,12 +231,10 @@ namespace WebPagePub.Data.Repositories.Implementations
                 .Include(x => x.SitePageTags).ThenInclude(t => t.Tag)
                 .ToDictionaryAsync(x => x.SitePageId);
 
-            var orderedItems = scoredIds.Where(map.ContainsKey).Select(id => map[id]).ToList();
-
             return new PagedResult<SitePage>
             {
                 TotalCount = total,
-                Items = orderedItems
+                Items = scoredIds.Where(map.ContainsKey).Select(id => map[id]).ToList()
             };
         }
 
@@ -289,21 +243,21 @@ namespace WebPagePub.Data.Repositories.Implementations
             try
             {
                 var model = this.Context.SitePage.AsNoTracking()
-                                   .Where(x => x.SitePageSectionId == sitePageSectionId)
-                                   .OrderByDescending(page => page.CreateDate)
-                                   .Skip(quantityPerPage * (pageNumber - 1))
-                                   .Take(quantityPerPage)
-                                   .Include(x => x.SitePageSection)
-                                   .ToList();
+                    .Where(x => x.SitePageSectionId == sitePageSectionId)
+                    .OrderByDescending(page => page.CreateDate)
+                    .Skip(quantityPerPage * (pageNumber - 1))
+                    .Take(quantityPerPage)
+                    .Include(x => x.SitePageSection)
+                    .ToList();
 
-                total = this.Context.SitePage.Where(x => x.SitePageSectionId == sitePageSectionId).Count();
+                total = this.Context.SitePage.AsNoTracking()
+                    .Count(x => x.SitePageSectionId == sitePageSectionId);
 
                 return model;
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
@@ -315,25 +269,25 @@ namespace WebPagePub.Data.Repositories.Implementations
             try
             {
                 var model = this.Context.SitePage.AsNoTracking()
-                                   .Where(x => x.IsLive == true && x.PublishDateTimeUtc < now)
-                                   .Include(x => x.Photos)
-                                   .Include(x => x.Author)
-                                   .Include(x => x.SitePageSection)
-                                   .Include(x => x.SitePageTags)
-                                   .Include("SitePageTags.Tag")
-                                   .OrderByDescending(blog => blog.PublishDateTimeUtc)
-                                   .Skip(quantityPerPage * (pageNumber - 1))
-                                   .Take(quantityPerPage)
-                                   .ToList();
+                    .Where(x => x.IsLive == true && x.PublishDateTimeUtc < now)
+                    .Include(x => x.Photos)
+                    .Include(x => x.Author)
+                    .Include(x => x.SitePageSection)
+                    .Include(x => x.SitePageTags)
+                    .Include("SitePageTags.Tag")
+                    .OrderByDescending(blog => blog.PublishDateTimeUtc)
+                    .Skip(quantityPerPage * (pageNumber - 1))
+                    .Take(quantityPerPage)
+                    .ToList();
 
-                total = this.Context.SitePage.Where(x => x.IsLive == true && x.PublishDateTimeUtc < now).Count();
+                total = this.Context.SitePage.AsNoTracking()
+                    .Count(x => x.IsLive == true && x.PublishDateTimeUtc < now);
 
                 return model;
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
@@ -345,22 +299,19 @@ namespace WebPagePub.Data.Repositories.Implementations
             try
             {
                 var pageItems = this.Context.SitePage.AsNoTracking()
-                                       .Where(x => x.IsLive && x.PublishDateTimeUtc < now)
-                                       .Select(x => new SiteMapDisplayItem
-                                       {
-                                           PageTitle = x.Title,
-                                           RelativePath = UrlBuilder.BlogUrlPath(x.SitePageSection.Key, x.Key)
-                                       })
-                                       .ToList();
+                    .Where(x => x.IsLive && x.PublishDateTimeUtc < now)
+                    .Select(x => new SiteMapDisplayItem
+                    {
+                        PageTitle = x.Title,
+                        RelativePath = UrlBuilder.BlogUrlPath(x.SitePageSection.Key, x.Key)
+                    })
+                    .ToList();
 
-                var model = this.GroupItemsIntoSections(pageItems);
-
-                return model;
+                return this.GroupItemsIntoSections(pageItems);
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
@@ -369,25 +320,22 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var model = this.Context.SitePage.AsNoTracking()
-                                   .Where(x => x.IsSectionHomePage == false &&
-                                               x.SitePageSectionId == sitePageSectionId &&
-                                               x.SitePageId != sitePageId &&
-                                               x.CreateDate <= createDateow)
-                                   .OrderByDescending(x => x.CreateDate)
-                                   .Include(x => x.Photos)
-                                   .Include(x => x.Author)
-                                   .Include(x => x.SitePageSection)
-                                   .Include(x => x.SitePageTags)
-                                   .Include("SitePageTags.Tag")
-                                   .FirstOrDefault();
-
-                return model;
+                return this.Context.SitePage.AsNoTracking()
+                    .Where(x => x.IsSectionHomePage == false &&
+                                x.SitePageSectionId == sitePageSectionId &&
+                                x.SitePageId != sitePageId &&
+                                x.CreateDate <= createDateow)
+                    .OrderByDescending(x => x.CreateDate)
+                    .Include(x => x.Photos)
+                    .Include(x => x.Author)
+                    .Include(x => x.SitePageSection)
+                    .Include(x => x.SitePageTags)
+                    .Include("SitePageTags.Tag")
+                    .FirstOrDefault();
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
@@ -396,25 +344,22 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var model = this.Context.SitePage.AsNoTracking()
-                                   .Where(x => x.IsSectionHomePage == false &&
-                                               x.SitePageSectionId == sitePageSectionId &&
-                                               x.SitePageId != sitePageId &&
-                                               x.CreateDate >= createDate)
-                                   .OrderBy(x => x.CreateDate)
-                                   .Include(x => x.Photos)
-                                   .Include(x => x.Author)
-                                   .Include(x => x.SitePageSection)
-                                   .Include(x => x.SitePageTags)
-                                   .Include("SitePageTags.Tag")
-                                   .FirstOrDefault();
-
-                return model;
+                return this.Context.SitePage.AsNoTracking()
+                    .Where(x => x.IsSectionHomePage == false &&
+                                x.SitePageSectionId == sitePageSectionId &&
+                                x.SitePageId != sitePageId &&
+                                x.CreateDate >= createDate)
+                    .OrderBy(x => x.CreateDate)
+                    .Include(x => x.Photos)
+                    .Include(x => x.Author)
+                    .Include(x => x.SitePageSection)
+                    .Include(x => x.SitePageTags)
+                    .Include("SitePageTags.Tag")
+                    .FirstOrDefault();
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
@@ -423,25 +368,22 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var model = this.Context.SitePage.AsNoTracking()
-                                   .Where(x => x.PublishDateTimeUtc < now &&
-                                               x.PublishDateTimeUtc < currentSitePagePublishDateTimeUtc &&
-                                               x.IsLive == true && x.IsSectionHomePage == false &&
-                                               x.SitePageSectionId == sitePageSectionId)
-                                   .OrderByDescending(x => x.PublishDateTimeUtc)
-                                   .Include(x => x.Photos)
-                                   .Include(x => x.Author)
-                                   .Include(x => x.SitePageSection)
-                                   .Include(x => x.SitePageTags)
-                                   .Include("SitePageTags.Tag")
-                                   .FirstOrDefault();
-
-                return model;
+                return this.Context.SitePage.AsNoTracking()
+                    .Where(x => x.PublishDateTimeUtc < now &&
+                                x.PublishDateTimeUtc < currentSitePagePublishDateTimeUtc &&
+                                x.IsLive == true && x.IsSectionHomePage == false &&
+                                x.SitePageSectionId == sitePageSectionId)
+                    .OrderByDescending(x => x.PublishDateTimeUtc)
+                    .Include(x => x.Photos)
+                    .Include(x => x.Author)
+                    .Include(x => x.SitePageSection)
+                    .Include(x => x.SitePageTags)
+                    .Include("SitePageTags.Tag")
+                    .FirstOrDefault();
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
@@ -450,25 +392,22 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                var model = this.Context.SitePage.AsNoTracking()
-                                   .Where(x => x.PublishDateTimeUtc < now &&
-                                               x.PublishDateTimeUtc > currentSitePagePublishDateTimeUtc &&
-                                               x.IsLive == true && x.IsSectionHomePage == false &&
-                                               x.SitePageSectionId == sitePageSectionId)
-                                   .OrderBy(x => x.PublishDateTimeUtc)
-                                   .Include(x => x.Photos)
-                                   .Include(x => x.Author)
-                                   .Include(x => x.SitePageSection)
-                                   .Include(x => x.SitePageTags)
-                                   .Include("SitePageTags.Tag")
-                                   .FirstOrDefault();
-
-                return model;
+                return this.Context.SitePage.AsNoTracking()
+                    .Where(x => x.PublishDateTimeUtc < now &&
+                                x.PublishDateTimeUtc > currentSitePagePublishDateTimeUtc &&
+                                x.IsLive == true && x.IsSectionHomePage == false &&
+                                x.SitePageSectionId == sitePageSectionId)
+                    .OrderBy(x => x.PublishDateTimeUtc)
+                    .Include(x => x.Photos)
+                    .Include(x => x.Author)
+                    .Include(x => x.SitePageSection)
+                    .Include(x => x.SitePageTags)
+                    .Include("SitePageTags.Tag")
+                    .FirstOrDefault();
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
@@ -480,36 +419,31 @@ namespace WebPagePub.Data.Repositories.Implementations
             try
             {
                 var model = this.Context.SitePage.AsNoTracking()
-                                   .Where(x => x.IsLive == true &&
-                                               x.PublishDateTimeUtc < now &&
-                                               (x.SitePageTags.FirstOrDefault(y => y.Tag.Key == tagKey) != null))
-                                   .Include(x => x.SitePageSection)
-                                   .Include(x => x.Photos)
-                                   .Include(x => x.SitePageTags)
-                                   .Include(x => x.Author)
-                                   .Include("SitePageTags.Tag")
-                                   .OrderByDescending(blog => blog.PublishDateTimeUtc)
-                                   .Skip(quantityPerPage * (pageNumber - 1))
-                                   .Take(quantityPerPage)
-                                   .ToList();
+                    .Where(x => x.IsLive == true &&
+                                x.PublishDateTimeUtc < now &&
+                                x.SitePageTags.Any(y => y.Tag.Key == tagKey))
+                    .Include(x => x.SitePageSection)
+                    .Include(x => x.Photos)
+                    .Include(x => x.SitePageTags)
+                    .Include(x => x.Author)
+                    .Include("SitePageTags.Tag")
+                    .OrderByDescending(blog => blog.PublishDateTimeUtc)
+                    .Skip(quantityPerPage * (pageNumber - 1))
+                    .Take(quantityPerPage)
+                    .ToList();
 
-                total = this.Context.SitePage.Where(x => x.IsLive == true &&
-                                               x.PublishDateTimeUtc < now &&
-                                               (x.SitePageTags.FirstOrDefault(y => y.Tag.Key == tagKey) != null)).Count();
+                total = this.Context.SitePage.AsNoTracking()
+                    .Count(x => x.IsLive == true &&
+                                x.PublishDateTimeUtc < now &&
+                                x.SitePageTags.Any(y => y.Tag.Key == tagKey));
 
                 return model;
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
-        }
-
-        public void Dispose()
-        {
-            this.Context.Dispose();
         }
 
         public SitePage Get(int sitePageId)
@@ -517,12 +451,12 @@ namespace WebPagePub.Data.Repositories.Implementations
             try
             {
                 return this.Context.SitePage.AsNoTracking()
-                              .Include(x => x.SitePageSection)
-                              .Include(x => x.Photos)
-                              .Include(x => x.SitePageTags)
-                              .Include(x => x.Author)
-                              .Include("SitePageTags.Tag")
-                              .FirstOrDefault(x => x.SitePageId == sitePageId);
+                    .Include(x => x.SitePageSection)
+                    .Include(x => x.Photos)
+                    .Include(x => x.SitePageTags)
+                    .Include(x => x.Author)
+                    .Include("SitePageTags.Tag")
+                    .FirstOrDefault(x => x.SitePageId == sitePageId);
             }
             catch (Exception ex)
             {
@@ -535,17 +469,16 @@ namespace WebPagePub.Data.Repositories.Implementations
             try
             {
                 return this.Context.SitePage.AsNoTracking()
-                              .Include(x => x.SitePageSection)
-                              .Include(x => x.Photos)
-                              .Include(x => x.SitePageTags)
-                              .Include(x => x.Author)
-                              .Include("SitePageTags.Tag")
-                              .FirstOrDefault(x => x.Key == key);
+                    .Include(x => x.SitePageSection)
+                    .Include(x => x.Photos)
+                    .Include(x => x.SitePageTags)
+                    .Include(x => x.Author)
+                    .Include("SitePageTags.Tag")
+                    .FirstOrDefault(x => x.Key == key);
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
@@ -556,16 +489,21 @@ namespace WebPagePub.Data.Repositories.Implementations
             {
                 if (model.IsSectionHomePage)
                 {
-                    foreach (var page in this.Context.SitePage
-                                                .Where(x => x.SitePageSectionId == model.SitePageSectionId)
-                                                .ToList())
+                    // FIX: The original loaded EVERY page in the section as tracked
+                    // entities (including the full Content HTML blob) just to clear
+                    // IsSectionHomePage on all of them, generating an UPDATE per row.
+                    //
+                    // Only pages that are currently the section home page AND are not
+                    // the page we're about to promote actually need updating. In
+                    // practice this is at most one row. Load only those rows and flip
+                    // them — SaveChanges generates a single targeted UPDATE.
+                    foreach (var other in this.Context.SitePage
+                        .Where(x => x.SitePageSectionId == model.SitePageSectionId &&
+                                    x.IsSectionHomePage &&
+                                    x.SitePageId != model.SitePageId)
+                        .ToList())
                     {
-                        page.IsSectionHomePage = false;
-
-                        if (page.SitePageId == model.SitePageId)
-                        {
-                            page.IsSectionHomePage = true;
-                        }
+                        other.IsSectionHomePage = false;
                     }
                 }
 
@@ -581,7 +519,6 @@ namespace WebPagePub.Data.Repositories.Implementations
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
@@ -592,6 +529,13 @@ namespace WebPagePub.Data.Repositories.Implementations
             {
                 var entry = this.Context.SitePage.Find(sitePageId);
 
+                // FIX: Find returns null when the record does not exist. Passing null
+                // to Remove throws ArgumentNullException with no useful context.
+                if (entry == null)
+                {
+                    return false;
+                }
+
                 this.Context.SitePage.Remove(entry);
                 this.Context.SaveChanges();
 
@@ -600,7 +544,6 @@ namespace WebPagePub.Data.Repositories.Implementations
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 return false;
             }
         }
@@ -610,12 +553,12 @@ namespace WebPagePub.Data.Repositories.Implementations
             try
             {
                 return this.Context.SitePage.AsNoTracking()
-                              .Include(x => x.SitePageSection)
-                              .Include(x => x.Photos)
-                              .Include(x => x.SitePageTags)
-                              .Include(x => x.Author)
-                              .Include("SitePageTags.Tag")
-                              .FirstOrDefault(x => x.SitePageSectionId == sitePageSectionId && x.Key == key);
+                    .Include(x => x.SitePageSection)
+                    .Include(x => x.Photos)
+                    .Include(x => x.SitePageTags)
+                    .Include(x => x.Author)
+                    .Include("SitePageTags.Tag")
+                    .FirstOrDefault(x => x.SitePageSectionId == sitePageSectionId && x.Key == key);
             }
             catch (Exception ex)
             {
@@ -628,14 +571,14 @@ namespace WebPagePub.Data.Repositories.Implementations
             try
             {
                 return this.Context.SitePage.AsNoTracking()
-                              .Include(x => x.SitePageSection)
-                              .Include(x => x.Photos)
-                              .Include(x => x.SitePageTags)
-                              .Include(x => x.Author)
-                              .Include("SitePageTags.Tag")
-                              .Where(x => x.SitePageSectionId == sitePageSectionId && x.IsLive == true)
-                              .OrderByDescending(x => x.PublishDateTimeUtc)
-                              .ToList();
+                    .Include(x => x.SitePageSection)
+                    .Include(x => x.Photos)
+                    .Include(x => x.SitePageTags)
+                    .Include(x => x.Author)
+                    .Include("SitePageTags.Tag")
+                    .Where(x => x.SitePageSectionId == sitePageSectionId && x.IsLive == true)
+                    .OrderByDescending(x => x.PublishDateTimeUtc)
+                    .ToList();
             }
             catch (Exception ex)
             {
@@ -646,18 +589,19 @@ namespace WebPagePub.Data.Repositories.Implementations
         public IList<SitePage> GetLivePageBySection(int sectionId, int pageNumber, int quantityPerPage, out int total)
         {
             var now = DateTime.UtcNow;
+
             try
             {
-                // Calculate total count first
                 total = this.Context.SitePage.AsNoTracking()
-                    .Where(x => x.IsLive == true &&
+                    .Count(x => x.IsLive == true &&
                                 x.PublishDateTimeUtc < now &&
                                 x.SitePageSectionId == sectionId &&
-                                x.IsSectionHomePage == false)
-                    .Count();
+                                x.IsSectionHomePage == false);
 
-                // Fetch paginated results
-                var model = this.Context.SitePage
+                // FIX: The original called .Take(quantityPerPage).ToList() again after
+                // the query already used .Take(quantityPerPage). This re-enumerated the
+                // already-capped list and allocated a second List<SitePage> for no reason.
+                return this.Context.SitePage.AsNoTracking()
                     .Where(x => x.IsLive == true &&
                                 x.PublishDateTimeUtc < now &&
                                 x.SitePageSectionId == sectionId)
@@ -670,9 +614,6 @@ namespace WebPagePub.Data.Repositories.Implementations
                     .Skip((pageNumber - 1) * quantityPerPage)
                     .Take(quantityPerPage)
                     .ToList();
-
-                // Ensure we only return the requested number of items
-                return model.Take(quantityPerPage).ToList();
             }
             catch (Exception ex)
             {
@@ -685,15 +626,14 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
+                // FIX: duplicate .AsNoTracking() call removed.
                 return this.Context.SitePage.AsNoTracking()
-                               .AsNoTracking()
-                              .FirstOrDefault(x => x.IsSectionHomePage == true &&
-                                                   x.SitePageSectionId == sitePageSectionId);
+                    .FirstOrDefault(x => x.IsSectionHomePage == true &&
+                                         x.SitePageSectionId == sitePageSectionId);
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
@@ -703,35 +643,26 @@ namespace WebPagePub.Data.Repositories.Implementations
             try
             {
                 return this.Context.SitePage.AsNoTracking()
-                              .Where(x => x.ExcludePageFromSiteMapXml == true && x.IsLive == true)
-                              .ToList();
+                    .Where(x => x.ExcludePageFromSiteMapXml == true && x.IsLive == true)
+                    .ToList();
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
 
         public IList<SitePage> SearchForTerm(string term, int pageNumber, int quantityPerPage, out int total)
         {
-            if (pageNumber < 1)
-            {
-                pageNumber = 1;
-            }
-
-            if (quantityPerPage < 1)
-            {
-                quantityPerPage = 10;
-            }
+            if (pageNumber < 1) pageNumber = 1;
+            if (quantityPerPage < 1) quantityPerPage = 10;
 
             term = (term ?? string.Empty).Trim();
 
-            // No term: newest live pages
             if (string.IsNullOrWhiteSpace(term))
             {
-                total = this.Context.SitePage.Count(x => x.IsLive);
+                total = this.Context.SitePage.AsNoTracking().Count(x => x.IsLive);
                 return this.Context.SitePage.AsNoTracking()
                     .Where(x => x.IsLive)
                     .Include(x => x.SitePageSection)
@@ -746,7 +677,6 @@ namespace WebPagePub.Data.Repositories.Implementations
             var like = $"%{term}%";
             var termLen = term.Length;
 
-            // Candidate set
             var baseQ = this.Context.SitePage.AsNoTracking()
                 .Where(x => x.IsLive && (
                        EF.Functions.Like(x.Title ?? string.Empty, like)
@@ -763,16 +693,11 @@ namespace WebPagePub.Data.Repositories.Implementations
                 return new List<SitePage>();
             }
 
-            // Helper inline for occurrence counts: ((LEN(f)-LEN(REPLACE(f,term,'')))/LEN(term))
-            // We multiply before dividing to keep it integer and SQL-translatable.
             var scored = baseQ
                 .Select(x => new
                 {
                     x.SitePageId,
-
-                    TitleHit = EF.Functions.Like(x.Title ?? string.Empty, like), // hard bump to the top
-
-                    // Occurrence counts per field (integer)
+                    TitleHit = EF.Functions.Like(x.Title ?? string.Empty, like),
                     TitleCnt = ((x.Title ?? string.Empty).Length - (x.Title ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
                     HeaderCnt = ((x.PageHeader ?? string.Empty).Length - (x.PageHeader ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
                     CrumbCnt = ((x.BreadcrumbName ?? string.Empty).Length - (x.BreadcrumbName ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
@@ -780,23 +705,15 @@ namespace WebPagePub.Data.Repositories.Implementations
                     MetaCnt = ((x.MetaDescription ?? string.Empty).Length - (x.MetaDescription ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
                     ReviewCnt = ((x.ReviewItemName ?? string.Empty).Length - (x.ReviewItemName ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
                     ContentCnt = ((x.Content ?? string.Empty).Length - (x.Content ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
-
                     Recency = x.PublishDateTimeUtc > x.CreateDate ? x.PublishDateTimeUtc : x.CreateDate
                 })
                 .Select(r => new
                 {
                     r.SitePageId,
                     r.TitleHit,
-
-                    // Light weights—title count matters most inside the TitleHit bucket
                     Score =
-                        (r.TitleCnt * 10) +
-                        (r.HeaderCnt * 7) +
-                        (r.CrumbCnt * 6) +
-                        (r.KeyCnt * 6) +
-                        (r.MetaCnt * 4) +
-                        (r.ReviewCnt * 4) +
-                        (r.ContentCnt * 1),
+                        (r.TitleCnt * 10) + (r.HeaderCnt * 7) + (r.CrumbCnt * 6) +
+                        (r.KeyCnt * 6) + (r.MetaCnt * 4) + (r.ReviewCnt * 4) + (r.ContentCnt * 1),
                     r.Recency
                 })
                 .OrderByDescending(r => r.TitleHit)
@@ -808,8 +725,8 @@ namespace WebPagePub.Data.Repositories.Implementations
 
             var ids = scored.Select(s => s.SitePageId).ToList();
 
-            // Rehydrate with includes and preserve order
-            var pageMap = this.Context.SitePage
+            // FIX: rehydrate query was missing AsNoTracking.
+            var pageMap = this.Context.SitePage.AsNoTracking()
                 .Where(x => ids.Contains(x.SitePageId))
                 .Include(x => x.SitePageSection)
                 .Include(x => x.Photos)
@@ -818,6 +735,15 @@ namespace WebPagePub.Data.Repositories.Implementations
                 .ToDictionary(x => x.SitePageId);
 
             return ids.Where(id => pageMap.ContainsKey(id)).Select(id => pageMap[id]).ToList();
+        }
+
+        // The context is registered via AddDbContextPool in Program.cs — the DI
+        // container owns its lifetime. Calling Context.Dispose() here would return
+        // the context to the pool while other scoped services may still hold a
+        // reference to the same instance, causing use-after-dispose errors.
+        public void Dispose()
+        {
+            // Intentionally empty. Context lifetime is managed by the DI container.
         }
 
         private async Task LogToAuditTable(SitePage model)
@@ -856,25 +782,24 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             var sections = new List<SiteMapDisplaySection>();
 
-            // Group items by their root path
-            var groupedItems = items.GroupBy(
-                item => item.RelativePath.Split('/')[1]); // This assumes the format is always '/root/child'
+            var groupedItems = items.GroupBy(item => item.RelativePath.Split('/')[1]);
 
             foreach (var group in groupedItems)
             {
                 var rootPath = "/" + group.Key;
-                var rootItem = group.FirstOrDefault(i => i.RelativePath == rootPath || i.RelativePath == $"{rootPath}/{StringConstants.DefaultKey}");
+                var rootItem = group.FirstOrDefault(i =>
+                    i.RelativePath == rootPath ||
+                    i.RelativePath == $"{rootPath}/{StringConstants.DefaultKey}");
 
                 var section = new SiteMapDisplaySection
                 {
                     RelativePath = rootPath,
                     Items = new List<SiteMapDisplayItem>(),
-                    PageTitle = rootItem?.PageTitle ?? group.Key // Fallback to group.Key if rootItem is null
+                    PageTitle = rootItem?.PageTitle ?? group.Key
                 };
 
-                foreach (var item in group.OrderBy(i => i.PageTitle)) // Sort children by title
+                foreach (var item in group.OrderBy(i => i.PageTitle))
                 {
-                    // Skip the root/index page of the section
                     if (item != rootItem)
                     {
                         section.Items.Add(item);
@@ -884,7 +809,6 @@ namespace WebPagePub.Data.Repositories.Implementations
                 sections.Add(section);
             }
 
-            // Sort sections by a consistent property, fallback to RelativePath if PageTitle is not available
             return sections.OrderBy(s => s.PageTitle ?? s.RelativePath).ToList();
         }
     }

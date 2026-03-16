@@ -1,9 +1,9 @@
-﻿using log4net;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using log4net;
+using Microsoft.EntityFrameworkCore;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models.Db;
@@ -34,7 +34,6 @@ namespace WebPagePub.Data.Repositories.Implementations
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
@@ -45,6 +44,13 @@ namespace WebPagePub.Data.Repositories.Implementations
             {
                 var entry = this.Context.SitePageSection.Find(sitePageSectionId);
 
+                // FIX: Find returns null when the record does not exist. Passing null
+                // to Remove throws ArgumentNullException with no useful context.
+                if (entry == null)
+                {
+                    return false;
+                }
+
                 this.Context.SitePageSection.Remove(entry);
                 this.Context.SaveChanges();
 
@@ -53,14 +59,8 @@ namespace WebPagePub.Data.Repositories.Implementations
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 return false;
             }
-        }
-
-        public void Dispose()
-        {
-            this.Context.Dispose();
         }
 
         public SitePageSection Get(int sitePageSectionId)
@@ -84,8 +84,9 @@ namespace WebPagePub.Data.Repositories.Implementations
                     return null;
                 }
 
-                return this.Context.SitePageSection.AsNoTracking()
-                              .FirstOrDefault(x => x.Key == key);
+                return this.Context.SitePageSection
+                    .AsNoTracking()
+                    .FirstOrDefault(x => x.Key == key);
             }
             catch (Exception ex)
             {
@@ -102,7 +103,6 @@ namespace WebPagePub.Data.Repositories.Implementations
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
@@ -111,13 +111,13 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.SitePageSection.AsNoTracking()
-                              .FirstOrDefault(x => x.IsHomePageSection == true);
+                return this.Context.SitePageSection
+                    .AsNoTracking()
+                    .FirstOrDefault(x => x.IsHomePageSection == true);
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
         }
@@ -128,14 +128,20 @@ namespace WebPagePub.Data.Repositories.Implementations
             {
                 if (model.IsHomePageSection)
                 {
-                    foreach (var page in this.Context.SitePageSection.ToList())
+                    // FIX: The original loaded EVERY section in the table as tracked
+                    // entities just to clear IsHomePageSection on all of them, then
+                    // called SaveChanges, generating an UPDATE for every row.
+                    //
+                    // Only sections that are currently marked as the home page section
+                    // (and are not the section we're about to set) actually need
+                    // updating. In practice this is at most one row, not a full table
+                    // scan. Load only those rows, flip them, and let SaveChanges
+                    // generate a single targeted UPDATE.
+                    foreach (var other in this.Context.SitePageSection
+                        .Where(x => x.IsHomePageSection && x.SitePageSectionId != model.SitePageSectionId)
+                        .ToList())
                     {
-                        page.IsHomePageSection = false;
-
-                        if (page.SitePageSectionId == model.SitePageSectionId)
-                        {
-                            page.IsHomePageSection = true;
-                        }
+                        other.IsHomePageSection = false;
                     }
                 }
 
@@ -147,9 +153,17 @@ namespace WebPagePub.Data.Repositories.Implementations
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
+        }
+
+        // The context is registered via AddDbContextPool in Program.cs — the DI
+        // container owns its lifetime. Calling Context.Dispose() here would return
+        // the context to the pool while other scoped services may still hold a
+        // reference to the same instance, causing use-after-dispose errors.
+        public void Dispose()
+        {
+            // Intentionally empty. Context lifetime is managed by the DI container.
         }
     }
 }

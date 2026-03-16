@@ -1,9 +1,9 @@
-﻿using log4net;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using log4net;
+using Microsoft.EntityFrameworkCore;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.DbContextInfo.Interfaces;
 using WebPagePub.Data.Models.Db;
@@ -38,11 +38,6 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
-        public void Dispose()
-        {
-            this.Context.Dispose();
-        }
-
         public LinkRedirection Get(int linkRedirectionId)
         {
             try
@@ -59,7 +54,9 @@ namespace WebPagePub.Data.Repositories.Implementations
         {
             try
             {
-                return this.Context.LinkRedirection.AsNoTracking().FirstOrDefault(x => x.LinkKey == key);
+                return this.Context.LinkRedirection
+                    .AsNoTracking()
+                    .FirstOrDefault(x => x.LinkKey == key);
             }
             catch (Exception ex)
             {
@@ -89,6 +86,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             try
             {
                 var entity = this.Context.LinkRedirection.Find(linkRedirectionId);
+
                 if (entity == null)
                 {
                     return false;
@@ -102,7 +100,6 @@ namespace WebPagePub.Data.Repositories.Implementations
             catch (Exception ex)
             {
                 Log.Fatal(ex);
-
                 return false;
             }
         }
@@ -118,6 +115,15 @@ namespace WebPagePub.Data.Repositories.Implementations
                 Log.Fatal(ex);
                 throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
             }
+        }
+
+        // The context is registered via AddDbContextPool in Program.cs — the DI
+        // container owns its lifetime. Calling Context.Dispose() here would return
+        // the context to the pool while other scoped services may still hold a
+        // reference to the same instance, causing use-after-dispose errors.
+        public void Dispose()
+        {
+            // Intentionally empty. Context lifetime is managed by the DI container.
         }
     }
 }
