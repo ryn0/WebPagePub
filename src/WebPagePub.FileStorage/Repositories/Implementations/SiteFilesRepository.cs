@@ -47,7 +47,7 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
                 return directory;
             }
 
-            await foreach (var page in container.GetBlobsByHierarchyAsync(prefix: prefix, delimiter: "/").AsPages())
+            await foreach (var page in container.GetBlobsByHierarchyAsync(BlobTraits.None, BlobStates.None, delimiter: "/", prefix: prefix, cancellationToken: CancellationToken.None).AsPages())
             {
                 foreach (var item in page.Values)
                 {
@@ -107,7 +107,6 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
 
             foreach (var item in allInDir)
             {
-                // todo: this was path, check how to do this now
                 await this.DeleteFileAsync(item.Name);
             }
         }
@@ -147,15 +146,12 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
 
                 stream.Seek(0, SeekOrigin.Begin);
 
-                // Upload the stream to the blob storage
                 await blob.UploadAsync(stream, overwrite: true);
 
                 var extension = FileNameUtilities.GetFileExtensionLower(fileName);
 
-                // Assuming SetPropertiesAsync handles content-type and other properties
                 await this.SetPropertiesAsync(blob, extension);
 
-                // Set the Cache-Control header if expiresDate is provided
                 if (!string.IsNullOrWhiteSpace(expiresDate))
                 {
                     if (DateTimeOffset.TryParse(expiresDate, out var expirationDate))
@@ -163,11 +159,9 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
                         var cacheDuration = expirationDate - DateTimeOffset.UtcNow;
                         var headers = new BlobHttpHeaders
                         {
-                            // Use Math.Floor to ensure the max-age is an integer value
                             CacheControl = $"max-age={(int)Math.Floor(cacheDuration.TotalSeconds)}"
                         };
 
-                        // Set the headers for the blob
                         await blob.SetHttpHeadersAsync(headers);
                     }
                 }
@@ -271,7 +265,7 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
                 return new List<BlobItem>();
             }
 
-            var resultSegment = container.GetBlobsAsync(prefix: prefix);
+            var resultSegment = container.GetBlobsAsync(BlobTraits.None, BlobStates.None, prefix: prefix, cancellationToken: CancellationToken.None);
             var allInDir = new List<BlobItem>();
             await foreach (var blobItem in resultSegment)
             {
