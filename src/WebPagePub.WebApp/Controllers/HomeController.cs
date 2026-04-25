@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Schema.NET;
@@ -8,12 +9,14 @@ using WebPagePub.Data.Enums;
 using WebPagePub.Data.Models;
 using WebPagePub.Data.Models.Db;
 using WebPagePub.Data.Repositories.Interfaces;
+using WebPagePub.Services;
 using WebPagePub.Services.Interfaces;
+using WebPagePub.Services.Models.Sponsors;
 using WebPagePub.Web.Helpers;
 using WebPagePub.Web.Models;
 using WebPagePub.WebApp.Helpers;
+using WebPagePub.WebApp.Models;
 using WebPagePub.WebApp.Models.Author;
-using System.Text.RegularExpressions;
 using WebPagePub.WebApp.Models.SitePage;
 using WebPagePub.WebApp.Models.StructuredData;
 
@@ -38,9 +41,8 @@ namespace WebPagePub.Web.Controllers
         private readonly ICacheService cacheService;
         private readonly IHttpContextAccessor accessor;
         private readonly ICaptchaService captcha;
-
-        // NEW: server-side snippet fetcher (no JS on client)
         private readonly ISnippetFetcher snippetFetcher;
+        private readonly ISponsorJsonClient sponsorJsonClient;
 
         public HomeController(
             IHttpContextAccessor accessor,
@@ -53,7 +55,8 @@ namespace WebPagePub.Web.Controllers
             IMemoryCache memoryCache,
             ICacheService cacheService,
             ICaptchaService captcha,
-            ISnippetFetcher snippetFetcher) // << NEW
+            ISnippetFetcher snippetFetcher,
+            ISponsorJsonClient sponsorJsonClient)
         {
             this.accessor = accessor;
             this.spamFilterService = spamFilterService;
@@ -65,7 +68,8 @@ namespace WebPagePub.Web.Controllers
             this.memoryCache = memoryCache;
             this.cacheService = cacheService;
             this.captcha = captcha;
-            this.snippetFetcher = snippetFetcher; // << NEW
+            this.snippetFetcher = snippetFetcher;
+            this.sponsorJsonClient = sponsorJsonClient;
         }
 
         [HttpGet]
@@ -571,6 +575,9 @@ namespace WebPagePub.Web.Controllers
                 this.ViewBag.AdsHtml = this.FetchAdsHtmlFromSetting();
             }
 
+            // Server-side main sponsor cards (no JS on client). Fail-soft, cached upstream.
+            this.ViewBag.MainSponsors = this.LoadMainSponsorsForView();
+
             switch (model.PageType)
             {
                 case PageType.AffiliateContent:
@@ -1072,6 +1079,25 @@ namespace WebPagePub.Web.Controllers
             }
 
             return RewriteRelativeUrlsToAbsolute(html, baseUri);
+        }
+
+        /// <summary>
+        /// Pulls the current main sponsors via the JSON client (cached upstream).
+        /// Returns an empty list on any failure so the page render is never broken.
+        /// </summary>
+        private IReadOnlyList<SponsorCardItem> LoadMainSponsorsForView()
+        {
+            try
+            {
+                return this.sponsorJsonClient
+                    .GetMainSponsorsAsync(this.HttpContext.RequestAborted)
+                    .GetAwaiter()
+                    .GetResult();
+            }
+            catch
+            {
+                return Array.Empty<SponsorCardItem>();
+            }
         }
     }
 }

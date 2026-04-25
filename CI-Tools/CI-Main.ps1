@@ -14,7 +14,6 @@ Include (Join-Path $PowerShellScriptPath "ApplicationHelperFunctions.ps1")
 Include (Join-Path $PowerShellScriptPath "AzureHelperFunctions.ps1")
 Include (Join-Path $PowerShellScriptPath "BuildHelperFunctions.ps1")
 Include (Join-Path $PowerShellScriptPath "GeneralHelperFunctions.ps1")
-Include (Join-Path $PowerShellScriptPath "AzureHelperFunctions.ps1")
 Include (Join-Path $PowerShellScriptPath "GitHelperFunctions.ps1")
 
 # Define CLI input properties and defaults
@@ -23,7 +22,7 @@ properties {
    # Build
    $BuildConfiguration          = "release"
    $DotNetRunTime               = "win-x64"
-   $DotNetFramework             = "net9.0"
+   $DotNetFramework             = "net10.0"
    $msDeploy                    = "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe"    
    
    # Project paths

@@ -1,3 +1,0 @@
-﻿For the given question: "[question]", create an SEO optimized <h1> tag.
-
-Do not response with HTML. Just provide the text which would go into an <h1></h1> tag.

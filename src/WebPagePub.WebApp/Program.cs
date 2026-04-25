@@ -14,6 +14,7 @@ using WebPagePub.FileStorage.Repositories.Implementations;
 using WebPagePub.FileStorage.Repositories.Interfaces;
 using WebPagePub.Managers.Implementations;
 using WebPagePub.Managers.Interfaces;
+using WebPagePub.Services;
 using WebPagePub.Services.Implementations;
 using WebPagePub.Services.Interfaces;
 using WebPagePub.Services.Models;
@@ -109,6 +110,8 @@ builder.Services.AddTransient<IEmailSender>(x => new AmazonMailService(
 builder.Services.AddSingleton<IImageUploaderService, ImageUploaderService>();
 builder.Services.AddSingleton<ISiteFilesRepository, SiteFilesRepository>();
 builder.Services.AddSingleton<ISnippetFetcher, SnippetFetcher>();
+
+builder.Services.AddTransient<ISponsorJsonClient, SponsorJsonClient>();
 
 builder.Services.Configure<CaptchaOptions>(builder.Configuration.GetSection("Captcha"));
 builder.Services.AddTransient<ICaptchaService, CaptchaService>();
