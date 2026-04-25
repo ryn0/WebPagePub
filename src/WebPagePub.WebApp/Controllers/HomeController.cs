@@ -995,19 +995,20 @@ namespace WebPagePub.Web.Controllers
                 return new StructuredDataBreadcrumbModel();
             }
 
+            var position = 1;
             var breadcrumbList = new StructuredDataBreadcrumbModel()
             {
                 ItemListElement = new List<BreadcrumbListItem>()
                 {
-                           new BreadcrumbListItem()
-                           {
-                               Position = 1,
-                               Item = new BreadcrumbListItemProperties()
-                                {
-                                     Name = homeSection.BreadcrumbName,
-                                     PageUrl = new Uri(domain)
-                                }
-                           }
+                    new BreadcrumbListItem()
+                    {
+                        Position = position++,
+                        Item = new BreadcrumbListItemProperties()
+                        {
+                            Name = homeSection.BreadcrumbName,
+                            PageUrl = new Uri(domain)
+                        }
+                    }
                 }
             };
 
@@ -1015,7 +1016,7 @@ namespace WebPagePub.Web.Controllers
             {
                 breadcrumbList.ItemListElement.Add(new BreadcrumbListItem()
                 {
-                    Position = 2,
+                    Position = position++,
                     Item = new BreadcrumbListItemProperties()
                     {
                         Name = sitePageSection.BreadcrumbName,
@@ -1026,18 +1027,17 @@ namespace WebPagePub.Web.Controllers
 
             if (!sitePage.IsSectionHomePage)
             {
-                breadcrumbList.ItemListElement.Add(
-                           new BreadcrumbListItem()
-                           {
-                               Position = 3,
-                               Item = new BreadcrumbListItemProperties()
-                               {
-                                   Name = sitePage.BreadcrumbName,
-                                   PageUrl = new Uri(
-                                       new Uri(domain),
-                                       UrlBuilder.BlogUrlPath(sitePageSection.Key, sitePage.Key))
-                               }
-                           });
+                breadcrumbList.ItemListElement.Add(new BreadcrumbListItem()
+                {
+                    Position = position++,
+                    Item = new BreadcrumbListItemProperties()
+                    {
+                        Name = sitePage.BreadcrumbName,
+                        PageUrl = new Uri(
+                            new Uri(domain),
+                            UrlBuilder.BlogUrlPath(sitePageSection.Key, sitePage.Key))
+                    }
+                });
             }
 
             return breadcrumbList;

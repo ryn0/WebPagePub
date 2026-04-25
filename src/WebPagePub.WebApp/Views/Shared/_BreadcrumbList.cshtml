@@ -1,45 +1,43 @@
 ﻿@model StructuredDataBreadcrumbModel
 @using Newtonsoft.Json;
 @using WebPagePub.WebApp.Models.StructuredData;
- 
+
 @if (Model.ItemListElement != null && Model.ItemListElement.Count > 0)
 {
-<script type="application/ld+json">
-    
-    @Html.Raw(JsonConvert.SerializeObject(Model))
+    @* Re-index positions to be sequential 1..N. The controller may skip
+       position 2 when the section is the home section, which produces an
+       invalid BreadcrumbList (1, 3). *@
+    {
+        for (var i = 0; i < Model.ItemListElement.Count; i++)
+        {
+            Model.ItemListElement[i].Position = i + 1;
+        }
+    }
 
+    <script type="application/ld+json">
+        @Html.Raw(JsonConvert.SerializeObject(Model))
     </script>
 
     <br />
     <ol class="breadcrumbs">
-
         @foreach (var item in Model.ItemListElement)
         {
-
-            <li> 
-                                @if (item.Item.PageUrl == Model.ItemListElement[0].Item.PageUrl)
-                                {
-
-                                    <i class="fa fa-home fa-fw" aria-hidden="true"></i><a href="@item.Item.PageUrl">@item.Item.Name</a>
+            <li>
+                @if (item.Item.PageUrl == Model.ItemListElement[0].Item.PageUrl)
+                {
+                    <i class="fa fa-home fa-fw" aria-hidden="true"></i><a href="@item.Item.PageUrl">@item.Item.Name</a>
                 }
                 else
                 {
                     <a href="@item.Item.PageUrl">@item.Item.Name</a>
-
                 }
-
 
                 @if (item.Item.PageUrl != Model.ItemListElement.Last().Item.PageUrl)
                 {
-                <text>
-                    ›&nbsp;
-                </text>
+                    <text>›&nbsp;</text>
                 }
             </li>
         }
-
-
-
     </ol>
     <br />
     <div class="clear"></div>
