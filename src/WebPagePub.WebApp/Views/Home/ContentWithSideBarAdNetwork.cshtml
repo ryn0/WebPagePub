@@ -65,45 +65,8 @@
 
             <div class="col-md-4">
                 <div class="sidebar-sticky">
-                    @if (mainSponsors.Count > 0)
-                    {
-                        <section class="main-sponsors main-sponsors-sidebar" aria-label="Main sponsors">
-                            <h2 class="main-sponsors-heading">Main Sponsors</h2>
-                            <div class="sponsor-grid sponsor-grid-stacked">
-                                @foreach (var s in mainSponsors)
-                                {
-                                    <div class="sponsor-card">
-                                        <div class="sponsor-card-header">
-                                            <a class="sponsor-card-name"
-                                               href="@s.Link"
-                                               target="_blank"
-                                               rel="noopener sponsored">@s.Name</a>
-                                            @if (s.ReviewCount > 0)
-                                            {
-                                                <span class="sponsor-card-rating">
-                                                    <a href="@s.ReviewLink" rel="nofollow">
-                                                        <span class="sponsor-card-stars" aria-hidden="true">★</span>@s.ReviewRating.ToString("0.0")
-                                                        <span class="sponsor-card-rating-count">(@s.ReviewCount)</span>
-                                                    </a>
-                                                </span>
-                                            }
-                                        </div>
-
-                                        <p class="sponsor-card-description">@s.Description</p>
-
-                                        @if (!string.IsNullOrWhiteSpace(s.Note))
-                                        {
-                                            <p class="sponsor-card-note">@s.Note</p>
-                                        }
-
-                                        <a class="sponsor-card-cta"
-                                           href="@s.Link"
-                                           target="_blank"
-                                           rel="noopener sponsored">Visit @s.Name</a>
-                                    </div>
-                                }
-                            </div>
-                        </section>
+                    @{
+                        await Html.RenderPartialAsync("_MainSponsorsSidebar", mainSponsors);
                     }
                 </div>
             </div>
