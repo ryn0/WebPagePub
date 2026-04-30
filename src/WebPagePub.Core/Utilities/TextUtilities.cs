@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System;
 using System.Text.RegularExpressions;
 
 namespace WebPagePub.Core.Utilities
@@ -12,11 +12,16 @@ namespace WebPagePub.Core.Utilities
                 return 0;
             }
 
-            var text = html.Replace("\r\n", " ");
-            text = StripHtml(text);
-            var words = text.Split(' ').Where(x => !string.IsNullOrWhiteSpace(x));
+            var text = StripHtml(html);
 
-            return words.Count();
+            // Split on any whitespace (space, tab, \r, \n) and drop empty entries.
+            // The previous implementation only replaced "\r\n" and split on ' ',
+            // which under-counted on Linux (LF-only line endings) and on text using
+            // tabs as separators. Passing a null char[] tells Split to use all
+            // Unicode whitespace as separators.
+            var words = text.Split(default(char[])!, StringSplitOptions.RemoveEmptyEntries);
+
+            return words.Length;
         }
 
         public static string StripHtml(string htmlString)

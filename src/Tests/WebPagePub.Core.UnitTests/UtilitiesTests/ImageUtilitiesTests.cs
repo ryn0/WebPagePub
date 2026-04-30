@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Drawing;
-using System.Runtime.InteropServices;
+using System.IO;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using WebPagePub.Core.Utilities;
 using Xunit;
 
@@ -11,135 +12,109 @@ namespace WebPagePub.Core.UnitTests.UtilitiesTests
         [Fact]
         public void Rotate90Degrees_ShouldRotateImageCorrectly()
         {
-            // Arrange
-            var originalImage = new Bitmap(2, 3);
-            this.SetPixelsForOriginalImage(originalImage);  // This method would set the specific pixels for the image
+            // Arrange — build a 2x3 image with a distinct color at each pixel.
+            // Layout (x, y):
+            //   (0,0)=Red    (1,0)=Green
+            //   (0,1)=Blue   (1,1)=Yellow
+            //   (0,2)=White  (1,2)=Black
+            var red = Color.Red.ToPixel<Rgba32>();
+            var green = Color.Green.ToPixel<Rgba32>();
+            var blue = Color.Blue.ToPixel<Rgba32>();
+            var yellow = Color.Yellow.ToPixel<Rgba32>();
+            var white = Color.White.ToPixel<Rgba32>();
+            var black = Color.Black.ToPixel<Rgba32>();
 
-            var expectedRotatedImage = new Bitmap(3, 2);
-            this.SetPixelsForExpectedRotatedImage(expectedRotatedImage);  // This method would set the pixels for the expected rotated image
+            using var original = new Image<Rgba32>(2, 3);
+            original[0, 0] = red;
+            original[1, 0] = green;
+            original[0, 1] = blue;
+            original[1, 1] = yellow;
+            original[0, 2] = white;
+            original[1, 2] = black;
+
+            using var input = new MemoryStream();
+            original.SaveAsPng(input);
 
             // Act
-            var resultImage = ImageUtilities.Rotate90Degrees(originalImage);
+            using var resultStream = ImageUtilities.Rotate90Degrees(input);
+            using var result = Image.Load<Rgba32>(resultStream);
 
-            // Assert
-            Assert.True(this.BitmapAreEqual(expectedRotatedImage, resultImage));
+            // Assert — after 90° clockwise rotation, the 2x3 becomes 3x2:
+            //   (0,0)=White  (1,0)=Blue    (2,0)=Red
+            //   (0,1)=Black  (1,1)=Yellow  (2,1)=Green
+            Assert.Equal(3, result.Width);
+            Assert.Equal(2, result.Height);
+            Assert.Equal(white, result[0, 0]);
+            Assert.Equal(blue, result[1, 0]);
+            Assert.Equal(red, result[2, 0]);
+            Assert.Equal(black, result[0, 1]);
+            Assert.Equal(yellow, result[1, 1]);
+            Assert.Equal(green, result[2, 1]);
+        }
+
+        [Fact]
+        public void Rotate90Degrees_WithNullStream_ShouldThrowArgumentNullException()
+        {
+            Stream? nullStream = null;
+            Assert.Throws<ArgumentNullException>(() => ImageUtilities.Rotate90Degrees(nullStream!));
         }
 
         [Fact]
         public void ScaleImage_WithImageSmallerThanMaxDimensions_ShouldReturnOriginalSize()
         {
             // Arrange
-            var originalImage = new Bitmap(50, 50);  // Example image size
-            var maxWidth = 100;
-            var maxHeight = 100;
+            using var original = new Image<Rgba32>(50, 50);
+            using var input = new MemoryStream();
+            original.SaveAsPng(input);
 
             // Act
-            var scaledImage = ImageUtilities.ScaleImage(originalImage, maxWidth, maxHeight);
+            using var resultStream = ImageUtilities.ScaleImage(input, 100, 100);
+            using var result = Image.Load(resultStream);
 
             // Assert
-            Assert.Equal(originalImage.Width, scaledImage.Width);
-            Assert.Equal(originalImage.Height, scaledImage.Height);
+            Assert.Equal(50, result.Width);
+            Assert.Equal(50, result.Height);
         }
 
         [Fact]
         public void ScaleImage_WithWidthAsLimitingFactor_ShouldScaleProportionally()
         {
-            // Arrange
-            var originalImage = new Bitmap(100, 50);  // Width is larger proportionally
-            var maxWidth = 50;
-            var maxHeight = 100;
+            // Arrange — width is the binding constraint (100 → 50 means ratio 0.5)
+            using var original = new Image<Rgba32>(100, 50);
+            using var input = new MemoryStream();
+            original.SaveAsPng(input);
 
             // Act
-            var scaledImage = ImageUtilities.ScaleImage(originalImage, maxWidth, maxHeight);
+            using var resultStream = ImageUtilities.ScaleImage(input, 50, 100);
+            using var result = Image.Load(resultStream);
 
             // Assert
-            Assert.Equal(50, scaledImage.Width);
-            Assert.Equal(25, scaledImage.Height);  // Height should be scaled down by the same ratio
+            Assert.Equal(50, result.Width);
+            Assert.Equal(25, result.Height);
         }
 
         [Fact]
         public void ScaleImage_WithHeightAsLimitingFactor_ShouldScaleProportionally()
         {
-            // Arrange
-            var originalImage = new Bitmap(50, 100);  // Height is larger proportionally
-            var maxWidth = 100;
-            var maxHeight = 50;
+            // Arrange — height is the binding constraint (100 → 50 means ratio 0.5)
+            using var original = new Image<Rgba32>(50, 100);
+            using var input = new MemoryStream();
+            original.SaveAsPng(input);
 
             // Act
-            var scaledImage = ImageUtilities.ScaleImage(originalImage, maxWidth, maxHeight);
+            using var resultStream = ImageUtilities.ScaleImage(input, 100, 50);
+            using var result = Image.Load(resultStream);
 
             // Assert
-            Assert.Equal(25, scaledImage.Width);  // Width should be scaled down by the same ratio
-            Assert.Equal(50, scaledImage.Height);
+            Assert.Equal(25, result.Width);
+            Assert.Equal(50, result.Height);
         }
 
         [Fact]
-        public void ScaleImage_WithNullImage_ShouldThrowArgumentNullException()
+        public void ScaleImage_WithNullStream_ShouldThrowArgumentNullException()
         {
-            // Arrange
-            Image nullImage = null;
-            var maxWidth = 100;
-            var maxHeight = 100;
-
-            // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => ImageUtilities.ScaleImage(nullImage, maxWidth, maxHeight));
-        }
-
-        private bool BitmapAreEqual(Bitmap bmp1, Bitmap bmp2)
-        {
-            for (int i = 0; i < bmp1.Width; i++)
-            {
-                for (int j = 0; j < bmp1.Height; j++)
-                {
-                    if (bmp1.GetPixel(i, j) != bmp2.GetPixel(i, j))
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
-        }
-
-        private void SetPixelsForOriginalImage(Bitmap image)
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                // Let's imagine the original 2x3 image has colors as follows:
-                // Red, Green
-                // Blue, Yellow
-                // White, Black
-                image.SetPixel(0, 0, Color.Red);
-                image.SetPixel(1, 0, Color.Green);
-                image.SetPixel(0, 1, Color.Blue);
-                image.SetPixel(1, 1, Color.Yellow);
-                image.SetPixel(0, 2, Color.White);
-                image.SetPixel(1, 2, Color.Black);
-            }
-            else
-            {
-                throw new Exception("Not implemented for non-Windows platforms");
-            }
-        }
-
-        private void SetPixelsForExpectedRotatedImage(Bitmap image)
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                // After rotating the above 2x3 image by 90 degrees clockwise, we should get a 3x2 image:
-                // White, Blue, Red
-                // Black, Yellow, Green
-                image.SetPixel(0, 0, Color.White);
-                image.SetPixel(1, 0, Color.Blue);
-                image.SetPixel(2, 0, Color.Red);
-                image.SetPixel(0, 1, Color.Black);
-                image.SetPixel(1, 1, Color.Yellow);
-                image.SetPixel(2, 1, Color.Green);
-            }
-            else
-            {
-                throw new Exception("Not implemented for non-Windows platforms");
-            }
+            Stream? nullStream = null;
+            Assert.Throws<ArgumentNullException>(() => ImageUtilities.ScaleImage(nullStream!, 100, 100));
         }
     }
 }

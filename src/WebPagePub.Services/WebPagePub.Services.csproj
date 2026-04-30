@@ -6,15 +6,11 @@
 
   </PropertyGroup>
   <ItemGroup>
-  <PackageReference Include="Aspose.Imaging" Version="26.4.0" />
   <PackageReference Include="AWSSDK.Core" Version="4.0.4" />
   <PackageReference Include="AWSSDK.SimpleEmail" Version="4.0.2.26" />
   <PackageReference Include="IPinfo" Version="3.4.0" />
   <PackageReference Include="log4net" Version="3.3.1" />
   <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="14.13.0" />
-  <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.3.9" />
-  <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.3.9" />
-  <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.9" />
   <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.7" />
   <PackageReference Include="NeutrinoAPI" Version="3.6.0" />
   <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
@@ -22,8 +18,10 @@
     <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
   </PackageReference>
   <PackageReference Include="System.Drawing.Common" Version="10.0.7" />
-  <PackageReference Include="System.Windows.Extensions" Version="10.0.7" />
   </ItemGroup>
+  <ItemGroup>
+  <FrameworkReference Include="Microsoft.AspNetCore.App" />
+</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WebPagePub.Core\WebPagePub.Core.csproj" />
     <ProjectReference Include="..\WebPagePub.Data\WebPagePub.Data.csproj" />

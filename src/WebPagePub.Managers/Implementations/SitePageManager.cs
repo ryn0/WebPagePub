@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using SixLabors.ImageSharp;
 using WebPagePub.Core.Utilities;
 using WebPagePub.Data.Constants;
 using WebPagePub.Data.Enums;
@@ -135,19 +135,21 @@ namespace WebPagePub.Managers.Implementations
                 // exhaustion under load (TIME_WAIT accumulation). IImageUploaderService
                 // already wraps a properly-managed IHttpClientFactory client — reuse it.
                 //
-                // FIX 3: Bitmap now lives inside a `using` so it is always disposed,
-                // even if an exception is thrown after creation. The original code only
-                // called img.Dispose() at the bottom, leaking the GDI handle on any
-                // exception thrown before that line.
+                // FIX 3 (Linux compatibility): The original loaded the entire image into
+                // a System.Drawing Bitmap solely to read Width and Height. System.Drawing
+                // throws PlatformNotSupportedException on Linux. ImageSharp's Image.Identify
+                // reads only the header bytes — no pixel decoding — and returns dimensions
+                // and metadata. It's both cross-platform and significantly faster than
+                // loading the full image.
                 //
                 // FIX 4 (dead code removed): The original fetched `sitePage` and
                 // `sitePageSection` from the DB immediately after this block. Neither
                 // variable was used anywhere — they were pure dead DB round-trips.
                 using var stream = await this.imageUploaderService.ToStreamAsync(new Uri(entry.PhotoFullScreenUrl));
-                using var img = new Bitmap(stream);
+                var imageInfo = Image.Identify(stream);
 
-                entry.PhotoFullScreenUrlHeight = img.Height;
-                entry.PhotoFullScreenUrlWidth = img.Width;
+                entry.PhotoFullScreenUrlHeight = imageInfo.Height;
+                entry.PhotoFullScreenUrlWidth = imageInfo.Width;
                 this.sitePagePhotoRepository.Update(entry);
                 this.sitePagePhotoRepository.SetDefaultPhoto(sitePagePhotoId);
 
@@ -515,22 +517,22 @@ namespace WebPagePub.Managers.Implementations
         {
             var folderPath = GetBlogPhotoFolder(sitePageId);
 
-            // FIX 7: The original disposed rotatedBitmap twice (two rotatedBitmap.Dispose()
-            // calls at the bottom). Double-disposing a GDI Bitmap can throw an
-            // ArgumentException on some platforms. Replaced with a single `using` scope
-            // for each disposable so the compiler guarantees exactly one dispose each.
+            // FIX 7 (Linux compatibility): The original loaded the source into a
+            // System.Drawing Image, rotated to a Bitmap, then re-encoded via the
+            // imageUploaderService's ToAStream + SetImageFormat helpers. All four
+            // steps are now handled by ImageUtilities.Rotate90Degrees, which uses
+            // ImageSharp internally and preserves the source format automatically
+            // (JPEG → JPEG, PNG → PNG, etc.) by reading DecodedImageFormat.
             //
-            // FIX 8: streamRotated was only disposed via a manual call. Now inside a
-            // `using` so it is always released, including on exceptions.
+            // FIX 8 (correctness): The original had two rotatedBitmap.Dispose() calls,
+            // which can throw ArgumentException on a double-dispose. Replaced with a
+            // single `using` scope per disposable so the compiler guarantees exactly
+            // one dispose path.
             using var sourceStream = await this.imageUploaderService.ToStreamAsync(new Uri(photoUrl));
-            using var sourceImage = Image.FromStream(sourceStream);
-            using var rotatedBitmap = ImageUtilities.Rotate90Degrees(sourceImage);
-            using var streamRotated = this.imageUploaderService.ToAStream(
-                rotatedBitmap,
-                this.imageUploaderService.SetImageFormat(photoUrl));
+            using var rotatedStream = ImageUtilities.Rotate90Degrees(sourceStream);
 
             var url = await this.siteFilesRepository.UploadAsync(
-                streamRotated,
+                rotatedStream,
                 photoUrl.GetFileNameFromUrl(),
                 folderPath);
 

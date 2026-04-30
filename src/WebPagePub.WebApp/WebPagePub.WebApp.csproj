@@ -40,6 +40,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+<PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+<PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.7" />
 		<PackageReference Include="Schema.NET" Version="13.0.0" />
 		<PackageReference Include="StyleCop.Analyzers" Version="1.1.118">

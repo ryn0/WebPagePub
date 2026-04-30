@@ -1,30 +1,76 @@
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.IO;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 namespace WebPagePub.Core.Utilities
 {
-    public class ImageUtilities
+    public static class ImageUtilities
     {
-        public static Bitmap Rotate90Degrees(Image image)
+        /// <summary>
+        /// Rotates an image 90 degrees clockwise. Output is encoded in the
+        /// same format as the input (JPEG stays JPEG, PNG stays PNG, etc.).
+        /// </summary>
+        /// <param name="input">A stream containing encoded image data.</param>
+        /// <returns>A new MemoryStream positioned at 0 containing the rotated image.</returns>
+        public static MemoryStream Rotate90Degrees(Stream input)
         {
-            image.RotateFlip(RotateFlipType.Rotate90FlipNone);
-            var rotatedBmp = new Bitmap(image);
-
-            return rotatedBmp;
-        }
-
-        public static Bitmap ScaleImage(Image image, int maxWidth, int maxHeight)
-        {
-            if (image == null)
+            if (input == null)
             {
-                throw new ArgumentNullException(nameof(image));
+                throw new ArgumentNullException(nameof(input));
             }
 
+            if (input.CanSeek)
+            {
+                input.Position = 0;
+            }
+
+            using var image = Image.Load(input);
+            image.Mutate(x => x.Rotate(RotateMode.Rotate90));
+
+            var output = new MemoryStream();
+            image.Save(output, image.Metadata.DecodedImageFormat
+                ?? throw new InvalidOperationException("Unable to determine source image format."));
+            output.Position = 0;
+            return output;
+        }
+
+        /// <summary>
+        /// Scales an image proportionally to fit within max width and height.
+        /// If the image is already within bounds, the original bytes are returned
+        /// unchanged. Output is encoded in the same format as the input.
+        /// </summary>
+        /// <param name="input">A stream containing encoded image data.</param>
+        /// <param name="maxWidth">Maximum width in pixels.</param>
+        /// <param name="maxHeight">Maximum height in pixels.</param>
+        /// <returns>A new MemoryStream positioned at 0 containing the scaled image.</returns>
+        public static MemoryStream ScaleImage(Stream input, int maxWidth, int maxHeight)
+        {
+            if (input == null)
+            {
+                throw new ArgumentNullException(nameof(input));
+            }
+
+            if (input.CanSeek)
+            {
+                input.Position = 0;
+            }
+
+            using var image = Image.Load(input);
+
+            // If already within bounds, copy the original bytes through unchanged.
+            // Re-encoding would cause unnecessary quality loss for JPEGs.
             if (image.Width <= maxWidth && image.Height <= maxHeight)
             {
-                return new Bitmap(image);  // If the image is already smaller than or equal to the max dimensions, return it as is.
+                if (input.CanSeek)
+                {
+                    input.Position = 0;
+                }
+
+                var copy = new MemoryStream();
+                input.CopyTo(copy);
+                copy.Position = 0;
+                return copy;
             }
 
             var ratioX = (double)maxWidth / image.Width;
@@ -34,28 +80,31 @@ namespace WebPagePub.Core.Utilities
             var newWidth = (int)(image.Width * ratio);
             var newHeight = (int)(image.Height * ratio);
 
-            var newImage = new Bitmap(newWidth, newHeight);
-
-            using (var graphics = Graphics.FromImage(newImage))
+            image.Mutate(x => x.Resize(new ResizeOptions
             {
-                graphics.SmoothingMode = SmoothingMode.HighQuality;
-                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                graphics.DrawImage(image, 0, 0, newWidth, newHeight);
-            }
+                Size = new Size(newWidth, newHeight),
+                Sampler = KnownResamplers.Bicubic,
+                Mode = ResizeMode.Stretch,
+            }));
 
-            return newImage;
+            var output = new MemoryStream();
+            image.Save(output, image.Metadata.DecodedImageFormat
+                ?? throw new InvalidOperationException("Unable to determine source image format."));
+            output.Position = 0;
+            return output;
         }
 
+        /// <summary>
+        /// Reads a file fully into a MemoryStream and resets the position to 0.
+        /// </summary>
         public static MemoryStream ConvertFileToMemoryStream(string filePath)
         {
-            MemoryStream memoryStream = new MemoryStream();
-            using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            var memoryStream = new MemoryStream();
+            using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             {
                 fileStream.CopyTo(memoryStream);
             }
 
-            // It's important to reset the position of the MemoryStream to the beginning after copying the content
             memoryStream.Position = 0;
             return memoryStream;
         }
