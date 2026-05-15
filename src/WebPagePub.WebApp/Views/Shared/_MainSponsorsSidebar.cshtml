@@ -14,17 +14,19 @@
                            href="@s.Link"
                            target="_blank"
                            rel="noopener sponsored">@s.Name</a>
-                        @if (s.ReviewCount > 0)
+                        @if (s.ReviewCount > 0 && s.ReviewRating.HasValue)
                         {
-                            var pct = (Math.Max(0, Math.Min(5, s.ReviewRating)) / 5d * 100d).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+                            var rating = s.ReviewRating.Value;
+                            var pct = (Math.Max(0, Math.Min(5, rating)) / 5d * 100d)
+                                .ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
                             <span class="sponsor-card-rating">
                                 <a href="@s.ReviewLink" rel="nofollow"
-                                   aria-label="@s.ReviewRating.ToString("0.0") out of 5 stars, @s.ReviewCount reviews">
+                                   aria-label="@rating.ToString("0.0") out of 5 stars, @s.ReviewCount reviews">
                                     <span class="stars-wrap" aria-hidden="true">
                                         <span class="stars-empty">★★★★★</span>
                                         <span class="stars-fill" style="width:@(pct)%">★★★★★</span>
                                     </span>
-                                    <span class="sponsor-card-rating-num">@s.ReviewRating.ToString("0.0")</span>
+                                    <span class="sponsor-card-rating-num">@rating.ToString("0.0")</span>
                                     <span class="sponsor-card-rating-count">(@s.ReviewCount)</span>
                                 </a>
                             </span>

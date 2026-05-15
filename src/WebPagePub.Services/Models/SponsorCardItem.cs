@@ -16,7 +16,7 @@ namespace WebPagePub.Services.Models.Sponsors
         public DateTime ExpirationDate { get; set; }
 
         [JsonPropertyName("reviewRating")]
-        public double ReviewRating { get; set; }
+        public double? ReviewRating { get; set; }
 
         [JsonPropertyName("reviewCount")]
         public int ReviewCount { get; set; }

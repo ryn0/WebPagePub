@@ -29,6 +29,9 @@ namespace WebPagePub.Web.Controllers
         private const long DefaultPageEntrySize = 128 * 1024; // 128 KB in byte
         private const long DefaultSectionEntrySize = 8 * 1024;   // ~8 KB per section
 
+        private const long AdsHtmlEntrySize = 16 * 1024; // ~16 KB rough sizing
+        private static readonly TimeSpan AdsHtmlCacheDuration = TimeSpan.FromMinutes(5);
+
         private static readonly TimeSpan CacheSlidingExpiry = TimeSpan.FromMinutes(IntegerConstants.PageCachingMinutes);
 
         private readonly ISpamFilterService spamFilterService;
@@ -1064,21 +1067,32 @@ namespace WebPagePub.Web.Controllers
                 return string.Empty;
             }
 
+            var cacheKey = $"ads-html:{rawUrl}";
+            if (this.memoryCache.TryGetValue<string>(cacheKey, out var cached))
+            {
+                return cached ?? string.Empty;
+            }
+
             string html;
             try
             {
-                html = this.snippetFetcher
-                    .GetAsync(rawUrl)
-                    .GetAwaiter()
-                    .GetResult();
+                html = this.snippetFetcher.GetAsync(rawUrl).GetAwaiter().GetResult();
             }
-            catch
+            catch (Exception ex)
             {
-                // Optional: log the error; never fail the page render due to ad issues
+                // log it now that we know how silent catches bite
                 return string.Empty;
             }
 
-            return RewriteRelativeUrlsToAbsolute(html, baseUri);
+            var rewritten = RewriteRelativeUrlsToAbsolute(html, baseUri);
+
+            var options = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(AdsHtmlCacheDuration)
+                .SetPriority(CacheItemPriority.Low)
+                .SetSize(AdsHtmlEntrySize);
+            this.memoryCache.Set(cacheKey, rewritten, options);
+
+            return rewritten;
         }
 
         /// <summary>
