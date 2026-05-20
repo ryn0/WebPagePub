@@ -489,14 +489,9 @@ namespace WebPagePub.Data.Repositories.Implementations
             {
                 if (model.IsSectionHomePage)
                 {
-                    // FIX: The original loaded EVERY page in the section as tracked
-                    // entities (including the full Content HTML blob) just to clear
-                    // IsSectionHomePage on all of them, generating an UPDATE per row.
-                    //
                     // Only pages that are currently the section home page AND are not
                     // the page we're about to promote actually need updating. In
-                    // practice this is at most one row. Load only those rows and flip
-                    // them — SaveChanges generates a single targeted UPDATE.
+                    // practice this is at most one row.
                     foreach (var other in this.Context.SitePage
                         .Where(x => x.SitePageSectionId == model.SitePageSectionId &&
                                     x.IsSectionHomePage &&
@@ -509,10 +504,27 @@ namespace WebPagePub.Data.Repositories.Implementations
 
                 model.WordCount = TextUtilities.GetWordCount(model.Content);
 
-                this.Context.SitePage.Update(model);
+                // Load the row into the change tracker WITHOUT including any
+                // navigations. With no stale SitePageSection reference attached,
+                // EF Core's relationship fixup has nothing to reconcile against
+                // and the FK change persists cleanly.
+                var existing = this.Context.SitePage
+                    .FirstOrDefault(x => x.SitePageId == model.SitePageId);
+
+                if (existing == null)
+                {
+                    return false;
+                }
+
+                // CurrentValues.SetValues copies only scalar/FK properties from the
+                // detached model onto the tracked entity. Navigation properties are
+                // left alone. SaveChanges generates a tight UPDATE containing only
+                // columns whose values actually changed.
+                ((DbContext)this.Context).Entry(existing).CurrentValues.SetValues(model);
+
                 this.Context.SaveChanges();
 
-                await this.LogToAuditTable(model);
+                await this.LogToAuditTable(existing);
 
                 return true;
             }
