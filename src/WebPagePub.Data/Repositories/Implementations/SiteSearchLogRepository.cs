@@ -70,7 +70,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             if (!string.IsNullOrWhiteSpace(term))
             {
                 var t = term.Trim();
-                q = q.Where(x => x.Term.Contains(t));
+                q = q.Where(x => x.Term.ToLower().Contains(t.ToLower()));
             }
 
             var total = await q.CountAsync(token);

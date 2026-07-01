@@ -180,16 +180,16 @@ namespace WebPagePub.Data.Repositories.Implementations
             var termLen = term.Length;
 
             var candidates = baseQ.Where(x =>
-                   EF.Functions.Like(x.Title ?? string.Empty, likeAny)
-                || EF.Functions.Like(x.Content ?? string.Empty, likeAny)
-                || EF.Functions.Like(x.PageHeader ?? string.Empty, likeAny)
-                || EF.Functions.Like(x.MetaDescription ?? string.Empty, likeAny)
-                || EF.Functions.Like(x.BreadcrumbName ?? string.Empty, likeAny)
-                || EF.Functions.Like(x.Key ?? string.Empty, likeAny)
-                || EF.Functions.Like(x.ReviewItemName ?? string.Empty, likeAny)
+                   EF.Functions.ILike(x.Title ?? string.Empty, likeAny)
+                || EF.Functions.ILike(x.Content ?? string.Empty, likeAny)
+                || EF.Functions.ILike(x.PageHeader ?? string.Empty, likeAny)
+                || EF.Functions.ILike(x.MetaDescription ?? string.Empty, likeAny)
+                || EF.Functions.ILike(x.BreadcrumbName ?? string.Empty, likeAny)
+                || EF.Functions.ILike(x.Key ?? string.Empty, likeAny)
+                || EF.Functions.ILike(x.ReviewItemName ?? string.Empty, likeAny)
                 || x.SitePageTags.Any(t =>
-                       EF.Functions.Like(t.Tag.Name ?? string.Empty, likeAny) ||
-                       EF.Functions.Like(t.Tag.Key ?? string.Empty, likeAny)));
+                       EF.Functions.ILike(t.Tag.Name ?? string.Empty, likeAny) ||
+                       EF.Functions.ILike(t.Tag.Key ?? string.Empty, likeAny)));
 
             var total = await candidates.CountAsync();
 
@@ -204,8 +204,8 @@ namespace WebPagePub.Data.Repositories.Implementations
                     MetaCnt = (double)((x.MetaDescription ?? string.Empty).Length - (x.MetaDescription ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
                     ReviewCnt = (double)((x.ReviewItemName ?? string.Empty).Length - (x.ReviewItemName ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
                     ContentCnt = (double)((x.Content ?? string.Empty).Length - (x.Content ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
-                    TitleHit = EF.Functions.Like(x.Title ?? string.Empty, likeAny),
-                    StartsHit = EF.Functions.Like(x.Title ?? string.Empty, likeStart),
+                    TitleHit = EF.Functions.ILike(x.Title ?? string.Empty, likeAny),
+                    StartsHit = EF.Functions.ILike(x.Title ?? string.Empty, likeStart),
                     Recency = x.PublishDateTimeUtc > x.CreateDate ? x.PublishDateTimeUtc : x.CreateDate
                 })
                 .Select(r => new
@@ -691,13 +691,13 @@ namespace WebPagePub.Data.Repositories.Implementations
 
             var baseQ = this.Context.SitePage.AsNoTracking()
                 .Where(x => x.IsLive && (
-                       EF.Functions.Like(x.Title ?? string.Empty, like)
-                    || EF.Functions.Like(x.Content ?? string.Empty, like)
-                    || EF.Functions.Like(x.PageHeader ?? string.Empty, like)
-                    || EF.Functions.Like(x.MetaDescription ?? string.Empty, like)
-                    || EF.Functions.Like(x.BreadcrumbName ?? string.Empty, like)
-                    || EF.Functions.Like(x.Key ?? string.Empty, like)
-                    || EF.Functions.Like(x.ReviewItemName ?? string.Empty, like)));
+                       EF.Functions.ILike(x.Title ?? string.Empty, like)
+                    || EF.Functions.ILike(x.Content ?? string.Empty, like)
+                    || EF.Functions.ILike(x.PageHeader ?? string.Empty, like)
+                    || EF.Functions.ILike(x.MetaDescription ?? string.Empty, like)
+                    || EF.Functions.ILike(x.BreadcrumbName ?? string.Empty, like)
+                    || EF.Functions.ILike(x.Key ?? string.Empty, like)
+                    || EF.Functions.ILike(x.ReviewItemName ?? string.Empty, like)));
 
             total = baseQ.Count();
             if (total == 0)
@@ -709,7 +709,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                 .Select(x => new
                 {
                     x.SitePageId,
-                    TitleHit = EF.Functions.Like(x.Title ?? string.Empty, like),
+                    TitleHit = EF.Functions.ILike(x.Title ?? string.Empty, like),
                     TitleCnt = ((x.Title ?? string.Empty).Length - (x.Title ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
                     HeaderCnt = ((x.PageHeader ?? string.Empty).Length - (x.PageHeader ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
                     CrumbCnt = ((x.BreadcrumbName ?? string.Empty).Length - (x.BreadcrumbName ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
