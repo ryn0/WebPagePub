@@ -69,7 +69,9 @@ builder.Services.AddTransient<ICacheService, CacheService>();
 
 // DbContext: **pooling with cap**
 builder.Services.AddDbContextPool<ApplicationDbContext>(
-    options => options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection")),
+    options => WebPagePub.Data.DbContextInfo.DbProvider.Configure(
+        options,
+        builder.Configuration.GetConnectionString("PostgresConnection")),
     poolSize: 64);
 
 builder.Services.AddScoped<IApplicationDbContext>(sp =>

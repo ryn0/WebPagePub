@@ -104,7 +104,7 @@ fi
 # ---- Build appsettings.Production.json from template ----------------------
 step "Building appsettings.Production.json from template"
 
-export SQL_SERVER_CONNECTION="${SQL_SERVER_CONNECTION:-}"
+export POSTGRES_CONNECTION="${POSTGRES_CONNECTION:-}"
 export AWS_ACCESS_KEY="${AWS_ACCESS_KEY:-}"
 export AWS_SECRET_KEY="${AWS_SECRET_KEY:-}"
 export AWS_EMAIL_FROM="${AWS_EMAIL_FROM:-}"

@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
@@ -14,15 +14,19 @@ namespace WebPagePub.Data.DbContextInfo
         {
             var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
 
-            var builderConfigs = new ConfigurationBuilder()
+            this.Configuration = new ConfigurationBuilder()
                         .SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("appsettings.json");
+                        .AddJsonFile("appsettings.json", optional: true)
+                        .AddJsonFile("appsettings.Development.json", optional: true)
+                        .AddEnvironmentVariables()
+                        .Build();
 
-            this.Configuration = builderConfigs.Build();
-
-            var connectionString = this.Configuration["ConnectionStrings:SqlServerConnection"];
-
-            builder.UseSqlServer(connectionString);
+            // Connection string ALWAYS comes from config (appsettings / environment) — never
+            // hard-coded. For design-time commands, supply it via config or an env var such as
+            // ConnectionStrings__PostgresConnection. DbProvider.Configure throws if it is missing.
+            DbProvider.Configure(
+                builder,
+                this.Configuration.GetConnectionString("PostgresConnection"));
 
             return new ApplicationDbContext(builder.Options);
         }
