@@ -27,5 +27,7 @@ namespace WebPagePub.Data.Repositories.Interfaces
         int GetCommentCountForStatus(CommentStatus commentStatus);
 
         bool DeleteStaus(CommentStatus commentStatus);
+
+        bool Delete(int sitePageCommentId);
     }
 }

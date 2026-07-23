@@ -41,6 +41,15 @@ namespace WebPagePub.Data.Repositories.Implementations
 
         public IList<ClickLog> GetClicksInRange(DateTime startDate, DateTime endDate)
         {
+            // ClickLog.CreateDate is a Postgres 'timestamp with time zone' (timestamptz), and Npgsql
+            // only accepts UTC DateTimes for it. The report controllers build these bounds with
+            // `new DateTime(...)` (Kind=Unspecified), which throws "Cannot write DateTime with
+            // Kind=Unspecified to PostgreSQL type 'timestamp with time zone'". Normalize to UTC here
+            // so every caller is safe. The values are already UTC-intended, so just stamp the Kind
+            // (converting only if a Local time somehow arrives).
+            startDate = startDate.Kind == DateTimeKind.Local ? startDate.ToUniversalTime() : DateTime.SpecifyKind(startDate, DateTimeKind.Utc);
+            endDate = endDate.Kind == DateTimeKind.Local ? endDate.ToUniversalTime() : DateTime.SpecifyKind(endDate, DateTimeKind.Utc);
+
             try
             {
                 return this.Context.ClickLog

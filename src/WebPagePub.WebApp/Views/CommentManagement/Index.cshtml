@@ -20,6 +20,7 @@
         <thead>
             <tr>
                 <th>Name</th>
+                <th>Comment</th>
                 <th>Create Date</th>
                 <th>Status</th>
                 <th></th>
@@ -32,6 +33,17 @@
                 <tr>
                     <td>
                         @item.Name
+                        @if (!string.IsNullOrWhiteSpace(item.Website))
+                        {
+                            <br /><small class="text-muted">@item.Website</small>
+                        }
+                    </td>
+                    <td style="max-width:520px;">
+                        @{
+                            var preview = item.Comment ?? string.Empty;
+                            if (preview.Length > 220) { preview = preview.Substring(0, 220) + "…"; }
+                        }
+                        @preview
                     </td>
                     <td>
                         @item.CreateDate
@@ -39,8 +51,15 @@
                     <td>
                         @item.CommentStatus
                     </td>
-                    <td>
+                    <td style="white-space:nowrap;">
                         <a href="~/commentmanagement/edit?SitePageCommentId=@item.SitePageCommentId">Edit</a>
+                        <form asp-controller="CommentManagement" asp-action="Delete" method="post"
+                              style="display:inline;margin-left:.5rem;"
+                              onsubmit="return confirm('Delete this comment permanently?');">
+                            <input type="hidden" name="sitePageCommentId" value="@item.SitePageCommentId" />
+                            <input type="hidden" name="pageNumber" value="@Model.CurrentPageNumber" />
+                            <button type="submit" class="btn btn-sm btn-danger" style="padding:.1rem .5rem;">Delete</button>
+                        </form>
                     </td>
 
                 </tr>

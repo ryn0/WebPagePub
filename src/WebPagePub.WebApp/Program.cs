@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Rewrite;
@@ -61,6 +62,28 @@ builder.Services.AddSession(options =>
 // Useful helpers
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
+
+// -------------------------------------
+// Data Protection — persist the key ring so auth cookies / antiforgery tokens
+// survive restarts and redeploys (otherwise admins get logged out every deploy).
+// The service runs with ProtectHome=true + ProtectSystem=full + a rsync --delete'd
+// deploy dir, so the only stable writable spot is systemd's StateDirectory
+// (/var/lib/<app>, exposed as $STATE_DIRECTORY). SetApplicationName keeps the
+// purpose strings identical across deploys so the persisted keys keep working.
+// Falls back to the framework default when not run under systemd (e.g. dev).
+// -------------------------------------
+var dpKeyRoot = Environment.GetEnvironmentVariable("STATE_DIRECTORY");
+var dpAppName = Environment.GetEnvironmentVariable("WEBPAGEPUB_APP_NAME") ?? "webpagepub";
+if (!string.IsNullOrWhiteSpace(dpKeyRoot))
+{
+    // $STATE_DIRECTORY may list multiple paths (colon-separated); take the first.
+    var firstStateDir = dpKeyRoot.Split(':', StringSplitOptions.RemoveEmptyEntries)[0];
+    var keysDir = Path.Combine(firstStateDir, "dataprotection-keys");
+    Directory.CreateDirectory(keysDir);
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo(keysDir))
+        .SetApplicationName(dpAppName);
+}
 
 // -------------------------------------
 // App services

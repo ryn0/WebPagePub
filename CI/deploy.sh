@@ -141,10 +141,15 @@ Environment=ASPNETCORE_ENVIRONMENT=Production
 Environment=ASPNETCORE_URLS=http://127.0.0.1:$APP_PORT
 Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
 Environment=ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+Environment=WEBPAGEPUB_APP_NAME=$APP_NAME
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=full
 ProtectHome=true
+# Persistent, deploy-safe state dir (/var/lib/$APP_NAME) for the Data Protection key
+# ring so admin logins survive restarts and redeploys. systemd creates it, owns it by
+# the service user, and exposes it as \$STATE_DIRECTORY; it is auto-added to writable paths.
+StateDirectory=$APP_NAME
 ReadWritePaths=$DEPLOY_PATH
 
 [Install]

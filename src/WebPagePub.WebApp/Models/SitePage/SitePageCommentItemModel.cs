@@ -10,6 +10,10 @@ namespace WebPagePub.WebApp.Models.SitePage
 
         public string Name { get; set; } = default!;
 
+        public string? Comment { get; set; }
+
+        public string? Website { get; set; }
+
         public CommentStatus CommentStatus { get; set; }
     }
 }

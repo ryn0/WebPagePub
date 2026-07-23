@@ -157,6 +157,30 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
+        public bool Delete(int sitePageCommentId)
+        {
+            try
+            {
+                var comment = this.Context.SitePageComment
+                    .FirstOrDefault(x => x.SitePageCommentId == sitePageCommentId);
+
+                if (comment == null)
+                {
+                    return false;
+                }
+
+                this.Context.SitePageComment.Remove(comment);
+                this.Context.SaveChanges();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex);
+                throw new Exception(StringConstants.DBErrorMessage, ex.InnerException);
+            }
+        }
+
         public bool DeleteStaus(CommentStatus commentStatus)
         {
             try

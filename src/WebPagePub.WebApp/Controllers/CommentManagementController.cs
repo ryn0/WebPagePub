@@ -57,6 +57,8 @@ namespace WebPagePub.Web.Controllers
                 {
                     CreateDate = item.CreateDate,
                     Name = item.Name,
+                    Comment = item.Comment,
+                    Website = item.WebSite,
                     SitePageCommentId = item.SitePageCommentId,
                     CommentStatus = item.CommentStatus
                 });
@@ -125,6 +127,31 @@ namespace WebPagePub.Web.Controllers
             var dbModel = this.sitePageCommentRepository.DeleteStaus(CommentStatus.Spam);
 
             return this.RedirectToAction(nameof(this.Index));
+        }
+
+        [Route("CommentManagement/delete")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(int sitePageCommentId, int pageNumber = 1)
+        {
+            var comment = this.sitePageCommentRepository.Get(sitePageCommentId);
+
+            if (comment != null)
+            {
+                var sitePageId = comment.SitePageId;
+
+                this.sitePageCommentRepository.Delete(sitePageCommentId);
+
+                // Bust the page cache so a previously-approved comment disappears from the live page.
+                var sitePage = this.sitePageRepository.Get(sitePageId);
+                if (sitePage != null)
+                {
+                    var cacheKey = CacheHelper.GetPageCacheKey(sitePage.SitePageSection.Key, sitePage.Key);
+                    this.memoryCache.Remove(cacheKey);
+                }
+            }
+
+            return this.RedirectToAction(nameof(this.Index), new { pageNumber });
         }
     }
 }
