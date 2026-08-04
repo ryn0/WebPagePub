@@ -1,4 +1,4 @@
-﻿@using WebPagePub.Services.Models.Sponsors
+@using WebPagePub.Services.Models.Sponsors
 @using WebPagePub.WebApp.Models
 @model WebPagePub.WebApp.Models.SitePage.SitePageDisplayModel
 @inject WebPagePub.Services.Interfaces.ICacheService _cacheHelper
@@ -46,6 +46,12 @@
                         <hr />
                     }
                 </article>
+
+                @{
+                    // Compact sponsor strip in the slot between the comment box and the
+                    // previous/next block. Renders nothing when there is no sponsor feed.
+                    await Html.RenderPartialAsync("_MainSponsorsCompact", mainSponsors);
+                }
 
                 @if (Model.PageContent.Tags.Count > 0)
                 {

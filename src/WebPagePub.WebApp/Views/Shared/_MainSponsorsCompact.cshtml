@@ -1,0 +1,49 @@
+@using WebPagePub.Services.Models.Sponsors
+@model IReadOnlyList<SponsorCardItem>
+@*
+    Compact main-sponsor strip for the empty slot under the comment box on the
+    ...WithSideBarAdNetwork templates — denser than _MainSponsorsSidebar so it fits
+    a full-width band rather than a sidebar column.
+
+    Renders nothing when the sponsor feed is empty or unreachable (the controller
+    fails soft to an empty list), so templates on sites without a sponsor feed are
+    unaffected. Styling comes from the .main-sponsors-compact rules alongside the
+    other sponsor CSS.
+*@
+
+@if (Model != null && Model.Count > 0)
+{
+    <section class="main-sponsors main-sponsors-compact" aria-label="Main sponsors">
+        <h2 class="main-sponsors-heading main-sponsors-heading-compact">Main Sponsors</h2>
+        <div class="sponsor-grid sponsor-grid-compact">
+            @foreach (var s in Model)
+            {
+                <div class="sponsor-card sponsor-card-compact">
+                    <div class="sponsor-card-header">
+                        <a class="sponsor-card-name"
+                           href="@s.Link"
+                           target="_blank"
+                           rel="noopener sponsored">@s.Name</a>
+                        @if (s.ReviewCount > 0 && s.ReviewRating.HasValue)
+                        {
+                            var rating = s.ReviewRating.Value;
+                            var pct = (Math.Max(0, Math.Min(5, rating)) / 5d * 100d)
+                                .ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+                            <span class="sponsor-card-rating">
+                                <a href="@s.ReviewLink" rel="nofollow"
+                                   aria-label="@rating.ToString("0.0") out of 5 stars, @s.ReviewCount reviews">
+                                    <span class="stars-wrap" aria-hidden="true">
+                                        <span class="stars-empty">★★★★★</span>
+                                        <span class="stars-fill" style="width:@(pct)%">★★★★★</span>
+                                    </span>
+                                    <span class="sponsor-card-rating-num">@rating.ToString("0.0")</span>
+                                </a>
+                            </span>
+                        }
+                    </div>
+                    <p class="sponsor-card-description">@s.Description</p>
+                </div>
+            }
+        </div>
+    </section>
+}

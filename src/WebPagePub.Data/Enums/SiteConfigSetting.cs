@@ -26,5 +26,12 @@
         MenuFooterHtml = 21,
         LogoHtml = 22,
         AdNetworkProviderUrl = 23,
+
+        // Image storage provider selection. "Bunny" uses Bunny.net Edge Storage
+        // (the settings below); anything else falls back to Azure Blob.
+        StorageProvider = 24,
+        BunnyStorageZone = 25,
+        BunnyStorageAccessKey = 26,
+        BunnyStorageHost = 27,
     }
 }

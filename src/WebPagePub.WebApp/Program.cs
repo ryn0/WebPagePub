@@ -133,7 +133,29 @@ builder.Services.AddTransient<IEmailSender>(x => new AmazonMailService(
     builder.Configuration.GetSection("AmazonEmailCredentials:EmailFrom").Value));
 
 builder.Services.AddSingleton<IImageUploaderService, ImageUploaderService>();
-builder.Services.AddSingleton<ISiteFilesRepository, SiteFilesRepository>();
+// Image storage: Bunny.net Edge Storage when the StorageProvider config snippet
+// is "Bunny" (with a zone + key); otherwise Azure Blob. Chosen per-site so each
+// site migrates independently and unconfigured sites stay on Azure.
+builder.Services.AddSingleton<ISiteFilesRepository>(provider =>
+{
+    using var scope = provider.CreateScope();
+    var cacheService = scope.ServiceProvider.GetRequiredService<ICacheService>();
+
+    var storageProvider = cacheService.GetSnippet(SiteConfigSetting.StorageProvider);
+    var bunnyZone = cacheService.GetSnippet(SiteConfigSetting.BunnyStorageZone);
+    var bunnyKey = cacheService.GetSnippet(SiteConfigSetting.BunnyStorageAccessKey);
+    var bunnyHost = cacheService.GetSnippet(SiteConfigSetting.BunnyStorageHost);
+
+    if (!string.IsNullOrWhiteSpace(storageProvider)
+        && storageProvider.Trim().Equals("Bunny", StringComparison.OrdinalIgnoreCase)
+        && !string.IsNullOrWhiteSpace(bunnyZone)
+        && !string.IsNullOrWhiteSpace(bunnyKey))
+    {
+        return new BunnySiteFilesRepository(bunnyZone, bunnyKey, bunnyHost);
+    }
+
+    return new SiteFilesRepository(provider.GetRequiredService<IBlobService>());
+});
 builder.Services.AddSingleton<ISnippetFetcher, SnippetFetcher>();
 
 builder.Services.AddTransient<ISponsorJsonClient, SponsorJsonClient>();
