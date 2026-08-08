@@ -934,6 +934,14 @@ namespace WebPagePub.Web.Controllers
 
         private string BuildArticleSchema(SitePage sitePage)
         {
+            // The page visibly shows "Last updated: <UpdateDate>", so surface that same date as the
+            // article's published date in the structured data too. Otherwise search engines echo the
+            // original PublishDateTimeUtc in the SERP, which looks stale next to freshly-updated content.
+            var modifiedUtc = sitePage.UpdateDate ?? sitePage.PublishDateTimeUtc;
+            var publicDateUtc = modifiedUtc > sitePage.PublishDateTimeUtc
+                ? modifiedUtc
+                : sitePage.PublishDateTimeUtc;
+
             var article = new Article()
             {
                 WordCount = sitePage.WordCount,
@@ -941,8 +949,8 @@ namespace WebPagePub.Web.Controllers
                 Headline = sitePage.Title,
                 InLanguage = WebApp.Constants.StringConstants.DefaultLanguage,
                 DateCreated = new DateTimeOffset(sitePage.CreateDate, TimeSpan.Zero),
-                DateModified = (sitePage.UpdateDate != null) ? new DateTimeOffset(sitePage.UpdateDate.Value, TimeSpan.Zero) : sitePage.UpdateDate,
-                DatePublished = new DateTimeOffset(sitePage.PublishDateTimeUtc, TimeSpan.Zero)
+                DateModified = new DateTimeOffset(modifiedUtc, TimeSpan.Zero),
+                DatePublished = new DateTimeOffset(publicDateUtc, TimeSpan.Zero)
             };
 
             var defaultImage = sitePage.Photos.FirstOrDefault(x => x.IsDefault);

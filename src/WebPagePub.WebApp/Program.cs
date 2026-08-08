@@ -154,7 +154,11 @@ builder.Services.AddSingleton<ISiteFilesRepository>(provider =>
         return new BunnySiteFilesRepository(bunnyZone, bunnyKey, bunnyHost);
     }
 
-    return new SiteFilesRepository(provider.GetRequiredService<IBlobService>());
+    // No Bunny config and no Azure blob service configured (e.g. a site that has no image
+    // storage set up — BlobService.CreateAsync(null) returns null). Pass the possibly-null blob
+    // service through rather than throwing on every request: read-only content (pages, sitemap.xml,
+    // llms.txt) then works; image upload/delete no-ops until storage is configured.
+    return new SiteFilesRepository(provider.GetService<IBlobService>());
 });
 builder.Services.AddSingleton<ISnippetFetcher, SnippetFetcher>();
 
