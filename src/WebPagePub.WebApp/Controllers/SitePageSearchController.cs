@@ -32,6 +32,10 @@ namespace WebPagePub.Web.Controllers
                 return this.BadRequest("No search");
             }
 
+            pageSize = Math.Clamp(pageSize, 1, 50);
+            page = Math.Max(page, 1);
+            term = term.Length > 200 ? term[..200] : term;
+
             var result = await this.sitePageRepository.PagedSearchAsync(term, page, pageSize);
 
             // Best-effort log (don’t block the request if logging fails)

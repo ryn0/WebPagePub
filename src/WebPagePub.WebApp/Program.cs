@@ -127,10 +127,14 @@ builder.Services.AddTransient<IDbInitializer, DbInitializer>();
 // managers
 builder.Services.AddTransient<ISitePageManager, SitePageManager>();
 
+// Email sending is OFF unless a site's settings say "AmazonEmailCredentials": { "SendingEnabled": "true" }.
+// While it is off the sender gets no credentials, so nothing on the site can send mail (owner, 2026-11-16).
+var emailSendingEnabled = string.Equals(
+    builder.Configuration.GetSection("AmazonEmailCredentials:SendingEnabled").Value?.Trim(), "true", StringComparison.OrdinalIgnoreCase);
 builder.Services.AddTransient<IEmailSender>(x => new AmazonMailService(
-    builder.Configuration.GetSection("AmazonEmailCredentials:AccessKey").Value,
-    builder.Configuration.GetSection("AmazonEmailCredentials:SecretKey").Value,
-    builder.Configuration.GetSection("AmazonEmailCredentials:EmailFrom").Value));
+    emailSendingEnabled ? builder.Configuration.GetSection("AmazonEmailCredentials:AccessKey").Value : null,
+    emailSendingEnabled ? builder.Configuration.GetSection("AmazonEmailCredentials:SecretKey").Value : null,
+    emailSendingEnabled ? builder.Configuration.GetSection("AmazonEmailCredentials:EmailFrom").Value : null));
 
 builder.Services.AddSingleton<IImageUploaderService, ImageUploaderService>();
 // Image storage: Bunny.net Edge Storage when the StorageProvider config snippet
@@ -216,6 +220,14 @@ builder.WebHost.ConfigureKestrel(options =>
 // -------------------------------------
 builder.Services.AddHostedService<MemoryPressureGuard>();
 
+// Sign-in cookie: HTTPS only, never sent on requests other sites make in the background.
+builder.Services.ConfigureApplicationCookie(o =>
+{
+    o.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.Always;
+    o.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
+    o.Cookie.HttpOnly = true;
+});
+
 var app = builder.Build();
 
 // -------------------------------------
@@ -270,6 +282,19 @@ app.UseRouting();
 app.UseSession();           // before auth/endpoints
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Signed-in sessions can't be driven from other websites (see CrossSiteRequestGuard).
+app.Use(async (context, next) =>
+{
+    if (WebPagePub.Web.Helpers.CrossSiteRequestGuard.ShouldRefuse(context))
+    {
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        await context.Response.WriteAsync("This request came from another website and was refused. Open the page from this site's admin area and try again.");
+        return;
+    }
+
+    await next();
+});
 
 app.MapControllerRoute(
     name: "default",

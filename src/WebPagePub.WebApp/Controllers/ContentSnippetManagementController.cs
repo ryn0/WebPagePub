@@ -8,7 +8,7 @@ using WebPagePub.WebApp.Models.ContentSnippet;
 
 namespace WebPagePub.Web.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = WebPagePub.Data.Constants.StringConstants.AdminRole)]
     public class ContentSnippetManagementController : Controller
     {
         private readonly IContentSnippetRepository contentSnippetRepository;
@@ -116,6 +116,12 @@ namespace WebPagePub.Web.Controllers
 
             var dbModel = this.contentSnippetRepository.Get(model.ContentSnippetId);
 
+            // Secrets are never sent to the browser, so an empty box means "keep the stored value".
+            if (IsSecret(dbModel.SnippetType) && string.IsNullOrWhiteSpace(model.Content))
+            {
+                return this.RedirectToAction("index");
+            }
+
             dbModel.Content = model.Content.Trim();
             dbModel.SnippetType = model.SnippetType;
 
@@ -132,15 +138,22 @@ namespace WebPagePub.Web.Controllers
         {
             var dbModel = this.contentSnippetRepository.Get(contentSnippetId);
 
+            this.ViewBag.IsSecret = IsSecret(dbModel.SnippetType);
+
             var model = new ContentSnippetEditModel()
             {
-                Content = dbModel.Content,
+                Content = IsSecret(dbModel.SnippetType) ? string.Empty : dbModel.Content,
                 ContentSnippetId = dbModel.ContentSnippetId,
                 SnippetType = dbModel.SnippetType,
             };
 
             return this.View(model);
         }
+
+        // Storage keys and connection strings: can be replaced, never displayed.
+        private static bool IsSecret(WebPagePub.Data.Enums.SiteConfigSetting type) =>
+            type is WebPagePub.Data.Enums.SiteConfigSetting.AzureStorageConnectionString
+                or WebPagePub.Data.Enums.SiteConfigSetting.BunnyStorageAccessKey;
 
         [Route("ContentSnippetManagement/delete")]
         [HttpPost]

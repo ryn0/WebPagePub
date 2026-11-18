@@ -6,7 +6,7 @@ using WebPagePub.Web.Models;
 
 namespace WebPagePub.Web.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = WebPagePub.Data.Constants.StringConstants.AdminRole)]
     public class AdminController : Controller
     {
         private readonly ISitePageCommentRepository sitePageCommentRepository;

@@ -1,0 +1,46 @@
+@model List<WebPagePub.Web.Controllers.UserManagementController.UserRow>
+@{
+    ViewData["Title"] = "Users";
+}
+<h2>Users</h2>
+<p>Every account that can sign in to this site. There should normally be one: yours.</p>
+<hr />
+@if (ViewData["Message"] != null)
+{
+    <p><b>@ViewData["Message"]</b></p>
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Sign-in name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Locked out</th>
+            <th>Failed sign-ins</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var u in Model)
+        {
+            <tr>
+                <td>@u.UserName @(u.IsYou ? "(you)" : string.Empty)</td>
+                <td>@u.Email</td>
+                <td>@(string.IsNullOrEmpty(u.Roles) ? "none" : u.Roles)</td>
+                <td>@(u.LockedOut ? "Yes" : "No")</td>
+                <td>@u.FailedSignIns</td>
+                <td>
+                    @if (!u.IsYou)
+                    {
+                        <form asp-controller="UserManagement" asp-action="Delete" method="post"
+                              onsubmit="return confirm('Delete this account permanently?');">
+                            <input type="hidden" name="id" value="@u.Id" />
+                            <button type="submit" class="btn-danger btn-sm">Delete</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<p>Total: @Model.Count</p>

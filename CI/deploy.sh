@@ -118,7 +118,7 @@ step "Syncing to $VPS:$DEPLOY_PATH"
 ssh "$VPS" "sudo mkdir -p $DEPLOY_PATH"
 rsync -rlptDz --delete --rsync-path="sudo rsync" \
     "$WEB_OUT/" "$VPS:$DEPLOY_PATH/"
-ssh "$VPS" "sudo chown -R $SERVICE_USER:$SERVICE_USER $DEPLOY_PATH"
+ssh "$VPS" "sudo chown -R $SERVICE_USER:$SERVICE_USER $DEPLOY_PATH && sudo chmod 640 $DEPLOY_PATH/appsettings*.json"
 ok "Binaries synced"
 
 # ---- Systemd unit ----------------------------------------------------------
@@ -142,6 +142,7 @@ Environment=ASPNETCORE_URLS=http://127.0.0.1:$APP_PORT
 Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
 Environment=ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 Environment=WEBPAGEPUB_APP_NAME=$APP_NAME
+${SHOW_BYLINE:+Environment=WEBPAGEPUB_SHOW_BYLINE=$SHOW_BYLINE}
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=full
@@ -236,6 +237,8 @@ server {
     listen 80;
     listen [::]:80;
 $SERVER_NAME_LINE
+    # Security headers (app sends its own HSTS); location blocks with add_header must include it too.
+    include /etc/nginx/snippets/security-headers.conf;
 
     location /.well-known/acme-challenge/ {
         root /var/www/html;
@@ -244,6 +247,7 @@ $SERVER_NAME_LINE
     client_max_body_size 64M;
 
     location / {
+        include /etc/nginx/snippets/security-headers.conf;
 $ONION_HEADER
         proxy_pass         http://127.0.0.1:$APP_PORT;
         proxy_http_version 1.1;

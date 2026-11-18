@@ -44,6 +44,13 @@ namespace WebPagePub.Web.Controllers
         [HttpGet]
         public IActionResult CreateAccount()
         {
+            // First-run setup only: once any account exists this page is gone. Before
+            // 2026-11-16 it stayed open, so anyone could create an administrator.
+            if (this.context.Users.Any())
+            {
+                return this.NotFound();
+            }
+
             return this.View();
         }
 
@@ -51,6 +58,12 @@ namespace WebPagePub.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAccount(RegistrationModel model)
         {
+            // First-run setup only (see the GET action above).
+            if (this.context.Users.Any())
+            {
+                return this.NotFound();
+            }
+
             if (!this.ModelState.IsValid)
             {
                 return this.View();
@@ -99,7 +112,7 @@ namespace WebPagePub.Web.Controllers
         }
 
         [Route("account/home")]
-        [Authorize]
+        [Authorize(Roles = WebPagePub.Data.Constants.StringConstants.AdminRole)]
         [HttpGet]
         public IActionResult Home()
         {
@@ -150,7 +163,7 @@ namespace WebPagePub.Web.Controllers
         }
 
         [Route("account/changepassword")]
-        [Authorize]
+        [Authorize(Roles = WebPagePub.Data.Constants.StringConstants.AdminRole)]
         [HttpGet]
         public IActionResult ChangePassword()
         {
@@ -158,20 +171,20 @@ namespace WebPagePub.Web.Controllers
         }
 
         [Route("account/changepassword")]
-        [Authorize]
+        [Authorize(Roles = WebPagePub.Data.Constants.StringConstants.AdminRole)]
         [HttpPost]
         public async Task<IActionResult> ChangePasswordAsync(ChangePasswordModel model)
         {
             if (!this.ModelState.IsValid)
             {
-                return this.View(model);
+                return this.View(nameof(this.ChangePassword), model);
             }
 
             var currentUser = await this.userManager.GetUserAsync(this.HttpContext.User);
             if (currentUser == null)
             {
                 this.ModelState.AddModelError(string.Empty, "Unable to retrieve current user.");
-                return this.View(model);
+                return this.View(nameof(this.ChangePassword), model);
             }
 
             var result = await this.userManager.ChangePasswordAsync(currentUser, model.CurrentPassword, model.NewPassword);
@@ -179,10 +192,13 @@ namespace WebPagePub.Web.Controllers
             if (!result.Succeeded)
             {
                 this.ModelState.AddModelError(string.Empty, string.Join(",", result.Errors.Select(x => x.Description)));
-                return this.View(model);
+                return this.View(nameof(this.ChangePassword), model);
             }
 
-            return this.RedirectToAction(nameof(this.Home));
+            // Keep the sign-in valid after the change, then show a clear confirmation.
+            await this.signInManager.RefreshSignInAsync(currentUser);
+            this.TempData["PasswordChanged"] = "yes";
+            return this.RedirectToAction(nameof(this.ChangePassword));
         }
 
         public async Task AddUserToRole(ApplicationUser user, string role)
@@ -227,7 +243,7 @@ namespace WebPagePub.Web.Controllers
                     model.Email,
                     model.Password,
                     model.RememberMe,
-                    lockoutOnFailure: false)).Result;
+                    lockoutOnFailure: true)).Result;
 
             return result.Succeeded && !result.IsLockedOut;
         }

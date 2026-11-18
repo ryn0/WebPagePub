@@ -6,18 +6,28 @@ using WebPagePub.Web.Models;
 
 namespace WebPagePub.Web.Controllers
 {
+    // Admin only. Until 2026-11-16 this controller had no sign-in requirement at all, so the
+    // subscriber list and the send-mail form were open to anyone.
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = WebPagePub.Data.Constants.StringConstants.AdminRole)]
     public class EmailSubscriptionManagementController : Controller
     {
         private readonly IEmailSubscriptionRepository emailSubscriptionRepository;
         private readonly IEmailSender emailSender;
 
+        private readonly Microsoft.Extensions.Configuration.IConfiguration configuration;
+
         public EmailSubscriptionManagementController(
             IEmailSubscriptionRepository emailSubscriptionRepository,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            Microsoft.Extensions.Configuration.IConfiguration configuration)
         {
+            this.configuration = configuration;
             this.emailSubscriptionRepository = emailSubscriptionRepository;
             this.emailSender = emailSender;
         }
+        private bool SendingEnabled => string.Equals(
+            this.configuration.GetSection("AmazonEmailCredentials:SendingEnabled").Value?.Trim(), "true", StringComparison.OrdinalIgnoreCase);
+
         [Route("EmailSubscriptionManagement")]
         public IActionResult Index(int pageNumber = 1, int pageSize = 10)
         {
@@ -51,6 +61,12 @@ namespace WebPagePub.Web.Controllers
                 string.IsNullOrWhiteSpace(model.SendToEmails))
             {
                 throw new InvalidOperationException();
+            }
+
+            if (!this.SendingEnabled)
+            {
+                this.TempData["EmailNotice"] = "Nothing was sent: email sending is switched off for this site.";
+                return this.RedirectToAction("index");
             }
 
             var emails = model.SendToEmails.Split(',');

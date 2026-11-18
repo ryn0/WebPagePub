@@ -157,7 +157,9 @@ namespace WebPagePub.Data.Repositories.Implementations
 
             term = (term ?? string.Empty).Trim();
 
-            IQueryable<SitePage> baseQ = this.Context.SitePage;
+            // Public search: published pages only (drafts and scheduled pages stay hidden).
+            var nowUtc = DateTime.UtcNow;
+            IQueryable<SitePage> baseQ = this.Context.SitePage.Where(x => x.IsLive && x.PublishDateTimeUtc < nowUtc);
 
             if (string.IsNullOrWhiteSpace(term))
             {

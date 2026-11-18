@@ -17,7 +17,7 @@
                 @{ await Html.RenderPartialAsync("_StructuredDataWebsite", Model.Website); }
 
                 <article>
-                    <i>Last updated:  @Model.PageContent.FriendlyLastUpdateDateDisplay</i>
+                    @{ await Html.RenderPartialAsync("_Byline"); }<i>Last updated:  @Model.PageContent.FriendlyLastUpdateDateDisplay</i>
                     <hr />
                     @Html.Raw(_cacheHelper.GetSnippet(SiteConfigSetting.AffiliateMessage))
 

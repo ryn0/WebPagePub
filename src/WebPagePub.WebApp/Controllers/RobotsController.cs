@@ -45,7 +45,12 @@ namespace WebPagePub.Web.Controllers
 
             var siteMapUrl = new Uri(new Uri(UrlHelper.GetCurrentDomain(this.HttpContext)), "sitemap.xml");
 
-            sb.AppendLine($"Allow: /Sitemap: {siteMapUrl}");
+            // These MUST be on separate lines: previously they were concatenated as
+            // "Allow: /Sitemap: <url>", which made the Sitemap directive unparseable (so the
+            // sitemap was effectively undeclared) and turned Allow's value into garbage.
+            sb.AppendLine("Allow: /");
+            sb.AppendLine();
+            sb.AppendLine($"Sitemap: {siteMapUrl}");
 
             var result = RemoveDuplicateLines(sb);
 

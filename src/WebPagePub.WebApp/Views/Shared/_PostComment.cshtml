@@ -6,6 +6,10 @@
     @* your existing fields *@
     <input type="hidden" asp-for="SitePageId" />
     <input type="hidden" asp-for="RequestId" />
+    @* Trap for spam scripts: people never see or fill this box. *@
+    <div style="position:absolute;left:-9999px;top:-9999px;" aria-hidden="true">
+        <label>Leave this empty <input type="text" name="contact_me_by_fax" tabindex="-1" autocomplete="off" value="" /></label>
+    </div>
 
     <div class="form-group">
         <label asp-for="Name"></label>

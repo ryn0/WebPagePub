@@ -8,22 +8,34 @@ using Microsoft.Extensions.Caching.Memory;
 /// </summary>
 public sealed class MemoryPressureGuard : BackgroundService
 {
-    private const long SoftLimitMb = 300;   // start trimming here
-    private const long HardLimitMb = 500;  // never allow above this
+    // Normal steady state for these sites is ~250-350 MB of process memory, so the old
+    // 300/500 MB limits trimmed caches every 30s and restarted every site 5-10x a day
+    // (each restart = ~10s of 502s, seen by Googlebot). Soft limit now looks at the managed
+    // heap (what cache trimming can actually free); hard limit is a runaway-leak guard only.
+    // Both can be overridden in appsettings: MemoryGuard:SoftHeapLimitMb / MemoryGuard:HardLimitMb.
+    private const long DefaultSoftHeapLimitMb = 350;
+    private const long DefaultHardLimitMb = 1200;
     private static readonly TimeSpan CheckEvery = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan SoftLogEvery = TimeSpan.FromMinutes(30);
 
     private readonly ILogger<MemoryPressureGuard> log;
     private readonly IMemoryCache cache;
     private readonly IHostApplicationLifetime lifetime;
+    private readonly long softHeapLimitMb;
+    private readonly long hardLimitMb;
+    private DateTime lastSoftLogUtc = DateTime.MinValue;
 
     public MemoryPressureGuard(
         ILogger<MemoryPressureGuard> log,
         IMemoryCache cache,
-        IHostApplicationLifetime lifetime)
+        IHostApplicationLifetime lifetime,
+        IConfiguration config)
     {
         this.log = log;
         this.cache = cache;
         this.lifetime = lifetime;
+        this.softHeapLimitMb = config.GetValue<long?>("MemoryGuard:SoftHeapLimitMb") ?? DefaultSoftHeapLimitMb;
+        this.hardLimitMb = config.GetValue<long?>("MemoryGuard:HardLimitMb") ?? DefaultHardLimitMb;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -36,10 +48,15 @@ public sealed class MemoryPressureGuard : BackgroundService
                 long working = proc.WorkingSet64;
                 long privateBytes = proc.PrivateMemorySize64;
                 long usedMb = Math.Max(working, privateBytes) / (1024 * 1024);
+                long heapMb = GC.GetTotalMemory(forceFullCollection: false) / (1024 * 1024);
 
-                if (usedMb >= SoftLimitMb)
+                if (heapMb >= this.softHeapLimitMb)
                 {
-                    this.log.LogWarning("Memory soft limit reached: ~{UsedMb} MB. Compacting caches and forcing GC.", usedMb);
+                    if (DateTime.UtcNow - this.lastSoftLogUtc >= SoftLogEvery)
+                    {
+                        this.lastSoftLogUtc = DateTime.UtcNow;
+                        this.log.LogWarning("Memory soft limit reached: heap ~{HeapMb} MB, process ~{UsedMb} MB. Compacting caches.", heapMb, usedMb);
+                    }
 
                     if (this.cache is MemoryCache mem)
                     {
@@ -50,7 +67,7 @@ public sealed class MemoryPressureGuard : BackgroundService
                     GC.Collect(GC.MaxGeneration, GCCollectionMode.Optimized, blocking: false, compacting: true);
                 }
 
-                if (usedMb >= HardLimitMb)
+                if (usedMb >= this.hardLimitMb)
                 {
                     this.log.LogError("Memory HARD limit exceeded: ~{UsedMb} MB. Stopping application.", usedMb);
                     this.lifetime.StopApplication();

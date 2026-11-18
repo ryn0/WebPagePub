@@ -167,6 +167,7 @@ namespace WebPagePub.Web.Controllers
 
         [Route(StringConstants.PreviewKey + "/{sitePageId}")]
         [HttpGet]
+        [Microsoft.AspNetCore.Authorization.Authorize(Roles = WebPagePub.Data.Constants.StringConstants.AdminRole)]
         public IActionResult Preview(int sitePageId)
         {
             var dbModel = this.sitePageRepository.Get(sitePageId);
@@ -248,11 +249,20 @@ namespace WebPagePub.Web.Controllers
                 return this.BadRequest();
             }
 
+            // Rule-based spam check: spam is filed as Spam (still visible to the admin under
+            // Comment Management) instead of piling up in the moderation list.
+            var spamVerdict = WebPagePub.Core.Utilities.CommentSpamFilter.Evaluate(
+                model.Name,
+                model.Email,
+                model.Website,
+                model.Comment,
+                this.Request.HasFormContentType ? this.Request.Form["contact_me_by_fax"].ToString() : null);
+
             this.sitePageCommentRepository.Create(new SitePageComment()
             {
                 Comment = model.Comment.Trim(),
                 Email = model.Email.Trim(),
-                CommentStatus = CommentStatus.AwaitingModeration,
+                CommentStatus = spamVerdict.IsSpam ? CommentStatus.Spam : CommentStatus.AwaitingModeration,
                 Name = model.Name.Trim(),
                 RequestId = model.RequestId,
                 IpAddress = ipAddress,
@@ -547,6 +557,7 @@ namespace WebPagePub.Web.Controllers
             this.ViewData[WebApp.Constants.StringConstants.CanonicalUrl] = model.PageContent.CanonicalUrl;
             this.ViewData["ExcludePage"] = model.PageContent.ExcludePage;
             this.ViewData[WebApp.Constants.StringConstants.ArticleJson] = model.ArticleSchema;
+            this.ViewData[WebApp.Constants.StringConstants.FaqJson] = model.FaqSchema;
 
             if (model.PageContent.LastUpdatedDateTimeUtc == DateTime.MinValue ||
                 ((model.PageType == PageType.PageList || model.PageType == PageType.PageListWithSideBarAdNetwork) && model.Items.Count > 0))
@@ -783,6 +794,7 @@ namespace WebPagePub.Web.Controllers
             var displayModel = new SitePageDisplayModel(this.cacheService)
             {
                 ArticleSchema = this.BuildArticleSchema(sitePage),
+                FaqSchema = this.BuildFaqSchema(sitePage),
                 BreadcrumbList = this.BuildBreadcrumbList(sitePageSection, sitePage),
                 PageType = sitePage.PageType,
                 Review = this.BuildReviewModel(sitePage),
@@ -970,6 +982,84 @@ namespace WebPagePub.Web.Controllers
             var result = article.ToHtmlEscapedString();
 
             return result;
+        }
+
+        // Turns the visible "Frequently Asked Questions" block in the page body into FAQPage
+        // structured data so the FAQ can earn rich results. The FAQ format is consistent across
+        // the site's pages: <h2>Frequently Asked Questions</h2> followed by <h3>question</h3>
+        // + answer markup, repeated. Returns empty (no schema emitted) when there's no real FAQ.
+        private string BuildFaqSchema(SitePage sitePage)
+        {
+            if (string.IsNullOrWhiteSpace(sitePage.Content))
+            {
+                return string.Empty;
+            }
+
+            var section = Regex.Match(
+                sitePage.Content,
+                @"<h2[^>]*>\s*Frequently Asked Questions\s*</h2>(.*?)(?=<h2|$)",
+                RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+            if (!section.Success)
+            {
+                return string.Empty;
+            }
+
+            var pairs = Regex.Matches(
+                section.Groups[1].Value,
+                @"<h3[^>]*>(.*?)</h3>(.*?)(?=<h3|$)",
+                RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+            var mainEntity = new List<object>();
+            foreach (Match pair in pairs)
+            {
+                var question = CleanHtmlToText(pair.Groups[1].Value);
+                var answer = CleanHtmlToText(pair.Groups[2].Value);
+
+                if (string.IsNullOrWhiteSpace(question) || string.IsNullOrWhiteSpace(answer))
+                {
+                    continue;
+                }
+
+                mainEntity.Add(new Dictionary<string, object>
+                {
+                    ["@type"] = "Question",
+                    ["name"] = question,
+                    ["acceptedAnswer"] = new Dictionary<string, object>
+                    {
+                        ["@type"] = "Answer",
+                        ["text"] = answer,
+                    },
+                });
+            }
+
+            // Google wants a genuine multi-question FAQ; don't emit schema for a trivial one.
+            if (mainEntity.Count < 2)
+            {
+                return string.Empty;
+            }
+
+            var faqPage = new Dictionary<string, object>
+            {
+                ["@context"] = "https://schema.org",
+                ["@type"] = "FAQPage",
+                ["mainEntity"] = mainEntity,
+            };
+
+            return Newtonsoft.Json.JsonConvert.SerializeObject(faqPage);
+        }
+
+        private static string CleanHtmlToText(string html)
+        {
+            if (string.IsNullOrEmpty(html))
+            {
+                return string.Empty;
+            }
+
+            var text = Regex.Replace(html, "<[^>]+>", " ");
+            text = System.Net.WebUtility.HtmlDecode(text);
+            text = Regex.Replace(text, @"\s+", " ").Trim();
+            return text;
         }
 
         private Values<IOrganization, IPerson> GetAuthorDetails(Data.Models.Db.Author author)

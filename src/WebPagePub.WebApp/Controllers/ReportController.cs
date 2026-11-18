@@ -6,7 +6,7 @@ using WebPagePub.WebApp.Models.Reports;
 
 namespace WebPagePub.Web.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = WebPagePub.Data.Constants.StringConstants.AdminRole)]
     public class ReportsController : Controller
     {
         private readonly IClickLogRepository clickLogRepository;

@@ -57,5 +57,7 @@ namespace WebPagePub.WebApp.Models.SitePage
         public bool IsSectionHomePage { get; set; }
         public string AuthorName { get; set; } = string.Empty;
         public string ArticleSchema { get; set; } = string.Empty;
+
+        public string FaqSchema { get; set; } = string.Empty;
     }
 }

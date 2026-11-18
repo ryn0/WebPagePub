@@ -18,6 +18,12 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
     /// </summary>
     public sealed class BunnySiteFilesRepository : ISiteFilesRepository
     {
+        // Pages and server scripts are never accepted as site files (they would be served from the CDN).
+        private static readonly HashSet<string> BlockedUploadExtensions = new (StringComparer.OrdinalIgnoreCase)
+        {
+            ".html", ".htm", ".xhtml", ".shtml", ".xml", ".php", ".asp", ".aspx", ".jsp", ".cgi", ".pl", ".py", ".sh", ".exe", ".dll", ".bat", ".cmd", ".env", ".config", ".json",
+        };
+
         private const string Container = StringConstants.ContainerName; // "sitecontent"
 
         private readonly HttpClient http;
@@ -58,9 +64,21 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
                 throw new Exception($"File name cannot be {StringConstants.FolderFileName}");
             }
 
+            fileName = Path.GetFileName(fileName);
+            var extension = Path.GetExtension(fileName).ToLowerInvariant();
+            if (BlockedUploadExtensions.Contains(extension))
+            {
+                throw new Exception($"Files of type {extension} cannot be uploaded.");
+            }
+
             var filePath = fileName;
             if (!string.IsNullOrWhiteSpace(directory))
             {
+                if (!directory.EndsWith('/'))
+                {
+                    directory += "/";
+                }
+
                 filePath = directory + filePath;
                 if (filePath.StartsWith("/"))
                 {
@@ -211,7 +229,20 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
             return rel;
         }
 
-        private string ObjectUrl(string relPath) => $"{this.BlobPrefix}{Container}/{relPath.TrimStart('/')}";
+        private string ObjectUrl(string relPath)
+        {
+            // A path may never climb out of the site's container ("..", backslashes, empty
+            // segments). On 2026-11-16 "../" in a folder name wrote files at the zone root.
+            if (relPath.Contains("..", StringComparison.Ordinal)
+                || relPath.Contains('\\')
+                || relPath.Contains("//", StringComparison.Ordinal)
+                || relPath.Contains('%'))
+            {
+                throw new ArgumentException("Invalid storage path.");
+            }
+
+            return $"{this.BlobPrefix}{Container}/{relPath.TrimStart('/')}";
+        }
 
         // Reduce any of {full storage URL, CDN URL, "/sitecontent/x", "sitecontent/x", "page_img/1/x"}
         // to the path relative to the container root ("page_img/1/x").

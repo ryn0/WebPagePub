@@ -25,6 +25,7 @@ namespace WebPagePub.Web.Controllers
         private const string FavIconMs144x144 = "ms-icon-144x144.png";
         private const string FavIconMaifestJson = "manifest.json";
         private const string FavIconIco = "favicon.ico";
+        private static readonly HttpClient SharedHttpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
         private readonly ICacheService cacheService;
 
         public FaviconController(ICacheService cacheService)
@@ -74,26 +75,25 @@ namespace WebPagePub.Web.Controllers
 
             try
             {
-                var ms = new MemoryStream();
-
-                using (var client = new HttpClient())
+                using var rsp = await SharedHttpClient.GetAsync(this.BuildPath(fileName));
+                if (!rsp.IsSuccessStatusCode)
                 {
-                    var rsp = await client.GetAsync(this.BuildPath(fileName));
-                    var response = await rsp.Content.ReadAsStreamAsync();
-                    await response.CopyToAsync(ms);
+                    return this.StatusCode(404);
                 }
+
+                // Read fully into memory so the response length is known and correct.
+                var bytes = await rsp.Content.ReadAsByteArrayAsync();
 
                 switch (fileName.GetFileExtensionLower())
                 {
                     case "png":
-                        this.Response.Headers.Append("Cache-Control", string.Format("public, max-age={0}", IntegerConstants.OneYearInSeconds));
-                        return this.File(ms, "image/png");
-                    case "json":
-                        return this.File(ms, "application/json");
                     case "ico":
-                        return this.File(ms, "image/x-icon");
+                        this.Response.Headers.Append("Cache-Control", string.Format("public, max-age={0}", IntegerConstants.OneYearInSeconds));
+                        return this.File(bytes, fileName.GetFileExtensionLower() == "png" ? "image/png" : "image/x-icon");
+                    case "json":
+                        return this.File(bytes, "application/json");
                     default:
-                        return this.File(ms, "text/plain");
+                        return this.File(bytes, "text/plain");
                 }
             }
             catch

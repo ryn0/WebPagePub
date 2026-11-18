@@ -9,7 +9,7 @@ using WebPagePub.Web.Models;
 
 namespace WebPagePub.Web.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = WebPagePub.Data.Constants.StringConstants.AdminRole)]
     public class LinkManagementController : Controller
     {
         private readonly ILinkRedirectionRepository linkRedirectionRepository;

@@ -1,0 +1,13 @@
+@*
+    Visible author line ("By Name"), linked to the About page. OFF by default: it only renders on a site
+    whose service sets WEBPAGEPUB_SHOW_BYLINE=1 (per-site deploy config: SHOW_BYLINE=1), so other
+    WebPagePub sites are unchanged.
+*@
+@{
+    var bylineOn = string.Equals(System.Environment.GetEnvironmentVariable("WEBPAGEPUB_SHOW_BYLINE"), "1", System.StringComparison.Ordinal);
+    var bylineName = System.Convert.ToString(ViewData["AuthorName"]);
+}
+@if (bylineOn && !string.IsNullOrWhiteSpace(bylineName))
+{
+    <span class="byline">By <a href="/about" rel="author">@bylineName</a> &middot; </span>
+}
