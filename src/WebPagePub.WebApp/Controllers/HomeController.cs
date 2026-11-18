@@ -100,7 +100,16 @@ namespace WebPagePub.Web.Controllers
         public IActionResult SectionPage(string sectionKey, int pageNumber = 1)
         {
             var section = this.sitePageSectionRepository.Get(sectionKey);
+            if (section == null)
+            {
+                return this.Show404Page();
+            }
+
             var homePage = this.sitePageRepository.GetSectionHomePage(section.SitePageSectionId);
+            if (homePage == null)
+            {
+                return this.Show404Page();
+            }
 
             return this.CatchAllRequests(sectionKey, homePage.Key, false, pageNumber);
         }
@@ -110,7 +119,16 @@ namespace WebPagePub.Web.Controllers
         public IActionResult TagPage(string tagName, int pageNumber = 1)
         {
             var homeSection = this.sitePageSectionRepository.GetHomeSection();
+            if (homeSection == null)
+            {
+                return this.Show404Page();
+            }
+
             var homePage = this.sitePageRepository.GetSectionHomePage(homeSection.SitePageSectionId);
+            if (homePage == null)
+            {
+                return this.Show404Page();
+            }
 
             return this.CatchAllRequests(
                         tagKey: tagName,
@@ -504,6 +522,12 @@ namespace WebPagePub.Web.Controllers
             pageKey ??= string.Empty;
             tagKey ??= string.Empty;
 
+            // Page 0, negative pages and numbers so large the paging math would overflow are never real.
+            if (pageNumber < 1 || pageNumber > int.MaxValue / WebApp.Constants.IntegerConstants.AmountPerPage)
+            {
+                return this.Show404Page();
+            }
+
             var cacheKey = CacheHelper.GetPageCacheKey(sectionKey, pageKey, pageNumber, tagKey);
             var model = this.memoryCache.Get<SitePageDisplayModel>(cacheKey);
 
@@ -523,13 +547,20 @@ namespace WebPagePub.Web.Controllers
                     return this.RedirectPermanent("~/");
                 }
 
-                // ENFORCE: 20-min sliding + size for global cache limit (~200 MB)
-                var options = new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(CacheSlidingExpiry)
-                    .SetPriority(CacheItemPriority.Normal)
-                    .SetSize(DefaultPageEntrySize);
+                // Only real pages are cached. A miss (made-up address, unknown tag, page number past
+                // the end) used to be stored as a full 128 KB entry, so about 1,600 junk requests
+                // pushed every real page out of the size-limited cache. Misses now cost a lookup each
+                // time instead, which is cheap next to rebuilding every real page.
+                if (model != null)
+                {
+                    // ENFORCE: 20-min sliding + size for global cache limit (~200 MB)
+                    var options = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(CacheSlidingExpiry)
+                        .SetPriority(CacheItemPriority.Normal)
+                        .SetSize(DefaultPageEntrySize);
 
-                this.memoryCache.Set(cacheKey, model, options);
+                    this.memoryCache.Set(cacheKey, model, options);
+                }
             }
 
             if (model == default ||
@@ -644,7 +675,13 @@ namespace WebPagePub.Web.Controllers
             {
                 case PageType.PageList:
                 case PageType.PageListWithSideBarAdNetwork:
-                    model = this.CreateDisplayListModel(siteSection, dbModel, tagKey, pageNumber);
+                    var listModel = this.CreateDisplayListModel(siteSection, dbModel, tagKey, pageNumber);
+                    if (listModel == null)
+                    {
+                        return default;
+                    }
+
+                    model = listModel;
                     break;
                 case PageType.Content:
                 case PageType.Review:
@@ -683,12 +720,19 @@ namespace WebPagePub.Web.Controllers
                    pathValue != "/";
         }
 
-        private SitePageDisplayModel CreateDisplayListModel(
+        // Returns null when the list doesn't exist (unknown tag) or the page number is past the
+        // last page, so the caller shows 404 and nothing is cached.
+        private SitePageDisplayModel? CreateDisplayListModel(
             SitePageSection? sitePageSection = null,
             SitePage? sitePage = null,
             string? tagKey = null,
             int pageNumber = 1)
         {
+            if (!string.IsNullOrWhiteSpace(tagKey) && this.tagRepository.Get(tagKey) == null)
+            {
+                return null;
+            }
+
             var displayModel = new SitePageDisplayModel(this.cacheService);
             List<SitePage> pages;
             int total;
@@ -712,6 +756,13 @@ namespace WebPagePub.Web.Controllers
             }
 
             var pageCount = (double)total / WebApp.Constants.IntegerConstants.AmountPerPage;
+
+            // Page 1 always exists (it may be an empty list); anything past the last page is a miss.
+            // This check comes before the page items are built, which is the costly part.
+            if (pageNumber > Math.Max(1, (int)Math.Ceiling(pageCount)))
+            {
+                return null;
+            }
 
             displayModel.Paging = new SitePagePagingModel()
             {
@@ -1046,7 +1097,8 @@ namespace WebPagePub.Web.Controllers
                 ["mainEntity"] = mainEntity,
             };
 
-            return Newtonsoft.Json.JsonConvert.SerializeObject(faqPage);
+            // Printed raw inside a script tag, so escape anything that could close it (see JsonLd).
+            return WebPagePub.WebApp.Helpers.JsonLd.Serialize(faqPage);
         }
 
         private static string CleanHtmlToText(string html)

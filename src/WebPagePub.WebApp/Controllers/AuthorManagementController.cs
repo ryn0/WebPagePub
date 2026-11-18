@@ -132,6 +132,8 @@ namespace WebPagePub.WebApp.Controllers
 
         [Route("authormanagement/uploadphoto/{authorId}")]
         [HttpPost]
+        [RequestSizeLimit(WebPagePub.WebApp.Helpers.UploadLimits.MaxBytes)]
+        [RequestFormLimits(MultipartBodyLengthLimit = WebPagePub.WebApp.Helpers.UploadLimits.MaxBytes)]
         public async Task<ActionResult> UploadPhotoAsync(IFormFile file, int authorId)
         {
             if (file == null)
@@ -154,7 +156,7 @@ namespace WebPagePub.WebApp.Controllers
         }
 
         [Route("authormanagement/deleteauthorphoto/{AuthorId}")]
-        [HttpGet]
+        [HttpPost] // changes data: POST only, so the anti-forgery check applies
         public async Task<IActionResult> DeleteAuthorPhotoAsync(int authorId)
         {
             var author = this.authorRepository.Get(authorId);

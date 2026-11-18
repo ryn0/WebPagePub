@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebPagePub.Data.Repositories.Interfaces;
+using WebPagePub.WebApp.Helpers;
 using WebPagePub.WebApp.Models.Reports;
 
 namespace WebPagePub.Web.Controllers
@@ -154,10 +155,16 @@ namespace WebPagePub.Web.Controllers
 
             var sb = new StringBuilder();
 
-            sb.AppendLine("IP Address,Referer URL,Create Date");
+            // Referer and URL come from visitors, so every field goes through CsvField (quoted, and
+            // formula-looking values neutralized). The header now names all four columns.
+            sb.AppendLine(CsvField.Row("IP Address", "URL", "Referer URL", "Create Date"));
             foreach (var click in clicksInRange)
             {
-                sb.AppendLine($"{click.IpAddress},{click.Url},{click.RefererUrl},{click.CreateDate}");
+                sb.AppendLine(CsvField.Row(
+                    click.IpAddress,
+                    click.Url,
+                    click.RefererUrl,
+                    click.CreateDate.ToString("yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture)));
             }
 
             return this.File(Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", "ClickReport.csv");

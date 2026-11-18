@@ -211,14 +211,18 @@
 
                                     </ul>
 
-                                    <a onclick="return confirm('Rotate 90 degrees right, are you sure?')"
-                                       href="~/sitepages/rotate90degrees/@photo.SitePagePhotoId">Rotate 90 degrees right</a>
+                                    @* These buttons sit inside the page's edit form and post to their own address (formaction). *@
+                                    <button type="submit" class="btn btn-link" formnovalidate formmethod="post"
+                                            formaction="~/sitepages/rotate90degrees/@photo.SitePagePhotoId"
+                                            onclick="return confirm('Rotate 90 degrees right, are you sure?')">Rotate 90 degrees right</button>
 
                                        <br />
 
-                                    <a href="~/sitepages/rankphotoup/@photo.SitePagePhotoId">&#x2191;</a>
+                                    <button type="submit" class="btn btn-link" formnovalidate formmethod="post"
+                                            formaction="~/sitepages/rankphotoup/@photo.SitePagePhotoId" title="Move up">&#x2191;</button>
 
-                                    <a href="~/sitepages/rankphotodown/@photo.SitePagePhotoId">&#x2193;</a>
+                                    <button type="submit" class="btn btn-link" formnovalidate formmethod="post"
+                                            formaction="~/sitepages/rankphotodown/@photo.SitePagePhotoId" title="Move down">&#x2193;</button>
                                     <br />
 
                                     <label class="col-md-2 control-label">Photo Title:</label>
@@ -245,14 +249,15 @@
                                     }
                                     else
                                     {
-                                       <a onclick="return confirm('are you sure?')"
-                                       href="~/sitepages/SetDefaultPhoto/@photo.SitePagePhotoId">Set as thumbnail</a>
+                                       <button type="submit" class="btn btn-link" formnovalidate formmethod="post"
+                                               formaction="~/sitepages/SetDefaultPhoto/@photo.SitePagePhotoId"
+                                               onclick="return confirm('are you sure?')">Set as thumbnail</button>
                                     }
                                 </td>
                                 <td>
-                                    <a onclick="return confirm('are you sure?')"
-                                       class="btn-danger btn-sm"
-                                       href="~/sitepages/deletephoto/@photo.SitePagePhotoId">&#x1F5D1;</a>
+                                    <button type="submit" class="btn-danger btn-sm" formnovalidate formmethod="post"
+                                            formaction="~/sitepages/deletephoto/@photo.SitePagePhotoId"
+                                            onclick="return confirm('are you sure?')">&#x1F5D1;</button>
 
                                 </td>
                             </tr>

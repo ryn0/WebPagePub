@@ -1,11 +1,14 @@
 ﻿@model WebPagePub.WebApp.Models.SitePage.SitePageCommentModel
 
 <form asp-action="Comment" method="post">
-    @Html.AntiForgeryToken()
+    @* The form tag helper already adds the anti-forgery token; a second copy would break the check. *@
 
     @* your existing fields *@
     <input type="hidden" asp-for="SitePageId" />
-    <input type="hidden" asp-for="RequestId" />
+    @* A fresh id on every page view. The model is cached and shared by all visitors, so its own
+       id was the same for everyone: after one comment, every later comment on the page was
+       taken for a repeat and silently dropped. *@
+    <input type="hidden" name="RequestId" value="@Guid.NewGuid()" />
     @* Trap for spam scripts: people never see or fill this box. *@
     <div style="position:absolute;left:-9999px;top:-9999px;" aria-hidden="true">
         <label>Leave this empty <input type="text" name="contact_me_by_fax" tabindex="-1" autocomplete="off" value="" /></label>

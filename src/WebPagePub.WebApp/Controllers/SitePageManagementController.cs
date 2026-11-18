@@ -154,7 +154,7 @@ namespace WebPagePub.Web.Controllers
         }
 
         [Route("sitepages/setdefaultphoto/{sitePagePhotoId}")]
-        [HttpGet]
+        [HttpPost] // changes data: POST only, so the anti-forgery check applies
         public async Task<IActionResult> SetDefaultPhotoAsync(int sitePagePhotoId)
         {
             var entry = await this.sitePageManager.SetPhotoAsDefaultAsync(sitePagePhotoId);
@@ -248,7 +248,7 @@ namespace WebPagePub.Web.Controllers
         }
 
         [Route("sitepages/deletephoto/{sitePagePhotoId}")]
-        [HttpGet]
+        [HttpPost] // changes data: POST only, so the anti-forgery check applies
         public async Task<IActionResult> DeleteBlogPhotoAsync(int sitePagePhotoId)
         {
             var sitePageId = await this.sitePageManager.DeletePhotoAsync(sitePagePhotoId);
@@ -257,7 +257,7 @@ namespace WebPagePub.Web.Controllers
         }
 
         [Route("sitepages/rankphotoup/{sitePagePhotoId}")]
-        [HttpGet]
+        [HttpPost] // changes data: POST only, so the anti-forgery check applies
         public IActionResult RankPhotoUp(int sitePagePhotoId)
         {
             var entry = this.sitePageManager.RankPhotoUp(sitePagePhotoId);
@@ -266,7 +266,7 @@ namespace WebPagePub.Web.Controllers
         }
 
         [Route("sitepages/RankPhotoDown/{sitePagePhotoId}")]
-        [HttpGet]
+        [HttpPost] // changes data: POST only, so the anti-forgery check applies
         public IActionResult RankPhotoDown(int sitePagePhotoId)
         {
             var entry = this.sitePageManager.RankPhotoDown(sitePagePhotoId);
@@ -288,6 +288,8 @@ namespace WebPagePub.Web.Controllers
 
         [Route("sitepages/uploadphotos")]
         [HttpPost]
+        [RequestSizeLimit(WebPagePub.WebApp.Helpers.UploadLimits.MaxBytes)]
+        [RequestFormLimits(MultipartBodyLengthLimit = WebPagePub.WebApp.Helpers.UploadLimits.MaxBytes)]
         public async Task<ActionResult> UploadPhotosAsync(IEnumerable<IFormFile> files, int sitePageId)
         {
             var photosAsMemoryStreams = await ConvertFormFilesToMemoryStreamsAsync(files);
@@ -297,7 +299,7 @@ namespace WebPagePub.Web.Controllers
         }
 
         [Route("sitepages/deletepage/{SitePageId}")]
-        [HttpGet]
+        [HttpPost] // changes data: POST only, so the anti-forgery check applies
         public async Task<IActionResult> DeleteAsync(int sitePageId)
         {
             await this.sitePageManager.DeletePage(sitePageId);
@@ -306,7 +308,7 @@ namespace WebPagePub.Web.Controllers
         }
 
         [Route("sitepages/rotate90degrees/{sitePagePhotoId}")]
-        [HttpGet]
+        [HttpPost] // changes data: POST only, so the anti-forgery check applies
         public async Task<IActionResult> Rotate90DegreesAsync(int sitePagePhotoId)
         {
             var sitePageId = await this.sitePageManager.Rotate90DegreesAsync(sitePagePhotoId);

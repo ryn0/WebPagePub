@@ -10,17 +10,25 @@
             {
                 <div class="sponsor-card">
                     <div class="sponsor-card-header">
-                        <a class="sponsor-card-name"
-                           href="@s.Link"
-                           target="_blank"
-                           rel="noopener sponsored">@s.Name</a>
+                        @* Links are already limited to absolute http(s) when the feed is read; an empty one shows the name without a link. *@
+                        @if (string.IsNullOrEmpty(s.Link))
+                        {
+                            <span class="sponsor-card-name">@s.Name</span>
+                        }
+                        else
+                        {
+                            <a class="sponsor-card-name"
+                               href="@s.Link"
+                               target="_blank"
+                               rel="noopener sponsored">@s.Name</a>
+                        }
                         @if (s.ReviewCount > 0 && s.ReviewRating.HasValue)
                         {
                             var rating = s.ReviewRating.Value;
                             var pct = (Math.Max(0, Math.Min(5, rating)) / 5d * 100d)
                                 .ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
                             <span class="sponsor-card-rating">
-                                <a href="@s.ReviewLink" rel="nofollow"
+                                <a href="@(string.IsNullOrEmpty(s.ReviewLink) ? null : s.ReviewLink)" rel="nofollow"
                                    aria-label="@rating.ToString("0.0") out of 5 stars, @s.ReviewCount reviews">
                                     <span class="stars-wrap" aria-hidden="true">
                                         <span class="stars-empty">★★★★★</span>

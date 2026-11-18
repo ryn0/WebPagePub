@@ -34,7 +34,15 @@ namespace WebPagePub.Web.Controllers
 
             pageSize = Math.Clamp(pageSize, 1, 50);
             page = Math.Max(page, 1);
-            term = term.Length > 200 ? term[..200] : term;
+
+            // Trim before AND after cutting to length: a term padded with spaces must not end up
+            // empty, because an empty search used to list every page (drafts included).
+            term = term.Trim();
+            term = (term.Length > 200 ? term[..200] : term).Trim();
+            if (term.Length == 0)
+            {
+                return this.BadRequest("No search");
+            }
 
             var result = await this.sitePageRepository.PagedSearchAsync(term, page, pageSize);
 
@@ -165,25 +173,9 @@ namespace WebPagePub.Web.Controllers
 
         private static string? GetClientIp(HttpContext ctx)
         {
-            // Friendly to proxies/CDNs
-            var headers = ctx?.Request?.Headers;
-            var cf = headers?["CF-Connecting-IP"].ToString();
-            if (!string.IsNullOrWhiteSpace(cf))
-            {
-                return cf;
-            }
-
-            var xff = headers?["X-Forwarded-For"].ToString();
-            if (!string.IsNullOrWhiteSpace(xff))
-            {
-                // first IP in the list is the original client
-                var first = xff.Split(',', StringSplitOptions.RemoveEmptyEntries)[0].Trim();
-                if (!string.IsNullOrWhiteSpace(first))
-                {
-                    return first;
-                }
-            }
-
+            // Only the connection address: the forwarded-headers step has already set it from what
+            // nginx passed on. CF-Connecting-IP and the first X-Forwarded-For entry can be sent by the
+            // visitor themselves, so logging them let anyone put any address in the search log.
             return ctx?.Connection?.RemoteIpAddress?.ToString();
         }
     }

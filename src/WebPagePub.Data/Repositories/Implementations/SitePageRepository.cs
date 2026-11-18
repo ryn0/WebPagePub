@@ -17,6 +17,10 @@ namespace WebPagePub.Data.Repositories.Implementations
 {
     public class SitePageRepository : ISitePageRepository
     {
+        // Escape character for ILIKE patterns built from visitor text (PostgreSQL's default is also a backslash,
+        // but naming it keeps the pattern and the escaping in agreement).
+        public const string LikeEscapeCharacter = "\\";
+
         private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public SitePageRepository(
@@ -150,6 +154,23 @@ namespace WebPagePub.Data.Repositories.Implementations
             }
         }
 
+        /// <summary>
+        /// Makes a search term safe to put inside an ILIKE pattern: the escape character itself,
+        /// % and _ are each preceded by the escape character so they match literally.
+        /// </summary>
+        public static string EscapeLikeTerm(string term)
+        {
+            if (string.IsNullOrEmpty(term))
+            {
+                return string.Empty;
+            }
+
+            return term
+                .Replace(LikeEscapeCharacter, LikeEscapeCharacter + LikeEscapeCharacter, StringComparison.Ordinal)
+                .Replace("%", LikeEscapeCharacter + "%", StringComparison.Ordinal)
+                .Replace("_", LikeEscapeCharacter + "_", StringComparison.Ordinal);
+        }
+
         public async Task<PagedResult<SitePage>> PagedSearchAsync(string term, int pageNumber, int pageSize)
         {
             if (pageNumber < 1) pageNumber = 1;
@@ -164,7 +185,7 @@ namespace WebPagePub.Data.Repositories.Implementations
             if (string.IsNullOrWhiteSpace(term))
             {
                 var totalNoTerm = await baseQ.CountAsync();
-                var itemsNoTerm = await this.Context.SitePage
+                var itemsNoTerm = await baseQ
                     .Include(x => x.SitePageSection)
                     .Include(x => x.Author)
                     .Include(x => x.SitePageTags).ThenInclude(t => t.Tag)
@@ -177,21 +198,24 @@ namespace WebPagePub.Data.Repositories.Implementations
                 return new PagedResult<SitePage> { TotalCount = totalNoTerm, Items = itemsNoTerm };
             }
 
-            var likeAny = $"%{term}%";
-            var likeStart = $"{term}%";
+            // The visitor's % and _ are text to find, not wildcards (a search for "%" used to match
+            // every page and run the full scoring query over the whole table).
+            var escapedTerm = EscapeLikeTerm(term);
+            var likeAny = $"%{escapedTerm}%";
+            var likeStart = $"{escapedTerm}%";
             var termLen = term.Length;
 
             var candidates = baseQ.Where(x =>
-                   EF.Functions.ILike(x.Title ?? string.Empty, likeAny)
-                || EF.Functions.ILike(x.Content ?? string.Empty, likeAny)
-                || EF.Functions.ILike(x.PageHeader ?? string.Empty, likeAny)
-                || EF.Functions.ILike(x.MetaDescription ?? string.Empty, likeAny)
-                || EF.Functions.ILike(x.BreadcrumbName ?? string.Empty, likeAny)
-                || EF.Functions.ILike(x.Key ?? string.Empty, likeAny)
-                || EF.Functions.ILike(x.ReviewItemName ?? string.Empty, likeAny)
+                   EF.Functions.ILike(x.Title ?? string.Empty, likeAny, LikeEscapeCharacter)
+                || EF.Functions.ILike(x.Content ?? string.Empty, likeAny, LikeEscapeCharacter)
+                || EF.Functions.ILike(x.PageHeader ?? string.Empty, likeAny, LikeEscapeCharacter)
+                || EF.Functions.ILike(x.MetaDescription ?? string.Empty, likeAny, LikeEscapeCharacter)
+                || EF.Functions.ILike(x.BreadcrumbName ?? string.Empty, likeAny, LikeEscapeCharacter)
+                || EF.Functions.ILike(x.Key ?? string.Empty, likeAny, LikeEscapeCharacter)
+                || EF.Functions.ILike(x.ReviewItemName ?? string.Empty, likeAny, LikeEscapeCharacter)
                 || x.SitePageTags.Any(t =>
-                       EF.Functions.ILike(t.Tag.Name ?? string.Empty, likeAny) ||
-                       EF.Functions.ILike(t.Tag.Key ?? string.Empty, likeAny)));
+                       EF.Functions.ILike(t.Tag.Name ?? string.Empty, likeAny, LikeEscapeCharacter) ||
+                       EF.Functions.ILike(t.Tag.Key ?? string.Empty, likeAny, LikeEscapeCharacter)));
 
             var total = await candidates.CountAsync();
 
@@ -206,8 +230,8 @@ namespace WebPagePub.Data.Repositories.Implementations
                     MetaCnt = (double)((x.MetaDescription ?? string.Empty).Length - (x.MetaDescription ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
                     ReviewCnt = (double)((x.ReviewItemName ?? string.Empty).Length - (x.ReviewItemName ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
                     ContentCnt = (double)((x.Content ?? string.Empty).Length - (x.Content ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
-                    TitleHit = EF.Functions.ILike(x.Title ?? string.Empty, likeAny),
-                    StartsHit = EF.Functions.ILike(x.Title ?? string.Empty, likeStart),
+                    TitleHit = EF.Functions.ILike(x.Title ?? string.Empty, likeAny, LikeEscapeCharacter),
+                    StartsHit = EF.Functions.ILike(x.Title ?? string.Empty, likeStart, LikeEscapeCharacter),
                     Recency = x.PublishDateTimeUtc > x.CreateDate ? x.PublishDateTimeUtc : x.CreateDate
                 })
                 .Select(r => new
@@ -654,10 +678,14 @@ namespace WebPagePub.Data.Repositories.Implementations
 
         public IList<SitePage> GetIgnoredPages()
         {
+            // Same "already published" rule as the public pages: robots.txt is public, so listing a
+            // scheduled page there would reveal its address before it goes out.
+            var now = DateTime.UtcNow;
+
             try
             {
                 return this.Context.SitePage.AsNoTracking()
-                    .Where(x => x.ExcludePageFromSiteMapXml == true && x.IsLive == true)
+                    .Where(x => x.ExcludePageFromSiteMapXml == true && x.IsLive == true && x.PublishDateTimeUtc < now)
                     .ToList();
             }
             catch (Exception ex)
@@ -688,18 +716,18 @@ namespace WebPagePub.Data.Repositories.Implementations
                     .ToList();
             }
 
-            var like = $"%{term}%";
+            var like = $"%{EscapeLikeTerm(term)}%";
             var termLen = term.Length;
 
             var baseQ = this.Context.SitePage.AsNoTracking()
                 .Where(x => x.IsLive && (
-                       EF.Functions.ILike(x.Title ?? string.Empty, like)
-                    || EF.Functions.ILike(x.Content ?? string.Empty, like)
-                    || EF.Functions.ILike(x.PageHeader ?? string.Empty, like)
-                    || EF.Functions.ILike(x.MetaDescription ?? string.Empty, like)
-                    || EF.Functions.ILike(x.BreadcrumbName ?? string.Empty, like)
-                    || EF.Functions.ILike(x.Key ?? string.Empty, like)
-                    || EF.Functions.ILike(x.ReviewItemName ?? string.Empty, like)));
+                       EF.Functions.ILike(x.Title ?? string.Empty, like, LikeEscapeCharacter)
+                    || EF.Functions.ILike(x.Content ?? string.Empty, like, LikeEscapeCharacter)
+                    || EF.Functions.ILike(x.PageHeader ?? string.Empty, like, LikeEscapeCharacter)
+                    || EF.Functions.ILike(x.MetaDescription ?? string.Empty, like, LikeEscapeCharacter)
+                    || EF.Functions.ILike(x.BreadcrumbName ?? string.Empty, like, LikeEscapeCharacter)
+                    || EF.Functions.ILike(x.Key ?? string.Empty, like, LikeEscapeCharacter)
+                    || EF.Functions.ILike(x.ReviewItemName ?? string.Empty, like, LikeEscapeCharacter)));
 
             total = baseQ.Count();
             if (total == 0)
@@ -711,7 +739,7 @@ namespace WebPagePub.Data.Repositories.Implementations
                 .Select(x => new
                 {
                     x.SitePageId,
-                    TitleHit = EF.Functions.ILike(x.Title ?? string.Empty, like),
+                    TitleHit = EF.Functions.ILike(x.Title ?? string.Empty, like, LikeEscapeCharacter),
                     TitleCnt = ((x.Title ?? string.Empty).Length - (x.Title ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
                     HeaderCnt = ((x.PageHeader ?? string.Empty).Length - (x.PageHeader ?? string.Empty).Replace(term, string.Empty).Length) / termLen,
                     CrumbCnt = ((x.BreadcrumbName ?? string.Empty).Length - (x.BreadcrumbName ?? string.Empty).Replace(term, string.Empty).Length) / termLen,

@@ -38,17 +38,37 @@ namespace WebPagePub.Web.Controllers
 
         [Route("sitefilesmanagement/uploadasync")]
         [HttpPost]
+        [RequestSizeLimit(WebPagePub.WebApp.Helpers.UploadLimits.MaxBytes)]
+        [RequestFormLimits(MultipartBodyLengthLimit = WebPagePub.WebApp.Helpers.UploadLimits.MaxBytes)]
         public async Task<ActionResult> UploadAsync(IEnumerable<IFormFile> files, string? folderPath = null)
         {
             try
             {
+                var refused = new List<string>();
+
                 foreach (var file in files)
                 {
                     if (file != null && file.Length > 0)
                     {
                         using var stream = file.OpenReadStream();
-                        await this.siteFilesRepository.UploadAsync(stream, file.FileName, folderPath);
+                        try
+                        {
+                            await this.siteFilesRepository.UploadAsync(stream, file.FileName, folderPath);
+                        }
+                        catch (ArgumentException)
+                        {
+                            // The storage rules refused this name or type; tell the admin instead of failing silently.
+                            refused.Add(file.FileName);
+                        }
                     }
+                }
+
+                if (refused.Count > 0)
+                {
+                    this.TempData["FileNotice"] = string.Format(
+                        "Not uploaded (file type not allowed or bad name): {0}. Allowed types: {1}.",
+                        string.Join(", ", refused),
+                        string.Join(", ", WebPagePub.FileStorage.Helpers.StorageFileRules.AllowedFileExtensions));
                 }
 
                 return this.RedirectToSiteMagementIndex();
@@ -147,7 +167,7 @@ namespace WebPagePub.Web.Controllers
         }
 
         [Route("sitefilesmanagement/DeleteFileAsync")]
-        [HttpGet]
+        [HttpPost] // changes data: POST only, so the anti-forgery check applies
         public async Task<ActionResult> DeleteFileAsync(string fileUrl)
         {
             await this.siteFilesRepository.DeleteFileAsync(fileUrl);
@@ -156,7 +176,7 @@ namespace WebPagePub.Web.Controllers
         }
 
         [Route("sitefilesmanagement/DeleteFolderAsync")]
-        [HttpGet]
+        [HttpPost] // changes data: POST only, so the anti-forgery check applies
         public async Task<ActionResult> DeleteFolderAsync(string folderUrl)
         {
             await this.siteFilesRepository.DeleteFolderAsync(folderUrl);

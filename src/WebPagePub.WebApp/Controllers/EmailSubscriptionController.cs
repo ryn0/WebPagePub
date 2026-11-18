@@ -87,9 +87,11 @@ namespace WebPagePub.Web.Controllers
                 emailDbModel.IsSubscribed = false;
 
                 this.emailSubscriptionRepository.Update(emailDbModel);
-
-                this.ViewBag.Success = true;
             }
+
+            // Same answer whether or not the address was on the list; a different answer told
+            // anyone who typed an address whether that person is subscribed.
+            this.ViewBag.Success = true;
 
             return this.View();
         }

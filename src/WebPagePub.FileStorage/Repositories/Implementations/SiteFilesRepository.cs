@@ -4,6 +4,7 @@ using Azure.Storage.Blobs.Models;
 using WebPagePub.Core.Utilities;
 using WebPagePub.FileStorage.BaseClasses;
 using WebPagePub.FileStorage.Constants;
+using WebPagePub.FileStorage.Helpers;
 using WebPagePub.FileStorage.Models;
 using WebPagePub.FileStorage.Repositories.Interfaces;
 
@@ -30,7 +31,8 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
         {
             var directory = new SiteFileDirectory();
 
-            if (this.blobService == null)
+            // A folder path from the address bar must not list anything outside the site's folder.
+            if (this.blobService == null || !StorageFileRules.IsSafeFolderPath(prefix))
             {
                 return directory;
             }
@@ -87,6 +89,7 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
 
                 var filePrefix = this.BlobPrefix.TrimEnd('/') + "/" + container.Name.TrimEnd('/') + "/";
                 var fileName = blobPath.StartsWith(filePrefix) ? blobPath[filePrefix.Length..] : blobPath;
+                StorageFileRules.EnsureSafeExistingPath(fileName);
                 var blob = container.GetBlobClient(fileName);
 
                 await blob.DeleteIfExistsAsync();
@@ -94,6 +97,11 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
             catch (RequestFailedException ex) when (ex.Status == 404)
             {
                 // Blob not found, no action needed
+            }
+            catch (ArgumentException)
+            {
+                // A refused name or folder keeps its own type so callers can tell the admin why.
+                throw;
             }
             catch (Exception ex)
             {
@@ -126,6 +134,11 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
                 {
                     throw new Exception($"File name cannot be {StringConstants.FolderFileName}");
                 }
+
+                // Same type and folder rules as the Bunny store (one shared helper).
+                fileName = Path.GetFileName(fileName);
+                StorageFileRules.EnsureAllowedFileName(fileName);
+                StorageFileRules.EnsureSafeFolderPath(directory);
 
                 var filePath = fileName;
 
@@ -168,6 +181,11 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
 
                 return blob.Uri;
             }
+            catch (ArgumentException)
+            {
+                // A refused name or folder keeps its own type so callers can tell the admin why.
+                throw;
+            }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message, ex);
@@ -184,6 +202,8 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
                 }
 
                 folderPath = folderPath.Replace("/", string.Empty);
+                StorageFileRules.EnsureSafeFolderPath(folderPath);
+                StorageFileRules.EnsureSafeFolderPath(directory);
 
                 var container = this.blobService.GetContainerReference(StringConstants.ContainerName);
                 var path = $"{folderPath}/{StringConstants.FolderFileName}";
@@ -217,6 +237,11 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
 
                 await blockBlob.UploadAsync(memoryStream, overwrite: true);
             }
+            catch (ArgumentException)
+            {
+                // A refused name or folder keeps its own type so callers can tell the admin why.
+                throw;
+            }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message, ex);
@@ -229,6 +254,11 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
             {
                 return;
             }
+
+            // A rename is an upload under a new name, so it follows the same type rules
+            // (otherwise "photo.jpg" could be renamed to "photo.html").
+            StorageFileRules.EnsureSafeExistingPath(currentFileName);
+            StorageFileRules.EnsureAllowedObjectPath(newFileName);
 
             var container = this.blobService.GetContainerReference(StringConstants.ContainerName);
 
@@ -253,6 +283,8 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
 
         private async Task<List<BlobItem>> GetDirContentsAsync(string? prefix = null)
         {
+            StorageFileRules.EnsureSafeFolderPath(prefix);
+
             var container = this.blobService.GetContainerReference(StringConstants.ContainerName);
 
             if (prefix != null && prefix.StartsWith("/"))

@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using WebPagePub.Core.Utilities;
 using WebPagePub.FileStorage.Constants;
+using WebPagePub.FileStorage.Helpers;
 using WebPagePub.FileStorage.Models;
 using WebPagePub.FileStorage.Repositories.Interfaces;
 
@@ -18,12 +19,6 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
     /// </summary>
     public sealed class BunnySiteFilesRepository : ISiteFilesRepository
     {
-        // Pages and server scripts are never accepted as site files (they would be served from the CDN).
-        private static readonly HashSet<string> BlockedUploadExtensions = new (StringComparer.OrdinalIgnoreCase)
-        {
-            ".html", ".htm", ".xhtml", ".shtml", ".xml", ".php", ".asp", ".aspx", ".jsp", ".cgi", ".pl", ".py", ".sh", ".exe", ".dll", ".bat", ".cmd", ".env", ".config", ".json",
-        };
-
         private const string Container = StringConstants.ContainerName; // "sitecontent"
 
         private readonly HttpClient http;
@@ -65,11 +60,10 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
             }
 
             fileName = Path.GetFileName(fileName);
-            var extension = Path.GetExtension(fileName).ToLowerInvariant();
-            if (BlockedUploadExtensions.Contains(extension))
-            {
-                throw new Exception($"Files of type {extension} cannot be uploaded.");
-            }
+
+            // Allowed types and safe folders are decided in one place for both storage back ends.
+            StorageFileRules.EnsureAllowedFileName(fileName);
+            StorageFileRules.EnsureSafeFolderPath(directory);
 
             var filePath = fileName;
             if (!string.IsNullOrWhiteSpace(directory))
@@ -112,6 +106,8 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
                 return;
             }
 
+            StorageFileRules.EnsureSafeExistingPath(relative);
+
             var resp = await this.http.DeleteAsync(this.ObjectUrl(relative));
             if (!resp.IsSuccessStatusCode && resp.StatusCode != HttpStatusCode.NotFound)
             {
@@ -122,6 +118,13 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
         public async Task<SiteFileDirectory> ListFilesAsync(string? prefix = null)
         {
             var directory = new SiteFileDirectory();
+
+            // A folder path from the address bar must not list anything outside the site's folder.
+            if (!StorageFileRules.IsSafeFolderPath(prefix))
+            {
+                return directory;
+            }
+
             var rel = NormalizePrefix(prefix);
 
             foreach (var item in await this.ListAsync(rel))
@@ -158,6 +161,8 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
                 return;
             }
 
+            StorageFileRules.EnsureSafeExistingPath(rel);
+
             // Bunny deletes a directory (path ending with '/') recursively.
             var resp = await this.http.DeleteAsync(this.ObjectUrl(rel));
             if (!resp.IsSuccessStatusCode && resp.StatusCode != HttpStatusCode.NotFound)
@@ -174,6 +179,8 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
             }
 
             folderPath = folderPath.Replace("/", string.Empty);
+            StorageFileRules.EnsureSafeFolderPath(folderPath);
+            StorageFileRules.EnsureSafeFolderPath(directory);
             var path = $"{folderPath}/{StringConstants.FolderFileName}";
             if (!string.IsNullOrWhiteSpace(directory))
             {
@@ -202,6 +209,11 @@ namespace WebPagePub.FileStorage.Repositories.Implementations
 
             var from = this.ToContainerRelative(currentFileName);
             var to = this.ToContainerRelative(newFileName);
+
+            // A rename is an upload under a new name, so it follows the same type rules
+            // (otherwise "photo.jpg" could be renamed to "photo.html").
+            StorageFileRules.EnsureSafeExistingPath(from);
+            StorageFileRules.EnsureAllowedObjectPath(to);
 
             var get = await this.http.GetAsync(this.ObjectUrl(from));
             if (!get.IsSuccessStatusCode)

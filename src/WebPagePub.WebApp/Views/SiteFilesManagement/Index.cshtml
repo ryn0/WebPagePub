@@ -11,6 +11,11 @@
 
         <h2>Path: @Model.CurrentDirectory</h2>
 
+        @if (TempData["FileNotice"] != null)
+        {
+            <p><b>@TempData["FileNotice"]</b></p>
+        }
+
             <div class="table-responsive">
 
                 @using (Html.BeginForm("CreateFolderAsync", "SiteFilesManagement", FormMethod.Post,
@@ -83,7 +88,7 @@
                             <td>
                                 @if (file.IsFolder)
                                 {
-                                  using (Html.BeginForm("DeleteFolderAsync", "SiteFilesManagement", FormMethod.Get,
+                                  using (Html.BeginForm("DeleteFolderAsync", "SiteFilesManagement", FormMethod.Post,
                             new { role = "form", onsubmit = string.Format(@"return confirm('Do you really want to delete this and all its content?');") }))
                                     {
                                         <button type="submit"
@@ -96,7 +101,7 @@
                                 }
                                 else
                                 {
-                                using (Html.BeginForm("DeleteFileAsync", "SiteFilesManagement", FormMethod.Get,
+                                using (Html.BeginForm("DeleteFileAsync", "SiteFilesManagement", FormMethod.Post,
                                         new { role = "form", onsubmit = string.Format(@"return confirm('Do you really want to delete this?');") }))
                                 {
                                     <button type="submit" 

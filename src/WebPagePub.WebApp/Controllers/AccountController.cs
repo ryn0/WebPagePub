@@ -10,6 +10,8 @@ namespace WebPagePub.Web.Controllers
 {
     public class AccountController : Controller
     {
+        private static string? dummyPasswordHash;
+
         private readonly ApplicationDbContext context;
         private readonly UserManager<ApplicationUser> userManager;
         private readonly SignInManager<ApplicationUser> signInManager;
@@ -32,7 +34,7 @@ namespace WebPagePub.Web.Controllers
         [AllowAnonymous]
         public IActionResult Login()
         {
-            if (!this.context.Users.Any())
+            if (this.FirstRunSetupIsOpen())
             {
                 return this.RedirectToAction(nameof(this.CreateAccount));
             }
@@ -46,7 +48,7 @@ namespace WebPagePub.Web.Controllers
         {
             // First-run setup only: once any account exists this page is gone. Before
             // 2026-11-16 it stayed open, so anyone could create an administrator.
-            if (this.context.Users.Any())
+            if (!this.FirstRunSetupIsOpen())
             {
                 return this.NotFound();
             }
@@ -59,7 +61,7 @@ namespace WebPagePub.Web.Controllers
         public async Task<IActionResult> CreateAccount(RegistrationModel model)
         {
             // First-run setup only (see the GET action above).
-            if (this.context.Users.Any())
+            if (!this.FirstRunSetupIsOpen())
             {
                 return this.NotFound();
             }
@@ -201,7 +203,10 @@ namespace WebPagePub.Web.Controllers
             return this.RedirectToAction(nameof(this.ChangePassword));
         }
 
-        public async Task AddUserToRole(ApplicationUser user, string role)
+        // Private on purpose: a public method on a controller is a web address anyone can call.
+        // As a public method this one could be reached at /account/addusertorole without signing
+        // in, and wrote to the roles and users tables (security review 2026-11-18).
+        private async Task AddUserToRole(ApplicationUser user, string role)
         {
             var admin = await this.roleManager.FindByNameAsync(role);
 
@@ -217,6 +222,15 @@ namespace WebPagePub.Web.Controllers
             {
                 await this.userManager.AddToRoleAsync(user, roleName);
             }
+        }
+
+        // Setup is open only on a brand-new site: no accounts AND no Administrator role. The role is
+        // created during setup and never removed, so deleting the last account can't reopen this page
+        // for a stranger to claim the site.
+        private bool FirstRunSetupIsOpen()
+        {
+            return !this.context.Users.Any()
+                && !this.context.Roles.Any(r => r.Name == StringConstants.AdminRole);
         }
 
         private bool EmailIsConfirmed(string email, out ApplicationUser applicationUser)
@@ -239,13 +253,40 @@ namespace WebPagePub.Web.Controllers
 
         private bool IsValidPassword(LoginViewModel model)
         {
+            var user = Task.Run(() => this.userManager.FindByNameAsync(model.Email)).Result;
+
+            if (user == null)
+            {
+                // Unknown address: still check the password against a throwaway hash, so the answer
+                // takes as long as for a real account and timing doesn't reveal which addresses exist.
+                this.userManager.PasswordHasher.VerifyHashedPassword(
+                    new ApplicationUser(),
+                    this.GetDummyPasswordHash(),
+                    model.Password ?? string.Empty);
+                return false;
+            }
+
             var result = Task.Run(() => this.signInManager.PasswordSignInAsync(
-                    model.Email,
-                    model.Password,
+                    user,
+                    model.Password ?? string.Empty,
                     model.RememberMe,
                     lockoutOnFailure: true)).Result;
 
             return result.Succeeded && !result.IsLockedOut;
+        }
+
+        // Made once per process with the site's own hasher settings, so checking it costs the same
+        // as checking a real account's password.
+        private string GetDummyPasswordHash()
+        {
+            if (dummyPasswordHash == null)
+            {
+                dummyPasswordHash = this.userManager.PasswordHasher.HashPassword(
+                    new ApplicationUser(),
+                    Guid.NewGuid().ToString("N"));
+            }
+
+            return dummyPasswordHash;
         }
     }
 }

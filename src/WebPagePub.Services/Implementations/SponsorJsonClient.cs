@@ -62,7 +62,7 @@ namespace WebPagePub.Services.Implementations
                     json,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-                result = items ?? new List<SponsorCardItem>();
+                result = MapFeedItems(items);
             }
             catch
             {
@@ -72,6 +72,51 @@ namespace WebPagePub.Services.Implementations
 
             this.CacheResult(result);
             return result;
+        }
+
+        /// <summary>
+        /// Cleans the items read from the sponsor feed before any page shows them. The feed comes from
+        /// another server, so a link is kept only when it is an absolute http or https address; anything
+        /// else ("javascript:", "data:", relative paths, junk) is dropped and the card shows no link.
+        /// </summary>
+        public static IReadOnlyList<SponsorCardItem> MapFeedItems(IEnumerable<SponsorCardItem> items)
+        {
+            if (items == null)
+            {
+                return Array.Empty<SponsorCardItem>();
+            }
+
+            var result = new List<SponsorCardItem>();
+            foreach (var item in items)
+            {
+                if (item == null)
+                {
+                    continue;
+                }
+
+                item.Link = SafeHttpUrlOrEmpty(item.Link);
+                item.ReviewLink = SafeHttpUrlOrEmpty(item.ReviewLink);
+                result.Add(item);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Returns the address when it is an absolute http or https URL with a host, otherwise empty.
+        /// </summary>
+        public static string SafeHttpUrlOrEmpty(string value)
+        {
+            var trimmed = (value ?? string.Empty).Trim();
+            if (trimmed.Length == 0
+                || !Uri.TryCreate(trimmed, UriKind.Absolute, out var uri)
+                || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+                || string.IsNullOrEmpty(uri.Host))
+            {
+                return string.Empty;
+            }
+
+            return trimmed;
         }
 
         public async Task<IReadOnlyList<SponsorCardItem>> GetMainSponsorsAsync(CancellationToken ct = default)

@@ -121,7 +121,7 @@ namespace WebPagePub.Web.Controllers
         }
 
         [Route("CommentManagement/deletespam")]
-        [HttpGet]
+        [HttpPost] // changes data: POST only, so the anti-forgery check applies
         public IActionResult DeleteSpam()
         {
             var dbModel = this.sitePageCommentRepository.DeleteStaus(CommentStatus.Spam);

@@ -5,7 +5,7 @@
 @if (Model != null)
 {
     <script type="application/ld+json">
-        @Html.Raw(JsonConvert.SerializeObject(Model))
+        @Html.Raw(WebPagePub.WebApp.Helpers.JsonLd.Serialize(Model)) @* escaped so page text cannot close the script tag *@
     </script>
 
     <br />

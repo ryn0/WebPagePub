@@ -22,6 +22,19 @@
                     <h1 class="main-page-header">Tagged &quot;@Model.TagKeyword&quot;</h1>
                 }
                 @{ await Html.RenderPartialAsync("_BreadcrumbList", Model.BreadcrumbList); }
+                @*
+                    Optional intro block above the list (for example "popular guides"). OFF by default: it only
+                    renders on a site whose service sets WEBPAGEPUB_LIST_INTRO=1 (per-site deploy config:
+                    LIST_INTRO=1) and only on the first, untagged page, so other WebPagePub sites are unchanged.
+                *@
+                @if (string.Equals(System.Environment.GetEnvironmentVariable("WEBPAGEPUB_LIST_INTRO"), "1", System.StringComparison.Ordinal)
+                     && string.IsNullOrWhiteSpace(Model.TagKeyword)
+                     && !Context.Request.Query.ContainsKey("page")
+                     && !(Context.Request.Path.Value ?? string.Empty).Contains("/page/")
+                     && !string.IsNullOrWhiteSpace(Model.PageContent?.Content))
+                {
+                    <div class="page-list-intro">@Html.Raw(Model.PageContent.Content)</div>
+                }
                 @{ await Html.RenderPartialAsync("_StructuredDataOrganization", Model.Organization); }
                 @{ await Html.RenderPartialAsync("_StructuredDataWebsite", Model.Website); }
 

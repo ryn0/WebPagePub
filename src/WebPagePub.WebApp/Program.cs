@@ -41,7 +41,10 @@ builder.Services.AddMemoryCache(opts =>
 builder.Services.AddRazorPages();
 builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
-var mvc = builder.Services.AddControllersWithViews();
+// Every POST must carry the site's anti-forgery token (all forms already emit one). Before this,
+// only four of the thirty-two POST actions checked it.
+var mvc = builder.Services.AddControllersWithViews(o =>
+    o.Filters.Add(new Microsoft.AspNetCore.Mvc.AutoValidateAntiforgeryTokenAttribute()));
 if (builder.Environment.IsDevelopment())
 {
     mvc.AddRazorRuntimeCompilation();
@@ -204,7 +207,7 @@ builder.Services.AddTransient<ISpamFilterService>(provider =>
 // -------------------------------------
 builder.Services.Configure<FormOptions>(o =>
 {
-    o.MultipartBodyLengthLimit = 64L * 1024 * 1024; // 64 MB
+    o.MultipartBodyLengthLimit = WebPagePub.WebApp.Helpers.UploadLimits.OrdinaryMaxBytes; // uploads raise this per action
     o.ValueCountLimit = 1024;
     o.ValueLengthLimit = 64 * 1024; // 64 KB per value
     o.MultipartHeadersLengthLimit = 16 * 1024;
@@ -212,13 +215,16 @@ builder.Services.Configure<FormOptions>(o =>
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.Limits.MaxRequestBodySize = 64L * 1024 * 1024; // 64 MB
+    options.Limits.MaxRequestBodySize = WebPagePub.WebApp.Helpers.UploadLimits.OrdinaryMaxBytes; // uploads raise this per action
 });
 
 // -------------------------------------
 // Memory watchdog (soft trim + hard cap)
 // -------------------------------------
 builder.Services.AddHostedService<MemoryPressureGuard>();
+
+// Sign-in attempts are limited per visitor address and for the whole site (see SignInRateLimit).
+builder.Services.AddRateLimiter(WebPagePub.WebApp.Helpers.SignInRateLimit.Configure);
 
 // Sign-in cookie: HTTPS only, never sent on requests other sites make in the background.
 builder.Services.ConfigureApplicationCookie(o =>
@@ -278,6 +284,10 @@ using (var scope = app.Services.CreateScope())
 
 app.UseStaticFiles();
 app.UseRouting();
+
+// After routing; the forwarded-headers step (switched on by ASPNETCORE_FORWARDEDHEADERS_ENABLED) runs
+// first of all, so the limiter sees the visitor's address, not nginx's.
+app.UseRateLimiter();
 
 app.UseSession();           // before auth/endpoints
 app.UseAuthentication();

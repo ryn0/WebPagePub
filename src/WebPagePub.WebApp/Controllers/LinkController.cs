@@ -58,20 +58,21 @@ namespace WebPagePub.Web.Controllers
             }
 
             var userAgent = request.Headers[StringConstants.UserAgent].ToString();
-            var headers = this.GetHeadersString(request);
 
             if (userAgent != null)
             {
-                var ipAddress = context.Connection?.RemoteIpAddress?.ToString();
                 var url = request.GetDisplayUrl();
                 var referrer = context.Request.Headers.Referer.ToString();
-                var isBot = StringConstants.BotUserAgents.Any(userAgent.Contains);
+                var isBot = StringConstants.BotUserAgents.Any(userAgent.Contains)
+                    || !CameFromOneOfOurPages(referrer, request.Host.Host);
 
+                // No visitor IP address and no request headers are stored: the click report only
+                // needs which link was clicked, from which page, and whether it looks automated.
                 await this.clickLogRepository.CreateAsync(new ClickLog()
                 {
-                    IpAddress = ipAddress,
+                    IpAddress = string.Empty,
                     Url = url,
-                    Headers = headers,
+                    Headers = string.Empty,
                     UserAgent = userAgent,
                     RefererUrl = referrer ?? string.Empty,
                     IsBot = isBot
@@ -79,16 +80,50 @@ namespace WebPagePub.Web.Controllers
             }
         }
 
+        /// <summary>
+        /// A reader's click arrives from one of this site's own pages. Scanners request the
+        /// redirect address directly, or from the search page with probe text, so a click with
+        /// no own-site page behind it is counted as automated.
+        /// </summary>
+        public static bool CameFromOneOfOurPages(string referrer, string ownHost)
+        {
+            if (string.IsNullOrWhiteSpace(referrer)
+                || !Uri.TryCreate(referrer, UriKind.Absolute, out var from)
+                || !string.Equals(from.Host, ownHost, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            var path = from.AbsolutePath;
+            return !path.StartsWith("/search", StringComparison.OrdinalIgnoreCase)
+                && !path.StartsWith("/go/", StringComparison.OrdinalIgnoreCase)
+                && referrer.IndexOfAny(new[] { '\'', '"', '(', ')' }) < 0;
+        }
+
+        private static readonly HashSet<string> SecretHeaders = new (StringComparer.OrdinalIgnoreCase)
+        {
+            "Cookie", "Set-Cookie", "Authorization", "Proxy-Authorization", "X-Bunny-Origin", "RequestVerificationToken",
+        };
+
         private string GetHeadersString(HttpRequest request)
         {
             var requestHeaders = new List<string>();
 
+            // Never store credentials: a signed-in admin who clicks an outgoing link sends the
+            // sign-in cookie with the request, and it used to be saved here in full.
             foreach (var header in request.Headers)
             {
-                requestHeaders.Add($"{header.Key}:{header.Value}");
+                if (SecretHeaders.Contains(header.Key))
+                {
+                    continue;
+                }
+
+                var value = header.Value.ToString();
+                requestHeaders.Add($"{header.Key}:{(value.Length > 500 ? value[..500] : value)}");
             }
 
-            return string.Join(Environment.NewLine, requestHeaders.ToArray());
+            var all = string.Join(Environment.NewLine, requestHeaders.ToArray());
+            return all.Length > 4000 ? all[..4000] : all;
         }
 
         private const long LinkEntryOverheadBytes = 128; // rough object overhead

@@ -63,7 +63,9 @@ namespace WebPagePub.Web.Controllers
             return await this.ReturnContentAsync(pathValue);
         }
 
-        public string BuildPath(string fileName)
+        // Private on purpose: a public method on a controller is a web address anyone can call
+        // (/favicon/buildpath answered with the CDN address built from any input).
+        private string BuildPath(string fileName)
         {
             var cdnPrefix = this.cacheService.GetSnippet(SiteConfigSetting.CdnPrefixWithProtocol);
             return $"{cdnPrefix}{FavIconPath}{fileName}";
